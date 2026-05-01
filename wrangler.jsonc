@@ -1,0 +1,49 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "showcase-website",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2025-09-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+
+  // Wrangler-level minification via esbuild. OpenNext split-function minify
+  // remains disabled in open-next.config.ts until it has fresh preview proof.
+  // Bundle size assumes the Cloudflare Workers paid plan.
+  "minify": true,
+  // Drop __name() annotations from minified output for additional gzip savings.
+  "keep_names": false,
+  // Keep cold starts close to the visitor when Cloudflare can infer placement.
+  "placement": { "mode": "smart" },
+  // OpenNext's generated default handler still contains a dead @vercel/og import
+  // path. Alias it to an empty module so Wrangler does not pull the edge runtime
+  // and wasm assets back in.
+  "alias": {
+    "next/dist/compiled/@vercel/og/index.edge.js": "./scripts/cloudflare/stubs/vercel-og-empty.mjs",
+  },
+
+  // Static assets (OpenNext output)
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS",
+  },
+
+  // No cron triggers in current phase.
+
+  "env": {
+    "preview": {
+      "vars": {
+        "APP_ENV": "preview",
+        "DEPLOYMENT_PLATFORM": "cloudflare",
+        "NEXT_PUBLIC_BASE_URL": "https://preview.example.com",
+        "NEXT_PUBLIC_DEPLOYMENT_PLATFORM": "cloudflare",
+      },
+    },
+    "production": {
+      "vars": {
+        "APP_ENV": "production",
+        "DEPLOYMENT_PLATFORM": "cloudflare",
+        "NEXT_PUBLIC_BASE_URL": "https://example.com",
+        "NEXT_PUBLIC_DEPLOYMENT_PLATFORM": "cloudflare",
+      },
+    },
+  },
+}

@@ -1,0 +1,106 @@
+rules:
+  - id: object-injection-untrusted-key-write
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern: |
+                  $OBJ[$BODY.$FIELD] = $VALUE
+              - metavariable-regex:
+                  metavariable: $BODY
+                  regex: "^(body|payload|requestBody|requestJson|json)$"
+          - pattern: |
+              $OBJ[$REQ.nextUrl.searchParams.get(...)] = $VALUE
+          - pattern: |
+              $OBJ[$REQ.nextUrl.searchParams.get(...) ?? $FALLBACK] = $VALUE
+          - patterns:
+              - pattern-inside: |
+                  const $BODY = await $REQ.json()
+                  ...
+              - pattern: |
+                  $OBJ[$BODY.$FIELD] = $VALUE
+          - patterns:
+              - pattern-inside: |
+                  const $KEY = $REQ.nextUrl.searchParams.get(...)
+                  ...
+              - pattern: |
+                  $OBJ[$KEY] = $VALUE
+          - patterns:
+              - pattern-inside: |
+                  const $KEY = $URL.searchParams.get(...)
+                  ...
+              - pattern: |
+                  $OBJ[$KEY] = $VALUE
+      - pattern-not-inside: |
+          if ($ALLOWED.includes($KEY)) {
+            ...
+          }
+      - pattern-not-inside: |
+          if ($KEY !== null && $ALLOWED.includes($KEY)) {
+            ...
+          }
+      - pattern-not-inside: |
+          if ($KEY && $ALLOWED.includes($KEY)) {
+            ...
+          }
+      - pattern-not-inside: |
+          if ($ALLOWED.has($KEY)) {
+            ...
+          }
+      - pattern-not-inside: |
+          if ($KEY !== null && $ALLOWED.has($KEY)) {
+            ...
+          }
+      - pattern-not-inside: |
+          if ($ALLOWED.indexOf($KEY) !== -1) {
+            ...
+          }
+      - pattern-not-inside: |
+          if ($ALLOWED.indexOf($KEY) >= 0) {
+            ...
+          }
+      - pattern-not-inside: |
+          if (!$ALLOWED.includes($KEY)) {
+            return ...
+          }
+          ...
+      - pattern-not-inside: |
+          if ($KEY === null || !$ALLOWED.includes($KEY)) {
+            return ...
+          }
+          ...
+      - pattern-not-inside: |
+          if (!$ALLOWED.has($KEY)) {
+            return ...
+          }
+          ...
+      - pattern-not-inside: |
+          if ($KEY === null || !$ALLOWED.has($KEY)) {
+            return ...
+          }
+          ...
+      - pattern-not-inside: |
+          if ($ALLOWED.includes($BODY.$FIELD)) {
+            ...
+          }
+      - pattern-not-inside: |
+          if ($ALLOWED.has($BODY.$FIELD)) {
+            ...
+          }
+    paths:
+      include:
+        - "src/**/*.ts"
+        - "src/**/*.tsx"
+        - "tests/semgrep/targets/**/*.ts"
+        - "tests/semgrep/targets/**/*.tsx"
+      exclude:
+        - "**/__tests__/**"
+        - "**/*.test.*"
+        - "**/*.spec.*"
+    message: "Untrusted request/query/body field is used as an object write key; validate against an explicit key allowlist first."
+    languages: [typescript, javascript]
+    severity: ERROR
+    metadata:
+      category: security
+      technology: [nodejs, nextjs]
+      cwe: "CWE-915: Improperly Controlled Modification of Dynamically-Determined Object Attributes"
+      owasp: "A03:2021 - Injection"

@@ -1,0 +1,25 @@
+rules:
+  - id: raw-proxy-header-read-outside-trusted-entry
+    message: >-
+      不要在业务代码直接信任原始代理头；Cloudflare/header-only 上下文请走
+      getClientIP()/getClientIPFromHeaders() 或 x-internal-client-ip。
+    languages: [typescript, javascript]
+    severity: WARNING
+    pattern-either:
+      - pattern: headers().get("cf-connecting-ip")
+      - pattern: headers().get("x-forwarded-for")
+      - pattern: $REQ.headers.get("cf-connecting-ip")
+      - pattern: $REQ.headers.get("x-forwarded-for")
+      - pattern: $HEADERS.get("cf-connecting-ip")
+      - pattern: $HEADERS.get("x-forwarded-for")
+    paths:
+      exclude:
+        - "**/__tests__/**"
+        - "**/*.test.*"
+        - "**/*.spec.*"
+        - "src/middleware.ts"
+        - "src/lib/security/client-ip.ts"
+    metadata:
+      category: security
+      technology: [nextjs, cloudflare]
+

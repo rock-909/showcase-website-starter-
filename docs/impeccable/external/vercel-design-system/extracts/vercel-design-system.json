@@ -1,0 +1,306 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "name": "Vercel Geist Design System",
+  "description": "Extracted from vercel.com on 2026-01-30",
+  "source": "https://vercel.com",
+
+  "color": {
+    "primitive": {
+      "gray": {
+        "50": { "value": "#fafafa", "type": "color" },
+        "100": { "value": "#f2f2f2", "type": "color", "comment": "--ds-gray-100: hsla(0,0%,95%,1)" },
+        "200": { "value": "#ebebeb", "type": "color", "comment": "--ds-gray-200: hsla(0,0%,92%,1)" },
+        "300": { "value": "#e6e6e6", "type": "color", "comment": "--ds-gray-300: hsla(0,0%,90%,1)" },
+        "400": { "value": "#ebebeb", "type": "color", "comment": "--ds-gray-400: hsla(0,0%,92%,1)" },
+        "500": { "value": "#c9c9c9", "type": "color", "comment": "--ds-gray-500: hsla(0,0%,79%,1)" },
+        "600": { "value": "#a8a8a8", "type": "color", "comment": "--ds-gray-600: hsla(0,0%,66%,1)" },
+        "700": { "value": "#8f8f8f", "type": "color", "comment": "--ds-gray-700: hsla(0,0%,56%,1)" },
+        "800": { "value": "#7d7d7d", "type": "color", "comment": "--ds-gray-800: hsla(0,0%,49%,1)" },
+        "900": { "value": "#666666", "type": "color", "comment": "--ds-gray-900: hsla(0,0%,40%,1)" },
+        "1000": { "value": "#171717", "type": "color", "comment": "--ds-gray-1000: hsla(0,0%,9%,1)" }
+      },
+      "blue": {
+        "100": { "value": "#f7faff", "type": "color", "comment": "--ds-blue-100" },
+        "200": { "value": "#f0f7ff", "type": "color", "comment": "--ds-blue-200" },
+        "300": { "value": "#e0f0ff", "type": "color", "comment": "--ds-blue-300" },
+        "400": { "value": "#cce5ff", "type": "color", "comment": "--ds-blue-400" },
+        "500": { "value": "#99ccff", "type": "color", "comment": "--ds-blue-500" },
+        "600": { "value": "#52a8ff", "type": "color", "comment": "--ds-blue-600" },
+        "700": { "value": "#0070f3", "type": "color", "comment": "--ds-blue-700: hsla(212,100%,48%,1) - Primary brand" },
+        "800": { "value": "#0068d6", "type": "color", "comment": "--ds-blue-800" },
+        "900": { "value": "#0055ab", "type": "color", "comment": "--ds-blue-900" },
+        "1000": { "value": "#00254d", "type": "color", "comment": "--ds-blue-1000" }
+      },
+      "red": {
+        "500": { "value": "#ffb3b3", "type": "color" },
+        "600": { "value": "#ff6b6b", "type": "color" },
+        "700": { "value": "#f03e3e", "type": "color" },
+        "800": { "value": "#d62828", "type": "color" },
+        "900": { "value": "#c41e1e", "type": "color" },
+        "1000": { "value": "#3d1515", "type": "color" }
+      },
+      "green": {
+        "600": { "value": "#6cd66c", "type": "color" },
+        "700": { "value": "#4db94d", "type": "color" },
+        "800": { "value": "#3d9c3d", "type": "color" },
+        "1000": { "value": "#1a3d1a", "type": "color" }
+      },
+      "amber": {
+        "500": { "value": "#ffd666", "type": "color" },
+        "600": { "value": "#dba139", "type": "color" },
+        "700": { "value": "#f5a623", "type": "color", "comment": "--geist-warning" },
+        "1000": { "value": "#3d2a14", "type": "color" }
+      },
+      "violet": {
+        "base": { "value": "#7928ca", "type": "color", "comment": "--geist-violet" }
+      },
+      "cyan": {
+        "base": { "value": "#50e3c2", "type": "color", "comment": "--geist-cyan" }
+      }
+    },
+    "semantic": {
+      "background": {
+        "primary": { "value": "{color.primitive.white}", "type": "color", "comment": "--ds-background-100" },
+        "secondary": { "value": "#fafafa", "type": "color", "comment": "--ds-background-200" }
+      },
+      "foreground": {
+        "primary": { "value": "#000000", "type": "color", "comment": "--geist-foreground" },
+        "secondary": { "value": "#666666", "type": "color", "comment": "--geist-secondary" }
+      },
+      "brand": {
+        "primary": { "value": "#0070f3", "type": "color", "comment": "--ds-blue-700 / --geist-success" }
+      },
+      "feedback": {
+        "success": { "value": "#0070f3", "type": "color", "comment": "--geist-success" },
+        "error": { "value": "#ee0000", "type": "color", "comment": "--geist-error" },
+        "warning": { "value": "#f5a623", "type": "color", "comment": "--geist-warning" }
+      },
+      "focus": {
+        "ring": { "value": "0 0 0 2px #fff, 0 0 0 4px #0070f3", "type": "shadow", "comment": "--ds-focus-ring" },
+        "color": { "value": "#0070f3", "type": "color", "comment": "--ds-focus-color" }
+      }
+    },
+    "dark": {
+      "background": {
+        "primary": { "value": "#000000", "type": "color", "comment": "--geist-background in dark mode" },
+        "secondary": { "value": "#000000", "type": "color", "comment": "--ds-background-200 dark" }
+      },
+      "foreground": {
+        "primary": { "value": "#ffffff", "type": "color", "comment": "--geist-foreground dark" },
+        "secondary": { "value": "#888888", "type": "color", "comment": "--geist-secondary dark" }
+      }
+    }
+  },
+
+  "typography": {
+    "fontFamily": {
+      "sans": {
+        "value": "\"Geist\", Arial, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol",
+        "type": "fontFamily",
+        "comment": "--font-sans"
+      },
+      "sans-fallback": {
+        "value": "\"Inter\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", \"Roboto\", \"Oxygen\", \"Ubuntu\", \"Cantarell\", \"Fira Sans\", \"Droid Sans\", \"Helvetica Neue\", sans-serif",
+        "type": "fontFamily",
+        "comment": "--font-sans-fallback"
+      },
+      "mono": {
+        "value": "\"Geist Mono\", ui-monospace, SFMono-Regular, Roboto Mono, Menlo, Monaco, Liberation Mono, DejaVu Sans Mono, Courier New, monospace",
+        "type": "fontFamily",
+        "comment": "--font-mono"
+      },
+      "display": {
+        "value": "Space Grotesk, \"Geist\", Arial, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol",
+        "type": "fontFamily",
+        "comment": "--font-space-grotesk"
+      }
+    },
+    "fontSize": {
+      "xs": { "value": "12px", "type": "dimension" },
+      "sm": { "value": "14px", "type": "dimension", "comment": "Navigation, buttons" },
+      "base": { "value": "16px", "type": "dimension", "comment": "Body text" },
+      "lg": { "value": "20px", "type": "dimension", "comment": "Body large" },
+      "xl": { "value": "24px", "type": "dimension" },
+      "2xl": { "value": "32px", "type": "dimension" },
+      "3xl": { "value": "48px", "type": "dimension", "comment": "H1 hero" }
+    },
+    "fontWeight": {
+      "regular": { "value": "400", "type": "fontWeight" },
+      "medium": { "value": "500", "type": "fontWeight" },
+      "semibold": { "value": "600", "type": "fontWeight", "comment": "H1" }
+    },
+    "lineHeight": {
+      "tight": { "value": "1", "type": "number", "comment": "48px/48px for H1" },
+      "snug": { "value": "1.25", "type": "number" },
+      "normal": { "value": "1.5", "type": "number", "comment": "Body text" },
+      "relaxed": { "value": "1.8", "type": "number", "comment": "20px font / 36px line" }
+    },
+    "letterSpacing": {
+      "tighter": { "value": "-2.4px", "type": "dimension", "comment": "H1 hero (-0.05em at 48px)" },
+      "tight": { "value": "-0.025em", "type": "dimension" },
+      "normal": { "value": "0", "type": "dimension" }
+    }
+  },
+
+  "spacing": {
+    "description": "4px base unit (--geist-space: 4px)",
+    "0": { "value": "0", "type": "dimension" },
+    "1": { "value": "4px", "type": "dimension", "comment": "--geist-space" },
+    "2": { "value": "8px", "type": "dimension", "comment": "--geist-space-2x" },
+    "3": { "value": "12px", "type": "dimension", "comment": "--geist-space-3x" },
+    "4": { "value": "16px", "type": "dimension", "comment": "--geist-space-4x" },
+    "6": { "value": "24px", "type": "dimension", "comment": "--geist-space-6x / --geist-gap" },
+    "8": { "value": "32px", "type": "dimension", "comment": "--geist-space-8x / --geist-space-small" },
+    "10": { "value": "40px", "type": "dimension", "comment": "--geist-space-10x / --geist-space-medium" },
+    "12": { "value": "48px", "type": "dimension", "comment": "--geist-space-large / --geist-gap-double" },
+    "16": { "value": "64px", "type": "dimension", "comment": "--geist-space-16x" },
+    "24": { "value": "96px", "type": "dimension", "comment": "--geist-space-24x" },
+    "32": { "value": "128px", "type": "dimension", "comment": "--geist-space-32x" },
+    "48": { "value": "192px", "type": "dimension", "comment": "--geist-space-48x" },
+    "64": { "value": "256px", "type": "dimension", "comment": "--geist-space-64x" },
+    "semantic": {
+      "gap": { "value": "24px", "type": "dimension", "comment": "--geist-gap" },
+      "gap-half": { "value": "12px", "type": "dimension", "comment": "--geist-gap-half" },
+      "gap-quarter": { "value": "8px", "type": "dimension", "comment": "--geist-gap-quarter" },
+      "page-margin": { "value": "24px", "type": "dimension", "comment": "--geist-page-margin" }
+    }
+  },
+
+  "sizing": {
+    "page": {
+      "width": { "value": "1200px", "type": "dimension", "comment": "--geist-page-width" },
+      "width-ds": { "value": "1400px", "type": "dimension", "comment": "--ds-page-width" }
+    },
+    "header": {
+      "height": { "value": "64px", "type": "dimension", "comment": "--header-height" }
+    },
+    "form": {
+      "height-sm": { "value": "32px", "type": "dimension", "comment": "--geist-form-small-height" },
+      "height-md": { "value": "40px", "type": "dimension", "comment": "--geist-form-height" },
+      "height-lg": { "value": "48px", "type": "dimension", "comment": "--geist-form-large-height" }
+    }
+  },
+
+  "borderRadius": {
+    "none": { "value": "0", "type": "dimension" },
+    "sm": { "value": "2px", "type": "dimension" },
+    "base": { "value": "4px", "type": "dimension" },
+    "md": { "value": "6px", "type": "dimension", "comment": "--geist-radius" },
+    "lg": { "value": "8px", "type": "dimension", "comment": "--geist-marketing-radius" },
+    "full": { "value": "9999px", "type": "dimension", "comment": "Pill buttons" },
+    "circle": { "value": "50%", "type": "dimension" }
+  },
+
+  "shadow": {
+    "border": {
+      "value": "0 0 0 1px rgba(0,0,0,0.08)",
+      "type": "shadow",
+      "comment": "--ds-shadow-border-base"
+    },
+    "sm": {
+      "value": "0px 2px 2px rgba(0,0,0,0.04)",
+      "type": "shadow",
+      "comment": "--ds-shadow-small"
+    },
+    "md": {
+      "value": "0px 2px 2px rgba(0,0,0,0.04), 0px 8px 8px -8px rgba(0,0,0,0.04)",
+      "type": "shadow",
+      "comment": "--ds-shadow-medium"
+    },
+    "lg": {
+      "value": "0px 2px 2px rgba(0,0,0,0.04), 0px 8px 16px -4px rgba(0,0,0,0.04)",
+      "type": "shadow",
+      "comment": "--ds-shadow-large"
+    },
+    "tooltip": {
+      "value": "0 0 0 1px rgba(0,0,0,0.08), 0px 1px 1px rgba(0,0,0,0.02), 0px 4px 8px rgba(0,0,0,0.04)",
+      "type": "shadow",
+      "comment": "--ds-shadow-tooltip"
+    },
+    "menu": {
+      "value": "0 0 0 1px rgba(0,0,0,0.08), 0px 1px 1px rgba(0,0,0,0.02), 0px 4px 8px -4px rgba(0,0,0,0.04), 0px 16px 24px -8px rgba(0,0,0,0.06)",
+      "type": "shadow",
+      "comment": "--ds-shadow-menu"
+    },
+    "modal": {
+      "value": "0 0 0 1px rgba(0,0,0,0.08), 0px 1px 1px rgba(0,0,0,0.02), 0px 8px 16px -4px rgba(0,0,0,0.04), 0px 24px 32px -8px rgba(0,0,0,0.06)",
+      "type": "shadow",
+      "comment": "--ds-shadow-modal"
+    }
+  },
+
+  "motion": {
+    "timing": {
+      "swift": {
+        "value": "cubic-bezier(0.175, 0.885, 0.32, 1.1)",
+        "type": "cubicBezier",
+        "comment": "--ds-motion-timing-swift"
+      }
+    },
+    "duration": {
+      "overlay": { "value": "300ms", "type": "duration", "comment": "--ds-motion-overlay-duration" },
+      "popover": { "value": "200ms", "type": "duration", "comment": "--ds-motion-popover-duration" }
+    },
+    "scale": {
+      "overlay": { "value": "0.96", "type": "number", "comment": "--ds-motion-overlay-scale" }
+    }
+  },
+
+  "breakpoints": {
+    "description": "Extracted from media queries",
+    "xs": { "value": "375px", "type": "dimension" },
+    "sm": { "value": "640px", "type": "dimension" },
+    "md": { "value": "768px", "type": "dimension" },
+    "lg": { "value": "1024px", "type": "dimension" },
+    "xl": { "value": "1200px", "type": "dimension" },
+    "2xl": { "value": "1400px", "type": "dimension" }
+  },
+
+  "component": {
+    "button": {
+      "primary": {
+        "background": { "value": "#171717", "type": "color" },
+        "color": { "value": "#ffffff", "type": "color" },
+        "padding": { "value": "0 14px", "type": "dimension" },
+        "borderRadius": { "value": "100px", "type": "dimension" },
+        "fontSize": { "value": "16px", "type": "dimension" },
+        "fontWeight": { "value": "500", "type": "fontWeight" }
+      },
+      "secondary": {
+        "background": { "value": "#ffffff", "type": "color" },
+        "color": { "value": "#171717", "type": "color" },
+        "padding": { "value": "0 6px", "type": "dimension" },
+        "borderRadius": { "value": "6px", "type": "dimension" },
+        "fontSize": { "value": "14px", "type": "dimension" },
+        "fontWeight": { "value": "500", "type": "fontWeight" }
+      },
+      "ghost": {
+        "background": { "value": "transparent", "type": "color" },
+        "color": { "value": "#666666", "type": "color" },
+        "padding": { "value": "8px 12px", "type": "dimension" },
+        "borderRadius": { "value": "9999px", "type": "dimension" },
+        "fontSize": { "value": "14px", "type": "dimension" },
+        "fontWeight": { "value": "400", "type": "fontWeight" }
+      }
+    },
+    "card": {
+      "background": { "value": "#ffffff", "type": "color" },
+      "borderRadius": { "value": "6px", "type": "dimension" },
+      "shadow": { "value": "0 0 0 1px rgba(0,0,0,0.08), 0px 1px 1px rgba(0,0,0,0.02), 0px 4px 8px rgba(0,0,0,0.04)", "type": "shadow" }
+    },
+    "link": {
+      "default": {
+        "color": { "value": "#666666", "type": "color" },
+        "textDecoration": { "value": "none", "type": "string" }
+      },
+      "primary": {
+        "color": { "value": "#171717", "type": "color" },
+        "textDecoration": { "value": "none", "type": "string" }
+      },
+      "external": {
+        "color": { "value": "#0000ee", "type": "color" },
+        "textDecoration": { "value": "underline", "type": "string" }
+      }
+    }
+  }
+}

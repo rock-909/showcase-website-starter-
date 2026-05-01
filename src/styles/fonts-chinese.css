@@ -1,0 +1,106 @@
+/**
+ * 中文字体配置模块
+ *
+ * 🎯 设计目标：
+ * - 使用系统字体栈，零加载时间，最佳性能
+ * - 模块化设计，易于移除
+ * - 不影响英文字体配置
+ *
+ * 📦 如需移除中文支持（3 步完成）：
+ * 1. 删除此文件 (src/styles/fonts-chinese.css)
+ * 2. 从 globals.css 中移除 @import './fonts-chinese.css';
+ * 3. 从 src/i18n/routing.ts 中移除 'zh' locale
+ *
+ * ✅ 完成！不会影响任何英文功能
+ */
+
+/* ==================== 中文字体栈定义 ==================== */
+
+:root {
+  /**
+   * 中文系统字体栈
+   *
+   * 优先级顺序：
+   * 1. macOS: PingFang SC (最现代，最优美)
+   * 2. macOS 旧版: Hiragino Sans GB
+   * 3. Windows: Microsoft YaHei (微软雅黑)
+   * 4. Adobe: Source Han Sans SC (思源黑体，如果已安装)
+   * 5. Google: Noto Sans SC / Noto Sans CJK SC (如果已安装)
+   * 6. Linux: WenQuanYi Micro Hei (文泉驿微米黑)
+   * 7. 通用回退: sans-serif
+   */
+  --font-chinese-stack:
+    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Source Han Sans SC",
+    "Noto Sans SC", "Noto Sans CJK SC", "WenQuanYi Micro Hei", sans-serif;
+}
+
+/* ==================== 中文页面字体应用 ==================== */
+
+/**
+ * 仅对中文页面应用中文字体
+ *
+ * 支持的 locale:
+ * - zh: 中文（通用）
+ * - zh-CN: 简体中文
+ * - zh-Hans: 简体中文（语言标签）
+ */
+html[lang="zh"],
+html[lang="zh-CN"],
+html[lang="zh-Hans"] {
+  font-family: var(--font-chinese-stack);
+}
+
+/* ==================== 中文元素字体应用 ==================== */
+
+/**
+ * 为特定元素强制使用中文字体
+ *
+ * 用途：
+ * - 混合语言内容的场景
+ * - 需要明确指定中文字体的元素
+ */
+.font-chinese,
+.chinese-text,
+[lang="zh"],
+[lang="zh-CN"],
+[lang="zh-Hans"] {
+  font-family: var(--font-chinese-stack);
+}
+
+/* ==================== 中文字体优化 ==================== */
+
+/**
+ * 中文字体渲染优化
+ *
+ * - font-feature-settings: 启用字距调整、连字等特性
+ * - text-rendering: 优化文本渲染质量
+ */
+.font-chinese,
+[lang="zh"] {
+  font-feature-settings:
+    "kern" 1,
+    /* 字距调整 */ "liga" 1,
+    /* 连字 */ "calt" 1; /* 上下文替代 */
+  text-rendering: optimizeLegibility;
+}
+
+/* ==================== 性能优化 ==================== */
+
+/**
+ * 中文标题快速渲染优化
+ *
+ * 用途：优化 LCP (Largest Contentful Paint)
+ * 使用场景：中文首页的主标题
+ */
+:root[lang="zh"] [data-fast-lcp-zh="1"] h1[data-lcp-title="1"] {
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "PingFang SC",
+    "Microsoft YaHei",
+    Arial,
+    sans-serif;
+  font-weight: 600;
+}

@@ -1,0 +1,165 @@
+# Component Governance
+
+This document is the source of truth for how agents should create, reuse, preview, and review UI components in this project.
+
+## Why this exists
+
+This starter is built for AI-assisted development. Without explicit component rules, agents may create duplicate buttons, cards, form fields, or Radix wrappers instead of reusing the project system. That makes the site harder to maintain and makes visual quality drift over time.
+
+Storybook shows the approved component states. This document explains when to reuse, extend, or create components.
+
+## Component layers
+
+### 1. UI primitives
+
+**Location:** `src/components/ui/`
+
+Examples:
+
+- `Button`
+- `Badge`
+- `Card`
+- `Input`
+- `Textarea`
+- `Label`
+- `Accordion`
+- `Sheet`
+- `DropdownMenu`
+
+Rules:
+
+- Use these before creating page-specific UI.
+- Keep them business-neutral. They should not contain client-specific or example-company copy.
+- Use design tokens from `src/app/globals.css`; do not hardcode brand hex values or raw Tailwind palettes.
+- Radix primitives belong here unless a reviewed exception says otherwise.
+- Core primitives must have Storybook stories.
+
+### 2. Composed business components
+
+**Location:** domain folders under `src/components/`, such as:
+
+- `src/components/forms/`
+- `src/components/products/`
+- `src/components/footer/`
+- `src/components/contact/`
+
+Examples:
+
+- `ContactFormFeedback`
+- `MarketSeriesCard`
+- `SpecTable`
+- `Footer`
+
+Rules:
+
+- Compose UI primitives instead of restyling HTML from scratch.
+- Keep business meaning clear in the component name.
+- Add a Storybook story when the component is reused, visually important, or has meaningful states.
+
+### 3. Page sections
+
+**Location:** `src/components/sections/`
+
+Examples:
+
+- `HeroSection`
+- `ProductsSection`
+- `QualitySection`
+- `FinalCTA`
+
+Rules:
+
+- Sections assemble content and components for a page area.
+- They may contain layout and marketing structure.
+- They should not become a replacement for reusable primitives.
+- Add Storybook stories only when the section needs isolated visual review.
+
+### 4. Route pages
+
+**Location:** `src/app/`
+
+Rules:
+
+- Route pages assemble sections and handle route-level concerns.
+- Do not invent local button, card, input, or dialog styling in route files.
+- If a pattern is repeated, move it into the correct component layer.
+
+## Reuse decision tree
+
+Agents must follow this order before creating a new component:
+
+1. **Reuse an existing component.** Check `src/components/ui/` and the relevant domain folder first.
+2. **Add or use a variant.** If the component is the same concept with a different state, extend the existing component or use an existing variant.
+3. **Create a composed component.** If there is clear business meaning and reuse potential, create it in the matching domain folder.
+4. **Keep it local.** If the UI appears once and has no reuse value, keep it inside the page or section instead of over-abstracting.
+5. **Create a new primitive only when necessary.** A new `src/components/ui/` primitive needs a clear reason, a story, and a test or contract check when behavior exists.
+
+## New component intake checklist
+
+Before adding a component, the agent must be able to answer:
+
+- What existing components were checked?
+- Why can they not be reused?
+- Which layer does this component belong to?
+- Does it need a Storybook story?
+- Does it need a unit test or architecture test?
+- Does it introduce or require a new design token?
+- What production pages or components will consume it?
+
+If these answers are unclear, do not add the component yet.
+
+## Storybook requirements
+
+Storybook is the component preview and review surface.
+
+Core UI primitives that must have stories:
+
+- `Button`
+- `Badge`
+- `Card`
+- `Input`
+- `Textarea`
+- `Label`
+
+Storybook stories should show practical states:
+
+- default
+- variant differences
+- disabled or invalid states where relevant
+- long English or Chinese content where relevant
+- dark-background usage when the component supports it
+
+Do not use Storybook as a separate implementation source. Stories demonstrate real components from `src/components/`; they do not replace production components.
+
+Storybook-only design exploration may live in `src/stories/` when it helps compare visual directions, tokens, or composed examples without adding production runtime code. These files must still import real project components, stay lint/build clean, and must not be treated as the source of production component APIs.
+
+## Radix boundary
+
+Radix is the low-level primitive layer. Production UI should normally consume project wrappers from `src/components/ui/`.
+
+Allowed:
+
+- `@radix-ui/*` imports inside `src/components/ui/`
+- tests and stories when directly testing or demonstrating UI wrappers
+
+Not allowed by default:
+
+- route pages importing `@radix-ui/*`
+- business components importing `@radix-ui/*` directly
+- page sections creating one-off Radix wrappers
+
+If a non-UI-wrapper file needs a direct Radix import, document the reason in the PR and add an explicit governance exception.
+
+## AI reporting checklist
+
+For UI work, agents should summarize:
+
+- components reused
+- components created
+- why new components were needed
+- Storybook stories added or updated
+- tests or governance checks run
+- whether design tokens changed
+- visual states manually reviewed
+
+This keeps component decisions visible to a non-technical owner.

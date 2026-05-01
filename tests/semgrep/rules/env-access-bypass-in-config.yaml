@@ -1,0 +1,27 @@
+rules:
+  - id: env-access-bypass-in-config
+    patterns:
+      - pattern-either:
+          - pattern: process.env.$VAR
+          - pattern: process.env[$KEY]
+      - pattern-not: process.env.NODE_ENV
+      - pattern-not: process.env["NODE_ENV"]
+      - pattern-not: process.env['NODE_ENV']
+    message: 'src/config 下避免直接读 process.env，优先通过 env.ts 统一访问'
+    languages: [typescript, javascript]
+    severity: WARNING
+    paths:
+      include:
+        - "src/config/**/*.ts"
+        - "src/config/**/*.tsx"
+        - "tests/semgrep/targets/src/config/**/*.ts"
+        - "tests/semgrep/targets/src/config/**/*.tsx"
+      exclude:
+        - "**/__tests__/**"
+        - "**/*.test.*"
+        - "**/*.spec.*"
+        - "src/config/security.ts"
+        - "tests/semgrep/targets/src/config/security.ts"
+    metadata:
+      category: maintainability
+      technology: [nodejs]
