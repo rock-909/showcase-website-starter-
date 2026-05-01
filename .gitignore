@@ -101,6 +101,7 @@ reviews/
 .codex/log/
 .codex/*.sqlite*
 .codex/shell_snapshots/
+.superpowers/
 .omx/
 .eslintcache-audit
 .worktrees/

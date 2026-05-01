@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "components": {
+    "accordion": {
+      "story": "required"
+    },
+    "badge": {
+      "story": "required"
+    },
+    "breadcrumb": {
+      "story": "required"
+    },
+    "button": {
+      "story": "required"
+    },
+    "card": {
+      "story": "required"
+    },
+    "dropdown-menu": {
+      "story": "required"
+    },
+    "input": {
+      "story": "required"
+    },
+    "label": {
+      "story": "required"
+    },
+    "lazy-island-error-boundary": {
+      "story": "required"
+    },
+    "lazy-theme-switcher": {
+      "story": "required"
+    },
+    "section-head": {
+      "story": "required"
+    },
+    "separator": {
+      "story": "required"
+    },
+    "sheet": {
+      "story": "required"
+    },
+    "social-icons": {
+      "story": "required"
+    },
+    "textarea": {
+      "story": "required"
+    },
+    "theme-switcher": {
+      "story": "required"
+    },
+    "theme-switcher-highlight": {
+      "story": "required"
+    }
+  }
+}

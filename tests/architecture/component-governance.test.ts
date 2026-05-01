@@ -3,22 +3,27 @@ import { join, relative } from "node:path";
 import ts from "typescript";
 import { describe, expect, it } from "vitest";
 
-const CORE_UI_COMPONENTS = [
-  "button",
-  "badge",
-  "card",
-  "input",
-  "textarea",
-  "label",
-] as const;
-
 const SOURCE_ROOT = "src";
+const COMPONENT_GOVERNANCE_REGISTRY_PATH =
+  "src/components/component-governance.registry.json";
 const STORY_EXPLORATION_ROOT = "src/stories";
 const UI_WRAPPER_ROOT = "src/components/ui";
 const STORY_OR_TEST_FILE_PATTERN =
   /(?:\.stories\.(?:ts|tsx|js|jsx|mdx)|\.(?:test|spec)\.(?:ts|tsx|js|jsx)|\/__tests__\/)/;
 const SOURCE_FILE_PATTERN = /\.(?:ts|tsx)$/;
+const STORY_FILE_PATTERN = /\.(?:stories)\.(?:ts|tsx|js|jsx|mdx)$/;
+const TSX_FILE_PATTERN = /\.tsx$/;
 const RADIX_IMPORT_PATTERN = /from\s+["']@radix-ui\//;
+const REQUIRED_STORY_VALUE = "required";
+
+interface ComponentGovernanceRegistry {
+  version: number;
+  components: Record<string, ComponentGovernanceRegistryItem>;
+}
+
+interface ComponentGovernanceRegistryItem {
+  story?: string;
+}
 
 function walkFiles(root: string): string[] {
   // eslint-disable-next-line security/detect-non-literal-fs-filename -- fixed architecture test root
@@ -37,6 +42,20 @@ function walkFiles(root: string): string[] {
 
 function normalizePath(filePath: string): string {
   return relative(process.cwd(), filePath).replaceAll("\\", "/");
+}
+
+function readComponentGovernanceRegistry(): ComponentGovernanceRegistry {
+  return JSON.parse(
+    readFileSync(COMPONENT_GOVERNANCE_REGISTRY_PATH, "utf8"),
+  ) as ComponentGovernanceRegistry;
+}
+
+function getUiPrimitiveNames(): string[] {
+  return readdirSync(UI_WRAPPER_ROOT)
+    .filter((entry) => TSX_FILE_PATTERN.test(entry))
+    .filter((entry) => !STORY_FILE_PATTERN.test(entry))
+    .map((entry) => entry.replace(TSX_FILE_PATTERN, ""))
+    .sort();
 }
 
 function isStoryModulePath(importPath: string, importerDirectory: string) {
@@ -90,22 +109,40 @@ function hasStoryImport(source: string, filePath: string): boolean {
 }
 
 describe("component governance", () => {
-  it("keeps Storybook coverage for core UI primitives", () => {
-    for (const componentName of CORE_UI_COMPONENTS) {
-      const componentPath = `${UI_WRAPPER_ROOT}/${componentName}.tsx`;
-      const storyPath = `${UI_WRAPPER_ROOT}/${componentName}.stories.tsx`;
+  it("keeps the UI primitive governance registry aligned with source files", () => {
+    const registry = readComponentGovernanceRegistry();
+    const registryComponentNames = Object.keys(registry.components).sort();
 
+    expect(registry.version).toBe(1);
+    expect(registryComponentNames).toEqual(getUiPrimitiveNames());
+
+    for (const [componentName, component] of Object.entries(
+      registry.components,
+    )) {
       expect(
-        // eslint-disable-next-line security/detect-non-literal-fs-filename -- component paths are built from fixed governance inventory
-        existsSync(componentPath),
-        `${componentPath} should exist before checking Storybook coverage`,
-      ).toBe(true);
+        component,
+        `${componentName} should define story governance`,
+      ).toHaveProperty("story");
       expect(
-        // eslint-disable-next-line security/detect-non-literal-fs-filename -- story paths are built from fixed governance inventory
-        existsSync(storyPath),
-        `${storyPath} should document reviewable states for ${componentName}`,
-      ).toBe(true);
+        component.story,
+        `${componentName} story governance should be strictly required`,
+      ).toBe(REQUIRED_STORY_VALUE);
     }
+  });
+
+  it("keeps required Storybook coverage for registered UI primitives", () => {
+    const registry = readComponentGovernanceRegistry();
+    const missingRequiredStories = Object.entries(registry.components)
+      .filter(([, component]) => component.story === REQUIRED_STORY_VALUE)
+      .map(
+        ([componentName]) => `${UI_WRAPPER_ROOT}/${componentName}.stories.tsx`,
+      )
+      .filter((storyPath) => {
+        // eslint-disable-next-line security/detect-non-literal-fs-filename -- story paths are built from fixed governance inventory
+        return !existsSync(storyPath);
+      });
+
+    expect(missingRequiredStories).toEqual([]);
   });
 
   it("keeps direct Radix imports inside the UI wrapper layer", () => {

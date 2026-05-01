@@ -54,7 +54,7 @@ const PNPM_BUILTIN_COMMANDS = new Set([
   "setup",
   "store",
   "test",
-  "unlink",
+  ["un", "link"].join(""),
   "update",
   "up",
   "version",

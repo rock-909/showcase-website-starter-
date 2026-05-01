@@ -22,12 +22,32 @@ function createTempRepo(files: Record<string, string>) {
   return tempDir;
 }
 
+const TEMP_TRASH_ROOT = path.join(
+  os.tmpdir(),
+  "showcase-static-truth-check-test-trash",
+);
+
+function moveTempRepoToTrash(dir: string): void {
+  // eslint-disable-next-line security/detect-non-literal-fs-filename -- cleanup only checks the test-owned temporary fixture directory
+  if (!fs.existsSync(dir)) return;
+
+  // eslint-disable-next-line security/detect-non-literal-fs-filename -- cleanup moves fixtures to a recoverable os.tmpdir trash folder
+  fs.mkdirSync(TEMP_TRASH_ROOT, { recursive: true });
+  const targetDir = path.join(
+    TEMP_TRASH_ROOT,
+    `${path.basename(dir)}-${Date.now()}`,
+  );
+
+  // eslint-disable-next-line security/detect-non-literal-fs-filename -- fixture cleanup uses recoverable rename instead of permanent deletion
+  fs.renameSync(dir, targetDir);
+}
+
 describe("static-truth-check workflow pnpm script guard", () => {
   const tempDirs: string[] = [];
 
   afterEach(() => {
     for (const dir of tempDirs.splice(0)) {
-      fs.rmSync(dir, { recursive: true, force: true });
+      moveTempRepoToTrash(dir);
     }
   });
 

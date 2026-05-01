@@ -19,11 +19,21 @@ Follow the reuse decision tree:
 2. Use or add a variant when the concept is the same.
 3. Create a composed business component only when there is clear business meaning.
 4. Keep one-off page UI local instead of over-abstracting.
-5. Create a new `src/components/ui/` primitive only with a clear reason, Storybook coverage, and tests or contract checks when behavior exists.
+5. Create a new `src/components/ui/` primitive only with a clear reason, Storybook coverage, registry coverage, and tests or contract checks when behavior exists.
 
 Do not import Radix primitives directly from route pages, page sections, or business components. Use project wrappers in `src/components/ui/` unless an explicit governance exception is documented.
 
-When changing reusable components, update or add Storybook stories for the states that matter to review.
+Every UI primitive in `src/components/ui/` requires a Storybook story. When changing reusable components, update or add Storybook stories for the states that matter to review.
+
+Component governance has three layers:
+
+- Registry: declares the approved UI primitives and their required story files.
+- Scanner: catches obvious source-text violations before review.
+- Storybook: lets humans review the real component states visually.
+
+The scanner's raw palette check is an obvious text scan only. It is not a complete AST, CSS, Tailwind, or runtime lint replacement.
+
+Business, section, and page-level Storybook coverage is expected to grow over time, but it is follow-up backlog work and not a Phase 1 blocker.
 
 ## Design Tokens
 

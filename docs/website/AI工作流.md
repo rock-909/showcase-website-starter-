@@ -57,6 +57,7 @@ docs/workflows/cwf/
 - `.codex/log/`
 - `.codex/*.sqlite*`
 - `.codex/shell_snapshots/`
+- `.superpowers/`
 - `.omx/`
 - `.context/`
 - `.claude/settings.local.json`

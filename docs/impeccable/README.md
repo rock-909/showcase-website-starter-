@@ -26,5 +26,11 @@
 
 - 做 UI/页面调整前，优先看 `DESIGN.md`、`docs/design-truth.md`、`system/COMPONENT-GOVERNANCE.md`。
 - 新增组件前，先按组件治理决策树判断是否复用。
+- 所有 `src/components/ui/` UI primitives 都必须有 Storybook stories。
+- 组件治理按三层看：registry 管库存，scanner 抓明显违规，Storybook 做视觉验收。
+- scanner 的 raw palette matching 只是明显文本扫描，不是完整 AST/CSS lint 替代。
+- business、section、page stories 是后续补齐项，不是 Phase 1 阻塞项。
+- 未来做 section redesign 前，先读 `system/SECTION-REDESIGN-CHECKLIST.md`。
+- Storybook 覆盖分层看 `system/STORYBOOK-COVERAGE-MAP.md`。
 - 视觉规则要写成可复用规则，不要写成某个客户项目的专属偏好。
 - 示例业务内容可以帮助预览，但不能成为未来项目的品牌真相。

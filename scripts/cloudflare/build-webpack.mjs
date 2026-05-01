@@ -1,4 +1,4 @@
-import { lstat, mkdir, rm, symlink } from "node:fs/promises";
+import { lstat, mkdir, rename, symlink } from "node:fs/promises";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 
@@ -6,6 +6,10 @@ const ROOT_DIR = process.cwd();
 const DOT_NEXT_DIR = path.join(ROOT_DIR, ".next");
 const STANDALONE_DIR = path.join(DOT_NEXT_DIR, "standalone");
 const STANDALONE_NEXT_LINK = path.join(STANDALONE_DIR, ".next");
+const STANDALONE_RECOVERY_DIR = path.join(
+  STANDALONE_DIR,
+  ".next-link-recovery",
+);
 
 const CF_ENV = {
   ...process.env,
@@ -37,7 +41,11 @@ async function ensureWebpackStandaloneCompatibility() {
       return;
     }
 
-    await rm(STANDALONE_NEXT_LINK, { recursive: true, force: true });
+    await mkdir(STANDALONE_RECOVERY_DIR, { recursive: true });
+    await rename(
+      STANDALONE_NEXT_LINK,
+      path.join(STANDALONE_RECOVERY_DIR, `${Date.now()}-.next`),
+    );
   } catch (error) {
     if (error && typeof error === "object" && "code" in error) {
       if (error.code !== "ENOENT") {

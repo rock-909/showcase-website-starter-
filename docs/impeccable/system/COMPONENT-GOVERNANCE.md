@@ -8,6 +8,14 @@ This starter is built for AI-assisted development. Without explicit component ru
 
 Storybook shows the approved component states. This document explains when to reuse, extend, or create components.
 
+Component governance has three layers:
+
+1. **Registry**: declares which UI primitives exist and which Storybook story proves each one.
+2. **Scanner**: catches obvious governance violations in source text before review.
+3. **Storybook**: gives humans and agents a visual review surface for approved states.
+
+These layers work together. The registry is the inventory, the scanner is the quick guardrail, and Storybook is the review surface. None of them replaces the others.
+
 ## Component layers
 
 ### 1. UI primitives
@@ -32,7 +40,7 @@ Rules:
 - Keep them business-neutral. They should not contain client-specific or example-company copy.
 - Use design tokens from `src/app/globals.css`; do not hardcode brand hex values or raw Tailwind palettes.
 - Radix primitives belong here unless a reviewed exception says otherwise.
-- Core primitives must have Storybook stories.
+- Every UI primitive must have a Storybook story. A new primitive is incomplete until its story exists and is linked from the governance inventory.
 
 ### 2. Composed business components
 
@@ -55,6 +63,7 @@ Rules:
 - Compose UI primitives instead of restyling HTML from scratch.
 - Keep business meaning clear in the component name.
 - Add a Storybook story when the component is reused, visually important, or has meaningful states.
+- Full business-component story coverage is a follow-up backlog item, not a Phase 1 blocker.
 
 ### 3. Page sections
 
@@ -73,6 +82,7 @@ Rules:
 - They may contain layout and marketing structure.
 - They should not become a replacement for reusable primitives.
 - Add Storybook stories only when the section needs isolated visual review.
+- Full section story coverage is a follow-up backlog item, not a Phase 1 blocker.
 
 ### 4. Route pages
 
@@ -112,7 +122,9 @@ If these answers are unclear, do not add the component yet.
 
 Storybook is the component preview and review surface.
 
-Core UI primitives that must have stories:
+All UI primitives in `src/components/ui/` must have stories. Phase 1 is responsible for Tier 0 UI primitive coverage; business, section, and page stories are tracked as follow-up work in `STORYBOOK-COVERAGE-MAP.md`.
+
+Tier 0 UI primitives that must have stories in this stage include:
 
 - `Button`
 - `Badge`
@@ -132,6 +144,14 @@ Storybook stories should show practical states:
 Do not use Storybook as a separate implementation source. Stories demonstrate real components from `src/components/`; they do not replace production components.
 
 Storybook-only design exploration may live in `src/stories/` when it helps compare visual directions, tokens, or composed examples without adding production runtime code. These files must still import real project components, stay lint/build clean, and must not be treated as the source of production component APIs.
+
+## Scanner boundary
+
+The component governance scanner is a practical review guardrail, not a full AST, CSS, or Tailwind compiler replacement.
+
+For raw palette matching, the scanner performs an obvious text scan for patterns such as raw hex colors or raw Tailwind palette classes in production UI files. It is meant to catch clear mistakes early. It does not prove every possible dynamic class, generated style, CSS variable misuse, or third-party style path is correct.
+
+When scanner output and visual/runtime behavior disagree, treat the scanner as a clue and verify the actual component behavior in Storybook or the browser.
 
 ## Radix boundary
 
@@ -158,6 +178,7 @@ For UI work, agents should summarize:
 - components created
 - why new components were needed
 - Storybook stories added or updated
+- whether UI primitives are covered by registry + scanner + Storybook
 - tests or governance checks run
 - whether design tokens changed
 - visual states manually reviewed

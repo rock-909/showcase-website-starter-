@@ -54,6 +54,22 @@ interface SlugSyncResult {
 
 describe("mdx-slug-sync", () => {
   let tmpDir: string;
+  const tempTrashRoot = path.join(
+    os.tmpdir(),
+    "showcase-mdx-slug-sync-test-trash",
+  );
+
+  function moveTempDirToTrash(dir: string): void {
+    if (!dir || !fs.existsSync(dir)) return;
+
+    fs.mkdirSync(tempTrashRoot, { recursive: true });
+    const targetDir = path.join(
+      tempTrashRoot,
+      `${path.basename(dir)}-${Date.now()}`,
+    );
+
+    fs.renameSync(dir, targetDir);
+  }
 
   beforeEach(() => {
     // Create a fresh temp directory for each test
@@ -61,10 +77,7 @@ describe("mdx-slug-sync", () => {
   });
 
   afterEach(() => {
-    // Cleanup temp directory
-    if (tmpDir && fs.existsSync(tmpDir)) {
-      fs.rmSync(tmpDir, { recursive: true });
-    }
+    moveTempDirToTrash(tmpDir);
   });
 
   /**

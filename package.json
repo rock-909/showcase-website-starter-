@@ -166,7 +166,9 @@
     "website:verify": "pnpm release:verify",
     "brand:check": "node scripts/brand-check.mjs",
     "content:check": "pnpm content:slug-check && pnpm validate:translations",
-    "component:check": "pnpm storybook:build"
+    "component:governance:test": "pnpm exec vitest run tests/architecture/component-governance.test.ts tests/unit/scripts/component-governance-check.test.ts",
+    "component:governance": "node scripts/component-governance-check.js",
+    "component:check": "pnpm component:governance:test && pnpm component:governance && pnpm storybook:build"
   },
   "dependencies": {
     "@marsidev/react-turnstile": "^1.5.1",
