@@ -30,7 +30,6 @@ pnpm review:health
 pnpm validate:translations
 pnpm clean:next-artifacts
 pnpm build
-pnpm build:site:equipment
 pnpm build:cf
 pnpm deploy:cf:phase6:dry-run
 pnpm review:cf:official-compare:generated

@@ -5,6 +5,32 @@ const mutationCheck =
   await import("../../../scripts/check-mutation-required.js");
 
 describe("check-mutation-required", () => {
+  describe("baseline push handling", () => {
+    beforeEach(() => {
+      vi.clearAllMocks();
+    });
+
+    it("treats a missing origin/main as a first baseline push", () => {
+      expect(
+        mutationCheck.isFirstBaselinePush({
+          hasGitRefFn: (ref: string) => ref !== "origin/main",
+        }),
+      ).toBe(true);
+    });
+
+    it("skips changed-file diff when origin/main does not exist yet", () => {
+      const runGitFn = vi.fn();
+
+      const changedFiles = mutationCheck.getChangedFiles({
+        hasOriginMainFn: () => false,
+        runGitFn,
+      });
+
+      expect(changedFiles).toEqual([]);
+      expect(runGitFn).not.toHaveBeenCalled();
+    });
+  });
+
   describe("suggested mutation commands", () => {
     const packageJson = JSON.parse(readFileSync("package.json", "utf8")) as {
       scripts: Record<string, string>;

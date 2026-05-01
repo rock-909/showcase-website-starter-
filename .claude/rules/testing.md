@@ -89,8 +89,8 @@ Use it as the plain-language contract layer above tests. Historical batch BDD fi
 - Stateful UI tests must explicitly create the state they assert against; do not rely on implicit cooldowns, shared state leakage, or timing side effects.
 - If a change touches site identity wrappers or env-based site switching, tests must prove current-site behavior still matches the active site rather than only asserting object shape
 - For any site-aware change, add proof for “no cross-site leakage” instead of only asserting the new site renders
-- The repo already has a site-aware build lane (`build:site:equipment`), but it does **not** currently have a live `src/sites/**` tree. Do not write tests that assume `src/sites/**` exists unless that structure is added in the same branch.
-- Preferred proof for site-aware changes: `pnpm build:site:equipment`; stronger platform proof: `pnpm build:cf:site:equipment`
+- The repo already has a website build lane (`website:build`), but it does **not** currently have a live `src/sites/**` tree. Do not write tests that assume `src/sites/**` exists unless that structure is added in the same branch.
+- Preferred proof for site-aware changes: `pnpm website:build`; stronger platform proof: `pnpm website:build:cf`
 
 ## Test File Organization
 

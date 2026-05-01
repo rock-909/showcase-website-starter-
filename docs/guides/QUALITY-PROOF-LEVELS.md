@@ -67,8 +67,8 @@
 - `pnpm build:cf`：平台 / runtime / build-chain 改动
 - `pnpm build:cf:turbo`：Cloudflare 构建工具链本身改动，需要保住对照链时
 - `CI=1 pnpm test:e2e`：关键 UI / runtime 行为改动
-- `pnpm build:site:equipment`：改到 `src/config/single-site*.ts`、`NEXT_PUBLIC_SITE_KEY` 或 derivative seam
-- `pnpm build:cf:site:equipment`：同类改动还要证明 Cloudflare 构建链时
+- `pnpm website:build`：改到 `src/config/website/**`、`NEXT_PUBLIC_SITE_KEY` 或站点装配入口
+- `pnpm website:build:cf`：同类改动还要证明 Cloudflare 构建链时
 
 它能证明：
 

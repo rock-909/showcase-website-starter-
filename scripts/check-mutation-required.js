@@ -23,8 +23,35 @@ function runGit(args) {
   }).trim();
 }
 
-function getChangedFiles() {
-  const output = runGit(["diff", "origin/main...HEAD", "--name-only"]);
+function hasGitRef(ref, { runGitFn = runGit } = {}) {
+  try {
+    runGitFn(["rev-parse", "--verify", "--quiet", ref]);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function hasOriginMain(options = {}) {
+  return hasGitRef("origin/main", options);
+}
+
+function isFirstBaselinePush({ hasGitRefFn = hasGitRef } = {}) {
+  return !hasGitRefFn("origin/main");
+}
+
+function getChangedFiles({
+  hasOriginMainFn = hasOriginMain,
+  runGitFn = runGit,
+} = {}) {
+  if (!hasOriginMainFn()) {
+    console.log(
+      "ℹ️ 未找到 origin/main，按首次 baseline 推送跳过变异测试新鲜度检查",
+    );
+    return [];
+  }
+
+  const output = runGitFn(["diff", "origin/main...HEAD", "--name-only"]);
   if (!output) return [];
 
   return output
@@ -41,6 +68,10 @@ function getTouchedTargetDirectories(changedFiles) {
 }
 
 function getMergeBaseTimestampMs() {
+  if (!hasOriginMain()) {
+    return 0;
+  }
+
   const mergeBase = runGit(["merge-base", "HEAD", "origin/main"]);
   const timestamp = runGit(["show", "-s", "--format=%ct", mergeBase]);
   return Number.parseInt(timestamp, 10) * 1000;
@@ -196,6 +227,9 @@ if (require.main === module) {
 module.exports = {
   TARGET_DIRECTORIES,
   REPORT_PATH,
+  hasGitRef,
+  hasOriginMain,
+  isFirstBaselinePush,
   getChangedFiles,
   getTouchedTargetDirectories,
   getMergeBaseTimestampMs,

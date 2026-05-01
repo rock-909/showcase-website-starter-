@@ -290,7 +290,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: 构建非默认站点
-        run: pnpm build:site:equipment
+        run: pnpm website:build
 
   # 安全检查作业
   security:
