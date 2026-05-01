@@ -247,7 +247,7 @@ jobs:
         env:
           NODE_ENV: production
           APP_ENV: preview
-          NEXT_PUBLIC_SITE_URL: https://example.com
+          NEXT_PUBLIC_SITE_URL: https://showcase-website-starter.test
 
       - name: Lighthouse CI（包含 Core Web Vitals 和 Bundle 大小监控）
         timeout-minutes: 15
