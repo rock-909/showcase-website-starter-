@@ -87,7 +87,7 @@ export function Header({
             className="header-nav-left"
             {...(showTestIds ? { "data-testid": "mobile-navigation" } : {})}
           >
-            <Logo locale={locale} />
+            <Logo locale={locale} constrainText />
           </div>
 
           {/* Center section: Main Navigation (Desktop) */}
@@ -175,7 +175,7 @@ function HeaderUtilityControls({
     >
       {locale ? (
         <>
-          <div className="header-desktop-only h-10 w-28 items-center justify-end">
+          <div className="header-full-desktop-only h-10 w-28 items-center justify-end">
             <LanguageToggleIsland locale={locale} />
           </div>
           <Button

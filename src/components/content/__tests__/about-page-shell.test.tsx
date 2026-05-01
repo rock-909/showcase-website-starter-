@@ -150,6 +150,38 @@ describe("AboutPageShell", () => {
     expect(screen.queryByTestId("mdx-content")).not.toBeInTheDocument();
   });
 
+  it("renders the MDX slot for non-empty content instead of rendering raw content directly", () => {
+    const rawContent = [
+      "---",
+      "locale: en",
+      "publishedAt: 2024-01-01",
+      "updatedAt: 2024-01-02",
+      "aboutSections:",
+      "statLabels:",
+      "faq:",
+      "---",
+      "## Body",
+    ].join("\n");
+
+    render(
+      <AboutPageShell
+        metadata={baseMetadata}
+        content={rawContent}
+        locale="en"
+      />,
+    );
+
+    expect(screen.getByTestId("mdx-content")).toHaveTextContent("about");
+    // This component-level guard only proves the shell mounts the MDX slot.
+    // The browser test verifies that compiled MDX strips real frontmatter.
+    expect(screen.queryByText(/locale:/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/publishedAt:/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/updatedAt:/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/aboutSections:/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/statLabels:/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/faq:/)).not.toBeInTheDocument();
+  });
+
   it("renders CTA with link to contact page", () => {
     render(
       <AboutPageShell

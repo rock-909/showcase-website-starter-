@@ -1,8 +1,11 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
+import enCriticalMessages from "../../../../messages/en/critical.json";
 import { HeroSection } from "@/components/sections/hero-section";
 import { HOMEPAGE_SECTION_LINKS } from "@/components/sections/homepage-section-links";
+
+const homeMessages = enCriticalMessages.home;
 
 async function renderAsyncComponent(
   asyncComponent: React.JSX.Element | Promise<React.JSX.Element>,
@@ -31,6 +34,53 @@ describe("HeroSection", () => {
   it("renders subtitle", async () => {
     await renderAsyncComponent(HeroSection());
     expect(screen.getByText("hero.subtitle")).toBeInTheDocument();
+  });
+
+  it("renders starter preview content", async () => {
+    await renderAsyncComponent(HeroSection());
+
+    const preview = screen.getByTestId("hero-preview-card");
+    const previewList = within(preview).getByRole("list");
+    const previewItems = within(previewList).getAllByRole("listitem");
+
+    expect(preview).toBeInTheDocument();
+    expect(preview).toHaveAttribute("aria-labelledby", "hero-preview-title");
+    expect(
+      within(preview).getByRole("heading", {
+        level: 2,
+        name: "hero.preview.title",
+      }),
+    ).toBeInTheDocument();
+    expect(previewItems).toHaveLength(4);
+    expect(within(preview).getByText("hero.preview.pages")).toBeInTheDocument();
+    expect(
+      within(preview).getByText("hero.preview.components"),
+    ).toBeInTheDocument();
+    expect(
+      within(preview).getByText("hero.preview.storybook"),
+    ).toBeInTheDocument();
+    expect(
+      within(preview).getByText("hero.preview.workflow"),
+    ).toBeInTheDocument();
+    expect(within(preview).getByText("hero.preview.note")).toBeInTheDocument();
+  });
+
+  it("keeps starter preview translation keys wired to real copy", () => {
+    const preview = homeMessages.hero.preview;
+
+    for (const copy of [
+      preview.label,
+      preview.title,
+      preview.description,
+      preview.pages,
+      preview.components,
+      preview.storybook,
+      preview.workflow,
+      preview.note,
+    ]) {
+      expect(copy.trim().length).toBeGreaterThan(0);
+      expect(copy).not.toMatch(/^hero\.preview\./);
+    }
   });
 
   it("renders primary CTA as a link to /contact", async () => {

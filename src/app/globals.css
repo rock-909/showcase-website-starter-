@@ -792,45 +792,52 @@
 @layer utilities {
   .header-mobile-only {
     @apply block;
-    @media (min-width: 1024px) {
+    @media (min-width: 840px) {
       @apply hidden;
     }
   }
 
   .header-desktop-only {
     @apply hidden;
-    @media (min-width: 1024px) {
+    @media (min-width: 840px) {
+      @apply flex;
+    }
+  }
+
+  .header-full-desktop-only {
+    @apply hidden;
+    @media (min-width: 1200px) {
       @apply flex;
     }
   }
 
   .header-nav-more-only {
     @apply hidden;
-    @media (min-width: 1024px) {
+    @media (min-width: 840px) {
       @apply block;
     }
-    @media (min-width: 1280px) {
+    @media (min-width: 1200px) {
       @apply hidden;
     }
   }
 
   .header-nav-secondary-only {
     @apply hidden;
-    @media (min-width: 1280px) {
+    @media (min-width: 1200px) {
       @apply block;
     }
   }
 
   .header-cta-desktop-only {
     @apply hidden;
-    @media (min-width: 1280px) {
+    @media (min-width: 1200px) {
       @apply inline-flex;
     }
   }
 
   .header-logo-text-desktop-only {
     @apply hidden;
-    @media (min-width: 1280px) {
+    @media (min-width: 1200px) {
       @apply block;
     }
   }

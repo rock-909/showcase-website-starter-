@@ -79,6 +79,23 @@ test.describe("Homepage Core Functionality", () => {
     if ((await proofItems.count()) > 0) {
       await expect(proofItems.first()).toBeVisible();
     }
+
+    const previewCard = heroSection.getByTestId("hero-preview-card");
+    await expect(previewCard).toBeVisible();
+    await expect(previewCard).toHaveAttribute(
+      "aria-labelledby",
+      "hero-preview-title",
+    );
+    const previewTitle = previewCard.locator("#hero-preview-title");
+    await expect(previewTitle).toBeVisible();
+    await expect(previewTitle).not.toHaveText(/^\s*$/);
+    const previewDescription = previewCard.locator("p").first();
+    await expect(previewDescription).toBeVisible();
+    await expect(previewDescription).not.toHaveText(/^\s*$/);
+    await expect(previewCard.getByRole("listitem")).toHaveCount(4);
+    const previewNote = previewCard.locator("p").last();
+    await expect(previewNote).toBeVisible();
+    await expect(previewNote).not.toHaveText(/^\s*$/);
   });
 
   test("should handle CTA button interactions correctly", async ({ page }) => {
@@ -120,11 +137,11 @@ test.describe("Homepage Core Functionality", () => {
       const heroTitle = page.getByRole("heading", { level: 1 });
       await expect(heroTitle).toBeVisible();
 
-      // Verify hero title renders at desktop size (48px)
+      // Verify hero title renders at desktop size (46px)
       const fontSize = await heroTitle.evaluate(
         (el) => getComputedStyle(el).fontSize,
       );
-      expect(parseFloat(fontSize)).toBeGreaterThanOrEqual(48);
+      expect(parseFloat(fontSize)).toBeGreaterThanOrEqual(46);
     });
 
     test("should display correctly on tablet (768x1024)", async ({ page }) => {

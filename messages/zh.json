@@ -140,6 +140,16 @@
         "productionLabel": "Starter 状态",
         "est": "{established}",
         "estLabel": "年创立"
+      },
+      "preview": {
+        "label": "Starter 预览",
+        "title": "内置网站系统",
+        "description": "用这个 starter 预览页面结构、组件复用、内容替换和询盘路径，再改成真实网站。",
+        "pages": "页面",
+        "components": "组件",
+        "storybook": "Storybook",
+        "workflow": "AI 工作流",
+        "note": "上线前必须替换示例内容"
       }
     },
     "chain": {

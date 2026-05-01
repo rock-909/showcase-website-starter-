@@ -10,27 +10,19 @@ import { getBlurPlaceholder } from "@/lib/image";
 
 const headingComponents = {
   h1: ({ children }: { children: React.ReactNode }) => (
-    <h1 className="mb-6 text-4xl font-bold text-gray-900 dark:text-gray-100">
-      {children}
-    </h1>
+    <h1 className="mb-6 text-4xl font-bold text-foreground">{children}</h1>
   ),
   h2: ({ children }: { children: React.ReactNode }) => (
-    <h2 className="mb-4 text-3xl font-semibold text-gray-800 dark:text-gray-200">
-      {children}
-    </h2>
+    <h2 className="mb-4 text-3xl font-semibold text-foreground">{children}</h2>
   ),
   h3: ({ children }: { children: React.ReactNode }) => (
-    <h3 className="mb-3 text-2xl font-medium text-gray-700 dark:text-gray-300">
-      {children}
-    </h3>
+    <h3 className="mb-3 text-2xl font-medium text-foreground">{children}</h3>
   ),
 };
 
 const textComponents = {
   p: ({ children }: { children: React.ReactNode }) => (
-    <p className="mb-4 leading-relaxed text-gray-600 dark:text-gray-400">
-      {children}
-    </p>
+    <p className="mb-4 leading-relaxed text-muted-foreground">{children}</p>
   ),
   a: ({ children, href }: { children: React.ReactNode; href?: string }) => {
     const SAFE_PROTOCOLS = ["https:", "http:", "mailto:", "tel:"];
@@ -43,14 +35,14 @@ const textComponents = {
     return (
       <a
         href={safeHref}
-        className="text-blue-600 underline hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+        className="text-primary underline underline-offset-4 hover:text-primary/80"
       >
         {children}
       </a>
     );
   },
   blockquote: ({ children }: { children: React.ReactNode }) => (
-    <blockquote className="mb-4 border-l-4 border-blue-500 pl-4 text-gray-700 italic dark:text-gray-300">
+    <blockquote className="mb-4 border-l-4 border-primary pl-4 text-muted-foreground italic">
       {children}
     </blockquote>
   ),
@@ -58,28 +50,28 @@ const textComponents = {
 
 const listComponents = {
   ul: ({ children }: { children: React.ReactNode }) => (
-    <ul className="mb-4 list-inside list-disc space-y-2 text-gray-600 dark:text-gray-400">
+    <ul className="mb-4 list-inside list-disc space-y-2 text-muted-foreground">
       {children}
     </ul>
   ),
   ol: ({ children }: { children: React.ReactNode }) => (
-    <ol className="mb-4 list-inside list-decimal space-y-2 text-gray-600 dark:text-gray-400">
+    <ol className="mb-4 list-inside list-decimal space-y-2 text-muted-foreground">
       {children}
     </ol>
   ),
   li: ({ children }: { children: React.ReactNode }) => (
-    <li className="text-gray-600 dark:text-gray-400">{children}</li>
+    <li className="text-muted-foreground">{children}</li>
   ),
 };
 
 const codeComponents = {
   code: ({ children }: { children: React.ReactNode }) => (
-    <code className="rounded bg-gray-100 px-2 py-1 font-mono text-sm text-gray-800 dark:bg-gray-800 dark:text-gray-200">
+    <code className="rounded bg-muted px-2 py-1 font-mono text-sm text-foreground">
       {children}
     </code>
   ),
   pre: ({ children }: { children: React.ReactNode }) => (
-    <pre className="mb-4 overflow-x-auto rounded-lg bg-gray-100 p-4 dark:bg-gray-800">
+    <pre className="mb-4 overflow-x-auto rounded-lg bg-muted p-4 text-foreground">
       {children}
     </pre>
   ),
@@ -101,24 +93,24 @@ const mediaComponents = {
       />
     );
   },
-  hr: () => <hr className="my-8 border-gray-300 dark:border-gray-700" />,
+  hr: () => <hr className="my-8 border-border" />,
 };
 
 const tableComponents = {
   table: ({ children }: { children: React.ReactNode }) => (
     <div className="mb-4 overflow-x-auto">
-      <table className="min-w-full border-collapse border border-gray-300 dark:border-gray-700">
+      <table className="min-w-full border-collapse border border-border">
         {children}
       </table>
     </div>
   ),
   th: ({ children }: { children: React.ReactNode }) => (
-    <th className="border border-gray-300 bg-gray-100 px-4 py-2 text-left font-semibold dark:border-gray-700 dark:bg-gray-800">
+    <th className="border border-border bg-muted px-4 py-2 text-left font-semibold text-foreground">
       {children}
     </th>
   ),
   td: ({ children }: { children: React.ReactNode }) => (
-    <td className="border border-gray-300 px-4 py-2 dark:border-gray-700">
+    <td className="border border-border px-4 py-2 text-muted-foreground">
       {children}
     </td>
   ),

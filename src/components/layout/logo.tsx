@@ -16,6 +16,7 @@ interface LogoProps {
   size?: "sm" | "md" | "lg";
   ariaLabel?: string;
   locale?: string | undefined;
+  constrainText?: boolean;
 }
 
 export function Logo({
@@ -23,6 +24,7 @@ export function Logo({
   showText = true,
   size = "md",
   ariaLabel = SITE_CONFIG.name,
+  constrainText = false,
 }: LogoProps) {
   const { width, height } = SINGLE_SITE_FACTS.brandAssets.logo;
   const logoPath = getPublicLogoPath();
@@ -59,7 +61,7 @@ export function Logo({
       href="/"
       prefetch={false}
       className={cn(
-        "flex items-center gap-2 transition-opacity hover:opacity-80",
+        "flex min-w-0 items-center gap-2 transition-opacity hover:opacity-80",
         className,
       )}
       aria-label={ariaLabel}
@@ -84,7 +86,8 @@ export function Logo({
       {shouldShowText && (
         <span
           className={cn(
-            "font-bold text-foreground",
+            "block font-bold text-foreground",
+            constrainText ? "max-w-[220px] truncate" : undefined,
             logoPath ? "header-logo-text-desktop-only" : undefined,
             getTextSizeClass(size),
           )}

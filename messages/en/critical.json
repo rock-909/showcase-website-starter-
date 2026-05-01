@@ -140,6 +140,16 @@
         "productionLabel": "Starter Status",
         "est": "{established}",
         "estLabel": "Est."
+      },
+      "preview": {
+        "label": "Starter preview",
+        "title": "Built-in website system",
+        "description": "Use this starter to preview page structure, component reuse, content replacement, and inquiry flow before a real launch.",
+        "pages": "Pages",
+        "components": "Components",
+        "storybook": "Storybook",
+        "workflow": "AI workflow",
+        "note": "Replace example content before launch"
       }
     },
     "chain": {

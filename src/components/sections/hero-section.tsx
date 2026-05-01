@@ -8,6 +8,13 @@ import { siteFacts } from "@/config/site-facts";
 import { HOMEPAGE_SECTION_LINKS } from "@/components/sections/homepage-section-links";
 import { HomepageTrustStrip } from "@/components/sections/homepage-trust-strip";
 
+const HERO_PREVIEW_ITEMS = [
+  "pages",
+  "components",
+  "storybook",
+  "workflow",
+] as const;
+
 function HeroEyebrow({ text }: { text: string }) {
   return (
     <div className="hero-stagger-1 flex items-center gap-2">
@@ -19,12 +26,46 @@ function HeroEyebrow({ text }: { text: string }) {
   );
 }
 
-function HeroVisual() {
+function HeroVisual({ t }: { t: Awaited<ReturnType<typeof getTranslations>> }) {
   return (
-    <div className="hero-stagger-6 grid grid-cols-2 grid-rows-[180px_160px] gap-3">
-      <div className="col-span-2 rounded-lg bg-card shadow-border" />
-      <div className="rounded-lg bg-card shadow-border" />
-      <div className="rounded-lg bg-card shadow-border" />
+    <div
+      data-testid="hero-preview-card"
+      aria-labelledby="hero-preview-title"
+      className="hero-stagger-6 rounded-2xl border border-border bg-card p-5 shadow-border"
+    >
+      <div className="flex items-center justify-between gap-4">
+        <span className="rounded-full bg-muted px-3 py-1 text-xs font-semibold uppercase tracking-[0.04em] text-primary">
+          {t("hero.preview.label")}
+        </span>
+        <span className="h-2.5 w-2.5 rounded-full bg-primary" aria-hidden />
+      </div>
+
+      <div className="mt-5">
+        <h2
+          id="hero-preview-title"
+          className="text-2xl font-bold tracking-[-0.03em] text-foreground"
+        >
+          {t("hero.preview.title")}
+        </h2>
+        <p className="mt-3 text-sm leading-6 text-muted-foreground">
+          {t("hero.preview.description")}
+        </p>
+      </div>
+
+      <ul className="mt-6 grid grid-cols-2 gap-3">
+        {HERO_PREVIEW_ITEMS.map((item) => (
+          <li
+            key={item}
+            className="rounded-xl border border-border bg-muted px-4 py-3 text-sm font-medium text-foreground"
+          >
+            {t(`hero.preview.${item}`)}
+          </li>
+        ))}
+      </ul>
+
+      <p className="mt-5 rounded-xl border border-border bg-background px-4 py-3 text-sm font-semibold text-primary">
+        {t("hero.preview.note")}
+      </p>
     </div>
   );
 }
@@ -77,7 +118,7 @@ export async function HeroSection() {
             })}
           />
 
-          <h1 className="hero-stagger-2 mt-4 text-[36px] font-extrabold leading-[1.1] tracking-[-0.03em] md:text-[48px] md:leading-[1.0] md:tracking-[-0.05em]">
+          <h1 className="hero-stagger-2 mt-4 text-[36px] font-extrabold leading-[1.1] tracking-[-0.03em] md:text-[46px] md:leading-[1.04] md:tracking-[-0.04em]">
             {t("hero.title")}
           </h1>
 
@@ -106,7 +147,7 @@ export async function HeroSection() {
         </div>
 
         {/* Right column — Visual grid */}
-        <HeroVisual />
+        <HeroVisual t={t} />
       </div>
     </section>
   );

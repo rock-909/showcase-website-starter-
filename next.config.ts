@@ -14,7 +14,7 @@ const withBundleAnalyzer = bundleAnalyzer({
 const withMDX = createMDX({
   // Add markdown plugins here, as desired
   options: {
-    remarkPlugins: [],
+    remarkPlugins: ["remark-frontmatter"],
     rehypePlugins: [],
   },
 });

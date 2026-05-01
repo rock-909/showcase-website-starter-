@@ -40,32 +40,35 @@ const LOCALES = ["en", "zh"] as const;
 
 const VIEWPORTS = [
   {
-    name: "mobile",
+    name: "mobile-375",
     viewport: { width: 375, height: 800 },
-    expectMobileHeader: true,
+    mode: "mobile",
   },
   {
-    // Regression guard: was previously treated as "desktop" at md (768) and caused overlap.
-    name: "tablet",
-    viewport: { width: 900, height: 800 },
-    expectMobileHeader: true,
+    name: "mobile-839",
+    viewport: { width: 839, height: 800 },
+    mode: "mobile",
   },
   {
-    // Desktop navigation is visible from 1024px (lg). CTA may still be hidden below wider breakpoints.
-    name: "desktop-1024",
+    name: "compact-desktop-840",
+    viewport: { width: 840, height: 800 },
+    mode: "compactDesktop",
+  },
+  {
+    name: "compact-desktop-1024",
     viewport: { width: 1024, height: 800 },
-    expectMobileHeader: false,
+    mode: "compactDesktop",
   },
   {
-    name: "desktop-1280",
-    viewport: { width: 1280, height: 800 },
-    expectMobileHeader: false,
+    name: "full-desktop-1200",
+    viewport: { width: 1200, height: 800 },
+    mode: "fullDesktop",
   },
 ] as const;
 
 test.describe("Header layout (bbox regression)", () => {
   for (const locale of LOCALES) {
-    for (const { name, viewport, expectMobileHeader } of VIEWPORTS) {
+    for (const { name, viewport, mode } of VIEWPORTS) {
       test(`${locale} / ${name}`, async ({ page }) => {
         await page.setViewportSize(viewport);
         await page.goto(`/${locale}`);
@@ -80,15 +83,29 @@ test.describe("Header layout (bbox regression)", () => {
 
         const mobileMenuButton = getHeaderMobileMenuButton(page);
         const nav = getNav(page);
+        const cta = page.getByTestId("header-cta").first();
+        const languageToggle = page
+          .getByTestId("language-toggle-button")
+          .first();
 
-        if (expectMobileHeader) {
+        if (mode === "mobile") {
           await expect(mobileMenuButton).toBeVisible({ timeout: 10_000 });
           await expect(nav).not.toBeVisible({ timeout: 10_000 });
+          await expect(cta).not.toBeVisible({ timeout: 10_000 });
+          await expect(languageToggle).not.toBeVisible({ timeout: 10_000 });
           return;
         }
 
         await expect(nav).toBeVisible({ timeout: 10_000 });
         await expect(mobileMenuButton).not.toBeVisible({ timeout: 10_000 });
+
+        if (mode === "compactDesktop") {
+          await expect(cta).not.toBeVisible({ timeout: 10_000 });
+          await expect(languageToggle).not.toBeVisible({ timeout: 10_000 });
+        } else {
+          await expect(cta).toBeVisible({ timeout: 10_000 });
+          await expect(languageToggle).toBeVisible({ timeout: 10_000 });
+        }
 
         const logoLink = page
           .getByRole("link", { name: /Example Showcase Company/ })
@@ -102,8 +119,6 @@ test.describe("Header layout (bbox regression)", () => {
           "Logo should not overlap desktop navigation",
         ).toBe(false);
 
-        // CTA is intentionally hidden on narrower desktop viewports.
-        const cta = page.getByTestId("header-cta").first();
         if (await cta.isVisible().catch(() => false)) {
           const ctaBox = await expectBoundingBox(cta, "Header CTA");
           expect(
@@ -116,10 +131,6 @@ test.describe("Header layout (bbox regression)", () => {
           ).toBe(false);
         }
 
-        // Optional: if the language toggle button is already hydrated, assert it doesn't overlap.
-        const languageToggle = page
-          .getByTestId("language-toggle-button")
-          .first();
         if (await languageToggle.isVisible().catch(() => false)) {
           const languageBox = await expectBoundingBox(
             languageToggle,
