@@ -96,13 +96,16 @@ jobs:
           pnpm -v
           echo "项目关联文件 (.vercel/project.json):"
           if [ -f .vercel/project.json ]; then
-            cat .vercel/project.json || true
+            project_file_size=$(wc -c < .vercel/project.json | tr -d ' ')
+            echo "(存在，${project_file_size} bytes；内容已隐藏)"
           else
             echo "(缺失)"
           fi
           echo "预览环境变量文件 (.vercel/.env.preview.local) 存在性:"
           if [ -f .vercel/.env.preview.local ]; then
-            head -n 20 .vercel/.env.preview.local || true
+            env_file_size=$(wc -c < .vercel/.env.preview.local | tr -d ' ')
+            env_key_count=$(grep -E '^[A-Za-z_][A-Za-z0-9_]*=' .vercel/.env.preview.local | wc -l | tr -d ' ')
+            echo "(存在，${env_key_count} 个变量，${env_file_size} bytes；内容已隐藏)"
           else
             echo "(缺失)"
           fi
