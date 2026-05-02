@@ -72,7 +72,7 @@ describe("Homepage section cluster contract", () => {
 
     await renderAsyncComponent(FinalCTA());
     const finalTrustList = screen.getByRole("list", {
-      name: "Homepage trust facts",
+      name: "trustAriaLabel",
     });
     expect(within(finalTrustList).getAllByRole("listitem")).toHaveLength(1);
     expect(screen.getByText("primary").closest("a")).toHaveAttribute(

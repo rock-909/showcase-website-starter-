@@ -43,7 +43,7 @@ describe("FinalCTA", () => {
     await renderAsyncComponent(FinalCTA());
 
     const trustList = screen.getByRole("list", {
-      name: "Homepage trust facts",
+      name: "trustAriaLabel",
     });
     const trustItems = within(trustList).getAllByRole("listitem");
 
@@ -55,7 +55,7 @@ describe("FinalCTA", () => {
     await renderAsyncComponent(FinalCTA());
 
     const trustList = screen.getByRole("list", {
-      name: "Homepage trust facts",
+      name: "trustAriaLabel",
     });
 
     expect(within(trustList).getByText("trust")).toHaveClass(

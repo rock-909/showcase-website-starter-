@@ -311,6 +311,7 @@
       "description": "Replace this CTA with the real next step: quote, consultation, booking, demo, download, or general inquiry.",
       "primary": "Start an Inquiry",
       "secondary": "Review Offerings",
+      "trustAriaLabel": "Homepage trust facts",
       "trust": "Example response promise · Replace proof before launch · {countries}+ placeholder markets"
     },
     "footer": {

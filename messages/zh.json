@@ -311,6 +311,7 @@
       "description": "把这里替换成真实下一步：报价、咨询、预约、演示、下载或一般询盘。",
       "primary": "开始咨询",
       "secondary": "查看业务示例",
+      "trustAriaLabel": "首页信任信息",
       "trust": "示例响应承诺 · 上线前替换证据 · {countries}+ 占位市场"
     },
     "footer": {

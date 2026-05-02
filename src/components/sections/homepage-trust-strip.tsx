@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 
 export interface HomepageTrustStripItem {
+  key?: string;
   value: string;
   label?: string;
 }
@@ -31,7 +32,7 @@ export function HomepageTrustStrip({
   const labelClassName =
     tone === "inverse" ? "text-primary-foreground/90" : "text-muted-foreground";
   const separatorClassName =
-    tone === "inverse" ? "text-white/25" : "text-border";
+    tone === "inverse" ? "text-primary-foreground/25" : "text-border";
 
   return (
     <ul
@@ -39,7 +40,10 @@ export function HomepageTrustStrip({
       className={cn("flex flex-wrap items-center gap-y-1", className)}
     >
       {items.map((item, index) => (
-        <li key={`${item.value}-${index}`} className="flex items-center">
+        <li
+          key={item.key ?? `${item.value}-${index}`}
+          className="flex items-center"
+        >
           <span className={valueClassName}>{item.value}</span>
           {item.label !== undefined ? (
             <span className={cn("ml-1", labelClassName)}>{item.label}</span>
