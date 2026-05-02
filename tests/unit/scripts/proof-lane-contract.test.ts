@@ -106,4 +106,22 @@ describe("proof lane contract", () => {
       readRepoFile("scripts/review-mutation-critical.js"),
     ).not.toThrow();
   });
+
+  it("keeps starter readiness proof commands wired into grouped guardrails", () => {
+    const packageJson = JSON.parse(readRepoFile("package.json")) as {
+      scripts: Record<string, string>;
+    };
+    const allGuardrailsScript = readRepoFile(
+      "scripts/run-all-guardrails-review.js",
+    );
+
+    expect(packageJson.scripts["website:content:readiness"]).toBe(
+      "node scripts/content-readiness-check.mjs",
+    );
+    expect(packageJson.scripts["website:review:client-boundary"]).toBe(
+      "node scripts/client-boundary-budget.mjs",
+    );
+    expect(allGuardrailsScript).toContain("website:content:readiness");
+    expect(allGuardrailsScript).toContain("website:review:client-boundary");
+  });
 });

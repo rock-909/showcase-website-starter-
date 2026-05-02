@@ -16,6 +16,8 @@
 ```bash
 pnpm brand:check
 pnpm content:check
+pnpm website:content:readiness
+pnpm website:review:client-boundary
 pnpm component:check
 pnpm website:check
 pnpm website:build:cf
@@ -74,7 +76,7 @@ pnpm website:build:cf
 只应该扫描买家可见输入面：
 
 - `content/pages/**`
-- `messages/**`
+- `messages/{locale}/{critical,deferred}.json`
 - `public/images/**/*.svg`
 - `src/config/website/**`
 - 明确会进入页面或结构化数据的 runtime config
@@ -87,6 +89,10 @@ pnpm website:build:cf
 - docs / reports / generated artifacts
 
 否则会误扫测试里故意保留的坏样本，导致永远红，甚至诱导删除有价值的测试。
+
+Starter 现在提供 `pnpm website:content:readiness` 做第一轮自动检查。它只扫上面这些买家可见输入面，并故意排除 docs、tests、reports、generated output，以及 `messages/en.json` / `messages/zh.json` 这类 flat 兼容副本。
+
+这个命令能证明明显的 starter / fake / placeholder 残留有没有被扫出来；它不能证明内容法律上正确、文案足够有说服力，或已经得到 owner 确认。
 
 ### 3. 预览可观测性证明
 
@@ -127,6 +133,10 @@ pnpm website:build:cf
 - 实际报告写入 `reports/quality/**`，脚本必须自动创建目录。
 
 如果新增 client boundary，要能解释为什么这个组件必须在浏览器里跑。
+
+Starter 现在提供 `pnpm website:review:client-boundary`。它会把 `src/` 下顶层 `"use client"` 文件和 `docs/quality/client-boundary-budget.json` 对比，并把当前报告写到 `reports/quality/client-boundary-budget.json`。
+
+这是源码结构 proof，不是浏览器行为 proof。它不证明 hydration 行为、页面 UX 或真实浏览器里的交互质量。
 
 ### 6. Route mode proof
 
@@ -193,7 +203,7 @@ pnpm smoke:cf:deploy -- --base-url "$DEPLOYED_BASE_URL"
 ## 推荐落地顺序
 
 1. 先替换品牌、内容、图片和部署配置。
-2. 跑 `pnpm brand:check`、`pnpm content:check`、`pnpm website:check`。
+2. 跑 `pnpm brand:check`、`pnpm content:check`、`pnpm website:content:readiness`、`pnpm website:review:client-boundary`、`pnpm website:check`。
 3. 跑 `pnpm build`，再串行跑 `pnpm build:cf`。
 4. 建立预览部署 URL。
 5. 对预览 URL 做页面合同和健康接口检查。

@@ -17,6 +17,16 @@ const GROUPS = [
     label: "Scripts env guardrails",
     command: ["pnpm", "review:scripts-env"],
   },
+  {
+    name: "content-readiness",
+    label: "Content readiness",
+    command: ["pnpm", "website:content:readiness"],
+  },
+  {
+    name: "client-boundary",
+    label: "Client boundary budget",
+    command: ["pnpm", "website:review:client-boundary"],
+  },
 ];
 
 function runGroup(group) {
