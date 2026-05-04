@@ -1175,7 +1175,6 @@ class QualityGate {
   runBuildCommand() {
     return spawnSync("pnpm", ["build"], {
       encoding: "utf8",
-      shell: true,
       maxBuffer: 50 * 1024 * 1024,
     });
   }
