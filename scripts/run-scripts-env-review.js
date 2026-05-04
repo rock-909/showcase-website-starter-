@@ -30,7 +30,6 @@ function runLane(lane) {
 
   const result = spawnSync(lane.command[0], lane.command.slice(1), {
     stdio: "inherit",
-    shell: true,
     env: process.env,
   });
 
