@@ -378,7 +378,7 @@ test.describe("Navigation System", () => {
       await clickMobileMenuRoute(
         "/en/capabilities",
         /\/en\/capabilities$/,
-        /website and lead foundation/i,
+        /starter capabilities/i,
       );
       await page.goto("/en", { waitUntil: "domcontentloaded" });
       await waitForStablePage(page);
@@ -386,7 +386,7 @@ test.describe("Navigation System", () => {
       await clickMobileMenuRoute(
         "/en/how-it-works",
         /\/en\/how-it-works$/,
-        /no website to a launchable foundation/i,
+        /how it works/i,
       );
       await page.goto("/en", { waitUntil: "domcontentloaded" });
       await waitForStablePage(page);
