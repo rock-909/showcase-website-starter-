@@ -20,6 +20,14 @@ describe("website config", () => {
     expect(websiteHomepage.sectionOrder).toContain("hero");
     expect(websiteHomepage.primaryCtaHref).toBe("/contact");
     expect(websiteNavigation.length).toBeGreaterThan(0);
+    expect(websiteNavigation.map((item) => item.href)).toEqual([
+      "/",
+      "/capabilities",
+      "/how-it-works",
+      "/products",
+      "/about",
+      "/contact",
+    ]);
   });
 
   it("provides product and contact defaults", () => {

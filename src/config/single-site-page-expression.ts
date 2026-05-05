@@ -22,6 +22,7 @@ export { SINGLE_SITE_HOME_LINK_TARGETS } from "@/config/single-site-links";
 
 export const SINGLE_SITE_HOME_GRID_SECTION_ORDER = [
   "hero",
+  "starterBoundary",
   "chain",
   "products",
   "resources",

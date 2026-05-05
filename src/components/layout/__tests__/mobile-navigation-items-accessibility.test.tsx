@@ -71,6 +71,8 @@ describe("Mobile Navigation - Advanced Integration Tests", () => {
         const translations: Record<string, string> = {
           "navigation.home": "Home",
           "navigation.about": "About",
+          "navigation.capabilities": "Capabilities",
+          "navigation.howItWorks": "How It Works",
           "navigation.products": "Products",
           "navigation.customProject": "Custom",
           "navigation.contact": "Contact",
@@ -208,6 +210,8 @@ describe("Mobile Navigation - Advanced Integration Tests", () => {
       // Navigation items + CTA + language switcher links
       expect(linkTexts).toEqual([
         "Home",
+        "Capabilities",
+        "How It Works",
         "Products",
         "Custom",
         "About",

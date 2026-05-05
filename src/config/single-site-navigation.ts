@@ -10,6 +10,16 @@ export const SINGLE_SITE_NAVIGATION: SiteNavigationItem[] = [
     translationKey: "navigation.home",
   },
   {
+    key: "capabilities",
+    href: SINGLE_SITE_ROUTE_HREFS.capabilities,
+    translationKey: "navigation.capabilities",
+  },
+  {
+    key: "howItWorks",
+    href: SINGLE_SITE_ROUTE_HREFS.howItWorks,
+    translationKey: "navigation.howItWorks",
+  },
+  {
     key: "products",
     href: SINGLE_SITE_ROUTE_HREFS.products,
     translationKey: "navigation.products",

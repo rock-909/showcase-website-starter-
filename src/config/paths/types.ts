@@ -14,6 +14,8 @@ export type LocalizedPath = {
 // 页面类型定义 (静态路由)
 export type PageType =
   | "home"
+  | "capabilities"
+  | "howItWorks"
   | "about"
   | "contact"
   | "products"

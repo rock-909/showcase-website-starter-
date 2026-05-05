@@ -21,6 +21,7 @@ describe("single-site-page-expression", () => {
   it("keeps homepage section order explicit and non-empty", () => {
     expect(SINGLE_SITE_HOME_GRID_SECTION_ORDER).toEqual([
       "hero",
+      "starterBoundary",
       "chain",
       "products",
       "resources",
