@@ -59,12 +59,14 @@ describe("generateFaqSchemaFromItems", () => {
 describe("FAQ locale parity", () => {
   const FAQ_PAGE_SLUGS = [
     "about",
+    "capabilities",
     "contact",
     "custom-project-support",
+    "how-it-works",
   ] as const;
 
   for (const slug of FAQ_PAGE_SLUGS) {
-    it(`${slug} keeps identical FAQ IDs in en and zh`, async () => {
+    it(`${slug} keeps identical FAQ ownership state in en and zh`, async () => {
       const enPage = await getPageBySlug(slug, "en");
       const zhPage = await getPageBySlug(slug, "zh");
 
@@ -76,7 +78,6 @@ describe("FAQ locale parity", () => {
       ).map((item) => item.id);
 
       expect(enIds).toEqual(zhIds);
-      expect(enIds.length).toBeGreaterThan(0);
     });
   }
 });

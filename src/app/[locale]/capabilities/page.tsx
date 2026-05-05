@@ -1,26 +1,14 @@
 import type { Metadata } from "next";
-import { getTranslations, setRequestLocale } from "next-intl/server";
+import { setRequestLocale } from "next-intl/server";
 import {
   generateLocaleStaticParams,
   type LocaleParam,
 } from "@/app/[locale]/generate-static-params";
 import { getLocalizedPath } from "@/config/paths";
+import { renderLegalContent } from "@/lib/content/render-legal-content";
+import { getPageBySlug } from "@/lib/content";
 import { generateMetadataForPath } from "@/lib/seo-metadata";
 import type { Locale } from "@/types/content.types";
-import criticalMessages from "@messages/en/critical.json";
-
-interface TranslationCard {
-  title: string;
-  description: string;
-}
-
-function getArrayIndexes(items: readonly TranslationCard[]): string[] {
-  return items.map((_, index) => String(index));
-}
-
-const capabilityItemIndexes = getArrayIndexes(
-  criticalMessages.capabilities.items satisfies readonly TranslationCard[],
-);
 
 interface CapabilitiesPageProps {
   params: Promise<LocaleParam>;
@@ -35,15 +23,19 @@ export async function generateMetadata({
 }: CapabilitiesPageProps): Promise<Metadata> {
   const { locale } = await params;
   const typedLocale = locale as Locale;
-  const t = await getTranslations({ locale, namespace: "capabilities" });
+  const page = await getPageBySlug("capabilities", typedLocale);
+  const description =
+    page.metadata.seo?.description ?? page.metadata.description;
+  const image = page.metadata.seo?.ogImage;
 
   return generateMetadataForPath({
     locale: typedLocale,
     pageType: "capabilities",
     path: getLocalizedPath("capabilities", typedLocale),
     config: {
-      title: t("title"),
-      description: t("description"),
+      title: page.metadata.seo?.title ?? page.metadata.title,
+      ...(description ? { description } : {}),
+      ...(image ? { image } : {}),
     },
   });
 }
@@ -53,35 +45,22 @@ export default async function CapabilitiesPage({
 }: CapabilitiesPageProps) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations({ locale, namespace: "capabilities" });
-
-  const items = capabilityItemIndexes.map((index) => ({
-    title: t(`items.${index}.title`),
-    description: t(`items.${index}.description`),
-  }));
+  const page = await getPageBySlug("capabilities", locale as Locale);
 
   return (
     <main className="mx-auto max-w-[1080px] px-6 py-16">
-      <p className="text-sm font-semibold uppercase tracking-[0.04em] text-primary">
-        {t("eyebrow")}
-      </p>
-      <h1 className="mt-3 text-4xl font-bold tracking-[-0.03em]">
-        {t("title")}
+      <h1 className="text-4xl font-bold tracking-[-0.03em]">
+        {page.metadata.title}
       </h1>
-      <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
-        {t("description")}
-      </p>
+      {page.metadata.description ? (
+        <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
+          {page.metadata.description}
+        </p>
+      ) : null}
 
-      <ul className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-2">
-        {items.map((item) => (
-          <li key={item.title} className="rounded-xl border p-5">
-            <h2 className="text-lg font-semibold">{item.title}</h2>
-            <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              {item.description}
-            </p>
-          </li>
-        ))}
-      </ul>
+      <article className="mt-10 max-w-none">
+        {renderLegalContent(page.content)}
+      </article>
     </main>
   );
 }

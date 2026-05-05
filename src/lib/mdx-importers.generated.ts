@@ -26,15 +26,19 @@ export const postImporters: Record<string, Record<string, ContentImporter>> = {
 export const pageImporters: Record<string, Record<string, ContentImporter>> = {
   en: {
     'about': () => import('@content/pages/en/about.mdx'),
+    'capabilities': () => import('@content/pages/en/capabilities.mdx'),
     'contact': () => import('@content/pages/en/contact.mdx'),
     'custom-project-support': () => import('@content/pages/en/custom-project-support.mdx'),
+    'how-it-works': () => import('@content/pages/en/how-it-works.mdx'),
     'privacy': () => import('@content/pages/en/privacy.mdx'),
     'terms': () => import('@content/pages/en/terms.mdx'),
   },
   zh: {
     'about': () => import('@content/pages/zh/about.mdx'),
+    'capabilities': () => import('@content/pages/zh/capabilities.mdx'),
     'contact': () => import('@content/pages/zh/contact.mdx'),
     'custom-project-support': () => import('@content/pages/zh/custom-project-support.mdx'),
+    'how-it-works': () => import('@content/pages/zh/how-it-works.mdx'),
     'privacy': () => import('@content/pages/zh/privacy.mdx'),
     'terms': () => import('@content/pages/zh/terms.mdx'),
   },

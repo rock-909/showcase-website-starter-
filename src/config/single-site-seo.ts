@@ -91,9 +91,7 @@ export const SINGLE_SITE_SITEMAP_DEFAULT_CONFIG = {
 const SINGLE_SITE_STATIC_PAGE_LASTMOD_BY_ROUTE = {
   // Non-MDX routes and product market pages use this sidecar date source.
   // MDX-driven pages read updatedAt from content/pages/{locale}/*.mdx.
-  capabilities: SINGLE_SITE_STATIC_LASTMOD_ISO,
   home: SINGLE_SITE_STATIC_LASTMOD_ISO,
-  howItWorks: SINGLE_SITE_STATIC_LASTMOD_ISO,
   products: SINGLE_SITE_STATIC_LASTMOD_ISO,
 } as const satisfies Partial<Record<PageType, string>>;
 

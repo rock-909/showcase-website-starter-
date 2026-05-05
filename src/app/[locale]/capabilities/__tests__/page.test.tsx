@@ -1,41 +1,48 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import CapabilitiesPage from "../page";
+import CapabilitiesPage, { generateMetadata } from "../page";
 
-const translationValues = {
-  eyebrow: "capabilities.eyebrow",
-  title: "capabilities.title",
-  description: "capabilities.description",
-  "items.0.title": "capabilities.items.0.title",
-  "items.0.description": "capabilities.items.0.description",
-  "items.1.title": "capabilities.items.1.title",
-  "items.1.description": "capabilities.items.1.description",
-  "items.2.title": "capabilities.items.2.title",
-  "items.2.description": "capabilities.items.2.description",
-  "items.3.title": "capabilities.items.3.title",
-  "items.3.description": "capabilities.items.3.description",
-  "items.4.title": "capabilities.items.4.title",
-  "items.4.description": "capabilities.items.4.description",
-  "items.5.title": "capabilities.items.5.title",
-  "items.5.description": "capabilities.items.5.description",
-} as const;
-
-vi.mock("next-intl/server", () => ({
-  getTranslations: vi.fn(async () => (key: string) => {
-    return translationValues[key as keyof typeof translationValues] ?? key;
-  }),
-  setRequestLocale: vi.fn(),
-}));
-
-vi.mock("@/lib/seo-metadata", () => ({
-  generateMetadataForPath: vi.fn(() => ({
-    title: "capabilities.title",
-    description: "capabilities.description",
+const { mockGetPageBySlug, mockGenerateMetadataForPath } = vi.hoisted(() => ({
+  mockGetPageBySlug: vi.fn(),
+  mockGenerateMetadataForPath: vi.fn(() => ({
+    title: "MDX SEO Title",
+    description: "MDX SEO description",
   })),
 }));
 
+vi.mock("next-intl/server", () => ({
+  setRequestLocale: vi.fn(),
+}));
+
+vi.mock("@/lib/content", () => ({
+  getPageBySlug: mockGetPageBySlug,
+}));
+
+vi.mock("@/lib/seo-metadata", () => ({
+  generateMetadataForPath: mockGenerateMetadataForPath,
+}));
+
 describe("CapabilitiesPage", () => {
-  it("renders the public capabilities story from translations", async () => {
+  it("renders the public capabilities story from MDX content", async () => {
+    mockGetPageBySlug.mockResolvedValue({
+      metadata: {
+        title: "Starter capabilities from MDX",
+        description: "MDX-owned capabilities description.",
+        seo: {
+          title: "MDX capabilities SEO title",
+          description: "MDX capabilities SEO description",
+          ogImage: "/images/capabilities-og.jpg",
+        },
+      },
+      content: [
+        "## Credible public pages",
+        "Home, capabilities, process, about, contact, privacy, and terms pages start from a working structure.",
+        "",
+        "## Replacement guardrails",
+        "Docs and checks keep sample identity from being treated as real launch truth.",
+      ].join("\n"),
+    });
+
     const page = await CapabilitiesPage({
       params: Promise.resolve({ locale: "en" }),
     });
@@ -43,12 +50,49 @@ describe("CapabilitiesPage", () => {
     render(page);
 
     expect(
-      screen.getByRole("heading", { level: 1, name: "capabilities.title" }),
+      screen.getByRole("heading", {
+        level: 1,
+        name: "Starter capabilities from MDX",
+      }),
     ).toBeInTheDocument();
-    expect(screen.getAllByRole("listitem")).toHaveLength(6);
-    expect(screen.getByText("capabilities.items.0.title")).toBeInTheDocument();
     expect(
-      screen.getByText("capabilities.items.5.description"),
+      screen.getByRole("heading", { level: 2, name: "Credible public pages" }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Docs and checks keep sample identity from being treated as real launch truth.",
+      ),
+    ).toBeInTheDocument();
+    expect(mockGetPageBySlug).toHaveBeenCalledWith("capabilities", "en");
+  });
+
+  it("uses MDX metadata for page SEO", async () => {
+    mockGetPageBySlug.mockResolvedValue({
+      metadata: {
+        title: "Fallback capabilities title",
+        description: "Fallback capabilities description",
+        seo: {
+          title: "MDX capabilities SEO title",
+          description: "MDX capabilities SEO description",
+          ogImage: "/images/capabilities-og.jpg",
+        },
+      },
+      content: "",
+    });
+
+    await generateMetadata({
+      params: Promise.resolve({ locale: "en" }),
+    });
+
+    expect(mockGenerateMetadataForPath).toHaveBeenCalledWith(
+      expect.objectContaining({
+        pageType: "capabilities",
+        config: {
+          title: "MDX capabilities SEO title",
+          description: "MDX capabilities SEO description",
+          image: "/images/capabilities-og.jpg",
+        },
+      }),
+    );
   });
 });

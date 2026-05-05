@@ -1,40 +1,47 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import HowItWorksPage from "../page";
+import HowItWorksPage, { generateMetadata } from "../page";
 
-const translationValues = {
-  eyebrow: "howItWorks.eyebrow",
-  title: "howItWorks.title",
-  description: "howItWorks.description",
-  stepLabel: "Step 1",
-  "steps.0.title": "howItWorks.steps.0.title",
-  "steps.0.description": "howItWorks.steps.0.description",
-  "steps.1.title": "howItWorks.steps.1.title",
-  "steps.1.description": "howItWorks.steps.1.description",
-  "steps.2.title": "howItWorks.steps.2.title",
-  "steps.2.description": "howItWorks.steps.2.description",
-  "steps.3.title": "howItWorks.steps.3.title",
-  "steps.3.description": "howItWorks.steps.3.description",
-  "steps.4.title": "howItWorks.steps.4.title",
-  "steps.4.description": "howItWorks.steps.4.description",
-} as const;
-
-vi.mock("next-intl/server", () => ({
-  getTranslations: vi.fn(async () => (key: string) => {
-    return translationValues[key as keyof typeof translationValues] ?? key;
-  }),
-  setRequestLocale: vi.fn(),
-}));
-
-vi.mock("@/lib/seo-metadata", () => ({
-  generateMetadataForPath: vi.fn(() => ({
-    title: "howItWorks.title",
-    description: "howItWorks.description",
+const { mockGetPageBySlug, mockGenerateMetadataForPath } = vi.hoisted(() => ({
+  mockGetPageBySlug: vi.fn(),
+  mockGenerateMetadataForPath: vi.fn(() => ({
+    title: "MDX SEO Title",
+    description: "MDX SEO description",
   })),
 }));
 
+vi.mock("next-intl/server", () => ({
+  setRequestLocale: vi.fn(),
+}));
+
+vi.mock("@/lib/content", () => ({
+  getPageBySlug: mockGetPageBySlug,
+}));
+
+vi.mock("@/lib/seo-metadata", () => ({
+  generateMetadataForPath: mockGenerateMetadataForPath,
+}));
+
 describe("HowItWorksPage", () => {
-  it("renders the setup to launch flow from translations", async () => {
+  it("renders the setup to launch flow from MDX content", async () => {
+    mockGetPageBySlug.mockResolvedValue({
+      metadata: {
+        title: "Move from no website to a launchable foundation.",
+        description: "MDX-owned how it works description.",
+        seo: {
+          title: "MDX how it works SEO title",
+          description: "MDX how it works SEO description",
+        },
+      },
+      content: [
+        "## Step 1: Replace the business facts",
+        "Update brand, domain, contact details, offer content, images, legal body, and proof assets.",
+        "",
+        "## Step 5: Check traffic and sign off",
+        "Set up owner reporting visibility, review real traffic, and confirm the launch state with the owner.",
+      ].join("\n"),
+    });
+
     const page = await HowItWorksPage({
       params: Promise.resolve({ locale: "en" }),
     });
@@ -42,12 +49,52 @@ describe("HowItWorksPage", () => {
     render(page);
 
     expect(
-      screen.getByRole("heading", { level: 1, name: "howItWorks.title" }),
+      screen.getByRole("heading", {
+        level: 1,
+        name: "Move from no website to a launchable foundation.",
+      }),
     ).toBeInTheDocument();
-    expect(screen.getAllByRole("listitem")).toHaveLength(5);
-    expect(screen.getByText("howItWorks.steps.0.title")).toBeInTheDocument();
     expect(
-      screen.getByText("howItWorks.steps.4.description"),
+      screen.getByRole("heading", {
+        level: 2,
+        name: "Step 1: Replace the business facts",
+      }),
     ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Set up owner reporting visibility, review real traffic, and confirm the launch state with the owner.",
+      ),
+    ).toBeInTheDocument();
+    expect(mockGetPageBySlug).toHaveBeenCalledWith("how-it-works", "en");
+  });
+
+  it("uses MDX metadata for page SEO", async () => {
+    mockGetPageBySlug.mockResolvedValue({
+      metadata: {
+        title: "Fallback how it works title",
+        description: "Fallback how it works description",
+        seo: {
+          title: "MDX how it works SEO title",
+          description: "MDX how it works SEO description",
+          ogImage: "/images/how-it-works-og.jpg",
+        },
+      },
+      content: "",
+    });
+
+    await generateMetadata({
+      params: Promise.resolve({ locale: "en" }),
+    });
+
+    expect(mockGenerateMetadataForPath).toHaveBeenCalledWith(
+      expect.objectContaining({
+        pageType: "howItWorks",
+        config: {
+          title: "MDX how it works SEO title",
+          description: "MDX how it works SEO description",
+          image: "/images/how-it-works-og.jpg",
+        },
+      }),
+    );
   });
 });

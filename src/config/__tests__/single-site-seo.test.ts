@@ -71,16 +71,16 @@ describe("single-site-seo", () => {
     });
   });
 
-  it("keeps static page lastmod defaults and robots disallow list centralized", () => {
+  it("keeps sidecar lastmod only for non-MDX static pages and product markets", () => {
     expect(SINGLE_SITE_STATIC_PAGE_LASTMOD[getCanonicalPath("products")]).toBe(
       "2026-04-26T00:00:00Z",
     );
     expect(
       SINGLE_SITE_STATIC_PAGE_LASTMOD[getCanonicalPath("capabilities")],
-    ).toBe("2026-04-26T00:00:00Z");
+    ).toBeUndefined();
     expect(
       SINGLE_SITE_STATIC_PAGE_LASTMOD[getCanonicalPath("howItWorks")],
-    ).toBe("2026-04-26T00:00:00Z");
+    ).toBeUndefined();
     for (const marketSlug of getAllMarketSlugs()) {
       const specs = getMarketSpecsBySlug(marketSlug);
 

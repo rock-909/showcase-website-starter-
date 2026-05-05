@@ -1,26 +1,14 @@
 import type { Metadata } from "next";
-import { getTranslations, setRequestLocale } from "next-intl/server";
+import { setRequestLocale } from "next-intl/server";
 import {
   generateLocaleStaticParams,
   type LocaleParam,
 } from "@/app/[locale]/generate-static-params";
 import { getLocalizedPath } from "@/config/paths";
+import { renderLegalContent } from "@/lib/content/render-legal-content";
+import { getPageBySlug } from "@/lib/content";
 import { generateMetadataForPath } from "@/lib/seo-metadata";
 import type { Locale } from "@/types/content.types";
-import criticalMessages from "@messages/en/critical.json";
-
-interface TranslationStep {
-  title: string;
-  description: string;
-}
-
-function getArrayIndexes(items: readonly TranslationStep[]): string[] {
-  return items.map((_, index) => String(index));
-}
-
-const howItWorksStepIndexes = getArrayIndexes(
-  criticalMessages.howItWorks.steps satisfies readonly TranslationStep[],
-);
 
 interface HowItWorksPageProps {
   params: Promise<LocaleParam>;
@@ -35,15 +23,19 @@ export async function generateMetadata({
 }: HowItWorksPageProps): Promise<Metadata> {
   const { locale } = await params;
   const typedLocale = locale as Locale;
-  const t = await getTranslations({ locale, namespace: "howItWorks" });
+  const page = await getPageBySlug("how-it-works", typedLocale);
+  const description =
+    page.metadata.seo?.description ?? page.metadata.description;
+  const image = page.metadata.seo?.ogImage;
 
   return generateMetadataForPath({
     locale: typedLocale,
     pageType: "howItWorks",
     path: getLocalizedPath("howItWorks", typedLocale),
     config: {
-      title: t("title"),
-      description: t("description"),
+      title: page.metadata.seo?.title ?? page.metadata.title,
+      ...(description ? { description } : {}),
+      ...(image ? { image } : {}),
     },
   });
 }
@@ -51,38 +43,22 @@ export async function generateMetadata({
 export default async function HowItWorksPage({ params }: HowItWorksPageProps) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations({ locale, namespace: "howItWorks" });
-
-  const steps = howItWorksStepIndexes.map((index) => ({
-    title: t(`steps.${index}.title`),
-    description: t(`steps.${index}.description`),
-  }));
+  const page = await getPageBySlug("how-it-works", locale as Locale);
 
   return (
     <main className="mx-auto max-w-[1080px] px-6 py-16">
-      <p className="text-sm font-semibold uppercase tracking-[0.04em] text-primary">
-        {t("eyebrow")}
-      </p>
-      <h1 className="mt-3 text-4xl font-bold tracking-[-0.03em]">
-        {t("title")}
+      <h1 className="text-4xl font-bold tracking-[-0.03em]">
+        {page.metadata.title}
       </h1>
-      <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
-        {t("description")}
-      </p>
+      {page.metadata.description ? (
+        <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
+          {page.metadata.description}
+        </p>
+      ) : null}
 
-      <ol className="mt-10 grid grid-cols-1 gap-4">
-        {steps.map((step, index) => (
-          <li key={step.title} className="rounded-xl border p-5">
-            <p className="text-sm font-semibold text-primary">
-              {t("stepLabel", { count: index + 1 })}
-            </p>
-            <h2 className="mt-2 text-lg font-semibold">{step.title}</h2>
-            <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              {step.description}
-            </p>
-          </li>
-        ))}
-      </ol>
+      <article className="mt-10 max-w-none">
+        {renderLegalContent(page.content)}
+      </article>
     </main>
   );
 }
