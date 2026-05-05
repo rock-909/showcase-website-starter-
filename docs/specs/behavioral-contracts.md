@@ -39,7 +39,7 @@ Notes: Hero section visibility and CTA link count are tested. CTA `href` targets
 
 #### BC-002: Buyer can navigate to all main pages from the header
 
-Desktop/compact desktop: From 840px and above, the header shows direct links to Home, Products, Custom, About, and Contact. Full desktop controls such as the large Contact Sales CTA are visible from 1200px and above. Mobile: Below 840px, the hamburger menu opens a sheet with the same main links. Clicking any link reaches the correct page. Blog links are intentionally absent while BC-015 and BC-016 remain retired.
+Desktop/compact desktop: From 840px and above, the header shows direct links to Home, Capabilities, How It Works, Products, Custom, About, and Contact. Full desktop controls such as the large Contact Sales CTA are visible from 1200px and above. Mobile: Below 840px, the hamburger menu opens a sheet with the same main links. Clicking any public link reaches its matching localized page and must not land on a 404. Blog links are intentionally absent while BC-015 and BC-016 remain retired.
 
 | Field | Value |
 |-------|-------|

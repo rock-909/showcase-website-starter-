@@ -103,8 +103,8 @@
         "description": "推荐路径是通过 OpenNext 部署到 Cloudflare Workers，Vercel 只保留兼容支持。"
       },
       {
-        "title": "Owner 流量面板",
-        "description": "配置凭证后，受保护的 ops 页面可以显示真实 Cloudflare 流量。"
+        "title": "Owner 报告可见性",
+        "description": "配置凭证后，owner 可以确认真实 Cloudflare 访问是否可见。"
       },
       {
         "title": "替换防线",
@@ -136,7 +136,7 @@
       },
       {
         "title": "查看流量并确认",
-        "description": "配置 owner 面板，确认真实流量可见，再由 owner 做上线确认。"
+        "description": "配置 Owner 报告可见性，确认真实访问是否可见，再由 owner 做上线确认。"
       }
     ]
   },

@@ -8,7 +8,7 @@ import { getLocalizedPath } from "@/config/paths";
 import { generateMetadataForPath } from "@/lib/seo-metadata";
 import type { Locale } from "@/types/content.types";
 
-const CAPABILITY_COUNT = 6;
+const CAPABILITY_ITEM_KEYS = ["0", "1", "2", "3", "4", "5"] as const;
 
 interface CapabilitiesPageProps {
   params: Promise<LocaleParam>;
@@ -43,9 +43,9 @@ export default async function CapabilitiesPage({
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "capabilities" });
 
-  const items = Array.from({ length: CAPABILITY_COUNT }, (_, index) => ({
-    title: t(`items.${index}.title`),
-    description: t(`items.${index}.description`),
+  const items = CAPABILITY_ITEM_KEYS.map((key) => ({
+    title: t(`items.${key}.title`),
+    description: t(`items.${key}.description`),
   }));
 
   return (

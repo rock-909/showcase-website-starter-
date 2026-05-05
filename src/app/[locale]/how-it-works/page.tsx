@@ -8,7 +8,7 @@ import { getLocalizedPath } from "@/config/paths";
 import { generateMetadataForPath } from "@/lib/seo-metadata";
 import type { Locale } from "@/types/content.types";
 
-const STEP_COUNT = 5;
+const HOW_IT_WORKS_STEP_KEYS = ["0", "1", "2", "3", "4"] as const;
 
 interface HowItWorksPageProps {
   params: Promise<LocaleParam>;
@@ -41,9 +41,9 @@ export default async function HowItWorksPage({ params }: HowItWorksPageProps) {
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "howItWorks" });
 
-  const steps = Array.from({ length: STEP_COUNT }, (_, index) => ({
-    title: t(`steps.${index}.title`),
-    description: t(`steps.${index}.description`),
+  const steps = HOW_IT_WORKS_STEP_KEYS.map((key) => ({
+    title: t(`steps.${key}.title`),
+    description: t(`steps.${key}.description`),
   }));
 
   return (

@@ -103,8 +103,8 @@
         "description": "The recommended route is Cloudflare Workers through OpenNext, with Vercel kept as compatibility."
       },
       {
-        "title": "Owner traffic dashboard",
-        "description": "The protected ops page can show real Cloudflare traffic once credentials are configured."
+        "title": "Owner reporting visibility",
+        "description": "Once credentials are configured, the owner can confirm real Cloudflare traffic is visible."
       },
       {
         "title": "Replacement guardrails",
@@ -136,7 +136,7 @@
       },
       {
         "title": "Check traffic and sign off",
-        "description": "Configure the owner dashboard, review real traffic visibility, and confirm launch truth with the owner."
+        "description": "Set up owner reporting visibility, review real traffic, and confirm the launch state with the owner."
       }
     ]
   },
