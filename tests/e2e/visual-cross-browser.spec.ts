@@ -11,7 +11,7 @@ import { expect, test } from "@playwright/test";
  *
  * Key pages selected based on visual complexity:
  * - Homepage: hero + multi-section layout
- * - Products: grid of market cards
+ * - Products: starter capability and technical proof layout
  * - Contact: form layout
  */
 

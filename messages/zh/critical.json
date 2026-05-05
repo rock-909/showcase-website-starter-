@@ -1052,10 +1052,75 @@
       "products": "产品中心"
     },
     "overview": {
-      "title": "产品中心",
-      "description": "按市场或使用场景分组的可替换产品与服务示例。选择一个分类查看示例结构。",
+      "title": "starter 产品能力",
+      "description": "一套覆盖页面结构、内容替换、询盘路径和上线基础的展示型网站 starter。",
+      "kicker": "starter 包含什么",
+      "capabilitiesTitle": "结果能力",
+      "capabilitiesDescription": "这个页面说明项目在替换真实内容前，可以从哪些已接好的基础能力开始。",
       "byStandard": "按示例分类",
       "specialty": "特色示例"
+    },
+    "starterCapabilities": {
+      "siteFoundation": {
+        "title": "展示站基础",
+        "description": "首页、产品、博客、关于、联系、法律页面、导航和响应式布局已经连成一套。"
+      },
+      "replacementSurface": {
+        "title": "内容替换面",
+        "description": "品牌事实、页面文案、产品或服务、SEO、图片和多语言文字都有明确替换位置。"
+      },
+      "inquiryPath": {
+        "title": "询盘路径",
+        "description": "联系页、表单流程、基础防滥用控制和线索处理路径已经准备好接入真实 owner。"
+      },
+      "launchPath": {
+        "title": "上线路径",
+        "description": "Cloudflare 是推荐部署路径，可选兼容保留为次级，流量可见性被当成真实功能面。"
+      }
+    },
+    "technicalProofTitle": "技术证明",
+    "technicalProofDescription": "starter 保留公开 demo 需要的技术基础，但不会把产品页写成开发者手册。",
+    "technicalProof": {
+      "next": {
+        "title": "Next.js 应用基础",
+        "description": "App Router、Server Components 优先、metadata、本地化路由和生产构建检查。"
+      },
+      "cloudflare": {
+        "title": "Cloudflare/OpenNext 部署路径",
+        "description": "Cloudflare 和 OpenNext 是这个 starter 的推荐部署真相。"
+      },
+      "i18n": {
+        "title": "多语言内容",
+        "description": "中英文导航、页面文案、metadata 和文章内容保持同步。"
+      },
+      "quality": {
+        "title": "质量检查",
+        "description": "类型、lint、内容、组件、website 和 build 检查继续属于上线链路。"
+      },
+      "security": {
+        "title": "表单安全基础",
+        "description": "联系和询盘路径包含校验、防滥用控制和明确运行时配置。"
+      },
+      "traffic": {
+        "title": "流量可见性",
+        "description": "owner 可看的流量信息是受保护的真实功能面，不是营销装饰。"
+      }
+    },
+    "boundary": {
+      "title": "starter，不是已经完成的客户网站",
+      "description": "真实上线仍然需要真实内容、图片、联系方式、法律文案、密钥和部署证明。",
+      "items": {
+        "content": "替换真实业务内容",
+        "assets": "替换真实图片和证明",
+        "legal": "复核法律和联系方式",
+        "deployment": "证明部署和表单可用"
+      }
+    },
+    "cta": {
+      "title": "准备把 starter 变成公开网站？",
+      "description": "先阅读上线文章，或通过联系入口判断哪些内容要先替换。",
+      "blog": "了解如何开始",
+      "contact": "联系"
     },
     "market": {
       "familyNav": {
