@@ -18,6 +18,8 @@ describe("single-site-seo", () => {
   it("keeps public static sitemap pages as an explicit route allowlist", () => {
     expect(SINGLE_SITE_PUBLIC_STATIC_PAGE_ROUTES).toEqual([
       "home",
+      "capabilities",
+      "howItWorks",
       "about",
       "contact",
       "products",
@@ -47,6 +49,18 @@ describe("single-site-seo", () => {
       changeFrequency: "monthly",
       priority: 0.7,
     });
+    expect(
+      SINGLE_SITE_SITEMAP_PAGE_CONFIG[getCanonicalPath("capabilities")],
+    ).toEqual({
+      changeFrequency: "monthly",
+      priority: 0.85,
+    });
+    expect(
+      SINGLE_SITE_SITEMAP_PAGE_CONFIG[getCanonicalPath("howItWorks")],
+    ).toEqual({
+      changeFrequency: "monthly",
+      priority: 0.85,
+    });
     expect(SINGLE_SITE_SITEMAP_PAGE_CONFIG.productMarket).toEqual({
       changeFrequency: "weekly",
       priority: 0.8,
@@ -61,6 +75,12 @@ describe("single-site-seo", () => {
     expect(SINGLE_SITE_STATIC_PAGE_LASTMOD[getCanonicalPath("products")]).toBe(
       "2026-04-26T00:00:00Z",
     );
+    expect(
+      SINGLE_SITE_STATIC_PAGE_LASTMOD[getCanonicalPath("capabilities")],
+    ).toBe("2026-04-26T00:00:00Z");
+    expect(
+      SINGLE_SITE_STATIC_PAGE_LASTMOD[getCanonicalPath("howItWorks")],
+    ).toBe("2026-04-26T00:00:00Z");
     for (const marketSlug of getAllMarketSlugs()) {
       const specs = getMarketSpecsBySlug(marketSlug);
 

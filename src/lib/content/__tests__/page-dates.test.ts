@@ -30,9 +30,16 @@ describe("page-dates", () => {
   });
 
   it("keeps sitemap MDX page detection aligned with public static routes", () => {
-    const nonMdxPages = new Set(["", getCanonicalPath("products")]);
+    const nonMdxPages = new Set([
+      "",
+      getCanonicalPath("capabilities"),
+      getCanonicalPath("howItWorks"),
+      getCanonicalPath("products"),
+    ]);
     const representativePageContracts = [
       { path: "", isMdx: false },
+      { path: "/capabilities", isMdx: false },
+      { path: "/how-it-works", isMdx: false },
       { path: "/products", isMdx: false },
       { path: "/about", isMdx: true },
       { path: "/custom-project-support", isMdx: true },

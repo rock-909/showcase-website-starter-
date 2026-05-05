@@ -81,6 +81,65 @@
     "guidesDescription": "Step-by-step tutorials",
     "blogDescription": "Latest updates and insights"
   },
+  "capabilities": {
+    "eyebrow": "Starter capabilities",
+    "title": "A website and lead foundation for a small B2B company.",
+    "description": "The demo shows the pieces a company needs before a public launch: pages, offer story, inquiry path, deployment proof, and owner traffic visibility.",
+    "items": [
+      {
+        "title": "Credible public pages",
+        "description": "Home, capabilities, process, about, contact, privacy, and terms pages start from a working structure."
+      },
+      {
+        "title": "Clear offer story",
+        "description": "Product, service, resource, and custom-project examples show how real offers can be explained."
+      },
+      {
+        "title": "Lead capture path",
+        "description": "Contact and inquiry flows stay visible, testable, and ready for real destinations."
+      },
+      {
+        "title": "Cloudflare-first deploy",
+        "description": "The recommended route is Cloudflare Workers through OpenNext, with Vercel kept as compatibility."
+      },
+      {
+        "title": "Owner traffic dashboard",
+        "description": "The protected ops page can show real Cloudflare traffic once credentials are configured."
+      },
+      {
+        "title": "Replacement guardrails",
+        "description": "Docs and checks keep sample identity, proof, legal copy, and deployment values from being treated as real launch truth."
+      }
+    ]
+  },
+  "howItWorks": {
+    "eyebrow": "Setup to launch",
+    "title": "Move from no website to a launchable foundation.",
+    "description": "Use the starter as a complete demo, replace the business facts, connect the lead path, deploy on Cloudflare, and prove the result before calling it launch-ready.",
+    "stepLabel": "Step {count}",
+    "steps": [
+      {
+        "title": "Replace the business facts",
+        "description": "Update brand, domain, contact details, offer content, images, legal body, and proof assets."
+      },
+      {
+        "title": "Review the public story",
+        "description": "Make sure the homepage and support pages explain the real business clearly."
+      },
+      {
+        "title": "Connect the lead path",
+        "description": "Configure form security, email, Airtable or CRM storage, and a safe test submission flow."
+      },
+      {
+        "title": "Deploy on Cloudflare",
+        "description": "Run the Cloudflare build and preview proof before a public route is treated as ready."
+      },
+      {
+        "title": "Check traffic and sign off",
+        "description": "Configure the owner dashboard, review real traffic visibility, and confirm launch truth with the owner."
+      }
+    ]
+  },
   "theme": {
     "toggle": "Toggle theme",
     "toggleLabel": "Theme toggle",
