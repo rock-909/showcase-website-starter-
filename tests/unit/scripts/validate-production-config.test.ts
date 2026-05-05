@@ -223,4 +223,50 @@ describe("public launch trust content guard", () => {
       ]),
     );
   });
+
+  it("blocks starter identity, SEO defaults, and missing legal/contact owner review in client launch strict mode", () => {
+    const result = validateProductionConfig({
+      APP_ENV: "preview",
+      NODE_ENV: "production",
+      PUBLIC_LAUNCH_STRICT: "true",
+    });
+
+    expect(result.errors).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining("SITE_CONFIG.name"),
+        expect.stringContaining("SITE_CONFIG.baseUrl"),
+        expect.stringContaining("SITE_CONFIG.contact.email"),
+        expect.stringContaining("SITE_CONFIG.seo.defaultTitle"),
+        expect.stringContaining("SITE_CONFIG.seo.defaultDescription"),
+        expect.stringContaining("SITE_CONFIG.social.twitter"),
+        expect.stringContaining("SITE_CONFIG.social.linkedin"),
+        expect.stringContaining("SITE_CONFIG.seo.titleTemplate"),
+        expect.stringContaining("SITE_CONFIG.description"),
+        expect.stringContaining("SITE_CONFIG.facts.company.name"),
+        expect.stringContaining("SITE_CONFIG.facts.company.location"),
+        expect.stringContaining("PUBLIC_LAUNCH_LEGAL_CONTENT_REVIEWED"),
+        expect.stringContaining(
+          "content/pages/{locale}/{about,contact,privacy,terms}.mdx",
+        ),
+      ]),
+    );
+  });
+
+  it("does not make legal/contact owner review a permanent client-launch failure", () => {
+    const result = validateProductionConfig({
+      APP_ENV: "preview",
+      NODE_ENV: "production",
+      PUBLIC_LAUNCH_STRICT: "true",
+      PUBLIC_LAUNCH_LEGAL_CONTENT_REVIEWED: "true",
+    });
+
+    expect(result.errors).toEqual(
+      expect.arrayContaining([expect.stringContaining("SITE_CONFIG.name")]),
+    );
+    expect(result.errors).not.toEqual(
+      expect.arrayContaining([
+        expect.stringContaining("PUBLIC_LAUNCH_LEGAL_CONTENT_REVIEWED"),
+      ]),
+    );
+  });
 });

@@ -211,6 +211,42 @@ describe("content-readiness-check", () => {
     );
   });
 
+  it("scans catalog specs and product catalog config as buyer-visible truth", () => {
+    const rootDir = createFixture({
+      "src/constants/product-specs/north-america.ts": [
+        "export const NORTH_AMERICA_SPECS = {",
+        '  technical: { material: "Replaceable core material" },',
+        '  certifications: ["Example Standard A"],',
+        "};",
+      ].join("\n"),
+      "src/config/single-site-product-catalog.ts": [
+        "export const singleSiteProductCatalog = {",
+        '  markets: [{ label: "Primary Offer Example" }],',
+        "};",
+      ].join("\n"),
+    });
+    fixtureRoots.push(rootDir);
+
+    const result = runContentReadinessCheck(rootDir);
+
+    expect(result.status).toBe("passed");
+    expectFinding(
+      result.warnings,
+      "replaceable-content",
+      "src/constants/product-specs/north-america.ts",
+    );
+    expectFinding(
+      result.warnings,
+      "example-standard",
+      "src/constants/product-specs/north-america.ts",
+    );
+    expectFinding(
+      result.warnings,
+      "example-offer",
+      "src/config/single-site-product-catalog.ts",
+    );
+  });
+
   it("does not treat commented logo asset references as runtime references", () => {
     const rootDir = createFixture({
       "src/config/website/profile.ts": [

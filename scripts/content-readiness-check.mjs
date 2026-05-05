@@ -36,6 +36,18 @@ const SCAN_TARGETS = [
     extensions: new Set([".js", ".json", ".mjs", ".ts", ".tsx"]),
     scanTextRules: true,
   },
+  {
+    root: "src/constants/product-specs",
+    extensions: new Set([".js", ".json", ".mjs", ".ts", ".tsx"]),
+    scanTextRules: true,
+  },
+  {
+    root: "src/config",
+    extensions: new Set([".ts"]),
+    allowedPathPattern:
+      /^src\/config\/(?:single-site|single-site-seo|single-site-product-catalog)\.ts$/u,
+    scanTextRules: true,
+  },
 ];
 
 const GENERATED_DIR_NAMES = new Set([
@@ -68,6 +80,28 @@ const TEXT_RULES = [
     pattern: /\bsample(?:[\s_-]+)product\b/giu,
     message:
       "Starter sample product text is still present. Replace it before launch.",
+  },
+  {
+    ruleId: "replaceable-content",
+    severity: "warning",
+    pattern: /\breplaceable\b|\breplace with real\b/giu,
+    message:
+      "Replaceable starter catalog content is still present. Replace it before client launch.",
+  },
+  {
+    ruleId: "example-standard",
+    severity: "warning",
+    pattern: /\bExample Standard [A-Z]\b/gu,
+    message:
+      "Example standard marker is still present in catalog truth. Replace it before client launch.",
+  },
+  {
+    ruleId: "example-offer",
+    severity: "warning",
+    pattern:
+      /\b(?:Primary|Secondary|Regional|Platform|Specialty) Offer Example\b/gu,
+    message:
+      "Example offer marker is still present in catalog truth. Replace it before client launch.",
   },
   {
     ruleId: "replace-this-image",

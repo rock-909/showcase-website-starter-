@@ -500,14 +500,14 @@ test.describe("Contact Form - Test-Mode Smoke", () => {
     });
   });
 
-  test.describe("9. 表单提交验证", () => {
-    test("应该能够成功提交表单（英文）", async ({ page }) => {
+  test.describe("9. 本地表单填写 smoke 验证", () => {
+    test("完整填写后提交入口可见（英文）", async ({ page }) => {
       await gotoContactPage(page, test.info(), "en");
 
-      // 等待 Turnstile 加载
+      // Local smoke only: Playwright uses test-mode Turnstile and does not submit to the deployed lead pipeline.
       await page.waitForTimeout(2000);
 
-      // 填写完整表单
+      // 填写完整表单，验证本地 UI 可填写和提交入口可见。
       await page.fill('input[name="firstName"]', "John");
       await page.fill('input[name="lastName"]', "Doe");
       await page.fill('input[name="email"]', "john.doe@example.com");
@@ -526,20 +526,20 @@ test.describe("Contact Form - Test-Mode Smoke", () => {
         await privacyCheckbox.check();
       }
 
-      // 检查提交按钮
+      // 检查提交入口。本地 smoke 不声明真实提交成功。
       const submitButton = page.getByRole("button", {
         name: /send message|submit/i,
       });
       await expect(submitButton).toBeVisible();
     });
 
-    test("应该能够成功提交表单（中文）", async ({ page }) => {
+    test("完整填写后提交入口可见（中文）", async ({ page }) => {
       await gotoContactPage(page, test.info(), "zh");
 
-      // 等待 Turnstile 加载
+      // Local smoke only: Playwright uses test-mode Turnstile and does not submit to the deployed lead pipeline.
       await page.waitForTimeout(2000);
 
-      // 填写完整表单
+      // 填写完整表单，验证本地 UI 可填写和提交入口可见。
       await page.fill('input[name="firstName"]', "张");
       await page.fill('input[name="lastName"]', "三");
       await page.fill('input[name="email"]', "zhangsan@example.com");
@@ -554,7 +554,7 @@ test.describe("Contact Form - Test-Mode Smoke", () => {
         await privacyCheckbox.check();
       }
 
-      // 检查提交按钮
+      // 检查提交入口。本地 smoke 不声明真实提交成功。
       const submitButton = page.getByRole("button", { name: /发送|提交/i });
       await expect(submitButton).toBeVisible();
     });

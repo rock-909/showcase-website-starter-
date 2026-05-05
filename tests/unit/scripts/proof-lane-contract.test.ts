@@ -124,4 +124,166 @@ describe("proof lane contract", () => {
     expect(allGuardrailsScript).toContain("website:content:readiness");
     expect(allGuardrailsScript).toContain("website:review:client-boundary");
   });
+
+  it("does not overclaim local contact smoke as real submission proof", () => {
+    const contactSmokeSpec = readRepoFile(
+      "tests/e2e/contact-form-smoke.spec.ts",
+    );
+    const playwrightConfig = readRepoFile("playwright.config.ts");
+
+    expect(contactSmokeSpec).not.toContain("应该能够成功提交表单");
+    expect(contactSmokeSpec).toContain("完整填写后提交入口可见");
+    expect(contactSmokeSpec).toContain("Local smoke");
+    expect(contactSmokeSpec).toContain(
+      "does not submit to the deployed lead pipeline",
+    );
+
+    expect(playwrightConfig).toContain("NEXT_PUBLIC_TEST_MODE");
+    expect(playwrightConfig).toContain("Local E2E proof boundary");
+    expect(playwrightConfig).toContain(
+      "not real Turnstile or deployed lead proof",
+    );
+  });
+
+  it("labels lead-family contract proof as auxiliary rather than full-chain proof", () => {
+    const contractSpec = readRepoFile(
+      "tests/integration/api/lead-family-contract.test.ts",
+    );
+    const ciWorkflow = readRepoFile(".github/workflows/ci.yml");
+    const structuralClusters = readRepoFile(
+      "docs/guides/STRUCTURAL-CHANGE-CLUSTERS.md",
+    );
+    const normalizedContractSpec = contractSpec.replace(/\s+/gu, " ");
+
+    expect(contractSpec).toContain(
+      "Auxiliary response and observability checks only.",
+    );
+    expect(normalizedContractSpec).toContain(
+      "not full lead-chain protection proof",
+    );
+    expect(ciWorkflow).toContain("Lead API Family Layered Proof Review");
+    expect(ciWorkflow).not.toContain("Lead API Family Contract Review");
+    expect(structuralClusters).toContain("auxiliary contract proof");
+    expect(structuralClusters).toContain("route-level protection proof");
+  });
+
+  it("keeps BC-024 idempotency gap analysis aligned with listed route coverage", () => {
+    const behavioralContracts = readRepoFile(
+      "docs/specs/behavioral-contracts.md",
+    );
+
+    expect(behavioralContracts).toContain(
+      "Inquiry route replay is covered in `src/app/api/inquiry/__tests__/route.test.ts`",
+    );
+    expect(behavioralContracts).toContain(
+      "subscribe replay/conflict semantics are covered in `tests/integration/api/subscribe.test.ts`",
+    );
+    expect(behavioralContracts).not.toContain(
+      "Idempotency only tested for contact, not inquiry/subscribe",
+    );
+    expect(behavioralContracts).toContain(
+      "family-wide end-to-end alignment across all lead surfaces",
+    );
+  });
+
+  it("documents all client-launch catalog, identity, SEO, and legal replacement surfaces", () => {
+    const brandSettings = readRepoFile("docs/website/品牌设置.md");
+    const replacementChecklist = readRepoFile("docs/website/新项目替换清单.md");
+    const qualityProof = readRepoFile("docs/website/quality-proof.md");
+
+    for (const expectedSurface of [
+      "src/config/single-site.ts",
+      "src/config/website/profile.ts",
+      "src/config/website/seo.ts",
+      "src/config/single-site-seo.ts",
+      "src/config/website/products.ts",
+      "src/config/single-site-product-catalog.ts",
+      "src/constants/product-specs/**",
+      "messages/{locale}/critical.json",
+      "messages/{locale}/deferred.json",
+      "public/images/products/**",
+      "content/pages/{locale}/about.mdx",
+      "content/pages/{locale}/contact.mdx",
+      "content/pages/{locale}/privacy.mdx",
+      "content/pages/{locale}/terms.mdx",
+    ]) {
+      expect(replacementChecklist).toContain(expectedSurface);
+    }
+
+    expect(brandSettings).toContain("src/config/single-site.ts");
+    expect(brandSettings).toContain("src/config/website/profile.ts");
+    expect(brandSettings).toContain("src/config/website/seo.ts");
+    expect(brandSettings).toContain("镜像层");
+    expect(brandSettings).not.toContain("品牌信息集中在 `src/config/website/`");
+
+    expect(replacementChecklist).toContain("client launch");
+    expect(replacementChecklist).toContain("starter 示例");
+    expect(replacementChecklist).toContain("SEO");
+    expect(replacementChecklist).toContain("法务");
+    expect(qualityProof).toContain("src/config/single-site.ts");
+    expect(qualityProof).toContain("src/config/website/profile.ts");
+    expect(qualityProof).toContain("src/config/website/seo.ts");
+    expect(qualityProof).toContain("src/config/single-site-seo.ts");
+    expect(qualityProof).toContain("src/config/single-site-product-catalog.ts");
+    expect(qualityProof).toContain("product specs");
+    expect(qualityProof).toContain("catalog truth");
+    expect(qualityProof).toContain("crawl / indexing truth");
+    expect(qualityProof).toContain("canonical authoring source");
+    expect(qualityProof).toContain("starter 示例可以存在于 starter 仓库");
+    expect(qualityProof).toContain("pnpm validate:launch-content");
+  });
+
+  it("keeps ai-smell repo profile pointed at current critical surfaces", () => {
+    const repoProfile = readRepoFile(
+      ".codex/skills/ai-smell-audit/references/repo-profile.md",
+    );
+
+    expect(repoProfile).toContain("src/app/actions.ts");
+    expect(repoProfile).toContain("src/app/api/inquiry/route.ts");
+    expect(repoProfile).toContain("src/app/api/subscribe/route.ts");
+    expect(repoProfile).toContain("src/app/api/verify-turnstile/route.ts");
+    expect(repoProfile).toContain("src/lib/turnstile.ts");
+    expect(repoProfile).toContain("src/lib/lead-pipeline/**");
+    expect(repoProfile).toContain("src/config/single-site-product-catalog.ts");
+    expect(repoProfile).toContain("src/constants/product-specs/**");
+    expect(repoProfile).toContain("tests/e2e/contact-form-smoke.spec.ts");
+    expect(repoProfile).toContain("tests/e2e/smoke/post-deploy-form.spec.ts");
+    expect(repoProfile).toContain("playwright.config.ts");
+    expect(repoProfile).toContain("docs/website/quality-proof.md");
+    expect(repoProfile).not.toContain("src/app/api/contact/**");
+    expect(repoProfile).not.toContain(
+      "src/components/products/product-inquiry-form",
+    );
+    expect(repoProfile).not.toContain("src/lib/idempotency/**");
+  });
+
+  it("records closure for every 2026-05-03 ai-smell finding", () => {
+    const closure = readRepoFile(
+      "docs/audits/ai-smell-remediation-20260503.md",
+    );
+
+    for (const findingId of [
+      "F-S21-001",
+      "F-S21-002",
+      "F-S28-001",
+      "F-S23-001",
+      "F-S25-001",
+      "F-S27-001",
+      "F-S31-001",
+      "F-S32-001",
+      "F-S30-001",
+    ]) {
+      expect(closure).toContain(findingId);
+    }
+
+    expect(closure).toContain("Public Demo Starter Site is out of scope");
+    expect(closure).toContain("Fresh verification");
+    expect(closure).toContain(
+      "| Finding | Changed files | Closure method | Verification | Remaining boundary |",
+    );
+    expect(closure).toContain("pnpm validate:launch-content");
+    expect(closure).toContain("scripts/validate-production-config.ts");
+    expect(closure).toContain("tests/e2e/contact-form-smoke.spec.ts");
+    expect(closure).toContain("playwright.config.ts");
+  });
 });

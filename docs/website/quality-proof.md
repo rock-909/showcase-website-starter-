@@ -79,6 +79,10 @@ pnpm website:build:cf
 - `messages/{locale}/{critical,deferred}.json`
 - `public/images/**/*.svg`
 - `src/config/website/**`
+- `src/config/single-site.ts`
+- `src/config/single-site-seo.ts`
+- `src/config/single-site-product-catalog.ts`
+- `src/constants/product-specs/**`
 - 明确会进入页面或结构化数据的 runtime config
 
 不要扫描：
@@ -92,7 +96,15 @@ pnpm website:build:cf
 
 Starter 现在提供 `pnpm website:content:readiness` 做第一轮自动检查。它只扫上面这些买家可见输入面，并故意排除 docs、tests、reports、generated output，以及 `messages/en.json` / `messages/zh.json` 这类 flat 兼容副本。
 
+client launch 前还要跑 `pnpm validate:launch-content`。这个 strict gate 会把 starter 公司身份、示例域名、示例邮箱、SEO 默认值、待确认 logo/product photos、`PUBLIC_LAUNCH_LEGAL_CONTENT_REVIEWED`，以及 About / Contact / Privacy / Terms 这类 owner-reviewed 内容作为上线阻断项。
+
+单站公司身份的 canonical authoring source 是 `src/config/single-site.ts`。`src/config/website/profile.ts` / `src/config/website/seo.ts` 只是兼容镜像层，必须与 `src/config/single-site.ts` 同步，不能当主来源。
+
 这个命令能证明明显的 starter / fake / placeholder 残留有没有被扫出来；它不能证明内容法律上正确、文案足够有说服力，或已经得到 owner 确认。
+
+对产品/服务页来说，catalog truth 是一整组输入面，不只是 `src/config/website/products.ts`。如果派生项目准备 client launch，产品分类、市场结构、product specs、messages 文案和产品图片都要一起替换。starter 示例可以存在于 starter 仓库；公开客户站不能把这些示例当成真实销售事实。
+
+crawl / indexing truth 也要单独看：`src/config/single-site-seo.ts` 控制 sitemap、robots、公共静态页面索引策略和 lastmod 来源。派生项目如果改了页面结构、产品市场或公开索引策略，不能只改 `src/config/website/seo.ts`。
 
 ### 3. 预览可观测性证明
 
