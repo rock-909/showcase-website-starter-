@@ -154,6 +154,31 @@
         "note": "上线前必须替换示例内容"
       }
     },
+    "starterBoundary": {
+      "title": "它看起来像成品，是为了证明上线路径能跑通。",
+      "description": "公开 demo 展示一套完整网站形态，同时把真实项目上线前必须替换的内容摆在明面上。",
+      "listLabel": "Starter 替换要求",
+      "items": [
+        {
+          "title": "替换业务身份",
+          "description": "公司名、域名、联系方式、法务主体、logo 和社交链接都要变成 owner 确认过的事实。"
+        },
+        {
+          "title": "替换业务内容",
+          "description": "产品、服务、证据、图片和响应承诺都要匹配真实业务。"
+        },
+        {
+          "title": "接通线索路径",
+          "description": "询盘表单、邮件、Airtable 或 CRM、Turnstile 和 canary 检查都要使用真实环境。"
+        },
+        {
+          "title": "证明部署结果",
+          "description": "Cloudflare 构建、预览检查、流量面板凭证和 owner 确认要和本地测试分开看。"
+        }
+      ],
+      "primary": "查看使用流程",
+      "secondary": "查看联系流程"
+    },
     "chain": {
       "title": "从内容到询盘，一条可复用流程。",
       "subtitle": "这个 starter 把内容、组件、预览和联系路径串起来，让每个新网站都从可运行基础开始。",

@@ -9,6 +9,7 @@ import { ProductsSection } from "@/components/sections/products-section";
 import { ResourcesSection } from "@/components/sections/resources-section";
 import { SampleCTA } from "@/components/sections/sample-cta";
 import { ScenariosSection } from "@/components/sections/scenarios-section";
+import { StarterBoundarySection } from "@/components/sections/starter-boundary-section";
 
 async function renderAsyncComponent(
   asyncComponent: React.JSX.Element | Promise<React.JSX.Element>,
@@ -21,6 +22,20 @@ const HOMEPAGE_SERVER_SECTION_SOURCES = [
   {
     filePath: "src/components/sections/chain-section.tsx",
     source: readFileSync("src/components/sections/chain-section.tsx", "utf8"),
+  },
+  {
+    filePath: "src/components/sections/starter-boundary-section.tsx",
+    source: readFileSync(
+      "src/components/sections/starter-boundary-section.tsx",
+      "utf8",
+    ),
+  },
+  {
+    filePath: "src/components/sections/starter-boundary-section-view.tsx",
+    source: readFileSync(
+      "src/components/sections/starter-boundary-section-view.tsx",
+      "utf8",
+    ),
   },
   {
     filePath: "src/components/sections/resources-section.tsx",
@@ -91,14 +106,27 @@ describe("Homepage section cluster contract", () => {
       screen.getByRole("heading", { level: 2, name: "products.title" }),
     ).toBeInTheDocument();
 
+    const starterBoundary = await renderAsyncComponent(
+      StarterBoundarySection(),
+    );
+    expect(
+      within(starterBoundary.container).getByRole("heading", {
+        level: 2,
+        name: "title",
+      }),
+    ).toBeInTheDocument();
+
     await renderAsyncComponent(ResourcesSection());
     expect(
       screen.getByRole("heading", { level: 2, name: "resources.title" }),
     ).toBeInTheDocument();
 
-    await renderAsyncComponent(ScenariosSection());
+    const scenarios = await renderAsyncComponent(ScenariosSection());
     expect(
-      screen.getByRole("heading", { level: 2, name: "title" }),
+      within(scenarios.container).getByRole("heading", {
+        level: 2,
+        name: "title",
+      }),
     ).toBeInTheDocument();
   });
 });

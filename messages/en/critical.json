@@ -154,6 +154,31 @@
         "note": "Replace example content before launch"
       }
     },
+    "starterBoundary": {
+      "title": "This demo looks finished because the starter should prove the launch path.",
+      "description": "The public demo shows a complete website shape while keeping the replacement work visible before a real business uses it.",
+      "listLabel": "Starter replacement requirements",
+      "items": [
+        {
+          "title": "Replace the business identity",
+          "description": "Company name, domain, contact details, legal body, logo, and social links must become owner-confirmed facts."
+        },
+        {
+          "title": "Replace the offer story",
+          "description": "Products, services, proof, images, and response promises must match the real business."
+        },
+        {
+          "title": "Connect the lead path",
+          "description": "Inquiry forms, email, Airtable or CRM destinations, Turnstile, and canary checks must use the real environment."
+        },
+        {
+          "title": "Prove the deployment",
+          "description": "Cloudflare build, preview smoke, dashboard credentials, and owner signoff stay separate from local test results."
+        }
+      ],
+      "primary": "See how it works",
+      "secondary": "Review contact flow"
+    },
     "chain": {
       "title": "From Content to Inquiry, One Reusable Flow.",
       "subtitle": "The starter keeps content, components, review surfaces, and contact paths connected so each new website starts from a working base.",
