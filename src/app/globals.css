@@ -15,7 +15,7 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ==================== PRIMITIVE TOKENS ==================== */
-/* Design System: Example Showcase Company-owned Radix-style roles.
+/* Design System: Showcase Website Starter-owned Radix-style roles.
    Values are provisional. Component code must consume semantic tokens. */
 
 :root {

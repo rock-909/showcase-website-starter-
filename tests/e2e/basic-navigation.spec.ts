@@ -15,7 +15,7 @@ test.describe("Basic Navigation", () => {
     await page.waitForLoadState("networkidle");
 
     // Check if the page title is correct
-    await expect(page).toHaveTitle(/Example Showcase Company/);
+    await expect(page).toHaveTitle(/Showcase Website Starter/);
 
     // Check if main navigation is present - use first() to avoid strict mode violation
     const navigation = page.locator("nav").first();
@@ -93,6 +93,9 @@ test.describe("Basic Navigation", () => {
     // 移动菜单可能是 sheet, dialog, 或带有特定 data-state 的元素
     const mobileMenu = page
       .locator('[data-testid="mobile-menu-content"]')
+      .or(
+        page.locator('[data-testid="header-mobile-navigation-fallback-panel"]'),
+      )
       .or(page.locator('[data-testid="mobile-menu"]'))
       .or(page.locator(".mobile-menu"))
       .or(page.locator('[data-state="open"][role="dialog"]'))

@@ -11,6 +11,7 @@ export interface ContactHeaderCopy {
 export interface ContactPanelContactCopy {
   title: string;
   emailLabel: string;
+  emailUnavailable: string;
   phoneLabel: string;
 }
 
@@ -47,6 +48,8 @@ const CONTACT_COPY_FALLBACKS = {
     "Get in touch with our team for inquiries, support, or partnership opportunities.",
   "panel.contactTitle": "Contact Methods",
   "panel.email": "Email",
+  "panel.emailUnavailable":
+    "Use the form on this page; configure a real receiver before public launch.",
   "panel.phone": "Phone",
   "panel.hoursTitle": "Business Hours",
   "panel.weekdays": "Mon - Fri",
@@ -122,6 +125,7 @@ export function getContactCopyFromMessages(
       contact: {
         title: pick("panel.contactTitle"),
         emailLabel: pick("panel.email"),
+        emailUnavailable: pick("panel.emailUnavailable"),
         phoneLabel: pick("panel.phone"),
       },
       hours: {

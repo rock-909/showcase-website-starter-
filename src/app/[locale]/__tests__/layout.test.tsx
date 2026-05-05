@@ -19,6 +19,7 @@ const {
   mockRuntimeEnv: {
     NODE_ENV: "development",
     PLAYWRIGHT_TEST: false,
+    NEXT_PUBLIC_TEST_MODE: "false",
     NEXT_PUBLIC_DISABLE_DEV_TOOLS: false,
     NEXT_PUBLIC_DISABLE_REACT_SCAN: false,
   },
@@ -80,6 +81,9 @@ vi.mock("@/lib/env", () => ({
   getRuntimeEnvString: (key: string) => {
     if (key === "NODE_ENV") {
       return mockRuntimeEnv.NODE_ENV;
+    }
+    if (key === "NEXT_PUBLIC_TEST_MODE") {
+      return mockRuntimeEnv.NEXT_PUBLIC_TEST_MODE;
     }
     return undefined;
   },
@@ -153,6 +157,7 @@ describe("LocaleLayout", () => {
     vi.clearAllMocks();
     mockRuntimeEnv.NODE_ENV = "development";
     mockRuntimeEnv.PLAYWRIGHT_TEST = false;
+    mockRuntimeEnv.NEXT_PUBLIC_TEST_MODE = "false";
     mockRuntimeEnv.NEXT_PUBLIC_DISABLE_DEV_TOOLS = false;
     mockRuntimeEnv.NEXT_PUBLIC_DISABLE_REACT_SCAN = false;
     mockGeneratePageStructuredData.mockResolvedValue({
@@ -207,6 +212,21 @@ describe("LocaleLayout", () => {
 
     it("disables all dev scripts when dev tools are disabled", async () => {
       mockRuntimeEnv.NEXT_PUBLIC_DISABLE_DEV_TOOLS = true;
+
+      const page = await LocaleLayout({
+        children: <div>Child</div>,
+        params: Promise.resolve({ locale: "en" }),
+      });
+
+      await renderAsyncPage(page);
+
+      expect(
+        document.querySelectorAll('script[data-testid="dev-script"]'),
+      ).toHaveLength(0);
+    });
+
+    it("disables all dev scripts when browser test mode is enabled", async () => {
+      mockRuntimeEnv.NEXT_PUBLIC_TEST_MODE = "true";
 
       const page = await LocaleLayout({
         children: <div>Child</div>,

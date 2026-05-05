@@ -103,7 +103,7 @@ test.describe("Header layout (bbox regression)", () => {
         await expect(languageToggle).toBeVisible({ timeout: 10_000 });
 
         const logoLink = page
-          .getByRole("link", { name: /Example Showcase Company/ })
+          .getByRole("link", { name: /Showcase Website Starter/ })
           .first();
 
         const logoBox = await expectBoundingBox(logoLink, "Logo link");

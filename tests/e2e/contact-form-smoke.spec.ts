@@ -38,8 +38,8 @@ test.describe("Contact Form - Test-Mode Smoke", () => {
     }
 
     return locale === "zh"
-      ? /联系.*Example Showcase Company|获取报价|联系我们/i
-      : /Contact.*Example Showcase Company|Get a Quote/i;
+      ? /联系.*Showcase Website Starter|获取报价|联系我们/i
+      : /Contact.*Showcase Website Starter|Get a Quote/i;
   };
 
   const supportedLocales = (process.env.NEXT_PUBLIC_SUPPORTED_LOCALES || "en")

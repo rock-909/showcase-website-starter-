@@ -1,8 +1,33 @@
 import type { BrandAssets } from "@/config/site-types";
 import { SINGLE_SITE_FACTS } from "@/config/single-site";
 
+const PLACEHOLDER_EMAIL_VALUES = new Set([
+  "sales@example.com",
+  "starter-contact@example.com",
+]);
 const PLACEHOLDER_PHONE_VALUES = new Set(["+86-518-0000-0000"]);
 const PHONE_ZERO_BLOCK_PATTERN = /(?:^|[-\s])0{3,}(?:[-\s]|$)/;
+const EXAMPLE_EMAIL_DOMAIN_PATTERN =
+  /@(?:example\.com|example\.org|example\.net)$/iu;
+
+export function isPublicEmailConfigured(
+  email: string | null | undefined,
+): email is string {
+  if (typeof email !== "string") return false;
+
+  const trimmed = email.trim();
+  if (trimmed.length === 0) return false;
+  if (PLACEHOLDER_EMAIL_VALUES.has(trimmed.toLowerCase())) return false;
+  if (EXAMPLE_EMAIL_DOMAIN_PATTERN.test(trimmed)) return false;
+
+  return true;
+}
+
+export function getPublicContactEmail(
+  email: string | null | undefined = SINGLE_SITE_FACTS.contact.email,
+): string | undefined {
+  return isPublicEmailConfigured(email) ? email.trim() : undefined;
+}
 
 export function isPublicPhoneConfigured(
   phone: string | null | undefined,

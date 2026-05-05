@@ -17,7 +17,7 @@ test.describe("Safe Navigation Tests", () => {
 
   test("should load homepage without interference", async ({ page }) => {
     // 检查页面基本元素
-    await expect(page).toHaveTitle(/Example Showcase Company/);
+    await expect(page).toHaveTitle(/Showcase Website Starter/);
 
     // 验证没有干扰元素
     const reactScanToolbar = page.locator("#react-scan-toolbar-root");

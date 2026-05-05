@@ -42,7 +42,7 @@
     }
   },
   "navigation": {
-    "siteName": "示例展示型公司",
+    "siteName": "Showcase Website Starter",
     "siteDescription": "用于展示产品、服务、证据和询盘路径的可复用网站 starter。",
     "home": "首页",
     "more": "更多",
@@ -432,7 +432,7 @@
     },
     "footer": {
       "about": {
-        "title": "示例展示型公司",
+        "title": "Showcase Website Starter",
         "desc": "可复用展示型网站 starter，用于展示业务、证据、资源和询盘路径。"
       },
       "products": {
@@ -462,8 +462,8 @@
           "item4": "项目评审"
         }
       },
-      "copyright": "© 2024 示例展示型公司有限公司 版权所有",
-      "location": "示例城市"
+      "copyright": "© 2024 Showcase Website Starter 版权所有",
+      "location": "上线前替换真实所在地"
     },
     "cta": {
       "message": "联系我们，获取样品或技术支持",
@@ -669,12 +669,12 @@
         "viewSource": "查看业务示例"
       }
     },
-    "title": "示例展示型公司",
+    "title": "Showcase Website Starter",
     "subtitle": "可复用展示型网站 Starter",
     "description": "用于展示产品、服务、证据和询盘路径的可复用网站 starter。",
     "getStarted": "开始使用",
     "learnMore": "了解更多",
-    "welcome": "欢迎来到示例展示型公司",
+    "welcome": "欢迎来到 Showcase Website Starter",
     "modernApp": "基于 Next.js 16 和 React 19 构建的现代化Web应用",
     "features": {
       "title": "特性",
@@ -797,7 +797,7 @@
     "learn": "学习",
     "examples": "示例",
     "goToNextjs": "访问nextjs.org",
-    "copyright": "(c) {year} 示例展示型公司。保留所有权利。",
+    "copyright": "(c) {year} Showcase Website Starter。保留所有权利。",
     "description": "用于展示产品、服务、证据和询盘路径的可复用网站 starter。"
   },
   "accessibility": {
@@ -844,6 +844,7 @@
         "panel": {
           "contactTitle": "联系方式",
           "email": "邮箱",
+          "emailUnavailable": "请使用本页表单；公开上线前需要配置真实接收方。",
           "phone": "电话",
           "hoursTitle": "营业时间",
           "weekdays": "周一 - 周五",
@@ -925,7 +926,7 @@
   },
   "structured-data": {
     "organization": {
-      "name": "示例展示型公司",
+      "name": "Showcase Website Starter",
       "description": "用于展示产品、服务、证据和询盘路径的可复用网站 starter",
       "phone": "请通过邮箱联系销售团队",
       "social": {
@@ -934,13 +935,13 @@
       }
     },
     "website": {
-      "name": "示例展示型公司",
+      "name": "Showcase Website Starter",
       "description": "用于展示产品、服务、证据和询盘路径的可复用网站 starter"
     },
     "article": {
       "defaultTitle": "文章",
       "defaultDescription": "文章描述",
-      "defaultAuthor": "示例展示型公司"
+      "defaultAuthor": "Showcase Website Starter"
     },
     "product": {
       "defaultName": "产品",
@@ -1696,6 +1697,7 @@
     "panel": {
       "contactTitle": "联系方式",
       "email": "邮箱",
+      "emailUnavailable": "请使用本页表单；公开上线前需要配置真实接收方。",
       "phone": "电话",
       "hoursTitle": "营业时间",
       "weekdays": "周一 - 周五",
@@ -1874,7 +1876,7 @@
   "emailPlaceholder": "your@email.com",
   "phone": "电话号码",
   "organization": {
-    "name": "示例展示型公司",
+    "name": "Showcase Website Starter",
     "description": "用于展示产品、服务、证据和询盘路径的可复用网站 starter",
     "phone": "请通过邮箱联系销售团队",
     "social": {
@@ -1883,11 +1885,11 @@
     }
   },
   "website": {
-    "name": "示例展示型公司",
+    "name": "Showcase Website Starter",
     "description": "用于展示产品、服务、证据和询盘路径的可复用网站 starter"
   },
   "article": {
-    "defaultAuthor": "示例展示型公司"
+    "defaultAuthor": "Showcase Website Starter"
   },
   "products": {
     "pageTitle": "产品中心",
@@ -1939,7 +1941,7 @@
       "turnstileRequired": "请完成安全验证。"
     }
   },
-  "title": "示例展示型公司",
+  "title": "Showcase Website Starter",
   "trust": {
     "testimonials": {
       "title": "客户评价",
@@ -2009,7 +2011,7 @@
   },
   "customProject": {
     "meta": {
-      "title": "定制项目支持 | 示例展示型公司",
+      "title": "定制项目支持 | Showcase Website Starter",
       "description": "可替换的定制项目示例，用于说明范围、方案、品牌适配、确认和交付。"
     },
     "hero": {

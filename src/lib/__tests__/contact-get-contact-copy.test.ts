@@ -26,6 +26,8 @@ describe("getContactCopy", () => {
     description: "Get in touch with our team",
     "panel.contactTitle": "Contact Methods",
     "panel.email": "Email",
+    "panel.emailUnavailable":
+      "Use the form on this page; configure a real receiver before public launch.",
     "panel.phone": "Phone",
     "panel.hoursTitle": "Business Hours",
     "panel.weekdays": "Mon - Fri",
@@ -50,6 +52,7 @@ describe("getContactCopy", () => {
       panel: {
         contactTitle: defaultTranslations["panel.contactTitle"],
         email: defaultTranslations["panel.email"],
+        emailUnavailable: defaultTranslations["panel.emailUnavailable"],
         phone: defaultTranslations["panel.phone"],
         hoursTitle: defaultTranslations["panel.hoursTitle"],
         weekdays: defaultTranslations["panel.weekdays"],
@@ -96,6 +99,7 @@ describe("getContactCopy", () => {
         panel: {
           contactTitle: "Top-level methods",
           email: "Top-level email",
+          emailUnavailable: "Top-level email unavailable",
           phone: "Top-level phone",
           hoursTitle: "Top-level hours",
           weekdays: "Top-level weekdays",
@@ -119,6 +123,7 @@ describe("getContactCopy", () => {
             panel: {
               contactTitle: "Legacy methods",
               email: "Legacy email",
+              emailUnavailable: "Legacy email unavailable",
               phone: "Legacy phone",
               hoursTitle: "Legacy hours",
               weekdays: "Legacy weekdays",
@@ -154,6 +159,7 @@ describe("getContactCopy", () => {
             panel: {
               contactTitle: "Legacy methods",
               email: "Legacy email",
+              emailUnavailable: "Legacy email unavailable",
               phone: "Legacy phone",
               hoursTitle: "Legacy hours",
               weekdays: "Legacy weekdays",

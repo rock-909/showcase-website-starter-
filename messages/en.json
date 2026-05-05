@@ -42,7 +42,7 @@
     }
   },
   "navigation": {
-    "siteName": "Example Showcase Company",
+    "siteName": "Showcase Website Starter",
     "siteDescription": "Reusable showcase website starter for products, services, proof, and inquiry paths.",
     "home": "Home",
     "more": "More",
@@ -432,7 +432,7 @@
     },
     "footer": {
       "about": {
-        "title": "Example Showcase Company",
+        "title": "Showcase Website Starter",
         "desc": "A replaceable showcase website starter for presenting offers, proof, resources, and inquiry paths."
       },
       "products": {
@@ -462,7 +462,7 @@
           "item4": "Project Review"
         }
       },
-      "copyright": "© 2024 Example Showcase Company Ltd. All rights reserved.",
+      "copyright": "© 2024 Showcase Website Starter. All rights reserved.",
       "location": "Replace with real dispatch point"
     },
     "cta": {
@@ -669,12 +669,12 @@
         "viewSource": "View Offerings"
       }
     },
-    "title": "Example Showcase Company",
+    "title": "Showcase Website Starter",
     "subtitle": "Reusable Showcase Website Starter",
     "description": "Reusable website starter for product, service, proof, and inquiry presentation.",
     "getStarted": "Get Started",
     "learnMore": "Learn More",
-    "welcome": "Welcome to Example Showcase Company",
+    "welcome": "Welcome to Showcase Website Starter",
     "modernApp": "A modern web application built with Next.js 16 and React 19",
     "features": {
       "title": "Features",
@@ -797,7 +797,7 @@
     "learn": "Learn",
     "examples": "Examples",
     "goToNextjs": "Go to nextjs.org",
-    "copyright": "(c) {year} Example Showcase Company. All rights reserved.",
+    "copyright": "(c) {year} Showcase Website Starter. All rights reserved.",
     "description": "Reusable showcase website starter for products, services, proof, and inquiry paths."
   },
   "accessibility": {
@@ -844,6 +844,7 @@
         "panel": {
           "contactTitle": "Contact Methods",
           "email": "Email",
+          "emailUnavailable": "Use the form on this page; configure a real receiver before public launch.",
           "phone": "Phone",
           "hoursTitle": "Business Hours",
           "weekdays": "Mon - Fri",
@@ -925,7 +926,7 @@
   },
   "structured-data": {
     "organization": {
-      "name": "Example Showcase Company",
+      "name": "Showcase Website Starter",
       "description": "Reusable showcase website starter for products, services, proof, and inquiry paths",
       "phone": "Contact sales by email",
       "social": {
@@ -934,13 +935,13 @@
       }
     },
     "website": {
-      "name": "Example Showcase Company",
+      "name": "Showcase Website Starter",
       "description": "Reusable showcase website starter for products, services, proof, and inquiry paths"
     },
     "article": {
       "defaultTitle": "Article",
       "defaultDescription": "Article description",
-      "defaultAuthor": "Example Showcase Company"
+      "defaultAuthor": "Showcase Website Starter"
     },
     "product": {
       "defaultName": "Product",
@@ -1696,6 +1697,7 @@
     "panel": {
       "contactTitle": "Contact Methods",
       "email": "Email",
+      "emailUnavailable": "Use the form on this page; configure a real receiver before public launch.",
       "phone": "Phone",
       "hoursTitle": "Business Hours",
       "weekdays": "Mon - Fri",
@@ -1874,7 +1876,7 @@
   "emailPlaceholder": "your@email.com",
   "phone": "Phone Number",
   "organization": {
-    "name": "Example Showcase Company",
+    "name": "Showcase Website Starter",
     "description": "Reusable showcase website starter for products, services, proof, and inquiry paths",
     "phone": "Contact sales by email",
     "social": {
@@ -1883,11 +1885,11 @@
     }
   },
   "website": {
-    "name": "Example Showcase Company",
+    "name": "Showcase Website Starter",
     "description": "Reusable showcase website starter for products, services, proof, and inquiry paths"
   },
   "article": {
-    "defaultAuthor": "Example Showcase Company"
+    "defaultAuthor": "Showcase Website Starter"
   },
   "products": {
     "pageTitle": "Products",
@@ -1939,7 +1941,7 @@
       "turnstileRequired": "Please complete the security verification."
     }
   },
-  "title": "Example Showcase Company",
+  "title": "Showcase Website Starter",
   "trust": {
     "testimonials": {
       "title": "What Our Clients Say",
@@ -2009,7 +2011,7 @@
   },
   "customProject": {
     "meta": {
-      "title": "Custom Project Support | Example Showcase Company",
+      "title": "Custom Project Support | Showcase Website Starter",
       "description": "Replaceable custom-project example for scope, proposal, brand adaptation, review, and delivery."
     },
     "hero": {

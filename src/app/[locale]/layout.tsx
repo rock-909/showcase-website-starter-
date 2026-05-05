@@ -149,6 +149,7 @@ export default async function LocaleLayout({
   setRequestLocale(typedLocale);
   const disableDevTools =
     getRuntimeEnvBoolean("PLAYWRIGHT_TEST") === true ||
+    getRuntimeEnvString("NEXT_PUBLIC_TEST_MODE") === "true" ||
     getRuntimeEnvBoolean("NEXT_PUBLIC_DISABLE_DEV_TOOLS") === true;
   const disableReactScan =
     disableDevTools ||

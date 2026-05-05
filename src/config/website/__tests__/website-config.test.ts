@@ -11,9 +11,9 @@ import {
 
 describe("website config", () => {
   it("provides a complete replaceable website profile", () => {
-    expect(websiteProfile.name).toBeTruthy();
+    expect(websiteProfile.name).toBe("Showcase Website Starter");
     expect(websiteProfile.domain).toBe("example.com");
-    expect(websiteProfile.email).toBe("sales@example.com");
+    expect(websiteProfile.email).toBe("starter-contact@example.com");
   });
 
   it("provides page assembly inputs", () => {
@@ -30,7 +30,7 @@ describe("website config", () => {
 
   it("provides product and contact defaults", () => {
     expect(websiteProductCategories.length).toBeGreaterThan(0);
-    expect(websiteContact.recipientEmail).toBe("sales@example.com");
+    expect(websiteContact.recipientEmail).toBe("starter-contact@example.com");
     expect(websiteSeo.siteUrl).toBe("https://example.com");
   });
 });

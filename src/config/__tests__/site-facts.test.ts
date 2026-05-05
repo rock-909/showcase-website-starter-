@@ -48,11 +48,19 @@ describe("site-facts", () => {
 
   it("keeps owner-dependent public trust assets in a safe interim state", async () => {
     const {
+      getPublicContactEmail,
       getPublicContactPhone,
       getPublicLogoPath,
+      isPublicEmailConfigured,
       isPublicPhoneConfigured,
     } = await import("@/config/public-trust");
 
+    expect(isPublicEmailConfigured("sales@example.com")).toBe(false);
+    expect(isPublicEmailConfigured("hello@starter.dev")).toBe(true);
+    expect(getPublicContactEmail("sales@example.com")).toBeUndefined();
+    expect(getPublicContactEmail("hello@starter.dev")).toBe(
+      "hello@starter.dev",
+    );
     expect(isPublicPhoneConfigured("+86-518-0000-0000")).toBe(false);
     expect(isPublicPhoneConfigured("+86-138-0013-8000")).toBe(true);
     expect(getPublicContactPhone("+86-518-0000-0000")).toBeUndefined();

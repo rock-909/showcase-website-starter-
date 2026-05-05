@@ -215,8 +215,8 @@ describe("paths configuration", () => {
     });
 
     it("should have basic site information", () => {
-      expect(SITE_CONFIG.name).toBe("Example Showcase Company");
-      expect(SITE_CONFIG.description).toContain("Showcase website example");
+      expect(SITE_CONFIG.name).toBe("Showcase Website Starter");
+      expect(SITE_CONFIG.description).toMatch(/public demo starter/iu);
     });
 
     it("should use environment variable for baseUrl", () => {

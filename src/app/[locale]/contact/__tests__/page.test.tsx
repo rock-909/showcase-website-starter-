@@ -172,7 +172,7 @@ describe("ContactPage MDX migration", () => {
     expect(screen.getByText("建议提供")).toBeInTheDocument();
   });
 
-  it("does not render the owner phone row while the public phone is not configured", async () => {
+  it("does not render placeholder contact details while public contact facts are not configured", async () => {
     const { ContactMethodsCard } = await import("../contact-page-sections");
 
     render(
@@ -180,12 +180,19 @@ describe("ContactPage MDX migration", () => {
         copy={{
           title: "Contact Methods",
           emailLabel: "Email",
+          emailUnavailable:
+            "Use the form on this page; configure a real receiver before public launch.",
           phoneLabel: "Phone",
         }}
       />,
     );
 
-    expect(screen.getByText("sales@example.com")).toBeInTheDocument();
+    expect(screen.queryByText("sales@example.com")).not.toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Use the form on this page; configure a real receiver before public launch.",
+      ),
+    ).toBeInTheDocument();
     expect(screen.queryByText("+86-518-0000-0000")).not.toBeInTheDocument();
     expect(screen.queryByText("Phone")).not.toBeInTheDocument();
   });
@@ -277,17 +284,13 @@ describe("ContactPage MDX migration", () => {
       params: Promise.resolve({ locale: "zh" }),
     });
 
-    expect(enMetadata.title).toBe(
-      "Contact Example Showcase Company | Starter Inquiry Example",
-    );
+    expect(enMetadata.title).toBe("Contact | Showcase Website Starter");
     expect(enMetadata.description).toBe(
-      "A replaceable contact page example for quote requests, service questions, demo requests, or general inquiries.",
+      "Use this starter contact page as a quick action for inquiries, demo requests, or launch questions before connecting a real receiver.",
     );
-    expect(zhMetadata.title).toBe(
-      "联系 Example Showcase Company | Starter 询盘示例",
-    );
+    expect(zhMetadata.title).toBe("联系 | Showcase Website Starter");
     expect(zhMetadata.description).toBe(
-      "可替换的联系页面示例，可用于报价请求、服务咨询、演示预约或一般联系。",
+      "这个 starter 联系页可作为询盘、演示预约或上线问题的快速入口；正式上线前请接入真实接收方。",
     );
     expect(enMetadata.other?.google).not.toBe("notranslate");
     expect(zhMetadata.other?.google).not.toBe("notranslate");
