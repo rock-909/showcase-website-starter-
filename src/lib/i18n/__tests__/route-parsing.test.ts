@@ -46,11 +46,16 @@ describe("route-parsing", () => {
       });
     });
 
-    it("does not match removed blog paths", () => {
-      const match = DYNAMIC_ROUTE_PATTERNS.find((p) =>
+    it("includes blog article pattern", () => {
+      const articlePattern = DYNAMIC_ROUTE_PATTERNS.find((p) =>
         p.pattern.test("/blog/my-post"),
       );
-      expect(match).toBeUndefined();
+      expect(articlePattern).toBeDefined();
+      const match = "/blog/my-post".match(articlePattern!.pattern)!;
+      expect(articlePattern?.buildHref(match)).toEqual({
+        pathname: "/blog/[slug]",
+        params: { slug: "my-post" },
+      });
     });
 
     it("does not match three-segment product paths", () => {
@@ -130,8 +135,18 @@ describe("route-parsing", () => {
         });
       });
 
-      it("leaves removed blog slugs as static strings", () => {
-        expect(parsePathnameForLink("/blog/my-post")).toBe("/blog/my-post");
+      it("returns blog article dynamic route object", () => {
+        expect(parsePathnameForLink("/blog/my-post")).toEqual({
+          pathname: "/blog/[slug]",
+          params: { slug: "my-post" },
+        });
+      });
+
+      it("handles blog article route with locale prefix", () => {
+        expect(parsePathnameForLink("/zh/blog/my-post")).toEqual({
+          pathname: "/blog/[slug]",
+          params: { slug: "my-post" },
+        });
       });
     });
 

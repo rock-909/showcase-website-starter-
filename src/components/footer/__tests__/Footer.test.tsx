@@ -46,6 +46,51 @@ describe("Footer Component", () => {
     });
   });
 
+  it("keeps footer navigation aligned with the four-page public IA", () => {
+    render(<Footer />);
+
+    const footerNav = screen.getByRole("navigation", {
+      name: /footer navigation/i,
+    });
+    const navigationSection = footerNav
+      .querySelector("#navigation-heading")
+      ?.closest("section");
+    const supportSection = footerNav
+      .querySelector("#support-heading")
+      ?.closest("section");
+
+    expect(navigationSection).not.toBeNull();
+    expect(supportSection).not.toBeNull();
+
+    const navigationLinks = Array.from(
+      navigationSection?.querySelectorAll("a") ?? [],
+    ).map((link) => ({
+      href: link.getAttribute("href"),
+      text: link.textContent,
+    }));
+    const supportLinks = Array.from(
+      supportSection?.querySelectorAll("a") ?? [],
+    ).map((link) => ({
+      href: link.getAttribute("href"),
+      text: link.textContent,
+    }));
+
+    expect(navigationLinks).toEqual([
+      { href: "/", text: "Home" },
+      { href: "/products", text: "Products" },
+      { href: "/blog", text: "Blog" },
+      { href: "/about", text: "About" },
+    ]);
+    expect(navigationLinks).not.toContainEqual({
+      href: "/contact",
+      text: "Contact",
+    });
+    expect(supportLinks).toContainEqual({
+      href: "/contact",
+      text: "Contact",
+    });
+  });
+
   it("renders social links section", () => {
     render(<Footer />);
 

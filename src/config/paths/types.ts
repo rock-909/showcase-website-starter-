@@ -19,12 +19,13 @@ export type PageType =
   | "about"
   | "contact"
   | "products"
+  | "blog"
   | "privacy"
   | "terms"
   | "customProject";
 
 // 动态路由类型定义
-export type DynamicPageType = "productMarket";
+export type DynamicPageType = "productMarket" | "blogArticle";
 
 // 动态路由路径模式
 export interface DynamicRoutePattern {

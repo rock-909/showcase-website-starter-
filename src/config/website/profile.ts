@@ -14,13 +14,13 @@ export interface WebsiteProfile {
 }
 
 export const websiteProfile: WebsiteProfile = {
-  name: "Example Showcase Company",
-  legalName: "Example Showcase Company Ltd.",
-  tagline: "Product and service presentation for serious buyers.",
+  name: "Showcase Website Starter",
+  legalName: "Showcase Website Starter",
+  tagline: "Public demo starter for launch-ready showcase websites.",
   domain: "example.com",
-  email: "sales@example.com",
+  email: "starter-contact@example.com",
   phone: "+1 000 000 0000",
-  address: "Example Business Park, Example City",
+  address: "Replace before launch",
   foundedYear: 2020,
   socialLinks: {
     linkedin: "https://www.linkedin.com/company/example",

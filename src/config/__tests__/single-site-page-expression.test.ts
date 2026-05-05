@@ -112,7 +112,7 @@ describe("single-site-page-expression", () => {
     expect(SINGLE_SITE_PRODUCTS_PAGE_EXPRESSION.marketLanding.ctaHref).toBe(
       "/contact",
     );
-    expect(SINGLE_SITE_ABOUT_PAGE_EXPRESSION.ctaHref).toBe("/contact");
+    expect(SINGLE_SITE_ABOUT_PAGE_EXPRESSION.ctaHref).toBe("/products");
     expect(SINGLE_SITE_CUSTOM_PROJECT_PAGE_EXPRESSION.ctaHref).toBe("/contact");
   });
 });

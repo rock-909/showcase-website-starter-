@@ -447,13 +447,7 @@ test.describe("Internationalization (i18n)", () => {
       } else {
         await expect(nav).toBeVisible();
       }
-      const englishNavItems = [
-        "Home",
-        "Products",
-        "Custom",
-        "About",
-        "Contact",
-      ];
+      const englishNavItems = ["Home", "Products", "Blog", "About"];
 
       for (const item of englishNavItems) {
         const candidate = container
@@ -500,7 +494,7 @@ test.describe("Internationalization (i18n)", () => {
       await waitForStablePage(page);
 
       // Test Chinese navigation (adjust based on actual translations)
-      const chineseNavItems = ["首页", "产品", "定制项目", "关于", "联系我们"];
+      const chineseNavItems = ["首页", "产品", "博客", "关于"];
 
       // Recompute container after navigation to zh (dialog/nav may have re-rendered)
       {

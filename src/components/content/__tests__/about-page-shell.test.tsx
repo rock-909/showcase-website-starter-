@@ -37,50 +37,59 @@ vi.mock("@/i18n/routing", () => ({
 }));
 
 const baseMetadata: PageMetadata = {
-  title: "About Example Showcase Company",
-  description: "Reusable showcase website starter example",
+  title: "About this showcase website starter",
+  description:
+    "Learn why this starter exists, who it fits, who it does not fit, and what must be replaced before launch.",
   slug: "about",
   publishedAt: "2024-01-01",
-  heroTitle: "Our Story",
-  heroSubtitle: "Showcase Website Starter",
-  heroDescription: "Reusable page structure since 2018.",
+  heroTitle:
+    "A showcase website starter designed for real public launch preparation",
+  heroSubtitle: "Not a fictional company profile",
+  heroDescription:
+    "This page explains what the starter is, who it fits, and what must still become real before a public launch.",
   aboutSections: {
-    valuesTitle: "Starter Capabilities",
+    valuesTitle: "What this starter is designed to protect",
     values: {
       quality: {
-        title: "Clear Structure",
-        description: "Consistent content ownership.",
+        title: "Launch structure",
+        description:
+          "The starter keeps pages, navigation, inquiry paths, and replacement work in one clear public-site structure.",
       },
       innovation: {
-        title: "Reusable Components",
-        description: "Shared component development.",
+        title: "Reusable foundation",
+        description:
+          "It provides a working foundation that can be adapted without rebuilding every route and component from zero.",
       },
       service: {
-        title: "Contact Flow",
-        description: "Visitor support from inquiry to follow-up.",
+        title: "Owner clarity",
+        description:
+          "The site makes visible what a real owner must confirm before launch.",
       },
       integrity: {
-        title: "Verified Proof",
-        description: "Placeholder claims must be replaced.",
+        title: "Honest boundary",
+        description:
+          "It is not an empty shell, but it is also not a finished client website.",
       },
     },
     statLabels: {
-      yearsExperience: "Years Experience",
-      countriesServed: "Example Markets",
-      happyClients: "Team Members",
-      productsDelivered: "Example Footprint",
+      yearsExperience: "Starter baseline",
+      countriesServed: "Locales",
+      happyClients: "Replacement surfaces",
+      productsDelivered: "Launch path",
     },
     cta: {
-      title: "Adapt This Starter",
-      description: "Discuss your project with our team.",
-      button: "Start Inquiry",
+      title: "Review the starter capabilities",
+      description:
+        "See what the starter includes before replacing it with real business facts and assets.",
+      button: "View products",
     },
   },
   faq: [
     {
       id: "starter-purpose",
-      question: "Is this a finished website?",
-      answer: "{companyName} is a replaceable starter identity.",
+      question: "Is this a finished client website?",
+      answer:
+        "No. This is a reusable starter demo with working structure and replaceable example content.",
     },
   ],
 };
@@ -96,10 +105,19 @@ describe("AboutPageShell", () => {
     );
 
     expect(
-      screen.getByRole("heading", { level: 1, name: "Our Story" }),
+      screen.getByRole("heading", {
+        level: 1,
+        name: "A showcase website starter designed for real public launch preparation",
+      }),
     ).toBeInTheDocument();
-    expect(screen.getByText("Showcase Website Starter")).toBeInTheDocument();
-    expect(screen.getByText("Reusable page structure since 2018.")).toBeInTheDocument();
+    expect(
+      screen.getByText("Not a fictional company profile"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "This page explains what the starter is, who it fits, and what must still become real before a public launch.",
+      ),
+    ).toBeInTheDocument();
   });
 
   it("renders value cards and stat items", () => {
@@ -112,9 +130,11 @@ describe("AboutPageShell", () => {
     );
 
     expect(
-      screen.getByRole("heading", { name: "Starter Capabilities" }),
+      screen.getByRole("heading", {
+        name: "What this starter is designed to protect",
+      }),
     ).toBeInTheDocument();
-    expect(screen.getByText("Clear Structure")).toBeInTheDocument();
+    expect(screen.getByText("Launch structure")).toBeInTheDocument();
   });
 
   it("renders FAQ section when faq items present", () => {
@@ -182,7 +202,7 @@ describe("AboutPageShell", () => {
     expect(screen.queryByText(/faq:/)).not.toBeInTheDocument();
   });
 
-  it("renders CTA with link to contact page", () => {
+  it("renders CTA with link to products page", () => {
     render(
       <AboutPageShell
         metadata={baseMetadata}
@@ -191,8 +211,8 @@ describe("AboutPageShell", () => {
       />,
     );
 
-    const ctaLink = screen.getByRole("link", { name: /start inquiry/i });
-    expect(ctaLink).toHaveAttribute("href", "/contact");
+    const ctaLink = screen.getByRole("link", { name: /view products/i });
+    expect(ctaLink).toHaveAttribute("href", "/products");
   });
 
   it("falls back to title when heroTitle is absent", () => {
@@ -210,7 +230,7 @@ describe("AboutPageShell", () => {
     expect(
       screen.getByRole("heading", {
         level: 1,
-        name: "About Example Showcase Company",
+        name: "About this showcase website starter",
       }),
     ).toBeInTheDocument();
   });
@@ -229,6 +249,6 @@ describe("AboutPageShell", () => {
     const aboutNode = data["@graph"].find(
       (node: Record<string, unknown>) => node["@type"] === "AboutPage",
     );
-    expect(aboutNode.name).toBe("About Example Showcase Company");
+    expect(aboutNode.name).toBe("About this showcase website starter");
   });
 });

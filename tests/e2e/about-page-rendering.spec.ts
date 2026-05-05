@@ -51,4 +51,28 @@ test.describe("About page MDX rendering", () => {
       }
     });
   }
+
+  test("en about page explains starter identity instead of a fictional company", async ({
+    page,
+  }) => {
+    await page.goto("/en/about", { waitUntil: "domcontentloaded" });
+    await page.waitForURL("**/en/about");
+    await waitForLoadWithFallback(page, {
+      context: "about starter identity en",
+      loadTimeout: 10_000,
+      fallbackDelay: 500,
+    });
+    await removeInterferingElements(page);
+    await waitForStablePage(page);
+
+    await expect(
+      page.getByRole("heading", {
+        level: 1,
+        name: /showcase website starter designed for real public launch/i,
+      }),
+    ).toBeVisible();
+    await expect(
+      page.getByText(/not a fictional company profile/i),
+    ).toBeVisible();
+  });
 });

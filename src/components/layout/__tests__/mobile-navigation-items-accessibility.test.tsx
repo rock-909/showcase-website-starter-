@@ -74,6 +74,7 @@ describe("Mobile Navigation - Advanced Integration Tests", () => {
           "navigation.capabilities": "Capabilities",
           "navigation.howItWorks": "How It Works",
           "navigation.products": "Products",
+          "navigation.blog": "Blog",
           "navigation.customProject": "Custom",
           "navigation.contact": "Contact",
           "navigation.menu": "Toggle mobile menu",
@@ -210,12 +211,9 @@ describe("Mobile Navigation - Advanced Integration Tests", () => {
       // Navigation items + CTA + language switcher links
       expect(linkTexts).toEqual([
         "Home",
-        "Capabilities",
-        "How It Works",
         "Products",
-        "Custom",
+        "Blog",
         "About",
-        "Contact",
         "Contact Sales",
         "English✓",
         "简体中文",

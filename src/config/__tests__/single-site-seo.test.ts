@@ -18,13 +18,14 @@ describe("single-site-seo", () => {
   it("keeps public static sitemap pages as an explicit route allowlist", () => {
     expect(SINGLE_SITE_PUBLIC_STATIC_PAGE_ROUTES).toEqual([
       "home",
-      "capabilities",
-      "howItWorks",
       "about",
-      "contact",
       "products",
+      "blog",
+      "contact",
       "privacy",
       "terms",
+      "capabilities",
+      "howItWorks",
       "customProject",
     ]);
     expect([...SINGLE_SITE_PUBLIC_STATIC_PAGE_ROUTES].sort()).toEqual(
@@ -53,6 +54,10 @@ describe("single-site-seo", () => {
       SINGLE_SITE_SITEMAP_PAGE_CONFIG[getCanonicalPath("capabilities")],
     ).toEqual({
       changeFrequency: "monthly",
+      priority: 0.85,
+    });
+    expect(SINGLE_SITE_SITEMAP_PAGE_CONFIG[getCanonicalPath("blog")]).toEqual({
+      changeFrequency: "weekly",
       priority: 0.85,
     });
     expect(

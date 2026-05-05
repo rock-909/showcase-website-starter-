@@ -35,86 +35,80 @@ const _entries: ContentEntry[] = [
     "relativePath": "content/pages/en/about.mdx",
     "metadata": {
       "locale": "en",
-      "title": "About Example Showcase Company",
-      "description": "Learn how this replaceable showcase website example presents offerings, proof, resources, and inquiry paths for a real business.",
+      "title": "About this showcase website starter",
+      "description": "Learn why this starter exists, who it fits, who it does not fit, and what must be replaced before launch.",
       "slug": "about",
       "publishedAt": "2024-01-10",
-      "updatedAt": "2026-04-30",
-      "author": "Example Showcase Company Team",
+      "updatedAt": "2026-05-05",
+      "author": "Showcase Website Starter Team",
       "layout": "default",
       "showToc": true,
-      "lastReviewed": "2026-04-30",
+      "lastReviewed": "2026-05-05",
       "draft": false,
-      "heroTitle": "About Example Showcase Company",
-      "heroSubtitle": "Replaceable showcase website example",
-      "heroDescription": "This page demonstrates how a company can explain its offer, credibility, process, and contact path before real business content is added.",
+      "heroTitle": "A showcase website starter designed for real public launch preparation",
+      "heroSubtitle": "Not a fictional company profile",
+      "heroDescription": "This page explains what the starter is, who it fits, and what must still become real before a public launch.",
       "seo": {
-        "title": "About Example Showcase Company",
-        "description": "A replaceable about-page example for a showcase website starter, built to help future projects present company facts, proof, and next steps.",
+        "title": "About this showcase website starter",
+        "description": "Starter identity, fit, boundaries, and replacement requirements for a public showcase website foundation.",
         "keywords": [
           "showcase website starter",
-          "about page example",
-          "company website example",
-          "inquiry website"
+          "starter boundary",
+          "public launch website"
         ],
         "ogImage": "/images/about-og.jpg"
       },
       "aboutSections": {
-        "valuesTitle": "What This Starter Demonstrates",
+        "valuesTitle": "What this starter is designed to protect",
         "values": {
           "quality": {
-            "title": "Clear Structure",
-            "description": "Pages are organized around offer, proof, resources, and next action so a real project can replace content without rebuilding layout."
+            "title": "Launch structure",
+            "description": "The starter keeps pages, navigation, inquiry paths, and replacement work in one clear public-site structure."
           },
           "innovation": {
-            "title": "Reusable Components",
-            "description": "Shared UI primitives, sections, and Storybook stories help future AI work reuse instead of duplicating components."
+            "title": "Reusable foundation",
+            "description": "It provides a working foundation that can be adapted without rebuilding every route and component from zero."
           },
           "service": {
-            "title": "Simple Inquiry Path",
-            "description": "The contact path stays visible and low-friction, with copy that can be adapted to quote, booking, demo, or sample requests."
+            "title": "Owner clarity",
+            "description": "The site makes visible what a real owner must confirm before launch."
           },
           "integrity": {
-            "title": "Replaceable Proof",
-            "description": "Example certifications, metrics, and claims are placeholders. Real projects must replace them with verified evidence."
+            "title": "Honest boundary",
+            "description": "It is not an empty shell, but it is also not a finished client website."
           }
         },
         "statLabels": {
-          "yearsExperience": "Example Years",
-          "countriesServed": "Example Markets",
-          "happyClients": "Example Team Size",
-          "productsDelivered": "Example Footprint"
+          "yearsExperience": "Starter baseline",
+          "countriesServed": "Locales",
+          "happyClients": "Replacement surfaces",
+          "productsDelivered": "Launch path"
         },
         "cta": {
-          "title": "Adapt This Starter for a Real Website",
-          "description": "Replace brand facts, page copy, images, product or service data, contact handling, and deployment settings before launch.",
-          "button": "Start With Contact"
+          "title": "Review the starter capabilities",
+          "description": "See what the starter includes before replacing it with real business facts and assets.",
+          "button": "View products"
         }
       },
       "faq": [
         {
           "id": "starter-purpose",
           "question": "Is this a finished client website?",
-          "answer": "No. This is a reusable starter with example content. Replace all example business facts before using it for a real company."
+          "answer": "No. This is a reusable starter demo with working structure and replaceable example content."
+        },
+        {
+          "id": "who-fits",
+          "question": "Who is this starter for?",
+          "answer": "It fits projects that do not yet have a public website and need a fast, clear showcase-site foundation."
         },
         {
           "id": "what-to-replace",
-          "question": "What should be replaced first?",
-          "answer": "Start with company name, domain, contact details, product or service categories, page content, proof assets, and deployment secrets."
-        },
-        {
-          "id": "storybook",
-          "question": "Why does this starter include Storybook?",
-          "answer": "Storybook gives humans and AI a component preview surface, making it easier to review variants, states, and reuse decisions."
-        },
-        {
-          "id": "content-source",
-          "question": "Where does page content live?",
-          "answer": "Brand facts live in src/config/website, page prose lives in the locale folders under content/pages, and shared UI text lives in the locale files under messages."
+          "question": "What must be replaced before launch?",
+          "answer": "Replace business facts, page content, images, legal copy, form routing, secrets, and deployment settings."
         }
       ]
     },
-    "content": "\n## What This Project Is\n\nExample Showcase Company is a placeholder identity used to demonstrate a complete showcase website.\n\nThe starter keeps real website structure: homepage sections, product or service examples, an about page, contact flow, legal pages, Storybook, design tokens, rules, tests, and deployment scripts.\n\nThe content is intentionally replaceable. It should help you judge layout and quality, not act as a real business claim.\n\n## What You Replace\n\n### Brand Facts\n\nReplace the company name, legal name, tagline, domain, email, phone, address, and social links.\n\n### Offerings\n\nReplace the example product and service categories with the real offer your project needs to present.\n\n### Proof\n\nReplace placeholder certifications, metrics, customer references, process claims, images, and documents with verified evidence.\n\n### Deployment\n\nReplace Cloudflare account settings, domain routes, form receivers, email service credentials, Turnstile keys, and other secrets.\n\n## Why This Starter Exists\n\nAI can create pages quickly, but without governance it may duplicate components, hard-code styles, scatter copy, or forget verification.\n\nThis starter keeps the reusable pieces in place:\n\n- component governance;\n- Storybook preview;\n- design token rules;\n- content ownership rules;\n- validation commands;\n- Cloudflare/OpenNext deployment path;\n- Codex and Claude workflow entrypoints.\n\n## How to Use It\n\n1. Read `docs/website/README.md`.\n2. Follow `docs/website/新项目替换清单.md`.\n3. Replace brand and content surfaces.\n4. Preview components and pages.\n5. Run validation before launch.\n\n## Contact\n\nThis page uses `sales@example.com` and `https://example.com` as placeholders.\n\nReplace them before using this starter for a real project.\n"
+    "content": "\n## Why this starter exists\n\nMany projects do not just lack pages. They lack a complete public launch foundation: a clear site structure, content ownership, inquiry flow, deployment path, and owner-facing visibility.\n\nThis starter gives those pieces a working shape before a real project replaces the example content.\n\n## Who it fits\n\n- Projects with no current website.\n- Teams that need a public showcase foundation quickly.\n- Sites that need multilingual content, inquiry flow, and Cloudflare deployment basics.\n- Owners who want a reusable starting point instead of a blank visual shell.\n\n## Who it does not fit\n\n- Projects with a complete custom brand system already finished.\n- Sites that need complex commerce, accounts, or backend workflows in the first version.\n- Teams looking for a design-only template with no launch workflow.\n\n## Honest boundary\n\nThis starter is not an empty shell. It has real routes, components, content structure, form paths, and deployment assumptions.\n\nIt is also not a finished client website. A real launch still needs confirmed business facts, real images, legal copy, form destinations, secrets, Cloudflare settings, and deployed smoke proof.\n"
   },
   {
     "type": "pages",
@@ -156,15 +150,15 @@ const _entries: ContentEntry[] = [
     "metadata": {
       "locale": "en",
       "title": "Contact Us",
-      "description": "Contact Example Showcase Company about the example products, services, or inquiry path in this starter.",
+      "description": "Use this starter contact page as the quick entry for inquiries, demo requests, or launch questions.",
       "slug": "contact",
       "publishedAt": "2024-01-01",
-      "updatedAt": "2026-04-30",
-      "lastReviewed": "2026-04-30",
+      "updatedAt": "2026-05-05",
+      "lastReviewed": "2026-05-05",
       "draft": false,
       "seo": {
-        "title": "Contact Example Showcase Company | Starter Inquiry Example",
-        "description": "A replaceable contact page example for quote requests, service questions, demo requests, or general inquiries."
+        "title": "Contact | Showcase Website Starter",
+        "description": "Use this starter contact page as a quick action for inquiries, demo requests, or launch questions before connecting a real receiver."
       },
       "faq": [
         {
@@ -189,7 +183,7 @@ const _entries: ContentEntry[] = [
         }
       ]
     },
-    "content": "\n## Get in Touch\n\nThis is a working contact-page example. Replace the copy, form routing, response expectations, and receiver details before using it for a real business.\n\n## Response Expectations\n\n- **General inquiries**: replace with your real response window.\n- **Quote or project requests**: explain what details help your team respond.\n- **Technical or service questions**: clarify whether they go to sales, support, or a specialist.\n- **Demo, sample, or consultation requests**: adapt this section to the project’s real next step.\n"
+    "content": "\n## Get in Touch\n\nThis is the quick contact entry for the public demo starter. It shows where a real project can collect inquiries, demo requests, or launch questions once the owner connects a real receiver.\n\nBefore using it for a real business, replace the copy, form routing, response expectations, and receiver details.\n\n## Response Expectations\n\n- **General inquiries**: replace with your real response window.\n- **Quote or project requests**: explain what details help your team respond.\n- **Technical or service questions**: clarify whether they go to sales, support, or a specialist.\n- **Demo, sample, or consultation requests**: adapt this section to the project’s real next step.\n"
   },
   {
     "type": "pages",
@@ -208,7 +202,7 @@ const _entries: ContentEntry[] = [
       "lastReviewed": "2026-04-30",
       "draft": false,
       "seo": {
-        "title": "Custom Project Support | Example Showcase Company",
+        "title": "Custom Project Support | Showcase Website Starter",
         "description": "A replaceable page example for explaining custom scope, collaboration steps, quality checks, and project intake."
       },
       "faq": [
@@ -277,7 +271,7 @@ const _entries: ContentEntry[] = [
       "locale": "en",
       "title": "Privacy Policy",
       "slug": "privacy",
-      "description": "Learn how Example Showcase Company Ltd. collects, uses, and protects your personal information. Our privacy policy explains your rights and our data handling practices.",
+      "description": "Review the starter privacy page and the data-handling areas a real site owner must replace before launch.",
       "publishedAt": "2024-01-01",
       "updatedAt": "2026-04-26",
       "author": "Legal Team",
@@ -297,7 +291,7 @@ const _entries: ContentEntry[] = [
         ]
       }
     },
-    "content": "\n**Effective Date:** January 1, 2024\n**Last Updated:** April 1, 2024\n\n## Introduction \\{#introduction\\}\n\nExample Showcase Company Ltd. (\"we,\" \"our,\" or \"us\") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or engage with our services.\n\nPlease read this privacy policy carefully. If you do not agree with the terms of this privacy policy, please do not access the site.\n\n## Information We Collect \\{#info-collect\\}\n\n### Information You Provide to Us\n\nWe may collect information that you voluntarily provide when you:\n\n- Fill out inquiry or contact forms\n- Request a quotation\n- Subscribe to our newsletter\n- Create an account\n- Communicate with us via email, phone, or chat\n\nThis information may include:\n\n- **Contact Information**: Name, email address, phone number, company name, job title\n- **Business Information**: Company address, industry, purchasing requirements\n- **Communication Records**: Correspondence history, inquiry details\n- **Account Information**: Username, password (encrypted)\n\n### Information Automatically Collected\n\nWhen you visit our website, we automatically collect certain information about your device and usage patterns:\n\n- **Device Information**: IP address, browser type, operating system, device identifiers\n- **Usage Data**: Pages visited, time spent on pages, click patterns, referring URLs\n- **Location Data**: Country and city based on IP address (not precise location)\n\n### Cookies and Tracking Technologies\n\nWe use cookies and similar tracking technologies to enhance your experience:\n\n| Cookie Type | Purpose | Duration |\n|-------------|---------|----------|\n| Essential | Website functionality | Session |\n| Preference | Remember your settings | 1 year |\n| Analytics | Understand usage patterns | 2 years |\n| Marketing | Personalized content (if enabled) | 1 year |\n\nYou can control cookie preferences through your browser settings or our cookie consent banner.\n\n## How We Use Your Information \\{#how-we-use\\}\n\nWe use the information we collect for the following purposes:\n\n### Business Operations\n\n- Process and respond to your inquiries\n- Provide quotations and facilitate orders\n- Communicate about products and services\n- Manage customer relationships\n\n### Website Improvement\n\n- Analyze website usage and performance\n- Improve user experience and navigation\n- Develop new features and content\n- Troubleshoot technical issues\n\n### Marketing (With Your Consent)\n\n- Send newsletters and product updates\n- Provide personalized recommendations\n- Conduct customer surveys\n\n### Legal and Compliance\n\n- Comply with legal obligations\n- Protect against fraud and abuse\n- Enforce our terms of service\n\n## Legal Basis for Processing (GDPR) \\{#legal-basis\\}\n\nFor users in the European Economic Area (EEA), we process your personal data based on:\n\n- **Consent**: When you opt-in to marketing communications\n- **Contract Performance**: To fulfill business transactions\n- **Legitimate Interests**: For business operations and website improvement\n- **Legal Obligation**: To comply with applicable laws\n\n## Information Sharing and Disclosure \\{#sharing\\}\n\nWe do not sell your personal information. We may share your information with:\n\n### Service Providers\n\nThird parties who assist our business operations:\n\n- Website hosting providers\n- Email service providers\n- Analytics services\n- Customer relationship management (CRM) systems\n\nThese providers are contractually obligated to protect your data.\n\n### Business Partners\n\nWith your consent, we may share information with:\n\n- Logistics and shipping partners (for order fulfillment)\n- Payment processors (for transaction processing)\n\n### Legal Requirements\n\nWe may disclose information when required by:\n\n- Court orders or legal processes\n- Government requests\n- Protection of our legal rights\n- Emergency situations involving safety\n\n## International Data Transfers \\{#international-transfers\\}\n\nAs an international business, your data may be transferred to and processed in countries outside your residence, including China. We implement appropriate safeguards:\n\n- Standard contractual clauses\n- Data processing agreements\n- Security measures compliant with international standards\n\n## Data Security \\{#security\\}\n\nWe implement industry-standard security measures:\n\n- **Encryption**: SSL/TLS for data in transit\n- **Access Controls**: Role-based access to data\n- **Monitoring**: Regular security audits and monitoring\n- **Employee Training**: Data protection awareness programs\n\nHowever, no method of transmission over the Internet is 100% secure. We cannot guarantee absolute security.\n\n## Data Retention \\{#retention\\}\n\nWe retain your personal information for:\n\n- **Active Business Relationships**: Duration of relationship plus 5 years\n- **Inquiry Data**: 2 years from last contact\n- **Analytics Data**: 26 months (aggregated)\n- **Marketing Preferences**: Until withdrawal of consent\n\nAfter retention periods expire, data is securely deleted or anonymized.\n\n## Your Privacy Rights \\{#your-rights\\}\n\n### For All Users\n\nYou have the right to:\n\n- **Access**: Request a copy of your personal data\n- **Correction**: Update inaccurate information\n- **Deletion**: Request deletion of your data\n- **Objection**: Object to certain processing activities\n- **Portability**: Receive your data in a portable format\n\n### For EEA Residents (GDPR)\n\nAdditional rights include:\n\n- Withdraw consent at any time\n- Lodge a complaint with a supervisory authority\n- Restrict processing in certain circumstances\n\n### For California Residents (CCPA)\n\nYou have the right to:\n\n- Know what personal information is collected\n- Know if personal information is sold or disclosed\n- Say no to the sale of personal information\n- Access your personal information\n- Equal service and price (non-discrimination)\n\nTo exercise these rights, contact us using the information below.\n\n## Children's Privacy \\{#children\\}\n\nOur website is not intended for individuals under 16 years of age. We do not knowingly collect personal information from children. If you believe we have collected information from a child, please contact us immediately.\n\n## Third-Party Links \\{#third-party-links\\}\n\nOur website may contain links to third-party websites. We are not responsible for the privacy practices of these external sites. We encourage you to review their privacy policies.\n\n## Changes to This Policy \\{#changes\\}\n\nWe may update this Privacy Policy periodically. Changes will be posted on this page with an updated \"Last Updated\" date. Significant changes will be communicated via email or website notice.\n\n## Contact Us \\{#contact\\}\n\nIf you have questions about this Privacy Policy or wish to exercise your rights, please contact us:\n\n**Data Protection Contact**\nExample Showcase Company Ltd.\nEmail: sales@example.com\nAddress: Example Business Park, Example City, China\n\nFor EU residents, please contact us through the same data protection contact above.\n\n---\n\n**Document Version:** 2.0\n**Approved By:** Legal Department\n**Review Cycle:** Annual\n"
+    "content": "\n**Effective Date:** January 1, 2024\n**Last Updated:** May 5, 2026\n\n## Introduction \\{#introduction\\}\n\nShowcase Website Starter includes this privacy page so a public demo site has a visible legal-content surface. This page is not final legal advice. Before a real launch, the site owner must replace it with the correct legal entity, contact channel, service providers, data retention rules, and jurisdiction-specific requirements.\n\nPlease read this privacy policy carefully. If you do not agree with the terms of this privacy policy, please do not access the site.\n\n## Information We Collect \\{#info-collect\\}\n\n### Information You Provide to Us\n\nWe may collect information that you voluntarily provide when you:\n\n- Fill out inquiry or contact forms\n- Request a quotation\n- Subscribe to our newsletter\n- Create an account\n- Communicate with us via email, phone, or chat\n\nThis information may include:\n\n- **Contact Information**: Name, email address, phone number, company name, job title\n- **Business Information**: Company address, industry, purchasing requirements\n- **Communication Records**: Correspondence history, inquiry details\n- **Account Information**: Username, password (encrypted)\n\n### Information Automatically Collected\n\nWhen you visit our website, we automatically collect certain information about your device and usage patterns:\n\n- **Device Information**: IP address, browser type, operating system, device identifiers\n- **Usage Data**: Pages visited, time spent on pages, click patterns, referring URLs\n- **Location Data**: Country and city based on IP address (not precise location)\n\n### Cookies and Tracking Technologies\n\nWe use cookies and similar tracking technologies to enhance your experience:\n\n| Cookie Type | Purpose | Duration |\n|-------------|---------|----------|\n| Essential | Website functionality | Session |\n| Preference | Remember your settings | 1 year |\n| Analytics | Understand usage patterns | 2 years |\n| Marketing | Personalized content (if enabled) | 1 year |\n\nYou can control cookie preferences through your browser settings or our cookie consent banner.\n\n## How We Use Your Information \\{#how-we-use\\}\n\nWe use the information we collect for the following purposes:\n\n### Business Operations\n\n- Process and respond to your inquiries\n- Provide quotations and facilitate orders\n- Communicate about products and services\n- Manage customer relationships\n\n### Website Improvement\n\n- Analyze website usage and performance\n- Improve user experience and navigation\n- Develop new features and content\n- Troubleshoot technical issues\n\n### Marketing (With Your Consent)\n\n- Send newsletters and product updates\n- Provide personalized recommendations\n- Conduct customer surveys\n\n### Legal and Compliance\n\n- Comply with legal obligations\n- Protect against fraud and abuse\n- Enforce our terms of service\n\n## Legal Basis for Processing (GDPR) \\{#legal-basis\\}\n\nFor users in the European Economic Area (EEA), we process your personal data based on:\n\n- **Consent**: When you opt-in to marketing communications\n- **Contract Performance**: To fulfill business transactions\n- **Legitimate Interests**: For business operations and website improvement\n- **Legal Obligation**: To comply with applicable laws\n\n## Information Sharing and Disclosure \\{#sharing\\}\n\nWe do not sell your personal information. We may share your information with:\n\n### Service Providers\n\nThird parties who assist our business operations:\n\n- Website hosting providers\n- Email service providers\n- Analytics services\n- Customer relationship management (CRM) systems\n\nThese providers are contractually obligated to protect your data.\n\n### Business Partners\n\nWith your consent, we may share information with:\n\n- Logistics and shipping partners (for order fulfillment)\n- Payment processors (for transaction processing)\n\n### Legal Requirements\n\nWe may disclose information when required by:\n\n- Court orders or legal processes\n- Government requests\n- Protection of our legal rights\n- Emergency situations involving safety\n\n## International Data Transfers \\{#international-transfers\\}\n\nDepending on the real deployment and service providers, your data may be transferred to and processed in countries outside your residence. The real site owner must document those transfers and implement appropriate safeguards:\n\n- Standard contractual clauses\n- Data processing agreements\n- Security measures compliant with international standards\n\n## Data Security \\{#security\\}\n\nWe implement industry-standard security measures:\n\n- **Encryption**: SSL/TLS for data in transit\n- **Access Controls**: Role-based access to data\n- **Monitoring**: Regular security audits and monitoring\n- **Employee Training**: Data protection awareness programs\n\nHowever, no method of transmission over the Internet is 100% secure. We cannot guarantee absolute security.\n\n## Data Retention \\{#retention\\}\n\nWe retain your personal information for:\n\n- **Active Business Relationships**: Duration of relationship plus 5 years\n- **Inquiry Data**: 2 years from last contact\n- **Analytics Data**: 26 months (aggregated)\n- **Marketing Preferences**: Until withdrawal of consent\n\nAfter retention periods expire, data is securely deleted or anonymized.\n\n## Your Privacy Rights \\{#your-rights\\}\n\n### For All Users\n\nYou have the right to:\n\n- **Access**: Request a copy of your personal data\n- **Correction**: Update inaccurate information\n- **Deletion**: Request deletion of your data\n- **Objection**: Object to certain processing activities\n- **Portability**: Receive your data in a portable format\n\n### For EEA Residents (GDPR)\n\nAdditional rights include:\n\n- Withdraw consent at any time\n- Lodge a complaint with a supervisory authority\n- Restrict processing in certain circumstances\n\n### For California Residents (CCPA)\n\nYou have the right to:\n\n- Know what personal information is collected\n- Know if personal information is sold or disclosed\n- Say no to the sale of personal information\n- Access your personal information\n- Equal service and price (non-discrimination)\n\nTo exercise these rights, contact us using the information below.\n\n## Children's Privacy \\{#children\\}\n\nOur website is not intended for individuals under 16 years of age. We do not knowingly collect personal information from children. If you believe we have collected information from a child, please contact us immediately.\n\n## Third-Party Links \\{#third-party-links\\}\n\nOur website may contain links to third-party websites. We are not responsible for the privacy practices of these external sites. We encourage you to review their privacy policies.\n\n## Changes to This Policy \\{#changes\\}\n\nWe may update this Privacy Policy periodically. Changes will be posted on this page with an updated \"Last Updated\" date. Significant changes will be communicated via email or website notice.\n\n## Contact Us \\{#contact\\}\n\nIf you have questions about this Privacy Policy or wish to exercise your rights, please contact us:\n\n**Data Protection Contact**\nShowcase Website Starter\nUse the contact form on this site until a real data protection contact is configured.\nAddress: Replace with the real legal address before launch.\n\nFor EU residents, please contact us through the same data protection contact above.\n\n---\n\n**Document Version:** 2.0\n**Approved By:** Legal Department\n**Review Cycle:** Annual\n"
   },
   {
     "type": "pages",
@@ -330,7 +324,7 @@ const _entries: ContentEntry[] = [
         ]
       }
     },
-    "content": "\n**Effective Date:** January 1, 2024\n**Last Updated:** April 1, 2024\n\n## Introduction \\{#introduction\\}\n\nWelcome to Example Showcase Company Ltd. These Terms of Service (\"Terms\") govern your access to and use of our website, products, and services. By accessing our website or engaging in business with us, you agree to be bound by these Terms.\n\nPlease read these Terms carefully before using our services. If you do not agree to these Terms, please do not use our website or services.\n\n## Acceptance of Terms \\{#acceptance\\}\n\nBy accessing or using our website, placing an order, or engaging in any business transaction with us, you acknowledge that you have read, understood, and agree to be bound by these Terms and our Privacy Policy.\n\nIf you are entering into these Terms on behalf of a company or other legal entity, you represent that you have the authority to bind such entity to these Terms.\n\n## Services Description \\{#services\\}\n\nExample Showcase Company Ltd. is a placeholder identity. A real project should replace this section with the actual products or services it provides, such as:\n\n- Product or service presentation\n- Custom project support\n- Technical consultation and support\n- Resource or documentation access\n- Inquiry handling\n\nDetailed product specifications and service offerings are available upon request.\n\n## Orders and Contracts \\{#orders\\}\n\n### Inquiry and Quotation\n\n- All inquiries should include detailed specifications and quantity requirements\n- Quotations are valid for 30 days unless otherwise stated\n- Prices are subject to change based on market conditions and order specifications\n\n### Order Confirmation\n\nAn order is confirmed when:\n\n1. Written purchase order is received\n2. We issue a Proforma Invoice (PI)\n3. Deposit payment is received (if applicable)\n4. We provide written order confirmation\n\n### Contract Formation\n\nA binding contract is formed upon our written acceptance of your order. Order modifications require mutual written consent.\n\n## Payment Terms \\{#payment\\}\n\n### Accepted Payment Methods\n\n| Method | Minimum Order | Processing Time |\n|--------|---------------|-----------------|\n| T/T (Telegraphic Transfer) | No minimum | 1-3 business days |\n| L/C (Letter of Credit) | $10,000+ | As per L/C terms |\n| D/P (Documents against Payment) | Case by case | As per bank terms |\n\n### Standard Payment Terms\n\n- **Deposit**: 30% upon order confirmation\n- **Balance**: 70% before shipment (T/T) or upon document presentation (L/C)\n- **Custom Terms**: Available for established customers with good credit history\n\n### Late Payment\n\nLate payments may incur:\n\n- Interest at 1.5% per month on outstanding amounts\n- Suspension of pending orders\n- Requirement for prepayment on future orders\n\n## Shipping and Delivery \\{#shipping\\}\n\n### Trade Terms (Incoterms® 2020)\n\nWe typically operate under the following terms:\n\n- **FOB** (Free On Board): Named port of shipment\n- **CIF** (Cost, Insurance, Freight): Named port of destination\n- **EXW** (Ex Works): Named origin location, if applicable\n\nSpecific terms will be stated in the quotation and contract.\n\n### Delivery Schedule\n\n- Standard lead time: 30-45 days after order confirmation\n- Custom orders: Timeline provided at quotation stage\n- Delivery dates are estimates and not guaranteed\n\n### Risk Transfer\n\nRisk of loss transfers to the buyer according to the agreed Incoterm.\n\n## Warranty and Returns \\{#warranty\\}\n\n### Product Warranty\n\n- Standard warranty: 12 months from delivery date\n- Warranty covers confirmed defects or service issues defined in the final agreement\n- Excludes damage from misuse, modification, or improper storage\n\n### Claims Process\n\n1. Submit written claim within 15 days of delivery (visible defects)\n2. Submit written claim within warranty period (hidden defects)\n3. Provide photos, documentation, and sample if requested\n4. Our quality team will investigate within 10 business days\n\n### Remedies\n\nAt our discretion, we will:\n\n- Repair or replace defective products\n- Provide credit for future orders\n- Refund the affected portion where the final agreement allows it\n\n## Limitation of Liability \\{#liability\\}\n\n### Maximum Liability\n\nOur total liability for any claim shall not exceed the amount paid by you for the specific products or services giving rise to the claim.\n\n### Exclusions\n\nWe are not liable for:\n\n- Indirect, incidental, or consequential damages\n- Lost profits or business opportunities\n- Damages arising from improper use\n- Delays caused by force majeure events\n\n### Force Majeure\n\nNeither party shall be liable for delays or failures caused by circumstances beyond reasonable control, including but not limited to:\n\n- Natural disasters\n- War, terrorism, or civil unrest\n- Government actions or regulations\n- Epidemics or pandemics\n- Shipping or logistics disruptions\n\n## Intellectual Property \\{#ip\\}\n\n### Our Property\n\nAll content on our website, including text, images, logos, and product designs, is the property of Example Showcase Company Ltd. or its licensors.\n\n### Customer Specifications\n\n- Custom designs provided by customers remain their property\n- We will maintain confidentiality of customer specifications\n- Delivery of custom work does not transfer design rights to us\n\n### Usage Rights\n\nYou may not:\n\n- Reproduce our materials without written permission\n- Reverse engineer our products, services, or website materials\n- Use our trademarks without authorization\n\n## Confidentiality \\{#confidentiality\\}\n\nBoth parties agree to:\n\n- Protect confidential information received from the other party\n- Use confidential information only for the purpose of the business relationship\n- Not disclose confidential information to third parties without consent\n\nConfidentiality obligations survive termination of the business relationship for 5 years.\n\n## Termination \\{#termination\\}\n\n### By Either Party\n\nEither party may terminate the business relationship by providing 30 days written notice.\n\n### Immediate Termination\n\nWe may terminate immediately if:\n\n- Payment defaults occur\n- Material breach of these Terms\n- Insolvency or bankruptcy proceedings\n- Violation of applicable laws\n\n### Effect of Termination\n\nUpon termination:\n\n- Outstanding payments become immediately due\n- Pending orders may be cancelled or completed at our discretion\n- Confidentiality obligations continue\n\n## Governing Law and Disputes \\{#governing-law\\}\n\n### Governing Law\n\nThese Terms are governed by the laws of the People's Republic of China.\n\n### Dispute Resolution\n\n1. **Negotiation**: Parties shall first attempt to resolve disputes through good-faith negotiation\n2. **Mediation**: If negotiation fails within 30 days, parties may attempt mediation\n3. **Arbitration**: Unresolved disputes shall be submitted to:\n\n**China International Economic and Trade Arbitration Commission (CIETAC)**\n- Rules: CIETAC Arbitration Rules\n- Location: Hong Kong or Beijing (mutual agreement)\n- Language: English or Chinese (mutual agreement)\n\nThe arbitral award shall be final and binding on both parties.\n\n## Export Compliance \\{#export-compliance\\}\n\n### Regulations\n\nBoth parties shall comply with all applicable export control laws and regulations, including:\n\n- Export Administration Regulations (EAR)\n- International Traffic in Arms Regulations (ITAR)\n- Applicable UN and national sanctions\n\n### Buyer's Obligations\n\nBuyer warrants that:\n\n- Products will not be used for prohibited purposes\n- Products will not be re-exported in violation of export laws\n- Buyer is not on any denied party list\n\n## General Provisions \\{#general\\}\n\n### Entire Agreement\n\nThese Terms, together with any quotations, orders, and written agreements, constitute the entire agreement between the parties.\n\n### Severability\n\nIf any provision is found invalid or unenforceable, the remaining provisions shall continue in effect.\n\n### Waiver\n\nFailure to enforce any right or provision shall not constitute a waiver of such right or provision.\n\n### Assignment\n\nYou may not assign your rights or obligations without our prior written consent.\n\n### Amendments\n\nWe reserve the right to modify these Terms. Changes will be effective upon posting to our website.\n\n## Contact Information \\{#contact\\}\n\nFor questions about these Terms of Service:\n\n**Example Showcase Company Ltd.**\nEmail: sales@example.com\nAddress: Example Business Park, Example City, China\n\nFor order-related inquiries:\nEmail: sales@example.com\nPhone: Contact sales by email before launch.\n\n---\n\n**Document Version:** 2.0\n**Approved By:** Legal Department\n**Review Cycle:** Annual\n"
+    "content": "\n**Effective Date:** January 1, 2024\n**Last Updated:** April 1, 2024\n\n## Introduction \\{#introduction\\}\n\nWelcome to Showcase Website Starter. These Terms of Service (\"Terms\") explain the starter legal surface for this public demo website. They must be reviewed and replaced by the real site owner before the starter is used for a real business, product, or service.\n\nPlease read these Terms carefully before using our services. If you do not agree to these Terms, please do not use our website or services.\n\n## Acceptance of Terms \\{#acceptance\\}\n\nBy accessing or using our website, placing an order, or engaging in any business transaction with us, you acknowledge that you have read, understood, and agree to be bound by these Terms and our Privacy Policy.\n\nIf you are entering into these Terms on behalf of a company or other legal entity, you represent that you have the authority to bind such entity to these Terms.\n\n## Services Description \\{#services\\}\n\nShowcase Website Starter is a public demo starter, not the legal identity of a real client business. A real project should replace this section with the actual products or services it provides, such as:\n\n- Product or service presentation\n- Custom project support\n- Technical consultation and support\n- Resource or documentation access\n- Inquiry handling\n\nDetailed product specifications and service offerings are available upon request.\n\n## Orders and Contracts \\{#orders\\}\n\n### Inquiry and Quotation\n\n- All inquiries should include detailed specifications and quantity requirements\n- Quotations are valid for 30 days unless otherwise stated\n- Prices are subject to change based on market conditions and order specifications\n\n### Order Confirmation\n\nAn order is confirmed when:\n\n1. Written purchase order is received\n2. We issue a Proforma Invoice (PI)\n3. Deposit payment is received (if applicable)\n4. We provide written order confirmation\n\n### Contract Formation\n\nA binding contract is formed upon our written acceptance of your order. Order modifications require mutual written consent.\n\n## Payment Terms \\{#payment\\}\n\n### Accepted Payment Methods\n\n| Method | Minimum Order | Processing Time |\n|--------|---------------|-----------------|\n| T/T (Telegraphic Transfer) | No minimum | 1-3 business days |\n| L/C (Letter of Credit) | $10,000+ | As per L/C terms |\n| D/P (Documents against Payment) | Case by case | As per bank terms |\n\n### Standard Payment Terms\n\n- **Deposit**: 30% upon order confirmation\n- **Balance**: 70% before shipment (T/T) or upon document presentation (L/C)\n- **Custom Terms**: Available for established customers with good credit history\n\n### Late Payment\n\nLate payments may incur:\n\n- Interest at 1.5% per month on outstanding amounts\n- Suspension of pending orders\n- Requirement for prepayment on future orders\n\n## Shipping and Delivery \\{#shipping\\}\n\n### Trade Terms (Incoterms® 2020)\n\nWe typically operate under the following terms:\n\n- **FOB** (Free On Board): Named port of shipment\n- **CIF** (Cost, Insurance, Freight): Named port of destination\n- **EXW** (Ex Works): Named origin location, if applicable\n\nSpecific terms will be stated in the quotation and contract.\n\n### Delivery Schedule\n\n- Standard lead time: 30-45 days after order confirmation\n- Custom orders: Timeline provided at quotation stage\n- Delivery dates are estimates and not guaranteed\n\n### Risk Transfer\n\nRisk of loss transfers to the buyer according to the agreed Incoterm.\n\n## Warranty and Returns \\{#warranty\\}\n\n### Product Warranty\n\n- Standard warranty: 12 months from delivery date\n- Warranty covers confirmed defects or service issues defined in the final agreement\n- Excludes damage from misuse, modification, or improper storage\n\n### Claims Process\n\n1. Submit written claim within 15 days of delivery (visible defects)\n2. Submit written claim within warranty period (hidden defects)\n3. Provide photos, documentation, and sample if requested\n4. Our quality team will investigate within 10 business days\n\n### Remedies\n\nAt our discretion, we will:\n\n- Repair or replace defective products\n- Provide credit for future orders\n- Refund the affected portion where the final agreement allows it\n\n## Limitation of Liability \\{#liability\\}\n\n### Maximum Liability\n\nOur total liability for any claim shall not exceed the amount paid by you for the specific products or services giving rise to the claim.\n\n### Exclusions\n\nWe are not liable for:\n\n- Indirect, incidental, or consequential damages\n- Lost profits or business opportunities\n- Damages arising from improper use\n- Delays caused by force majeure events\n\n### Force Majeure\n\nNeither party shall be liable for delays or failures caused by circumstances beyond reasonable control, including but not limited to:\n\n- Natural disasters\n- War, terrorism, or civil unrest\n- Government actions or regulations\n- Epidemics or pandemics\n- Shipping or logistics disruptions\n\n## Intellectual Property \\{#ip\\}\n\n### Our Property\n\nAll starter content on this demo website is provided as replaceable example material. A real project must replace ownership language for its text, images, logos, product designs, service materials, and licensed assets.\n\n### Customer Specifications\n\n- Custom designs provided by customers remain their property\n- We will maintain confidentiality of customer specifications\n- Delivery of custom work does not transfer design rights to us\n\n### Usage Rights\n\nYou may not:\n\n- Reproduce our materials without written permission\n- Reverse engineer our products, services, or website materials\n- Use our trademarks without authorization\n\n## Confidentiality \\{#confidentiality\\}\n\nBoth parties agree to:\n\n- Protect confidential information received from the other party\n- Use confidential information only for the purpose of the business relationship\n- Not disclose confidential information to third parties without consent\n\nConfidentiality obligations survive termination of the business relationship for 5 years.\n\n## Termination \\{#termination\\}\n\n### By Either Party\n\nEither party may terminate the business relationship by providing 30 days written notice.\n\n### Immediate Termination\n\nWe may terminate immediately if:\n\n- Payment defaults occur\n- Material breach of these Terms\n- Insolvency or bankruptcy proceedings\n- Violation of applicable laws\n\n### Effect of Termination\n\nUpon termination:\n\n- Outstanding payments become immediately due\n- Pending orders may be cancelled or completed at our discretion\n- Confidentiality obligations continue\n\n## Governing Law and Disputes \\{#governing-law\\}\n\n### Governing Law\n\nThese Terms are governed by the laws of the People's Republic of China.\n\n### Dispute Resolution\n\n1. **Negotiation**: Parties shall first attempt to resolve disputes through good-faith negotiation\n2. **Mediation**: If negotiation fails within 30 days, parties may attempt mediation\n3. **Arbitration**: Unresolved disputes shall be submitted to:\n\n**China International Economic and Trade Arbitration Commission (CIETAC)**\n- Rules: CIETAC Arbitration Rules\n- Location: Hong Kong or Beijing (mutual agreement)\n- Language: English or Chinese (mutual agreement)\n\nThe arbitral award shall be final and binding on both parties.\n\n## Export Compliance \\{#export-compliance\\}\n\n### Regulations\n\nBoth parties shall comply with all applicable export control laws and regulations, including:\n\n- Export Administration Regulations (EAR)\n- International Traffic in Arms Regulations (ITAR)\n- Applicable UN and national sanctions\n\n### Buyer's Obligations\n\nBuyer warrants that:\n\n- Products will not be used for prohibited purposes\n- Products will not be re-exported in violation of export laws\n- Buyer is not on any denied party list\n\n## General Provisions \\{#general\\}\n\n### Entire Agreement\n\nThese Terms, together with any quotations, orders, and written agreements, constitute the entire agreement between the parties.\n\n### Severability\n\nIf any provision is found invalid or unenforceable, the remaining provisions shall continue in effect.\n\n### Waiver\n\nFailure to enforce any right or provision shall not constitute a waiver of such right or provision.\n\n### Assignment\n\nYou may not assign your rights or obligations without our prior written consent.\n\n### Amendments\n\nWe reserve the right to modify these Terms. Changes will be effective upon posting to our website.\n\n## Contact Information \\{#contact\\}\n\nFor questions about these Terms of Service:\n\n**Showcase Website Starter**\nUse the contact form on this site until a real legal contact is configured.\nAddress: Replace with the real legal address before launch.\n\nFor order-related inquiries:\nUse the contact form on this site until a real receiver is configured.\nPhone: Configure a real phone number before public launch if phone support is offered.\n\n---\n\n**Document Version:** 2.0\n**Approved By:** Legal Department\n**Review Cycle:** Annual\n"
   },
   {
     "type": "pages",
@@ -341,86 +335,80 @@ const _entries: ContentEntry[] = [
     "relativePath": "content/pages/zh/about.mdx",
     "metadata": {
       "locale": "zh",
-      "title": "关于 Example Showcase Company",
-      "description": "了解这个可替换展示型网站示例如何展示业务、证据、资源和询盘路径。",
+      "title": "关于这个展示型网站 starter",
+      "description": "了解这个 starter 为什么存在、适合谁、不适合谁，以及公开上线前必须替换什么。",
       "slug": "about",
       "publishedAt": "2024-01-10",
-      "updatedAt": "2026-04-30",
-      "author": "Example Showcase Company 团队",
+      "updatedAt": "2026-05-05",
+      "author": "Showcase Website Starter Team",
       "layout": "default",
       "showToc": true,
-      "lastReviewed": "2026-04-30",
+      "lastReviewed": "2026-05-05",
       "draft": false,
-      "heroTitle": "关于 Example Showcase Company",
-      "heroSubtitle": "可替换的展示型网站示例",
-      "heroDescription": "这个页面演示真实业务内容接入前，一个公司如何解释业务、可信度、流程和联系路径。",
+      "heroTitle": "一个面向真实公开上线准备的展示型网站 starter",
+      "heroSubtitle": "不是虚构公司介绍",
+      "heroDescription": "这个页面解释 starter 是什么、适合谁，以及公开上线前哪些内容必须变成真实事实。",
       "seo": {
-        "title": "关于 Example Showcase Company",
-        "description": "展示型网站 starter 的关于页面示例，用于帮助后续项目展示公司事实、证据和下一步行动。",
+        "title": "关于这个展示型网站 starter",
+        "description": "展示型网站 starter 的身份、适用对象、边界和公开上线前替换要求。",
         "keywords": [
           "展示型网站 starter",
-          "关于页面示例",
-          "企业网站示例",
-          "询盘网站"
+          "starter 边界",
+          "公开上线网站"
         ],
         "ogImage": "/images/about-og.jpg"
       },
       "aboutSections": {
-        "valuesTitle": "这个 Starter 演示什么",
+        "valuesTitle": "这个 starter 保护什么",
         "values": {
           "quality": {
-            "title": "清晰结构",
-            "description": "页面围绕业务、证据、资源和下一步行动组织，真实项目可以替换内容而不用重搭布局。"
+            "title": "上线结构",
+            "description": "starter 把页面、导航、询盘路径和替换工作放进一套清楚的公开网站结构里。"
           },
           "innovation": {
-            "title": "可复用组件",
-            "description": "共享 UI 组件、页面 section 和 Storybook 预览，帮助后续 AI 工作优先复用而不是重复新建。"
+            "title": "可复用基础",
+            "description": "它提供一套可运行基础，真实项目可以在此基础上替换，而不是每条路由和组件都从零开始。"
           },
           "service": {
-            "title": "简单询盘路径",
-            "description": "联系路径保持清楚、低门槛，可按真实项目改成询价、预约、演示或样品申请。"
+            "title": "Owner 清晰度",
+            "description": "网站把真实 owner 上线前必须确认的事项摆在明面上。"
           },
           "integrity": {
-            "title": "可替换证据",
-            "description": "示例认证、数据和主张都是占位。真实项目必须替换成已确认的证据。"
+            "title": "诚实边界",
+            "description": "它不是空壳模板，但也不是已经完成的客户网站。"
           }
         },
         "statLabels": {
-          "yearsExperience": "示例年限",
-          "countriesServed": "示例市场",
-          "happyClients": "示例团队规模",
-          "productsDelivered": "示例覆盖面"
+          "yearsExperience": "Starter 基线",
+          "countriesServed": "语言版本",
+          "happyClients": "替换面",
+          "productsDelivered": "上线链路"
         },
         "cta": {
-          "title": "把这个 Starter 改成真实网站",
-          "description": "上线前请替换品牌事实、页面文案、图片、产品或服务数据、表单接收方式和部署设置。",
-          "button": "从联系页开始"
+          "title": "查看 starter 能力",
+          "description": "先了解 starter 包含什么，再把它替换成真实业务事实和资产。",
+          "button": "查看产品"
         }
       },
       "faq": [
         {
           "id": "starter-purpose",
-          "question": "这是一个已经完成的客户官网吗？",
-          "answer": "不是。这是带示例内容的可复用 starter。用于真实公司前，必须替换所有示例业务事实。"
+          "question": "这是已经完成的客户官网吗？",
+          "answer": "不是。这是带可运行结构和可替换示例内容的 starter demo。"
+        },
+        {
+          "id": "who-fits",
+          "question": "这个 starter 适合谁？",
+          "answer": "适合还没有公开网站、需要快速获得展示型网站基础的项目。"
         },
         {
           "id": "what-to-replace",
-          "question": "应该先替换什么？",
-          "answer": "先替换公司名、域名、联系方式、产品或服务分类、页面内容、证据资产和部署密钥。"
-        },
-        {
-          "id": "storybook",
-          "question": "为什么这个 starter 包含 Storybook？",
-          "answer": "Storybook 给人和 AI 一个组件预览面，方便确认组件变体、状态和复用决策。"
-        },
-        {
-          "id": "content-source",
-          "question": "页面内容在哪里维护？",
-          "answer": "品牌事实放在 src/config/website，页面正文放在 content/pages 下对应语言目录，通用界面文案放在 messages 下对应语言文件。"
+          "question": "上线前必须替换什么？",
+          "answer": "要替换业务事实、页面内容、图片、法务文案、表单流向、密钥和部署设置。"
         }
       ]
     },
-    "content": "\n## 这个项目是什么\n\nExample Showcase Company 是用于演示完整展示型网站的占位身份。\n\n这个 starter 保留真实网站结构：首页 section、产品或服务示例、关于页面、联系路径、法律页面、Storybook、设计 token、规则、测试和部署脚本。\n\n内容是刻意可替换的。它用于帮助判断布局和质量，不代表真实业务承诺。\n\n## 需要替换什么\n\n### 品牌事实\n\n替换公司名、法定名称、标语、域名、邮箱、电话、地址和社交链接。\n\n### 业务内容\n\n把示例产品和服务分类替换成真实项目需要展示的内容。\n\n### 证据材料\n\n把占位认证、数据、客户参考、流程主张、图片和文档替换成已确认的真实证据。\n\n### 部署配置\n\n替换 Cloudflare 账号设置、域名路由、表单接收方、邮件服务凭据、Turnstile keys 和其他密钥。\n\n## 为什么需要这个 Starter\n\nAI 可以很快生成页面，但如果没有治理，很容易重复创建组件、硬编码样式、文案散落、忘记验证。\n\n这个 starter 保留了后续项目会反复需要的基础能力：\n\n- 组件治理；\n- Storybook 预览；\n- 设计 token 规则；\n- 内容归属规则；\n- 验证命令；\n- Cloudflare/OpenNext 部署链路；\n- Codex 和 Claude 工作流入口。\n\n## 如何使用\n\n1. 先读 `docs/website/README.md`。\n2. 按 `docs/website/新项目替换清单.md` 替换。\n3. 替换品牌和内容面。\n4. 预览组件和页面。\n5. 上线前运行验证。\n\n## 联系方式\n\n本页面使用 `sales@example.com` 和 `https://example.com` 作为占位。\n\n用于真实项目之前，请先替换它们。\n"
+    "content": "\n## 为什么需要这个 starter\n\n很多项目缺的不是一个页面，而是一套完整的公开上线基础：清楚的网站结构、内容归属、询盘流程、部署路径和 owner 可见的信息。\n\n这个 starter 先把这些部分做成可运行形态，再让真实项目替换示例内容。\n\n## 适合谁\n\n- 当前还没有网站的项目。\n- 需要快速获得公开展示基础的团队。\n- 需要多语言内容、询盘路径和 Cloudflare 部署基础的网站。\n- 想从可复用基础开始，而不是从空白视觉壳开始的 owner。\n\n## 不适合谁\n\n- 已经有完整定制品牌系统的项目。\n- 第一版就需要复杂交易、账号或后台工作流的网站。\n- 只想要视觉模板、不需要上线工作流的团队。\n\n## 诚实边界\n\n这个 starter 不是空壳。它有真实路由、组件、内容结构、表单路径和部署假设。\n\n但它也不是最终客户网站。真实上线仍然需要确认过的业务事实、真实图片、法务文案、表单接收方、密钥、Cloudflare 设置和部署 smoke 证明。\n"
   },
   {
     "type": "pages",
@@ -462,15 +450,15 @@ const _entries: ContentEntry[] = [
     "metadata": {
       "locale": "zh",
       "title": "联系我们",
-      "description": "联系 Example Showcase Company，了解这个 starter 中的示例产品、服务或询盘路径。",
+      "description": "这个 starter 联系页可作为询盘、演示预约或上线问题的快速入口。",
       "slug": "contact",
       "publishedAt": "2024-01-01",
-      "updatedAt": "2026-04-30",
-      "lastReviewed": "2026-04-30",
+      "updatedAt": "2026-05-05",
+      "lastReviewed": "2026-05-05",
       "draft": false,
       "seo": {
-        "title": "联系 Example Showcase Company | Starter 询盘示例",
-        "description": "可替换的联系页面示例，可用于报价请求、服务咨询、演示预约或一般联系。"
+        "title": "联系 | Showcase Website Starter",
+        "description": "这个 starter 联系页可作为询盘、演示预约或上线问题的快速入口；正式上线前请接入真实接收方。"
       },
       "faq": [
         {
@@ -495,7 +483,7 @@ const _entries: ContentEntry[] = [
         }
       ]
     },
-    "content": "\n## 联系方式\n\n这是一个可运行的联系页示例。用于真实业务前，请替换文案、表单流向、响应预期和接收方信息。\n\n## 响应预期\n\n- **一般咨询**：替换成真实响应时间。\n- **报价或项目请求**：说明哪些信息有助于团队回复。\n- **技术或服务问题**：说明会由销售、支持还是专业人员处理。\n- **演示、样品或咨询预约**：按项目真实下一步调整这一段。\n"
+    "content": "\n## 联系方式\n\n这是 public demo starter 的快速联系入口。真实项目接入接收方后，可以用它收集询盘、演示预约或上线相关问题。\n\n用于真实业务前，请替换文案、表单流向、响应预期和接收方信息。\n\n## 响应预期\n\n- **一般咨询**：替换成真实响应时间。\n- **报价或项目请求**：说明哪些信息有助于团队回复。\n- **技术或服务问题**：说明会由销售、支持还是专业人员处理。\n- **演示、样品或咨询预约**：按项目真实下一步调整这一段。\n"
   },
   {
     "type": "pages",
@@ -514,7 +502,7 @@ const _entries: ContentEntry[] = [
       "lastReviewed": "2026-04-30",
       "draft": false,
       "seo": {
-        "title": "定制项目支持 | Example Showcase Company",
+        "title": "定制项目支持 | Showcase Website Starter",
         "description": "用于说明定制范围、合作步骤、质量检查和项目需求收集的可替换页面示例。"
       },
       "faq": [
@@ -583,7 +571,7 @@ const _entries: ContentEntry[] = [
       "locale": "zh",
       "title": "隐私政策",
       "slug": "privacy",
-      "description": "了解示例展示型公司有限公司如何收集、使用和保护您的个人信息。我们的隐私政策说明了您的权利和我们的数据处理实践。",
+      "description": "查看 starter 隐私页面，以及真实网站上线前必须替换的数据处理内容。",
       "publishedAt": "2024-01-01",
       "updatedAt": "2026-04-26",
       "author": "法务团队",
@@ -603,7 +591,7 @@ const _entries: ContentEntry[] = [
         ]
       }
     },
-    "content": "\n**生效日期：** 2024年1月1日\n**最后更新：** 2024年4月1日\n\n## 引言 \\{#introduction\\}\n\n示例展示型公司有限公司（以下称\"我们\"）致力于保护您的隐私。本隐私政策说明当您访问我们的网站或使用我们的服务时，我们如何收集、使用、披露和保护您的信息。\n\n请仔细阅读本隐私政策。如果您不同意本隐私政策的条款，请勿访问本网站。\n\n## 我们收集的信息 \\{#info-collect\\}\n\n### 您主动提供的信息\n\n当您进行以下操作时，我们可能收集您自愿提供的信息：\n\n- 填写询价或联系表单\n- 请求报价\n- 订阅我们的新闻通讯\n- 创建账户\n- 通过电子邮件、电话或在线聊天与我们沟通\n\n这些信息可能包括：\n\n- **联系信息**：姓名、电子邮件地址、电话号码、公司名称、职位\n- **业务信息**：公司地址、行业、采购需求\n- **通信记录**：往来通信历史、询价详情\n- **账户信息**：用户名、密码（加密存储）\n\n### 自动收集的信息\n\n当您访问我们的网站时，我们会自动收集有关您设备和使用模式的某些信息：\n\n- **设备信息**：IP地址、浏览器类型、操作系统、设备标识符\n- **使用数据**：访问的页面、页面停留时间、点击模式、来源URL\n- **位置数据**：基于IP地址的国家和城市（非精确位置）\n\n### Cookie和跟踪技术\n\n我们使用Cookie和类似的跟踪技术来增强您的体验：\n\n| Cookie类型 | 用途 | 有效期 |\n|-----------|------|-------|\n| 必要性 | 网站功能 | 会话期间 |\n| 偏好设置 | 记住您的设置 | 1年 |\n| 分析 | 了解使用模式 | 2年 |\n| 营销 | 个性化内容（如启用） | 1年 |\n\n您可以通过浏览器设置或我们的Cookie同意横幅控制Cookie偏好。\n\n## 我们如何使用您的信息 \\{#how-we-use\\}\n\n我们将收集的信息用于以下目的：\n\n### 业务运营\n\n- 处理和回复您的询价\n- 提供报价并促成订单\n- 就产品和服务进行沟通\n- 管理客户关系\n\n### 网站改进\n\n- 分析网站使用情况和性能\n- 改善用户体验和导航\n- 开发新功能和内容\n- 排除技术问题\n\n### 营销（经您同意）\n\n- 发送新闻通讯和产品更新\n- 提供个性化推荐\n- 进行客户调查\n\n### 法律与合规\n\n- 遵守法律义务\n- 防范欺诈和滥用\n- 执行我们的服务条款\n\n## 处理的法律依据（GDPR） \\{#legal-basis\\}\n\n对于欧洲经济区（EEA）的用户，我们基于以下依据处理您的个人数据：\n\n- **同意**：当您选择接收营销通讯时\n- **合同履行**：为完成商业交易\n- **合法利益**：用于业务运营和网站改进\n- **法律义务**：遵守适用法律\n\n## 信息共享与披露 \\{#sharing\\}\n\n我们不会出售您的个人信息。我们可能与以下方共享您的信息：\n\n### 服务提供商\n\n协助我们业务运营的第三方：\n\n- 网站托管服务商\n- 电子邮件服务提供商\n- 分析服务\n- 客户关系管理（CRM）系统\n\n这些服务商在合同上有义务保护您的数据。\n\n### 业务合作伙伴\n\n经您同意，我们可能与以下方共享信息：\n\n- 交付或履约合作伙伴（用于项目执行）\n- 支付处理商（用于交易处理）\n\n### 法律要求\n\n在以下情况下，我们可能披露信息：\n\n- 法院命令或法律程序\n- 政府要求\n- 保护我们的合法权益\n- 涉及安全的紧急情况\n\n## 国际数据传输 \\{#international-transfers\\}\n\n作为国际企业，您的数据可能被传输至并在您居住地以外的国家/地区处理，包括中国。我们实施适当的保障措施：\n\n- 标准合同条款\n- 数据处理协议\n- 符合国际标准的安全措施\n\n## 数据安全 \\{#security\\}\n\n我们实施行业标准的安全措施：\n\n- **加密**：数据传输使用SSL/TLS加密\n- **访问控制**：基于角色的数据访问权限\n- **监控**：定期安全审计和监控\n- **员工培训**：数据保护意识培训计划\n\n然而，任何互联网传输方式都不是100%安全的。我们无法保证绝对安全。\n\n## 数据保留 \\{#retention\\}\n\n我们按以下期限保留您的个人信息：\n\n- **活跃业务关系**：关系存续期间加5年\n- **询价数据**：最后联系起2年\n- **分析数据**：26个月（汇总数据）\n- **营销偏好**：直至撤回同意\n\n保留期限届满后，数据将被安全删除或匿名化处理。\n\n## 您的隐私权利 \\{#your-rights\\}\n\n### 所有用户\n\n您有权：\n\n- **访问**：请求获取您个人数据的副本\n- **更正**：更新不准确的信息\n- **删除**：请求删除您的数据\n- **反对**：反对某些处理活动\n- **可携带性**：以可移植格式接收您的数据\n\n### 欧洲经济区居民（GDPR）\n\n额外权利包括：\n\n- 随时撤回同意\n- 向监管机构投诉\n- 在特定情况下限制处理\n\n### 加州居民（CCPA）\n\n您有权：\n\n- 了解收集了哪些个人信息\n- 了解个人信息是否被出售或披露\n- 拒绝出售个人信息\n- 访问您的个人信息\n- 获得平等的服务和价格（不受歧视）\n\n如需行使这些权利，请使用以下信息联系我们。\n\n## 儿童隐私 \\{#children\\}\n\n我们的网站不面向16岁以下的个人。我们不会故意收集儿童的个人信息。如果您认为我们收集了儿童的信息，请立即联系我们。\n\n## 第三方链接 \\{#third-party-links\\}\n\n我们的网站可能包含第三方网站的链接。我们对这些外部网站的隐私实践不承担责任。我们建议您查阅它们的隐私政策。\n\n## 本政策的变更 \\{#changes\\}\n\n我们可能会定期更新本隐私政策。变更将在本页面发布，并更新\"最后更新\"日期。重大变更将通过电子邮件或网站通知告知您。\n\n## 联系我们 \\{#contact\\}\n\n如果您对本隐私政策有疑问或希望行使您的权利，请联系我们：\n\n**数据保护联系方式**\n示例展示型公司有限公司\n电子邮件：sales@example.com\n地址：中国江苏省示例城市示例工业园 1 号\n\n对于欧盟居民，也请通过上述数据保护联系方式与我们联系。\n\n---\n\n**文档版本：** 2.0\n**批准部门：** 法务部\n**审核周期：** 每年\n"
+    "content": "\n**生效日期：** 2024年1月1日\n**最后更新：** 2026年5月5日\n\n## 引言 \\{#introduction\\}\n\nShowcase Website Starter 保留这个隐私页面，是为了让公开 demo 站点具备可见的法务内容替换面。这个页面不是最终法律意见。真实上线前，网站 owner 必须替换真实法律主体、联系方式、服务提供商、数据保留规则和适用司法辖区要求。\n\n请仔细阅读本隐私政策。如果您不同意本隐私政策的条款，请勿访问本网站。\n\n## 我们收集的信息 \\{#info-collect\\}\n\n### 您主动提供的信息\n\n当您进行以下操作时，我们可能收集您自愿提供的信息：\n\n- 填写询价或联系表单\n- 请求报价\n- 订阅我们的新闻通讯\n- 创建账户\n- 通过电子邮件、电话或在线聊天与我们沟通\n\n这些信息可能包括：\n\n- **联系信息**：姓名、电子邮件地址、电话号码、公司名称、职位\n- **业务信息**：公司地址、行业、采购需求\n- **通信记录**：往来通信历史、询价详情\n- **账户信息**：用户名、密码（加密存储）\n\n### 自动收集的信息\n\n当您访问我们的网站时，我们会自动收集有关您设备和使用模式的某些信息：\n\n- **设备信息**：IP地址、浏览器类型、操作系统、设备标识符\n- **使用数据**：访问的页面、页面停留时间、点击模式、来源URL\n- **位置数据**：基于IP地址的国家和城市（非精确位置）\n\n### Cookie和跟踪技术\n\n我们使用Cookie和类似的跟踪技术来增强您的体验：\n\n| Cookie类型 | 用途 | 有效期 |\n|-----------|------|-------|\n| 必要性 | 网站功能 | 会话期间 |\n| 偏好设置 | 记住您的设置 | 1年 |\n| 分析 | 了解使用模式 | 2年 |\n| 营销 | 个性化内容（如启用） | 1年 |\n\n您可以通过浏览器设置或我们的Cookie同意横幅控制Cookie偏好。\n\n## 我们如何使用您的信息 \\{#how-we-use\\}\n\n我们将收集的信息用于以下目的：\n\n### 业务运营\n\n- 处理和回复您的询价\n- 提供报价并促成订单\n- 就产品和服务进行沟通\n- 管理客户关系\n\n### 网站改进\n\n- 分析网站使用情况和性能\n- 改善用户体验和导航\n- 开发新功能和内容\n- 排除技术问题\n\n### 营销（经您同意）\n\n- 发送新闻通讯和产品更新\n- 提供个性化推荐\n- 进行客户调查\n\n### 法律与合规\n\n- 遵守法律义务\n- 防范欺诈和滥用\n- 执行我们的服务条款\n\n## 处理的法律依据（GDPR） \\{#legal-basis\\}\n\n对于欧洲经济区（EEA）的用户，我们基于以下依据处理您的个人数据：\n\n- **同意**：当您选择接收营销通讯时\n- **合同履行**：为完成商业交易\n- **合法利益**：用于业务运营和网站改进\n- **法律义务**：遵守适用法律\n\n## 信息共享与披露 \\{#sharing\\}\n\n我们不会出售您的个人信息。我们可能与以下方共享您的信息：\n\n### 服务提供商\n\n协助我们业务运营的第三方：\n\n- 网站托管服务商\n- 电子邮件服务提供商\n- 分析服务\n- 客户关系管理（CRM）系统\n\n这些服务商在合同上有义务保护您的数据。\n\n### 业务合作伙伴\n\n经您同意，我们可能与以下方共享信息：\n\n- 交付或履约合作伙伴（用于项目执行）\n- 支付处理商（用于交易处理）\n\n### 法律要求\n\n在以下情况下，我们可能披露信息：\n\n- 法院命令或法律程序\n- 政府要求\n- 保护我们的合法权益\n- 涉及安全的紧急情况\n\n## 国际数据传输 \\{#international-transfers\\}\n\n根据真实部署方式和服务提供商，您的数据可能被传输至并在您居住地以外的国家/地区处理。真实网站 owner 必须说明这些传输并落实适当保障措施：\n\n- 标准合同条款\n- 数据处理协议\n- 符合国际标准的安全措施\n\n## 数据安全 \\{#security\\}\n\n我们实施行业标准的安全措施：\n\n- **加密**：数据传输使用SSL/TLS加密\n- **访问控制**：基于角色的数据访问权限\n- **监控**：定期安全审计和监控\n- **员工培训**：数据保护意识培训计划\n\n然而，任何互联网传输方式都不是100%安全的。我们无法保证绝对安全。\n\n## 数据保留 \\{#retention\\}\n\n我们按以下期限保留您的个人信息：\n\n- **活跃业务关系**：关系存续期间加5年\n- **询价数据**：最后联系起2年\n- **分析数据**：26个月（汇总数据）\n- **营销偏好**：直至撤回同意\n\n保留期限届满后，数据将被安全删除或匿名化处理。\n\n## 您的隐私权利 \\{#your-rights\\}\n\n### 所有用户\n\n您有权：\n\n- **访问**：请求获取您个人数据的副本\n- **更正**：更新不准确的信息\n- **删除**：请求删除您的数据\n- **反对**：反对某些处理活动\n- **可携带性**：以可移植格式接收您的数据\n\n### 欧洲经济区居民（GDPR）\n\n额外权利包括：\n\n- 随时撤回同意\n- 向监管机构投诉\n- 在特定情况下限制处理\n\n### 加州居民（CCPA）\n\n您有权：\n\n- 了解收集了哪些个人信息\n- 了解个人信息是否被出售或披露\n- 拒绝出售个人信息\n- 访问您的个人信息\n- 获得平等的服务和价格（不受歧视）\n\n如需行使这些权利，请使用以下信息联系我们。\n\n## 儿童隐私 \\{#children\\}\n\n我们的网站不面向16岁以下的个人。我们不会故意收集儿童的个人信息。如果您认为我们收集了儿童的信息，请立即联系我们。\n\n## 第三方链接 \\{#third-party-links\\}\n\n我们的网站可能包含第三方网站的链接。我们对这些外部网站的隐私实践不承担责任。我们建议您查阅它们的隐私政策。\n\n## 本政策的变更 \\{#changes\\}\n\n我们可能会定期更新本隐私政策。变更将在本页面发布，并更新\"最后更新\"日期。重大变更将通过电子邮件或网站通知告知您。\n\n## 联系我们 \\{#contact\\}\n\n如果您对本隐私政策有疑问或希望行使您的权利，请联系我们：\n\n**数据保护联系方式**\nShowcase Website Starter\n真实数据保护联系人配置前，请使用本站联系表单。\n地址：公开上线前替换真实法律地址。\n\n对于欧盟居民，也请通过上述数据保护联系方式与我们联系。\n\n---\n\n**文档版本：** 2.0\n**批准部门：** 法务部\n**审核周期：** 每年\n"
   },
   {
     "type": "pages",
@@ -636,7 +624,7 @@ const _entries: ContentEntry[] = [
         ]
       }
     },
-    "content": "\n**生效日期：** 2024年1月1日\n**最后更新：** 2024年4月1日\n\n## 引言 \\{#introduction\\}\n\n欢迎访问示例展示型公司有限公司。本服务条款（以下简称\"条款\"）规定您访问和使用我们的网站、产品及服务的条件。访问我们的网站或与我们进行业务往来，即表示您同意受本条款的约束。\n\n请在使用我们的服务前仔细阅读本条款。如果您不同意本条款，请勿使用我们的网站或服务。\n\n## 条款接受 \\{#acceptance\\}\n\n访问或使用我们的网站、下订单或与我们进行任何业务交易，即表示您确认已阅读、理解并同意受本条款及我们的隐私政策的约束。\n\n如果您代表公司或其他法律实体签订本条款，您声明您有权使该实体受本条款约束。\n\n## 服务说明 \\{#services\\}\n\n示例展示型公司有限公司是占位身份。真实项目应把本节替换成实际提供的产品或服务，例如：\n\n- 产品或服务展示\n- 定制项目支持\n- 技术咨询和支持\n- 资源或文档访问\n- 询盘处理\n\n详细的产品规格和服务内容可应要求提供。\n\n## 订单与合同 \\{#orders\\}\n\n### 询价与报价\n\n- 所有询价应包括详细的规格和数量要求\n- 报价有效期为30天，除非另有说明\n- 价格可能根据市场条件和订单规格进行调整\n\n### 订单确认\n\n订单在以下情况下确认：\n\n1. 收到书面采购订单\n2. 我们开具形式发票（PI）\n3. 收到定金（如适用）\n4. 我们提供书面订单确认\n\n### 合同成立\n\n合同在我们书面接受您的订单时成立。订单变更需双方书面同意。\n\n## 付款条款 \\{#payment\\}\n\n### 接受的付款方式\n\n| 方式 | 最低订单金额 | 处理时间 |\n|--------|---------------|--------------------|\n| 电汇（T/T） | 无最低要求 | 1-3个工作日 |\n| 信用证（L/C） | 10,000美元以上 | 按信用证条款 |\n| 付款交单（D/P） | 个案处理 | 按银行条款 |\n\n### 标准付款条款\n\n- **定金**：订单确认后支付30%\n- **余款**：发货前支付70%（电汇）或交单时支付（信用证）\n- **自定义条款**：信用记录良好的老客户可协商\n\n### 逾期付款\n\n逾期付款可能产生：\n\n- 未付金额按每月1.5%计息\n- 暂停待处理订单\n- 未来订单需预付款\n\n## 运输与交货 \\{#shipping\\}\n\n### 贸易术语（Incoterms® 2020）\n\n我们通常采用以下贸易术语：\n\n- **FOB**（离岸价）：指定装运港\n- **CIF**（成本加保险费加运费）：指定目的港\n- **EXW**（指定地点交付）：如适用，填写指定起运地点\n\n具体条款将在报价和合同中注明。\n\n### 交货时间\n\n- 标准交货期：订单确认后30-45天\n- 定制订单：报价阶段提供时间表\n- 交货日期为预估时间，不作保证\n\n### 风险转移\n\n货物灭失风险按照约定的贸易术语转移至买方。\n\n## 保修与退换 \\{#warranty\\}\n\n### 产品保修\n\n- 标准保修期：交货之日起12个月\n- 保修范围以最终协议中确认的缺陷或服务问题为准\n- 不包括因误用、改装或不当存储造成的损坏\n\n### 索赔流程\n\n1. 在交货后15天内提交书面索赔（外观缺陷）\n2. 在保修期内提交书面索赔（隐性缺陷）\n3. 根据要求提供照片、文件和样品\n4. 我们的质量团队将在10个工作日内进行调查\n\n### 补救措施\n\n我们将酌情：\n\n- 修理或更换有缺陷的产品\n- 提供未来订单的抵扣额度\n- 在最终协议允许的情况下，退还受影响部分的款项\n\n## 责任限制 \\{#liability\\}\n\n### 最大责任\n\n我们对任何索赔的总责任不超过您为引起索赔的特定产品或服务所支付的金额。\n\n### 免责范围\n\n我们不对以下情况负责：\n\n- 间接、附带或后果性损害\n- 利润损失或商机损失\n- 不当使用造成的损害\n- 不可抗力事件造成的延误\n\n### 不可抗力\n\n任何一方均不对超出合理控制范围的情况造成的延误或失败承担责任，包括但不限于：\n\n- 自然灾害\n- 战争、恐怖主义或内乱\n- 政府行为或法规\n- 流行病或疫情\n- 运输或履约中断\n\n## 知识产权 \\{#ip\\}\n\n### 我方财产\n\n我们网站上的所有内容，包括文字、图像、标志和产品设计，均为示例展示型公司有限公司或其许可方的财产。\n\n### 客户规格\n\n- 客户提供的定制设计仍归客户所有\n- 我们将对客户规格保密\n- 定制产品的生产不会将设计权转让给我们\n\n### 使用权\n\n您不得：\n\n- 未经书面许可复制我们的材料\n- 对我们的产品、服务或网站材料进行逆向工程\n- 未经授权使用我们的商标\n\n## 保密条款 \\{#confidentiality\\}\n\n双方同意：\n\n- 保护从对方收到的保密信息\n- 仅将保密信息用于业务关系目的\n- 未经同意不向第三方披露保密信息\n\n保密义务在业务关系终止后5年内继续有效。\n\n## 终止条款 \\{#termination\\}\n\n### 任一方终止\n\n任何一方可提前30天书面通知终止业务关系。\n\n### 立即终止\n\n在以下情况下，我们可立即终止：\n\n- 发生付款违约\n- 严重违反本条款\n- 破产或清算程序\n- 违反适用法律\n\n### 终止效力\n\n终止后：\n\n- 所有未付款项立即到期\n- 待处理订单可由我方酌情取消或完成\n- 保密义务继续有效\n\n## 适用法律与争议解决 \\{#governing-law\\}\n\n### 适用法律\n\n本条款受中华人民共和国法律管辖。\n\n### 争议解决\n\n1. **协商**：双方应首先通过善意协商解决争议\n2. **调解**：如协商在30天内失败，双方可尝试调解\n3. **仲裁**：未解决的争议应提交至：\n\n**中国国际经济贸易仲裁委员会（CIETAC）**\n- 规则：CIETAC仲裁规则\n- 地点：香港或北京（双方协商）\n- 语言：英文或中文（双方协商）\n\n仲裁裁决为最终裁决，对双方均有约束力。\n\n## 出口合规 \\{#export-compliance\\}\n\n### 法规\n\n双方应遵守所有适用的出口管制法律法规，包括：\n\n- 出口管理条例（EAR）\n- 国际武器运输条例（ITAR）\n- 适用的联合国和国家制裁\n\n### 买方义务\n\n买方保证：\n\n- 产品不会用于禁止用途\n- 产品不会违反出口法律再出口\n- 买方未列入任何禁止交易名单\n\n## 一般条款 \\{#general\\}\n\n### 完整协议\n\n本条款连同任何报价、订单和书面协议，构成双方之间的完整协议。\n\n### 可分割性\n\n如任何条款被认定为无效或不可执行，其余条款将继续有效。\n\n### 弃权\n\n未能执行任何权利或条款不构成对该权利或条款的放弃。\n\n### 转让\n\n未经我方事先书面同意，您不得转让您的权利或义务。\n\n### 修订\n\n我们保留修改本条款的权利。变更将在发布到我们网站后生效。\n\n## 联系方式 \\{#contact\\}\n\n如对本服务条款有任何疑问：\n\n**示例展示型公司有限公司**\n邮箱：sales@example.com\n地址：中国江苏省示例城市示例工业园 1 号\n\n订单相关咨询：\n邮箱：sales@example.com\n电话：上线前请先通过邮箱联系销售团队。\n\n---\n\n**文件版本：** 2.0\n**审批：** 法务部\n**审核周期：** 年度\n"
+    "content": "\n**生效日期：** 2024年1月1日\n**最后更新：** 2024年4月1日\n\n## 引言 \\{#introduction\\}\n\n欢迎访问 Showcase Website Starter。本服务条款（以下简称\"条款\"）用于说明这个公开 demo 网站的法务内容替换面。真实项目用于正式业务、产品或服务前，网站 owner 必须审核并替换这份条款。\n\n请在使用我们的服务前仔细阅读本条款。如果您不同意本条款，请勿使用我们的网站或服务。\n\n## 条款接受 \\{#acceptance\\}\n\n访问或使用我们的网站、下订单或与我们进行任何业务交易，即表示您确认已阅读、理解并同意受本条款及我们的隐私政策的约束。\n\n如果您代表公司或其他法律实体签订本条款，您声明您有权使该实体受本条款约束。\n\n## 服务说明 \\{#services\\}\n\nShowcase Website Starter 是公开 demo starter，不是真实客户业务的法律主体。真实项目应把本节替换成实际提供的产品或服务，例如：\n\n- 产品或服务展示\n- 定制项目支持\n- 技术咨询和支持\n- 资源或文档访问\n- 询盘处理\n\n详细的产品规格和服务内容可应要求提供。\n\n## 订单与合同 \\{#orders\\}\n\n### 询价与报价\n\n- 所有询价应包括详细的规格和数量要求\n- 报价有效期为30天，除非另有说明\n- 价格可能根据市场条件和订单规格进行调整\n\n### 订单确认\n\n订单在以下情况下确认：\n\n1. 收到书面采购订单\n2. 我们开具形式发票（PI）\n3. 收到定金（如适用）\n4. 我们提供书面订单确认\n\n### 合同成立\n\n合同在我们书面接受您的订单时成立。订单变更需双方书面同意。\n\n## 付款条款 \\{#payment\\}\n\n### 接受的付款方式\n\n| 方式 | 最低订单金额 | 处理时间 |\n|--------|---------------|--------------------|\n| 电汇（T/T） | 无最低要求 | 1-3个工作日 |\n| 信用证（L/C） | 10,000美元以上 | 按信用证条款 |\n| 付款交单（D/P） | 个案处理 | 按银行条款 |\n\n### 标准付款条款\n\n- **定金**：订单确认后支付30%\n- **余款**：发货前支付70%（电汇）或交单时支付（信用证）\n- **自定义条款**：信用记录良好的老客户可协商\n\n### 逾期付款\n\n逾期付款可能产生：\n\n- 未付金额按每月1.5%计息\n- 暂停待处理订单\n- 未来订单需预付款\n\n## 运输与交货 \\{#shipping\\}\n\n### 贸易术语（Incoterms® 2020）\n\n我们通常采用以下贸易术语：\n\n- **FOB**（离岸价）：指定装运港\n- **CIF**（成本加保险费加运费）：指定目的港\n- **EXW**（指定地点交付）：如适用，填写指定起运地点\n\n具体条款将在报价和合同中注明。\n\n### 交货时间\n\n- 标准交货期：订单确认后30-45天\n- 定制订单：报价阶段提供时间表\n- 交货日期为预估时间，不作保证\n\n### 风险转移\n\n货物灭失风险按照约定的贸易术语转移至买方。\n\n## 保修与退换 \\{#warranty\\}\n\n### 产品保修\n\n- 标准保修期：交货之日起12个月\n- 保修范围以最终协议中确认的缺陷或服务问题为准\n- 不包括因误用、改装或不当存储造成的损坏\n\n### 索赔流程\n\n1. 在交货后15天内提交书面索赔（外观缺陷）\n2. 在保修期内提交书面索赔（隐性缺陷）\n3. 根据要求提供照片、文件和样品\n4. 我们的质量团队将在10个工作日内进行调查\n\n### 补救措施\n\n我们将酌情：\n\n- 修理或更换有缺陷的产品\n- 提供未来订单的抵扣额度\n- 在最终协议允许的情况下，退还受影响部分的款项\n\n## 责任限制 \\{#liability\\}\n\n### 最大责任\n\n我们对任何索赔的总责任不超过您为引起索赔的特定产品或服务所支付的金额。\n\n### 免责范围\n\n我们不对以下情况负责：\n\n- 间接、附带或后果性损害\n- 利润损失或商机损失\n- 不当使用造成的损害\n- 不可抗力事件造成的延误\n\n### 不可抗力\n\n任何一方均不对超出合理控制范围的情况造成的延误或失败承担责任，包括但不限于：\n\n- 自然灾害\n- 战争、恐怖主义或内乱\n- 政府行为或法规\n- 流行病或疫情\n- 运输或履约中断\n\n## 知识产权 \\{#ip\\}\n\n### 我方财产\n\n本 demo 网站中的 starter 内容是可替换示例材料。真实项目必须替换文字、图像、标志、产品设计、服务材料和授权资产的所有权说明。\n\n### 客户规格\n\n- 客户提供的定制设计仍归客户所有\n- 我们将对客户规格保密\n- 定制产品的生产不会将设计权转让给我们\n\n### 使用权\n\n您不得：\n\n- 未经书面许可复制我们的材料\n- 对我们的产品、服务或网站材料进行逆向工程\n- 未经授权使用我们的商标\n\n## 保密条款 \\{#confidentiality\\}\n\n双方同意：\n\n- 保护从对方收到的保密信息\n- 仅将保密信息用于业务关系目的\n- 未经同意不向第三方披露保密信息\n\n保密义务在业务关系终止后5年内继续有效。\n\n## 终止条款 \\{#termination\\}\n\n### 任一方终止\n\n任何一方可提前30天书面通知终止业务关系。\n\n### 立即终止\n\n在以下情况下，我们可立即终止：\n\n- 发生付款违约\n- 严重违反本条款\n- 破产或清算程序\n- 违反适用法律\n\n### 终止效力\n\n终止后：\n\n- 所有未付款项立即到期\n- 待处理订单可由我方酌情取消或完成\n- 保密义务继续有效\n\n## 适用法律与争议解决 \\{#governing-law\\}\n\n### 适用法律\n\n本条款受中华人民共和国法律管辖。\n\n### 争议解决\n\n1. **协商**：双方应首先通过善意协商解决争议\n2. **调解**：如协商在30天内失败，双方可尝试调解\n3. **仲裁**：未解决的争议应提交至：\n\n**中国国际经济贸易仲裁委员会（CIETAC）**\n- 规则：CIETAC仲裁规则\n- 地点：香港或北京（双方协商）\n- 语言：英文或中文（双方协商）\n\n仲裁裁决为最终裁决，对双方均有约束力。\n\n## 出口合规 \\{#export-compliance\\}\n\n### 法规\n\n双方应遵守所有适用的出口管制法律法规，包括：\n\n- 出口管理条例（EAR）\n- 国际武器运输条例（ITAR）\n- 适用的联合国和国家制裁\n\n### 买方义务\n\n买方保证：\n\n- 产品不会用于禁止用途\n- 产品不会违反出口法律再出口\n- 买方未列入任何禁止交易名单\n\n## 一般条款 \\{#general\\}\n\n### 完整协议\n\n本条款连同任何报价、订单和书面协议，构成双方之间的完整协议。\n\n### 可分割性\n\n如任何条款被认定为无效或不可执行，其余条款将继续有效。\n\n### 弃权\n\n未能执行任何权利或条款不构成对该权利或条款的放弃。\n\n### 转让\n\n未经我方事先书面同意，您不得转让您的权利或义务。\n\n### 修订\n\n我们保留修改本条款的权利。变更将在发布到我们网站后生效。\n\n## 联系方式 \\{#contact\\}\n\n如对本服务条款有任何疑问：\n\n**Showcase Website Starter**\n真实法务联系人配置前，请使用本站联系表单。\n地址：公开上线前替换真实法律地址。\n\n订单相关咨询：\n真实接收方配置前，请使用本站联系表单。\n电话：如果提供电话支持，公开上线前配置真实电话号码。\n\n---\n\n**文件版本：** 2.0\n**审批：** 法务部\n**审核周期：** 年度\n"
   }
 ];
 

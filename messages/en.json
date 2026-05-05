@@ -42,7 +42,7 @@
     }
   },
   "navigation": {
-    "siteName": "Example Showcase Company",
+    "siteName": "Showcase Website Starter",
     "siteDescription": "Reusable showcase website starter for products, services, proof, and inquiry paths.",
     "home": "Home",
     "more": "More",
@@ -50,10 +50,11 @@
     "howItWorks": "How It Works",
     "about": "About",
     "contact": "Contact",
-    "contactSales": "Contact Sales",
+    "contactSales": "Contact",
     "customProject": "Custom",
     "services": "Services",
     "products": "Products",
+    "blog": "Blog",
     "solutions": "Solutions",
     "resources": "Resources",
     "enterprise": "Enterprise",
@@ -124,14 +125,26 @@
       }
     }
   },
+  "blog": {
+    "index": {
+      "eyebrow": "Launch guide",
+      "title": "Blog",
+      "description": "Practical notes for turning a starter into a public showcase website: content, pages, deployment, analytics, and replacement boundaries.",
+      "articleListLabel": "Starter launch articles",
+      "readArticle": "Read article"
+    },
+    "article": {
+      "backToBlog": "Back to blog"
+    }
+  },
   "home": {
     "hero": {
-      "eyebrow": "Reusable Website Starter · Est. {established}",
-      "title": "A Showcase Website Starter Built for Clear Evaluation.",
-      "subtitle": "Use this replaceable example to present offerings, proof, resources, and an inquiry path without rebuilding the site from scratch.",
+      "eyebrow": "Public demo starter site",
+      "title": "No website yet? Start with a deployable showcase-site foundation.",
+      "subtitle": "This starter gives a project the first real website structure: pages, content replacement surfaces, inquiry flow, multilingual copy, and a Cloudflare-ready launch path.",
       "cta": {
-        "primary": "Start Inquiry",
-        "secondary": "View Offerings"
+        "primary": "View product capabilities",
+        "secondary": "Contact"
       },
       "proof": {
         "countries": "{countries}+",
@@ -144,14 +157,90 @@
         "estLabel": "Est."
       },
       "preview": {
-        "label": "Starter preview",
-        "title": "Built-in website system",
-        "description": "Use this starter to preview page structure, component reuse, content replacement, and inquiry flow before a real launch.",
+        "label": "What this starter provides",
+        "title": "A public site foundation, not a blank shell",
+        "description": "The demo is intentionally complete enough to evaluate, while still making replacement boundaries visible before a real launch.",
+        "items": [
+          "Home, Products, Blog, About, and Contact",
+          "Brand and content replacement surfaces",
+          "Inquiry path with anti-abuse basics",
+          "Cloudflare-ready deployment direction"
+        ],
         "pages": "Pages",
         "components": "Components",
         "storybook": "Storybook",
         "workflow": "AI workflow",
         "note": "Replace example content before launch"
+      }
+    },
+    "problems": {
+      "title": "The first blocker is usually not design polish. It is that the website does not exist yet.",
+      "description": "A new project often has no public structure, no content plan, no deployment path, and no clear way for visitors to contact the owner.",
+      "items": {
+        "structure": {
+          "title": "No page structure",
+          "description": "There is no agreed Home, Products, Blog, About, Contact, or legal page baseline."
+        },
+        "content": {
+          "title": "No content plan",
+          "description": "Brand facts, offer copy, proof assets, images, and launch boundaries are scattered or missing."
+        },
+        "deployment": {
+          "title": "No launch path",
+          "description": "A local build is not enough; the site still needs a preview and deployment path that can be proven."
+        },
+        "inquiry": {
+          "title": "No inquiry flow",
+          "description": "Visitors need a simple contact route, and the owner needs a real destination for submissions."
+        },
+        "multilingual": {
+          "title": "No multilingual baseline",
+          "description": "If the site needs English and Chinese, copy, routing, and switching must be built in from the start."
+        }
+      }
+    },
+    "answer": {
+      "title": "The starter gives that missing foundation first.",
+      "description": "It is not a finished client website. It is a reusable public demo that shows the structure, replacement work, and launch proof a real site still needs.",
+      "items": {
+        "pageStructure": {
+          "title": "Clear page structure",
+          "description": "Home, Products, Blog, About, Contact, and supporting pages are already wired as a real public site shape."
+        },
+        "replacementSurface": {
+          "title": "Visible replacement surface",
+          "description": "Brand, offers, page copy, SEO, images, legal text, and contact details are treated as explicit launch inputs."
+        },
+        "inquiryPath": {
+          "title": "Inquiry path",
+          "description": "The site includes a contact route and form foundation, with basic anti-abuse and lead-handling boundaries."
+        },
+        "cloudflareFoundation": {
+          "title": "Cloudflare-ready foundation",
+          "description": "Cloudflare is the recommended deployment path. Optional compatibility can stay secondary without becoming the default promise."
+        }
+      }
+    },
+    "startPath": {
+      "title": "A practical path from starter to public launch.",
+      "description": "Use this demo as the beginning of the site, then replace the parts that must belong to the real owner.",
+      "items": {
+        "brand": {
+          "title": "Replace brand facts",
+          "description": "Company name, domain, logo, colors, contact details, and legal identity become real owner-confirmed facts."
+        },
+        "content": {
+          "title": "Replace page content",
+          "description": "Home, product or service copy, proof assets, blog guidance, images, and legal pages become real launch content."
+        },
+        "forms": {
+          "title": "Connect forms",
+          "description": "Contact submissions, email delivery, anti-abuse checks, and response ownership point to real accounts."
+        },
+        "deploy": {
+          "title": "Deploy and verify",
+          "description": "Cloudflare preview, form canary, traffic visibility, and owner signoff prove readiness separately from local checks."
+        }
       }
     },
     "starterBoundary": {
@@ -334,16 +423,16 @@
       }
     },
     "finalCta": {
-      "title": "Ready to Get Started?",
-      "description": "Replace this CTA with the real next step: quote, consultation, booking, demo, download, or general inquiry.",
-      "primary": "Start an Inquiry",
-      "secondary": "Review Offerings",
+      "title": "Start from a real website foundation, then replace what must become yours.",
+      "description": "Review what the starter includes, or use the contact route as the quick path for the next real setup conversation.",
+      "primary": "View product capabilities",
+      "secondary": "Contact",
       "trustAriaLabel": "Homepage trust facts",
       "trust": "Example response promise · Replace proof before launch · {countries}+ placeholder markets"
     },
     "footer": {
       "about": {
-        "title": "Example Showcase Company",
+        "title": "Showcase Website Starter",
         "desc": "A replaceable showcase website starter for presenting offers, proof, resources, and inquiry paths."
       },
       "products": {
@@ -373,7 +462,7 @@
           "item4": "Project Review"
         }
       },
-      "copyright": "© 2024 Example Showcase Company Ltd. All rights reserved.",
+      "copyright": "© 2024 Showcase Website Starter. All rights reserved.",
       "location": "Replace with real dispatch point"
     },
     "cta": {
@@ -580,12 +669,12 @@
         "viewSource": "View Offerings"
       }
     },
-    "title": "Example Showcase Company",
+    "title": "Showcase Website Starter",
     "subtitle": "Reusable Showcase Website Starter",
     "description": "Reusable website starter for product, service, proof, and inquiry presentation.",
     "getStarted": "Get Started",
     "learnMore": "Learn More",
-    "welcome": "Welcome to Example Showcase Company",
+    "welcome": "Welcome to Showcase Website Starter",
     "modernApp": "A modern web application built with Next.js 16 and React 19",
     "features": {
       "title": "Features",
@@ -640,6 +729,7 @@
         "home": "Home",
         "about": "About",
         "products": "Products",
+        "blog": "Blog",
         "contact": "Contact"
       },
       "social": {
@@ -649,6 +739,7 @@
       },
       "support": {
         "title": "Support",
+        "contact": "Contact",
         "privacy": "Privacy Policy",
         "terms": "Terms of Service"
       }
@@ -706,7 +797,7 @@
     "learn": "Learn",
     "examples": "Examples",
     "goToNextjs": "Go to nextjs.org",
-    "copyright": "(c) {year} Example Showcase Company. All rights reserved.",
+    "copyright": "(c) {year} Showcase Website Starter. All rights reserved.",
     "description": "Reusable showcase website starter for products, services, proof, and inquiry paths."
   },
   "accessibility": {
@@ -753,6 +844,7 @@
         "panel": {
           "contactTitle": "Contact Methods",
           "email": "Email",
+          "emailUnavailable": "Use the form on this page; configure a real receiver before public launch.",
           "phone": "Phone",
           "hoursTitle": "Business Hours",
           "weekdays": "Mon - Fri",
@@ -834,7 +926,7 @@
   },
   "structured-data": {
     "organization": {
-      "name": "Example Showcase Company",
+      "name": "Showcase Website Starter",
       "description": "Reusable showcase website starter for products, services, proof, and inquiry paths",
       "phone": "Contact sales by email",
       "social": {
@@ -843,13 +935,13 @@
       }
     },
     "website": {
-      "name": "Example Showcase Company",
+      "name": "Showcase Website Starter",
       "description": "Reusable showcase website starter for products, services, proof, and inquiry paths"
     },
     "article": {
       "defaultTitle": "Article",
       "defaultDescription": "Article description",
-      "defaultAuthor": "Example Showcase Company"
+      "defaultAuthor": "Showcase Website Starter"
     },
     "product": {
       "defaultName": "Product",
@@ -963,10 +1055,75 @@
       "products": "Products"
     },
     "overview": {
-      "title": "Products",
-      "description": "Replaceable product and service examples grouped by market or use case. Select a category to review the example structure.",
+      "title": "Starter product capabilities",
+      "description": "A showcase-site starter covering site structure, content replacement, inquiry flow, and launch foundation.",
+      "kicker": "What the starter includes",
+      "capabilitiesTitle": "Result capabilities",
+      "capabilitiesDescription": "The page explains what a project can start from before real content is replaced.",
       "byStandard": "By Example Category",
       "specialty": "Specialty Examples"
+    },
+    "starterCapabilities": {
+      "siteFoundation": {
+        "title": "Showcase-site foundation",
+        "description": "Home, Products, Blog, About, Contact, legal pages, navigation, and responsive layout are already connected."
+      },
+      "replacementSurface": {
+        "title": "Content replacement surface",
+        "description": "Brand facts, page copy, product or service entries, SEO, images, and multilingual text have clear places to replace."
+      },
+      "inquiryPath": {
+        "title": "Inquiry path",
+        "description": "The contact page, form flow, basic anti-abuse controls, and lead handling path are ready for a real owner."
+      },
+      "launchPath": {
+        "title": "Launch path",
+        "description": "Cloudflare is the recommended deployment route, with optional compatibility kept secondary and traffic visibility treated as a real surface."
+      }
+    },
+    "technicalProofTitle": "Technical proof",
+    "technicalProofDescription": "The starter includes the technical baseline a public demo needs without making the product page a developer manual.",
+    "technicalProof": {
+      "next": {
+        "title": "Next.js app foundation",
+        "description": "App Router, Server Components first, metadata, localized routes, and production build checks."
+      },
+      "cloudflare": {
+        "title": "Cloudflare/OpenNext deployment path",
+        "description": "Cloudflare and OpenNext stay the recommended deployment truth for this starter."
+      },
+      "i18n": {
+        "title": "Multilingual content",
+        "description": "English and Chinese navigation, page copy, metadata, and article content stay aligned."
+      },
+      "quality": {
+        "title": "Quality checks",
+        "description": "Type, lint, content, component, website, and build checks remain part of the launch path."
+      },
+      "security": {
+        "title": "Form security basics",
+        "description": "Contact and inquiry paths include validation, anti-abuse controls, and explicit runtime configuration."
+      },
+      "traffic": {
+        "title": "Traffic visibility",
+        "description": "Owner-facing traffic information is treated as a real protected surface, not marketing decoration."
+      }
+    },
+    "boundary": {
+      "title": "Starter, not a finished client website",
+      "description": "Real launch still requires real content, images, contact details, legal copy, secrets, and deployment proof.",
+      "items": {
+        "content": "Replace real business content",
+        "assets": "Replace real images and proof",
+        "legal": "Review legal and contact details",
+        "deployment": "Prove deployment and forms"
+      }
+    },
+    "cta": {
+      "title": "Ready to turn the starter into a public site?",
+      "description": "Use the launch articles or contact path to decide what must be replaced first.",
+      "blog": "Learn how to start",
+      "contact": "Contact"
     },
     "market": {
       "familyNav": {
@@ -1540,6 +1697,7 @@
     "panel": {
       "contactTitle": "Contact Methods",
       "email": "Email",
+      "emailUnavailable": "Use the form on this page; configure a real receiver before public launch.",
       "phone": "Phone",
       "hoursTitle": "Business Hours",
       "weekdays": "Mon - Fri",
@@ -1718,7 +1876,7 @@
   "emailPlaceholder": "your@email.com",
   "phone": "Phone Number",
   "organization": {
-    "name": "Example Showcase Company",
+    "name": "Showcase Website Starter",
     "description": "Reusable showcase website starter for products, services, proof, and inquiry paths",
     "phone": "Contact sales by email",
     "social": {
@@ -1727,11 +1885,11 @@
     }
   },
   "website": {
-    "name": "Example Showcase Company",
+    "name": "Showcase Website Starter",
     "description": "Reusable showcase website starter for products, services, proof, and inquiry paths"
   },
   "article": {
-    "defaultAuthor": "Example Showcase Company"
+    "defaultAuthor": "Showcase Website Starter"
   },
   "products": {
     "pageTitle": "Products",
@@ -1783,7 +1941,7 @@
       "turnstileRequired": "Please complete the security verification."
     }
   },
-  "title": "Example Showcase Company",
+  "title": "Showcase Website Starter",
   "trust": {
     "testimonials": {
       "title": "What Our Clients Say",
@@ -1853,7 +2011,7 @@
   },
   "customProject": {
     "meta": {
-      "title": "Custom Project Support | Example Showcase Company",
+      "title": "Custom Project Support | Showcase Website Starter",
       "description": "Replaceable custom-project example for scope, proposal, brand adaptation, review, and delivery."
     },
     "hero": {

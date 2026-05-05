@@ -52,7 +52,7 @@ function isTrue(env: EnvMap, key: string): boolean {
 function containsStarterMarker(value: string | undefined): boolean {
   if (!value) return true;
 
-  return /Example Showcase Company|example\.com|localhost|127\.0\.0\.1|sales@example\.com|showcase website example|replaceable showcase website example|Example Business Park|Example City|x\.com\/example|linkedin\.com\/company\/example/iu.test(
+  return /Example Showcase Company|Showcase Website Starter|example\.com|localhost|127\.0\.0\.1|sales@example\.com|starter-contact@example\.com|showcase website example|showcase website starter|public demo starter|replaceable showcase website example|Public Demo Starter Site|Example Business Park|Example City|Replace before launch|x\.com\/example|linkedin\.com\/company\/example/iu.test(
     value,
   );
 }

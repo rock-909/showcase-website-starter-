@@ -5,6 +5,11 @@ import { describe, expect, it } from "vitest";
 const CONTENT_PAGES_DIR = join(process.cwd(), "content", "pages");
 
 const FORBIDDEN_PLACEHOLDERS = [
+  "Example Showcase Company",
+  "示例展示型公司",
+  "sales@example.com",
+  "Example Business Park",
+  "Example City",
   "[Company Name]",
   "[company-domain]",
   "[Company Address]",

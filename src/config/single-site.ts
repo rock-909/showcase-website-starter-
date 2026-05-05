@@ -49,7 +49,7 @@ const social = {
 
 const contact = {
   phone: "+86-518-0000-0000",
-  email: "sales@example.com",
+  email: "starter-contact@example.com",
 } as const;
 
 const establishedYear = 2018;
@@ -62,16 +62,17 @@ export const SINGLE_SITE_DEFINITION: SiteDefinition = {
   key: SINGLE_SITE_KEY,
   config: {
     baseUrl,
-    name: "Example Showcase Company",
+    name: "Showcase Website Starter",
     description:
-      "Showcase website example for product, service, and inquiry presentation",
+      "Public demo starter for launching a showcase website foundation",
     seo: {
-      titleTemplate: "%s | Example Showcase Company",
-      defaultTitle: "Example Showcase Company - Showcase Website Example",
+      titleTemplate: "%s | Showcase Website Starter",
+      defaultTitle: "Showcase Website Starter - Public Demo Starter Site",
       defaultDescription:
-        "A replaceable showcase website example for presenting offerings, proof, resources, and inquiry paths.",
+        "A public demo starter site for teams that need a deployable showcase website foundation before they have a real website.",
       keywords: [
-        "showcase website example",
+        "showcase website starter",
+        "public demo starter site",
         "company website starter",
         "product showcase website",
         "service showcase website",
@@ -86,14 +87,14 @@ export const SINGLE_SITE_DEFINITION: SiteDefinition = {
   },
   facts: {
     company: {
-      name: "Example Showcase Company Ltd.",
+      name: "Showcase Website Starter",
       established: establishedYear,
       yearsInBusiness: new Date().getFullYear() - establishedYear,
       employees: 60,
       location: {
-        country: "China",
-        city: "Example City",
-        address: "Example Business Park, Example City",
+        country: "Replace before launch",
+        city: "Replace before launch",
+        address: "Replace before launch",
       },
     },
     contact: {
@@ -161,13 +162,6 @@ export const SINGLE_SITE_DEFINITION: SiteDefinition = {
           translationKey: "footer.sections.navigation.home",
         },
         {
-          key: "about",
-          label: "About",
-          href: SINGLE_SITE_ROUTE_HREFS.about,
-          external: false,
-          translationKey: "footer.sections.navigation.about",
-        },
-        {
           key: "products",
           label: "Products",
           href: SINGLE_SITE_ROUTE_HREFS.products,
@@ -175,11 +169,18 @@ export const SINGLE_SITE_DEFINITION: SiteDefinition = {
           translationKey: "footer.sections.navigation.products",
         },
         {
-          key: "contact",
-          label: "Contact",
-          href: SINGLE_SITE_ROUTE_HREFS.contact,
+          key: "blog",
+          label: "Blog",
+          href: SINGLE_SITE_ROUTE_HREFS.blog,
           external: false,
-          translationKey: "footer.sections.navigation.contact",
+          translationKey: "footer.sections.navigation.blog",
+        },
+        {
+          key: "about",
+          label: "About",
+          href: SINGLE_SITE_ROUTE_HREFS.about,
+          external: false,
+          translationKey: "footer.sections.navigation.about",
         },
       ],
     },
@@ -188,6 +189,13 @@ export const SINGLE_SITE_DEFINITION: SiteDefinition = {
       title: "Support",
       translationKey: "footer.sections.support.title",
       links: [
+        {
+          key: "contact",
+          label: "Contact",
+          href: SINGLE_SITE_ROUTE_HREFS.contact,
+          external: false,
+          translationKey: "footer.sections.support.contact",
+        },
         {
           key: "privacy",
           label: "Privacy Policy",

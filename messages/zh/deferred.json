@@ -69,6 +69,7 @@
     "panel": {
       "contactTitle": "联系方式",
       "email": "邮箱",
+      "emailUnavailable": "请使用本页表单；公开上线前需要配置真实接收方。",
       "phone": "电话",
       "hoursTitle": "营业时间",
       "weekdays": "周一 - 周五",
@@ -247,7 +248,7 @@
   "emailPlaceholder": "your@email.com",
   "phone": "电话号码",
   "organization": {
-    "name": "示例展示型公司",
+    "name": "Showcase Website Starter",
     "description": "用于展示产品、服务、证据和询盘路径的可复用网站 starter",
     "phone": "请通过邮箱联系销售团队",
     "social": {
@@ -256,11 +257,11 @@
     }
   },
   "website": {
-    "name": "示例展示型公司",
+    "name": "Showcase Website Starter",
     "description": "用于展示产品、服务、证据和询盘路径的可复用网站 starter"
   },
   "article": {
-    "defaultAuthor": "示例展示型公司"
+    "defaultAuthor": "Showcase Website Starter"
   },
   "products": {
     "pageTitle": "产品中心",
@@ -312,7 +313,7 @@
       "turnstileRequired": "请完成安全验证。"
     }
   },
-  "title": "示例展示型公司",
+  "title": "Showcase Website Starter",
   "trust": {
     "testimonials": {
       "title": "客户评价",
@@ -382,7 +383,7 @@
   },
   "customProject": {
     "meta": {
-      "title": "定制项目支持 | 示例展示型公司",
+      "title": "定制项目支持 | Showcase Website Starter",
       "description": "可替换的定制项目示例，用于说明范围、方案、品牌适配、确认和交付。"
     },
     "hero": {

@@ -1,5 +1,5 @@
 /**
- * Site key is an authoring input, not a hardcoded repository-wide Example Showcase Company type.
+ * Site key is an authoring input, not a hardcoded repository-wide demo identity.
  * The current single-site baseline still exports `SINGLE_SITE_KEY = "showcase"`
  * from `single-site.ts`, but future derivative projects should only need to
  * replace that input instead of editing shared type definitions.

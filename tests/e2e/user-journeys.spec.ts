@@ -14,13 +14,13 @@ import {
  *
  * BC-002: Navigate to all main pages from header
  * BC-005: 404 for invalid routes
- * BC-013: Products page shows market cards
- * BC-014: Market page shows product specs
+ * BC-013: Products page explains starter capabilities
+ * BC-014: Market detail routes remain reachable
  * BC-020: All internal links point to real routes
  */
 
 test.describe("Journey: Browse Products (BC-013, BC-014)", () => {
-  test("user navigates from homepage to products to a market page", async ({
+  test("user navigates from homepage to products and sees starter capabilities", async ({
     page,
   }) => {
     // Start at homepage
@@ -40,16 +40,31 @@ test.describe("Journey: Browse Products (BC-013, BC-014)", () => {
     await productsLink.click();
     await expect(page).toHaveURL(/\/products/);
 
-    // BC-013: Products page should show market cards
-    // Verify at least one market card link exists
-    const marketLinks = page.locator('a[href*="/products/"]');
-    await expect(marketLinks.first()).toBeVisible({ timeout: 10_000 });
-    const marketCount = await marketLinks.count();
-    expect(marketCount).toBeGreaterThanOrEqual(3); // At least 3 markets
+    // BC-013: Products page should explain starter capabilities, not a market-card catalog.
+    await expect(
+      page.getByRole("heading", { name: /Starter product capabilities/i }),
+    ).toBeVisible({ timeout: 10_000 });
+    await expect(
+      page.getByRole("heading", { name: /Showcase-site foundation/i }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: /Technical proof/i }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", {
+        name: /Cloudflare\/OpenNext deployment path/i,
+      }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", {
+        name: /Starter, not a finished client website/i,
+      }),
+    ).toBeVisible();
 
-    // Click the first market card
-    await marketLinks.first().click();
-    await expect(page).toHaveURL(/\/products\//);
+    // BC-014: Existing market detail routes remain reachable, even though
+    // they are no longer the main products overview story.
+    await page.goto("/en/products/north-america");
+    await expect(page).toHaveURL(/\/products\/north-america/);
 
     // BC-014: Market page should show product content
     // Verify the page loaded with meaningful content
@@ -73,7 +88,7 @@ test.describe("Journey: Browse Products (BC-013, BC-014)", () => {
 
 test.describe("Journey: Navigate All Pages (BC-002)", () => {
   const pages = [
-    { path: "/en", titlePattern: /Example Showcase Company/i },
+    { path: "/en", titlePattern: /Showcase Website Starter/i },
     { path: "/en/capabilities", titlePattern: /Capabilities|Example/i },
     { path: "/en/how-it-works", titlePattern: /How It Works|Example/i },
     { path: "/en/about", titlePattern: /About/i },

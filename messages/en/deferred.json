@@ -69,6 +69,7 @@
     "panel": {
       "contactTitle": "Contact Methods",
       "email": "Email",
+      "emailUnavailable": "Use the form on this page; configure a real receiver before public launch.",
       "phone": "Phone",
       "hoursTitle": "Business Hours",
       "weekdays": "Mon - Fri",
@@ -247,7 +248,7 @@
   "emailPlaceholder": "your@email.com",
   "phone": "Phone Number",
   "organization": {
-    "name": "Example Showcase Company",
+    "name": "Showcase Website Starter",
     "description": "Reusable showcase website starter for products, services, proof, and inquiry paths",
     "phone": "Contact sales by email",
     "social": {
@@ -256,11 +257,11 @@
     }
   },
   "website": {
-    "name": "Example Showcase Company",
+    "name": "Showcase Website Starter",
     "description": "Reusable showcase website starter for products, services, proof, and inquiry paths"
   },
   "article": {
-    "defaultAuthor": "Example Showcase Company"
+    "defaultAuthor": "Showcase Website Starter"
   },
   "products": {
     "pageTitle": "Products",
@@ -312,7 +313,7 @@
       "turnstileRequired": "Please complete the security verification."
     }
   },
-  "title": "Example Showcase Company",
+  "title": "Showcase Website Starter",
   "trust": {
     "testimonials": {
       "title": "What Our Clients Say",
@@ -382,7 +383,7 @@
   },
   "customProject": {
     "meta": {
-      "title": "Custom Project Support | Example Showcase Company",
+      "title": "Custom Project Support | Showcase Website Starter",
       "description": "Replaceable custom-project example for scope, proposal, brand adaptation, review, and delivery."
     },
     "hero": {

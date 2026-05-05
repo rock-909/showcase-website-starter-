@@ -99,16 +99,11 @@ test.describe("Header layout (bbox regression)", () => {
         await expect(nav).toBeVisible({ timeout: 10_000 });
         await expect(mobileMenuButton).not.toBeVisible({ timeout: 10_000 });
 
-        if (mode === "compactDesktop") {
-          await expect(cta).not.toBeVisible({ timeout: 10_000 });
-          await expect(languageToggle).not.toBeVisible({ timeout: 10_000 });
-        } else {
-          await expect(cta).toBeVisible({ timeout: 10_000 });
-          await expect(languageToggle).toBeVisible({ timeout: 10_000 });
-        }
+        await expect(cta).toBeVisible({ timeout: 10_000 });
+        await expect(languageToggle).toBeVisible({ timeout: 10_000 });
 
         const logoLink = page
-          .getByRole("link", { name: /Example Showcase Company/ })
+          .getByRole("link", { name: /Showcase Website Starter/ })
           .first();
 
         const logoBox = await expectBoundingBox(logoLink, "Logo link");

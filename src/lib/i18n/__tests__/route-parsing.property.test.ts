@@ -9,9 +9,12 @@ import {
 const STATIC_ROUTE_FIXTURES = [
   "/",
   "/about",
+  "/blog",
   "/contact",
   "/en/about",
+  "/en/blog",
   "/zh/contact",
+  "/zh/blog",
 ] as const;
 
 const DYNAMIC_ROUTE_FIXTURES = [
@@ -27,6 +30,20 @@ const DYNAMIC_ROUTE_FIXTURES = [
     expected: {
       pathname: "/products/[market]",
       params: { market: "europe" },
+    },
+  },
+  {
+    input: "/blog/prepare-before-launch",
+    expected: {
+      pathname: "/blog/[slug]",
+      params: { slug: "prepare-before-launch" },
+    },
+  },
+  {
+    input: "/zh/blog/why-cloudflare",
+    expected: {
+      pathname: "/blog/[slug]",
+      params: { slug: "why-cloudflare" },
     },
   },
 ] as const;

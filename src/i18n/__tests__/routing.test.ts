@@ -61,6 +61,7 @@ describe("i18n Routing Configuration", () => {
           pathnames: expect.objectContaining({
             "/": "/",
             "/about": "/about",
+            "/blog": "/blog",
             "/contact": "/contact",
             "/products": "/products",
           }),
@@ -81,6 +82,8 @@ describe("i18n Routing Configuration", () => {
       const expectedPaths = [
         "/",
         "/about",
+        "/blog",
+        "/blog/[slug]",
         "/contact",
         "/products",
         "/products/[market]",
@@ -167,7 +170,7 @@ describe("i18n Routing Configuration", () => {
       const config = await getRoutingDefinition();
       const pathnames = config?.pathnames;
 
-      const mainPages = ["/", "/about", "/contact", "/products"];
+      const mainPages = ["/", "/about", "/blog", "/contact", "/products"];
       mainPages.forEach((page) => {
         expect(pathnames).toHaveProperty(page);
       });
@@ -177,7 +180,7 @@ describe("i18n Routing Configuration", () => {
       const config = await getRoutingDefinition();
       const pathnames = config.pathnames;
 
-      const dynamicRoutes = ["/products/[market]"];
+      const dynamicRoutes = ["/blog/[slug]", "/products/[market]"];
       dynamicRoutes.forEach((route) => {
         expect(pathnames).toHaveProperty(route);
       });

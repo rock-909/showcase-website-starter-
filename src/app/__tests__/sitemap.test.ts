@@ -158,11 +158,12 @@ describe("sitemap.ts", () => {
       });
     });
 
-    it("should not include removed blog pages", async () => {
+    it("should include the blog index but not old generated blog detail pages", async () => {
       const result = await sitemap();
       const urls = result.map((entry) => entry.url);
 
-      expect(urls).not.toContain("https://example.com/en/blog");
+      expect(urls).toContain("https://example.com/en/blog");
+      expect(urls).toContain("https://example.com/zh/blog");
       expect(urls).not.toContain("https://example.com/en/blog/post-a");
       expect(urls).not.toContain("https://example.com/zh/blog/post-a");
     });

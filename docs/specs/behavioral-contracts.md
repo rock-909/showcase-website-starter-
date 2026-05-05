@@ -39,7 +39,7 @@ Notes: Hero section visibility and CTA link count are tested. CTA `href` targets
 
 #### BC-002: Buyer can navigate to all main pages from the header
 
-Desktop/compact desktop: From 840px and above, the header shows direct links to Home, Capabilities, How It Works, Products, Custom, About, and Contact. Full desktop controls such as the large Contact Sales CTA are visible from 1200px and above. Mobile: Below 840px, the hamburger menu opens a sheet with the same main links. Clicking any public link reaches its matching localized page and must not land on a 404. Blog links are intentionally absent while BC-015 and BC-016 remain retired.
+Desktop/compact desktop: From 840px and above, the header shows direct primary links to Home, Products, Blog, and About. Contact is a separate quick action beside the language switcher, not a primary navigation item. Mobile: Below 840px, the hamburger menu opens a sheet with the same main links plus the contact action. Clicking any public link reaches its matching localized page and must not land on a 404.
 
 | Field | Value |
 |-------|-------|
@@ -202,18 +202,18 @@ Notes: Contact Server Action Turnstile validation is covered. Inquiry route prot
 
 ### Content & Information
 
-#### BC-013: Products page shows all market cards with working links
+#### BC-013: Products page explains starter capabilities
 
-/products displays market cards for all 5 example categories (North America, Australia & New Zealand, Mexico, Europe, Specialty Examples). Each card links to its /products/[market] page.
+/products explains what the starter includes: site foundation, content replacement surface, inquiry path, launch path, technical proof, and the honest launch boundary. It links visitors to Blog for launch education and Contact for the quick inquiry path. Market detail routes may remain available, but they are not the primary products overview story.
 
 | Field | Value |
 |-------|-------|
 | Priority | Critical |
-| Test Type | E2E + Static Truth |
-| Test File | `scripts/static-truth-check.js`, `tests/e2e/user-journeys.spec.ts` (Journey: Browse Products) |
-| Status | Partial |
+| Test Type | Unit + E2E |
+| Test File | `src/app/[locale]/products/__tests__/products-page.test.tsx`, `src/app/[locale]/products/__tests__/page.test.tsx`, `tests/e2e/user-journeys.spec.ts` (Journey: Browse Products) |
+| Status | Covered |
 
-Notes: Static truth check validates literal hrefs. E2E journey test navigates from homepage to products page and verifies market card links exist and one click-through works. Full card layout verification is not covered.
+Notes: Products overview no longer depends on market cards. Unit tests cover starter capability content, technical proof, boundary copy, and Blog/Contact CTAs. E2E covers the homepage-to-products journey and verifies the new public page story.
 
 ---
 
@@ -232,44 +232,44 @@ Notes: Product spec data integrity is unit-tested. E2E journey test verifies a m
 
 ---
 
-#### BC-015: Retired — Blog listing page
+#### BC-015: Blog listing page
 
-The blog listing route was retired from the current public single-site route set. /blog should not be listed in navigation or sitemap until a blog route is intentionally restored.
+/blog lists starter-aligned launch education articles that help a non-technical owner understand what must be prepared before public launch.
+
+| Field | Value |
+|-------|-------|
+| Priority | Medium |
+| Test Type | Unit + E2E |
+| Test File | `src/lib/blog/__tests__/starter-blog.test.ts`, `tests/e2e/navigation.spec.ts` |
+| Status | Covered |
+
+---
+
+#### BC-016: Blog post page
+
+/blog/[slug] renders a starter launch education article and provides a back-to-blog path.
 
 | Field | Value |
 |-------|-------|
 | Priority | Medium |
 | Test Type | Unit |
-| Test File | `src/app/__tests__/sitemap.test.ts` |
-| Status | Retired |
+| Test File | `src/lib/blog/__tests__/starter-blog.test.ts` |
+| Status | Covered |
 
 ---
 
-#### BC-016: Retired — Blog post page
+#### BC-017: About page communicates the starter identity and boundary
 
-The blog post route was retired from the current public single-site route set. /blog/[slug] should not be listed in sitemap until blog publishing is intentionally restored.
-
-| Field | Value |
-|-------|-------|
-| Priority | Medium |
-| Test Type | Unit |
-| Test File | `src/app/__tests__/sitemap.test.ts` |
-| Status | Retired |
-
----
-
-#### BC-017: About page communicates the starter profile
-
-/about renders generic company information, replaceable proof indicators, and a CTA linking to /contact. Content displays in the active locale.
+/about explains that this is a public-launch-ready showcase website starter, not a fictional company profile. It states who the starter fits, who it does not fit, and what still must become real before launch. The page CTA links to /products so visitors can review the starter capabilities next. Content displays in the active locale.
 
 | Field | Value |
 |-------|-------|
 | Priority | High |
-| Test Type | E2E |
-| Test File | -- |
-| Status | Untested |
+| Test Type | E2E + Unit |
+| Test File | `tests/e2e/about-page-rendering.spec.ts`, `src/components/content/__tests__/about-page-shell.test.tsx` |
+| Status | Covered |
 
-Notes: Navigation to /about is tested extensively (basic-navigation, navigation, i18n). Page content and CTA behavior are not verified.
+Notes: Navigation to /about is tested extensively (basic-navigation, navigation, i18n). About shell tests verify the starter identity hero, FAQ rendering, MDX-frontmatter protection, structured data, and CTA target. E2E verifies the public page renders the starter identity without exposing frontmatter.
 
 ---
 
@@ -393,9 +393,9 @@ All 5 market spec files contain required fields (product families, dimensions, s
 |----------|--------------|---------|---------|----------|---------|
 | Navigation & Discovery | 6 | 4 | 2 | 0 | 0 |
 | Inquiry & Conversion | 6 | 2 | 4 | 0 | 0 |
-| Content & Information | 4 | 0 | 2 | 2 | 3 |
+| Content & Information | 6 | 4 | 1 | 1 | 1 |
 | Resilience & Edge Cases | 6 | 4 | 2 | 0 | 0 |
-| **Total** | **22** | **10** | **10** | **2** | **3** |
+| **Total** | **24** | **14** | **9** | **1** | **1** |
 
 Retired contracts are kept for historical traceability but excluded from active coverage totals.
 
@@ -405,11 +405,10 @@ Retired contracts are kept for historical traceability but excluded from active 
 
 - **BC-001** (Partial): Hero CTA links need `href` verification for /contact and /products
 - **BC-007** (Partial): End-to-end contact form submission flow not tested (Turnstile blocker)
-- **BC-013** (Partial): Products page market cards have no E2E test
+- No current critical content gap for BC-013: products overview now has focused unit coverage and an E2E navigation journey.
 
 ### High-priority gaps
 
-- **BC-017** (Untested): About page content and CTA
 - **BC-010** (Partial): Contact submission proof is not production-like in both locales
 - **BC-024** (Partial): Route-level idempotency is covered for contact, inquiry, and subscribe; remaining gap is family-wide end-to-end alignment across all lead surfaces
 

@@ -33,6 +33,28 @@ export const SINGLE_SITE_HOME_GRID_SECTION_ORDER = [
 
 export const SINGLE_SITE_HOME_TRAILING_SECTION_ORDER = ["finalCta"] as const;
 
+export const SINGLE_SITE_HOME_PUBLIC_DEMO_PROBLEM_KEYS = [
+  "structure",
+  "content",
+  "deployment",
+  "inquiry",
+  "multilingual",
+] as const;
+
+export const SINGLE_SITE_HOME_PUBLIC_DEMO_ANSWER_KEYS = [
+  "pageStructure",
+  "replacementSurface",
+  "inquiryPath",
+  "cloudflareFoundation",
+] as const;
+
+export const SINGLE_SITE_HOME_PUBLIC_DEMO_START_PATH_KEYS = [
+  "brand",
+  "content",
+  "forms",
+  "deploy",
+] as const;
+
 export type SingleSiteHomeGridSectionId =
   (typeof SINGLE_SITE_HOME_GRID_SECTION_ORDER)[number];
 export type SingleSiteHomeTrailingSectionId =
@@ -109,7 +131,7 @@ export const SINGLE_SITE_HOME_QUALITY_PROOF_STRIP_ITEMS = [
 ] as const;
 
 export const SINGLE_SITE_ABOUT_PAGE_EXPRESSION = {
-  ctaHref: SINGLE_SITE_HOME_LINK_TARGETS.contact,
+  ctaHref: SINGLE_SITE_HOME_LINK_TARGETS.products,
 } as const;
 
 const SPECIALTY_MARKET_SLUG = "specialty-product-systems" as const;

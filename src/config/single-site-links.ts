@@ -7,6 +7,7 @@ export const SINGLE_SITE_ROUTE_HREFS = {
   contact: getCanonicalPath("contact"),
   howItWorks: getCanonicalPath("howItWorks"),
   products: getCanonicalPath("products"),
+  blog: getCanonicalPath("blog"),
   privacy: getCanonicalPath("privacy"),
   terms: getCanonicalPath("terms"),
   customProject: getCanonicalPath("customProject"),

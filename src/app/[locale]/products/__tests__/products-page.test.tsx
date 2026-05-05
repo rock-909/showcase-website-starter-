@@ -1,30 +1,89 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { LocaleParam } from "@/app/[locale]/generate-static-params";
 import ProductsPage from "../page";
 
+const mockTranslations = {
+  "overview.title": "Starter product capabilities",
+  "overview.description":
+    "A showcase-site starter covering site structure, content replacement, inquiry flow, and launch foundation.",
+  "overview.kicker": "What the starter includes",
+  "overview.capabilitiesTitle": "Result capabilities",
+  "overview.capabilitiesDescription":
+    "The page explains what a project can start from before real content is replaced.",
+  "starterCapabilities.siteFoundation.title": "Showcase-site foundation",
+  "starterCapabilities.siteFoundation.description":
+    "Home, Products, Blog, About, Contact, legal pages, navigation, and responsive layout are already connected.",
+  "starterCapabilities.replacementSurface.title": "Content replacement surface",
+  "starterCapabilities.replacementSurface.description":
+    "Brand facts, page copy, product or service entries, SEO, images, and multilingual text have clear places to replace.",
+  "starterCapabilities.inquiryPath.title": "Inquiry path",
+  "starterCapabilities.inquiryPath.description":
+    "The contact page, form flow, basic anti-abuse controls, and lead handling path are ready for a real owner.",
+  "starterCapabilities.launchPath.title": "Launch path",
+  "starterCapabilities.launchPath.description":
+    "Cloudflare is the recommended deployment route, with optional compatibility kept secondary and traffic visibility treated as a real surface.",
+  technicalProofTitle: "Technical proof",
+  technicalProofDescription:
+    "The starter includes the technical baseline a public demo needs without making the product page a developer manual.",
+  "technicalProof.next.title": "Next.js app foundation",
+  "technicalProof.next.description":
+    "App Router, Server Components first, metadata, localized routes, and production build checks.",
+  "technicalProof.cloudflare.title": "Cloudflare/OpenNext deployment path",
+  "technicalProof.cloudflare.description":
+    "Cloudflare and OpenNext stay the recommended deployment truth for this starter.",
+  "technicalProof.i18n.title": "Multilingual content",
+  "technicalProof.i18n.description":
+    "English and Chinese navigation, page copy, metadata, and article content stay aligned.",
+  "technicalProof.quality.title": "Quality checks",
+  "technicalProof.quality.description":
+    "Type, lint, content, component, website, and build checks remain part of the launch path.",
+  "technicalProof.security.title": "Form security basics",
+  "technicalProof.security.description":
+    "Contact and inquiry paths include validation, anti-abuse controls, and explicit runtime configuration.",
+  "technicalProof.traffic.title": "Traffic visibility",
+  "technicalProof.traffic.description":
+    "Owner-facing traffic information is treated as a real protected surface, not marketing decoration.",
+  "boundary.title": "Starter, not a finished client website",
+  "boundary.description":
+    "Real launch still requires real content, images, contact details, legal copy, secrets, and deployment proof.",
+  "boundary.items.content": "Replace real business content",
+  "boundary.items.assets": "Replace real images and proof",
+  "boundary.items.legal": "Review legal and contact details",
+  "boundary.items.deployment": "Prove deployment and forms",
+  "cta.title": "Ready to turn the starter into a public site?",
+  "cta.description":
+    "Use the launch articles or contact path to decide what must be replaced first.",
+  "cta.blog": "Learn how to start",
+  "cta.contact": "Contact",
+} as const;
+
 vi.mock("next-intl/server", () => ({
-  getTranslations: vi.fn(async () => (key: string) => key),
+  getTranslations: vi.fn(
+    async () => (key: string) =>
+      mockTranslations[key as keyof typeof mockTranslations] || key,
+  ),
   setRequestLocale: vi.fn(),
 }));
 
-// Mock sub-components
-vi.mock("@/components/products/market-series-card", () => ({
-  MarketSeriesCard: ({
-    slug,
-    label,
-    familyCountLabel,
+vi.mock("@/i18n/routing", () => ({
+  Link: ({
+    href,
+    children,
+    ...props
   }: {
-    slug: string;
-    label: string;
-    description: string;
-    standardLabel: string;
-    familyCountLabel: string;
+    href: string;
+    children: React.ReactNode;
   }) => (
-    <div data-testid={`market-card-${slug}`}>
-      {label} ({familyCountLabel})
-    </div>
+    <a href={href} {...props}>
+      {children}
+    </a>
   ),
+  routing: {
+    locales: ["en", "zh"],
+    defaultLocale: "en",
+  },
 }));
 
 vi.mock("@/components/products/catalog-breadcrumb", () => ({
@@ -73,70 +132,76 @@ async function renderAsyncComponent(
 }
 
 describe("Feature: Product Overview Page", () => {
-  const mockParams = { locale: "en" };
+  const mockParams: LocaleParam = { locale: "en" };
   const RETIRED_BENDING_MACHINES_PATH = "/capabilities/bending-machines";
 
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  describe("Scenario 2.1: Buyer sees Industrial fittings by market standard", () => {
-    it("renders a 'By Market Standard' section heading", async () => {
+  describe("Scenario 2.1: Visitor sees starter result capabilities", () => {
+    it("renders the result capabilities section heading", async () => {
       await renderAsyncComponent(
         ProductsPage({ params: Promise.resolve(mockParams) }),
       );
 
-      // getTranslations returns key as value — "overview.byStandard"
-      expect(screen.getByText("overview.byStandard")).toBeInTheDocument();
+      expect(screen.getByText("Result capabilities")).toBeInTheDocument();
     });
 
-    it("renders market cards for all four Industrial markets", async () => {
+    it("renders all four starter capability cards", async () => {
+      await renderAsyncComponent(
+        ProductsPage({ params: Promise.resolve(mockParams) }),
+      );
+
+      expect(screen.getByText("Showcase-site foundation")).toBeInTheDocument();
+      expect(
+        screen.getByText("Content replacement surface"),
+      ).toBeInTheDocument();
+      expect(screen.getByText("Inquiry path")).toBeInTheDocument();
+      expect(screen.getByText("Launch path")).toBeInTheDocument();
+    });
+
+    it("does not render market overview cards on the starter capabilities page", async () => {
       await renderAsyncComponent(
         ProductsPage({ params: Promise.resolve(mockParams) }),
       );
 
       expect(
-        screen.getByTestId("market-card-north-america"),
-      ).toBeInTheDocument();
+        document.querySelector('[data-testid^="market-card-"]'),
+      ).not.toBeInTheDocument();
       expect(
-        screen.getByTestId("market-card-australia-new-zealand"),
-      ).toBeInTheDocument();
-      expect(screen.getByTestId("market-card-mexico")).toBeInTheDocument();
-      expect(screen.getByTestId("market-card-europe")).toBeInTheDocument();
-    });
-
-    it("does NOT render specialty-product-systems in the Industrial section", async () => {
-      await renderAsyncComponent(
-        ProductsPage({ params: Promise.resolve(mockParams) }),
-      );
-
-      // The Industrial section must have exactly 4 cards (no specialty-product-systems)
-      const industrialSection = screen
-        .getByText("overview.byStandard")
-        .closest("section");
-      const industrialCards = industrialSection?.querySelectorAll(
-        "[data-testid^='market-card-']",
-      );
-      expect(industrialCards?.length).toBe(4);
+        screen.queryByText("Primary Offer Example"),
+      ).not.toBeInTheDocument();
     });
   });
 
-  describe("Scenario 2.2: Buyer sees specialty products only", () => {
-    it("renders a specialty products section heading", async () => {
+  describe("Scenario 2.2: Visitor sees technical proof and launch boundary", () => {
+    it("renders the technical proof section", async () => {
       await renderAsyncComponent(
         ProductsPage({ params: Promise.resolve(mockParams) }),
       );
 
-      expect(screen.getByText("overview.specialty")).toBeInTheDocument();
+      expect(screen.getByText("Technical proof")).toBeInTheDocument();
+      expect(
+        screen.getByText("Cloudflare/OpenNext deployment path"),
+      ).toBeInTheDocument();
+      expect(screen.getByText("Quality checks")).toBeInTheDocument();
+      expect(screen.getByText("Traffic visibility")).toBeInTheDocument();
     });
 
-    it("renders the product or service examples market card in the specialty section", async () => {
+    it("renders the honest launch boundary", async () => {
       await renderAsyncComponent(
         ProductsPage({ params: Promise.resolve(mockParams) }),
       );
 
       expect(
-        screen.getByTestId("market-card-specialty-product-systems"),
+        screen.getByText("Starter, not a finished client website"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText("Replace real business content"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText("Prove deployment and forms"),
       ).toBeInTheDocument();
     });
 
@@ -174,7 +239,7 @@ describe("Feature: Product Overview Page", () => {
       );
 
       const heading = screen.getByRole("heading", { level: 1 });
-      expect(heading).toHaveTextContent("overview.title");
+      expect(heading).toHaveTextContent("Starter product capabilities");
     });
 
     it("renders the page description", async () => {
@@ -182,7 +247,25 @@ describe("Feature: Product Overview Page", () => {
         ProductsPage({ params: Promise.resolve(mockParams) }),
       );
 
-      expect(screen.getByText("overview.description")).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          "A showcase-site starter covering site structure, content replacement, inquiry flow, and launch foundation.",
+        ),
+      ).toBeInTheDocument();
+    });
+
+    it("renders links to blog education and contact", async () => {
+      await renderAsyncComponent(
+        ProductsPage({ params: Promise.resolve(mockParams) }),
+      );
+
+      expect(
+        screen.getByRole("link", { name: "Learn how to start" }),
+      ).toHaveAttribute("href", "/blog");
+      expect(screen.getByRole("link", { name: "Contact" })).toHaveAttribute(
+        "href",
+        "/contact",
+      );
     });
   });
 
@@ -197,9 +280,7 @@ describe("Feature: Product Overview Page", () => {
         ProductsPage({ params: Promise.resolve({ locale: "zh" }) }),
       );
 
-      expect(
-        screen.getByTestId("market-card-north-america"),
-      ).toBeInTheDocument();
+      expect(screen.getByText("Showcase-site foundation")).toBeInTheDocument();
     });
   });
 });

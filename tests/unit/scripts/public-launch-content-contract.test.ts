@@ -27,6 +27,25 @@ function readRepoFile(relativePath: string): string {
 }
 
 describe("public launch content contract", () => {
+  it("ships public contact fallback copy in the live contact namespace", () => {
+    for (const locale of ["en", "zh"] as const) {
+      const source = JSON.parse(
+        readRepoFile(`messages/${locale}/deferred.json`),
+      ) as {
+        contact?: {
+          panel?: {
+            emailUnavailable?: unknown;
+          };
+        };
+      };
+
+      expect(
+        source.contact?.panel?.emailUnavailable,
+        `messages/${locale}/deferred.json`,
+      ).toEqual(expect.any(String));
+    }
+  });
+
   it("keeps fake phone numbers out of buyer-facing text sources", () => {
     for (const relativePath of LIVE_TEXT_PATHS) {
       const source = readRepoFile(relativePath);

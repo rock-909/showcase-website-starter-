@@ -47,13 +47,14 @@ function fromRouteConfig<T>(
 
 export const SINGLE_SITE_PUBLIC_STATIC_PAGE_ROUTES = [
   "home",
-  "capabilities",
-  "howItWorks",
   "about",
-  "contact",
   "products",
+  "blog",
+  "contact",
   "privacy",
   "terms",
+  "capabilities",
+  "howItWorks",
   "customProject",
 ] as const satisfies readonly PageType[];
 
@@ -69,6 +70,7 @@ const SINGLE_SITE_STATIC_SITEMAP_PAGE_CONFIG_BY_ROUTE = {
   contact: { changeFrequency: "monthly", priority: 0.8 },
   howItWorks: { changeFrequency: "monthly", priority: 0.85 },
   products: { changeFrequency: "weekly", priority: 0.9 },
+  blog: { changeFrequency: "weekly", priority: 0.85 },
   privacy: { changeFrequency: "monthly", priority: 0.7 },
   terms: { changeFrequency: "monthly", priority: 0.7 },
   customProject: { changeFrequency: "monthly", priority: 0.8 },
@@ -93,6 +95,7 @@ const SINGLE_SITE_STATIC_PAGE_LASTMOD_BY_ROUTE = {
   // MDX-driven pages read updatedAt from content/pages/{locale}/*.mdx.
   home: SINGLE_SITE_STATIC_LASTMOD_ISO,
   products: SINGLE_SITE_STATIC_LASTMOD_ISO,
+  blog: SINGLE_SITE_STATIC_LASTMOD_ISO,
 } as const satisfies Partial<Record<PageType, string>>;
 
 const SINGLE_SITE_PRODUCT_MARKET_LASTMOD: Record<string, string> =

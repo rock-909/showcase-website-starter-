@@ -76,6 +76,7 @@ describe("Mobile Navigation - Core Tests", () => {
           "navigation.contact": "Contact",
           "navigation.contactSales": "Contact Sales",
           "navigation.products": "Products",
+          "navigation.blog": "Blog",
           "navigation.customProject": "Custom",
           "navigation.menu": "Menu",
           "navigation.close": "Close",
@@ -163,9 +164,12 @@ describe("Mobile Navigation - Core Tests", () => {
       expect(
         screen.getByRole("link", { name: /products/i }),
       ).toBeInTheDocument();
-      expect(screen.getByRole("link", { name: /custom/i })).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: /blog/i })).toBeInTheDocument();
       expect(
-        screen.getByRole("link", { name: /^Contact$/i }),
+        screen.queryByRole("link", { name: /custom/i }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByRole("link", { name: /^Contact Sales$/i }),
       ).toBeInTheDocument();
     });
 
@@ -286,8 +290,13 @@ describe("Mobile Navigation - Core Tests", () => {
       expect(
         screen.getByRole("link", { name: "Products" }),
       ).toBeInTheDocument();
-      expect(screen.getByRole("link", { name: "Custom" })).toBeInTheDocument();
-      expect(screen.getByRole("link", { name: "Contact" })).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: "Blog" })).toBeInTheDocument();
+      expect(
+        screen.queryByRole("link", { name: "Custom" }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByRole("link", { name: "Contact Sales" }),
+      ).toBeInTheDocument();
     });
 
     it("should handle missing translations gracefully", async () => {

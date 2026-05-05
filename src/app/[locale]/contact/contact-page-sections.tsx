@@ -4,7 +4,10 @@ import { ProductFamilyContextNotice } from "@/components/contact/product-family-
 import { FaqAccordion } from "@/components/sections/faq-accordion";
 import { Card } from "@/components/ui/card";
 import { SectionHead } from "@/components/ui/section-head";
-import { getPublicContactPhone } from "@/config/public-trust";
+import {
+  getPublicContactEmail,
+  getPublicContactPhone,
+} from "@/config/public-trust";
 import { siteFacts } from "@/config/site-facts";
 import { parseProductFamilyContactContext } from "@/lib/contact/product-family-context";
 import { readRequiredMessagePath } from "@/lib/i18n/read-message-path";
@@ -19,6 +22,7 @@ export function ContactMethodsCard({
 }: {
   copy: ContactPageData["copy"]["panel"]["contact"];
 }) {
+  const publicEmail = getPublicContactEmail(siteFacts.contact.email);
   const publicPhone = getPublicContactPhone(siteFacts.contact.phone);
 
   return (
@@ -43,7 +47,9 @@ export function ContactMethodsCard({
           </div>
           <div>
             <p className="font-medium">{copy.emailLabel}</p>
-            <p className="text-muted-foreground">{siteFacts.contact.email}</p>
+            <p className="text-muted-foreground">
+              {publicEmail ?? copy.emailUnavailable}
+            </p>
           </div>
         </div>
 
