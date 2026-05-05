@@ -34,7 +34,6 @@ function runGroup(group) {
   const start = Date.now();
   const result = spawnSync(group.command[0], group.command.slice(1), {
     stdio: "inherit",
-    shell: true,
     env: process.env,
   });
   const durationMs = Date.now() - start;
