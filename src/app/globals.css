@@ -806,7 +806,7 @@
 
   .header-full-desktop-only {
     @apply hidden;
-    @media (min-width: 1200px) {
+    @media (min-width: 840px) {
       @apply flex;
     }
   }
@@ -830,7 +830,7 @@
 
   .header-cta-desktop-only {
     @apply hidden;
-    @media (min-width: 1200px) {
+    @media (min-width: 840px) {
       @apply inline-flex;
     }
   }

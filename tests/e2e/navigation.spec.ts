@@ -160,12 +160,9 @@ test.describe("Navigation System", () => {
         }
       }
 
-      // Navigate back to home via browser history (more reliable than clicking
-      // the "Home" link when overlays / client-side interception are present)
-      await page.goBack({ waitUntil: "domcontentloaded" });
-      await page.waitForURL(/\/en\/?$/, { waitUntil: "domcontentloaded" });
-
-      // More robust: wait for home page key elements instead of just URL
+      // The loop above returns to home after each route; history behavior is
+      // covered by the dedicated back/forward navigation test below.
+      await expect(page).toHaveURL(/\/en\/?$/);
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible({
         timeout: 30_000,
       });
