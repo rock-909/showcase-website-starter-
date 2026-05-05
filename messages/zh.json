@@ -139,12 +139,12 @@
   },
   "home": {
     "hero": {
-      "eyebrow": "可复用网站 Starter · 始于 {established}",
-      "title": "用于清晰展示业务的展示型网站 Starter。",
-      "subtitle": "用这个可替换示例展示业务、证据、资源和询盘路径，不需要从零重搭网站。",
+      "eyebrow": "可公开上线的 demo starter site",
+      "title": "还没有网站？先从可部署的展示型网站基础开始。",
+      "subtitle": "这个 starter 给一个项目补上第一套真实网站结构：页面、内容替换面、询盘路径、多语言文案，以及 Cloudflare-ready 的上线路径。",
       "cta": {
-        "primary": "开始咨询",
-        "secondary": "查看业务示例"
+        "primary": "查看产品能力",
+        "secondary": "联系我们"
       },
       "proof": {
         "countries": "{countries}+",
@@ -157,14 +157,90 @@
         "estLabel": "年创立"
       },
       "preview": {
-        "label": "Starter 预览",
-        "title": "内置网站系统",
-        "description": "用这个 starter 预览页面结构、组件复用、内容替换和询盘路径，再改成真实网站。",
+        "label": "这个 starter 提供什么",
+        "title": "不是空白壳子，而是一套公开网站基础",
+        "description": "demo 会刻意做得足够完整，方便判断；同时也把真实上线前必须替换的边界讲清楚。",
+        "items": [
+          "首页、产品、博客、关于、联系",
+          "品牌和内容替换面",
+          "带基础防滥用的询盘路径",
+          "Cloudflare-ready 部署方向"
+        ],
         "pages": "页面",
         "components": "组件",
         "storybook": "Storybook",
         "workflow": "AI 工作流",
         "note": "上线前必须替换示例内容"
+      }
+    },
+    "problems": {
+      "title": "第一个卡点通常不是视觉细节，而是网站本身还不存在。",
+      "description": "很多新项目没有公开页面结构、没有内容计划、没有部署路径，也没有一个让访客联系负责人的清楚入口。",
+      "items": {
+        "structure": {
+          "title": "没有页面结构",
+          "description": "首页、产品、博客、关于、联系和法务页还没有形成一套基础框架。"
+        },
+        "content": {
+          "title": "没有内容计划",
+          "description": "品牌事实、业务文案、证明材料、图片和上线边界要么分散，要么还没准备。"
+        },
+        "deployment": {
+          "title": "没有上线路径",
+          "description": "本地构建成功还不够；网站还需要能证明的预览和部署路径。"
+        },
+        "inquiry": {
+          "title": "没有询盘路径",
+          "description": "访客需要简单联系入口，负责人也需要真实接收表单的目的地。"
+        },
+        "multilingual": {
+          "title": "没有多语言基础",
+          "description": "如果网站需要中英文，文案、路由和语言切换一开始就要内置。"
+        }
+      }
+    },
+    "answer": {
+      "title": "这个 starter 先补上缺失的网站基础。",
+      "description": "它不是已经替客户完成的成品网站，而是一套可复用的公开 demo：展示结构、替换工作和真实上线还需要证明什么。",
+      "items": {
+        "pageStructure": {
+          "title": "清楚的页面结构",
+          "description": "首页、产品、博客、关于、联系和辅助页面已经按真实公开网站的形态接好。"
+        },
+        "replacementSurface": {
+          "title": "明确的替换面",
+          "description": "品牌、业务、页面文案、SEO、图片、法务文本和联系方式都被当成上线输入。"
+        },
+        "inquiryPath": {
+          "title": "询盘路径",
+          "description": "网站包含联系入口和表单基础，也保留基础防滥用和线索处理边界。"
+        },
+        "cloudflareFoundation": {
+          "title": "Cloudflare-ready 基础",
+          "description": "Cloudflare 是推荐部署路径。其他平台兼容可以保留为可选项，但不混成默认承诺。"
+        }
+      }
+    },
+    "startPath": {
+      "title": "从 starter 到公开上线的实际路径。",
+      "description": "把这个 demo 当成网站起点，然后替换所有必须属于真实负责人的部分。",
+      "items": {
+        "brand": {
+          "title": "替换品牌事实",
+          "description": "公司名、域名、logo、颜色、联系方式和法务身份都要变成负责人确认的事实。"
+        },
+        "content": {
+          "title": "替换页面内容",
+          "description": "首页、产品或服务文案、证明材料、博客说明、图片和法务页都要变成真实上线内容。"
+        },
+        "forms": {
+          "title": "接通表单",
+          "description": "联系提交、邮件发送、防滥用检查和响应负责人都要指向真实账号。"
+        },
+        "deploy": {
+          "title": "部署并验证",
+          "description": "Cloudflare 预览、表单 canary、流量可见性和负责人确认，要和本地检查分开证明。"
+        }
       }
     },
     "starterBoundary": {
@@ -347,10 +423,10 @@
       }
     },
     "finalCta": {
-      "title": "准备开始了吗？",
-      "description": "把这里替换成真实下一步：报价、咨询、预约、演示、下载或一般询盘。",
-      "primary": "开始咨询",
-      "secondary": "查看业务示例",
+      "title": "先从真实网站基础开始，再替换成你的内容。",
+      "description": "可以先看这个 starter 包含什么，也可以直接用联系入口进入下一步真实配置讨论。",
+      "primary": "查看产品能力",
+      "secondary": "联系我们",
       "trustAriaLabel": "首页信任信息",
       "trust": "示例响应承诺 · 上线前替换证据 · {countries}+ 占位市场"
     },

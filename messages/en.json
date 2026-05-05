@@ -139,12 +139,12 @@
   },
   "home": {
     "hero": {
-      "eyebrow": "Reusable Website Starter · Est. {established}",
-      "title": "A Showcase Website Starter Built for Clear Evaluation.",
-      "subtitle": "Use this replaceable example to present offerings, proof, resources, and an inquiry path without rebuilding the site from scratch.",
+      "eyebrow": "Public demo starter site",
+      "title": "No website yet? Start with a deployable showcase-site foundation.",
+      "subtitle": "This starter gives a project the first real website structure: pages, content replacement surfaces, inquiry flow, multilingual copy, and a Cloudflare-ready launch path.",
       "cta": {
-        "primary": "Start Inquiry",
-        "secondary": "View Offerings"
+        "primary": "View product capabilities",
+        "secondary": "Contact"
       },
       "proof": {
         "countries": "{countries}+",
@@ -157,14 +157,90 @@
         "estLabel": "Est."
       },
       "preview": {
-        "label": "Starter preview",
-        "title": "Built-in website system",
-        "description": "Use this starter to preview page structure, component reuse, content replacement, and inquiry flow before a real launch.",
+        "label": "What this starter provides",
+        "title": "A public site foundation, not a blank shell",
+        "description": "The demo is intentionally complete enough to evaluate, while still making replacement boundaries visible before a real launch.",
+        "items": [
+          "Home, Products, Blog, About, and Contact",
+          "Brand and content replacement surfaces",
+          "Inquiry path with anti-abuse basics",
+          "Cloudflare-ready deployment direction"
+        ],
         "pages": "Pages",
         "components": "Components",
         "storybook": "Storybook",
         "workflow": "AI workflow",
         "note": "Replace example content before launch"
+      }
+    },
+    "problems": {
+      "title": "The first blocker is usually not design polish. It is that the website does not exist yet.",
+      "description": "A new project often has no public structure, no content plan, no deployment path, and no clear way for visitors to contact the owner.",
+      "items": {
+        "structure": {
+          "title": "No page structure",
+          "description": "There is no agreed Home, Products, Blog, About, Contact, or legal page baseline."
+        },
+        "content": {
+          "title": "No content plan",
+          "description": "Brand facts, offer copy, proof assets, images, and launch boundaries are scattered or missing."
+        },
+        "deployment": {
+          "title": "No launch path",
+          "description": "A local build is not enough; the site still needs a preview and deployment path that can be proven."
+        },
+        "inquiry": {
+          "title": "No inquiry flow",
+          "description": "Visitors need a simple contact route, and the owner needs a real destination for submissions."
+        },
+        "multilingual": {
+          "title": "No multilingual baseline",
+          "description": "If the site needs English and Chinese, copy, routing, and switching must be built in from the start."
+        }
+      }
+    },
+    "answer": {
+      "title": "The starter gives that missing foundation first.",
+      "description": "It is not a finished client website. It is a reusable public demo that shows the structure, replacement work, and launch proof a real site still needs.",
+      "items": {
+        "pageStructure": {
+          "title": "Clear page structure",
+          "description": "Home, Products, Blog, About, Contact, and supporting pages are already wired as a real public site shape."
+        },
+        "replacementSurface": {
+          "title": "Visible replacement surface",
+          "description": "Brand, offers, page copy, SEO, images, legal text, and contact details are treated as explicit launch inputs."
+        },
+        "inquiryPath": {
+          "title": "Inquiry path",
+          "description": "The site includes a contact route and form foundation, with basic anti-abuse and lead-handling boundaries."
+        },
+        "cloudflareFoundation": {
+          "title": "Cloudflare-ready foundation",
+          "description": "Cloudflare is the recommended deployment path. Optional compatibility can stay secondary without becoming the default promise."
+        }
+      }
+    },
+    "startPath": {
+      "title": "A practical path from starter to public launch.",
+      "description": "Use this demo as the beginning of the site, then replace the parts that must belong to the real owner.",
+      "items": {
+        "brand": {
+          "title": "Replace brand facts",
+          "description": "Company name, domain, logo, colors, contact details, and legal identity become real owner-confirmed facts."
+        },
+        "content": {
+          "title": "Replace page content",
+          "description": "Home, product or service copy, proof assets, blog guidance, images, and legal pages become real launch content."
+        },
+        "forms": {
+          "title": "Connect forms",
+          "description": "Contact submissions, email delivery, anti-abuse checks, and response ownership point to real accounts."
+        },
+        "deploy": {
+          "title": "Deploy and verify",
+          "description": "Cloudflare preview, form canary, traffic visibility, and owner signoff prove readiness separately from local checks."
+        }
       }
     },
     "starterBoundary": {
@@ -347,10 +423,10 @@
       }
     },
     "finalCta": {
-      "title": "Ready to Get Started?",
-      "description": "Replace this CTA with the real next step: quote, consultation, booking, demo, download, or general inquiry.",
-      "primary": "Start an Inquiry",
-      "secondary": "Review Offerings",
+      "title": "Start from a real website foundation, then replace what must become yours.",
+      "description": "Review what the starter includes, or use the contact route as the quick path for the next real setup conversation.",
+      "primary": "View product capabilities",
+      "secondary": "Contact",
       "trustAriaLabel": "Homepage trust facts",
       "trust": "Example response promise · Replace proof before launch · {countries}+ placeholder markets"
     },
