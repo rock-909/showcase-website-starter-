@@ -161,13 +161,6 @@ export const SINGLE_SITE_DEFINITION: SiteDefinition = {
           translationKey: "footer.sections.navigation.home",
         },
         {
-          key: "about",
-          label: "About",
-          href: SINGLE_SITE_ROUTE_HREFS.about,
-          external: false,
-          translationKey: "footer.sections.navigation.about",
-        },
-        {
           key: "products",
           label: "Products",
           href: SINGLE_SITE_ROUTE_HREFS.products,
@@ -175,11 +168,18 @@ export const SINGLE_SITE_DEFINITION: SiteDefinition = {
           translationKey: "footer.sections.navigation.products",
         },
         {
-          key: "contact",
-          label: "Contact",
-          href: SINGLE_SITE_ROUTE_HREFS.contact,
+          key: "blog",
+          label: "Blog",
+          href: SINGLE_SITE_ROUTE_HREFS.blog,
           external: false,
-          translationKey: "footer.sections.navigation.contact",
+          translationKey: "footer.sections.navigation.blog",
+        },
+        {
+          key: "about",
+          label: "About",
+          href: SINGLE_SITE_ROUTE_HREFS.about,
+          external: false,
+          translationKey: "footer.sections.navigation.about",
         },
       ],
     },
@@ -188,6 +188,13 @@ export const SINGLE_SITE_DEFINITION: SiteDefinition = {
       title: "Support",
       translationKey: "footer.sections.support.title",
       links: [
+        {
+          key: "contact",
+          label: "Contact",
+          href: SINGLE_SITE_ROUTE_HREFS.contact,
+          external: false,
+          translationKey: "footer.sections.support.contact",
+        },
         {
           key: "privacy",
           label: "Privacy Policy",

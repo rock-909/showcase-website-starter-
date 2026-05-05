@@ -729,6 +729,7 @@
         "home": "Home",
         "about": "About",
         "products": "Products",
+        "blog": "Blog",
         "contact": "Contact"
       },
       "social": {
@@ -738,6 +739,7 @@
       },
       "support": {
         "title": "Support",
+        "contact": "Contact",
         "privacy": "Privacy Policy",
         "terms": "Terms of Service"
       }

@@ -729,6 +729,7 @@
         "home": "首页",
         "about": "关于",
         "products": "产品",
+        "blog": "博客",
         "contact": "联系"
       },
       "social": {
@@ -738,6 +739,7 @@
       },
       "support": {
         "title": "支持",
+        "contact": "联系",
         "privacy": "隐私政策",
         "terms": "服务条款"
       }
