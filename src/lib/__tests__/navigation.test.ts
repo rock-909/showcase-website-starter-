@@ -55,42 +55,31 @@ describe("navigation", () => {
       expect(mainNavigation).toBe(SINGLE_SITE_NAVIGATION);
     });
 
-    it("should match the B2B conversion path order", () => {
+    it("should match the public demo starter navigation order", () => {
       expect(mainNavigation).toEqual([
         { key: "home", href: "/", translationKey: "navigation.home" },
-        {
-          key: "capabilities",
-          href: "/capabilities",
-          translationKey: "navigation.capabilities",
-        },
-        {
-          key: "howItWorks",
-          href: "/how-it-works",
-          translationKey: "navigation.howItWorks",
-        },
         {
           key: "products",
           href: "/products",
           translationKey: "navigation.products",
         },
         {
-          key: "customProject",
-          href: "/custom-project-support",
-          translationKey: "navigation.customProject",
+          key: "blog",
+          href: "/blog",
+          translationKey: "navigation.blog",
         },
         { key: "about", href: "/about", translationKey: "navigation.about" },
-        {
-          key: "contact",
-          href: "/contact",
-          translationKey: "navigation.contact",
-        },
       ]);
     });
 
-    it("should remove blog and privacy from the main navigation", () => {
+    it("should keep contact and old education pages out of the main navigation", () => {
       const actualKeys = mainNavigation.map((item) => item.key);
 
-      expect(actualKeys).not.toContain("blog");
+      expect(actualKeys).toContain("blog");
+      expect(actualKeys).not.toContain("capabilities");
+      expect(actualKeys).not.toContain("howItWorks");
+      expect(actualKeys).not.toContain("customProject");
+      expect(actualKeys).not.toContain("contact");
       expect(actualKeys).not.toContain("privacy");
     });
 

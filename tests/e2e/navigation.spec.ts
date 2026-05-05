@@ -87,18 +87,18 @@ test.describe("Navigation System", () => {
       const nav = getNav(page);
       await expect(nav).toBeVisible();
 
-      // All navigation items are links (Products no longer has dropdown children)
       await expect(nav.getByRole("link", { name: "Home" })).toBeVisible();
-      await expect(
-        nav.getByRole("link", { name: "Capabilities" }),
-      ).toBeVisible();
-      await expect(
-        nav.getByRole("link", { name: "How It Works" }),
-      ).toBeVisible();
       await expect(nav.getByRole("link", { name: "Products" })).toBeVisible();
-      await expect(nav.getByRole("link", { name: "Custom" })).toBeVisible();
+      await expect(nav.getByRole("link", { name: "Blog" })).toBeVisible();
       await expect(nav.getByRole("link", { name: "About" })).toBeVisible();
-      await expect(nav.getByRole("link", { name: "Contact" })).toBeVisible();
+      await expect(nav.getByRole("link", { name: "Capabilities" })).toHaveCount(
+        0,
+      );
+      await expect(nav.getByRole("link", { name: "How It Works" })).toHaveCount(
+        0,
+      );
+      await expect(nav.getByRole("link", { name: "Custom" })).toHaveCount(0);
+      await expect(nav.getByRole("link", { name: "Contact" })).toHaveCount(0);
     });
 
     test("should navigate between pages and highlight active link", async ({
@@ -125,12 +125,16 @@ test.describe("Navigation System", () => {
 
       const routeChecks = [
         {
-          href: "/en/capabilities",
-          pattern: /\/en\/capabilities$/,
+          href: "/en/products",
+          pattern: /\/en\/products$/,
         },
         {
-          href: "/en/how-it-works",
-          pattern: /\/en\/how-it-works$/,
+          href: "/en/blog",
+          pattern: /\/en\/blog$/,
+        },
+        {
+          href: "/en/about",
+          pattern: /\/en\/about$/,
         },
       ] as const;
 
@@ -146,18 +150,6 @@ test.describe("Navigation System", () => {
         await page.goto("/en");
         await waitForStablePage(page);
       }
-
-      // Navigate to About page
-      const clickedAbout = await safeClick(
-        page,
-        'nav a[href="/en/about"]:visible',
-      );
-      expect(clickedAbout).toBe(true);
-      await page.waitForURL("**/en/about", { waitUntil: "domcontentloaded" });
-      await waitForStablePage(page);
-
-      // Verify About page loaded (check for h1 heading)
-      await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 
       // Dismiss cookie dialog again if it reappeared
       if (await cookieDialog.isVisible({ timeout: 500 }).catch(() => false)) {
@@ -287,15 +279,7 @@ test.describe("Navigation System", () => {
       await expect(mobileNavSheet.getByRole("heading").first()).toBeVisible();
 
       // Verify navigation links in mobile menu (match actual config)
-      const expectedLinks = [
-        "Home",
-        "Capabilities",
-        "How It Works",
-        "Products",
-        "Custom",
-        "About",
-        "Contact",
-      ];
+      const expectedLinks = ["Home", "Products", "Blog", "About"];
       for (const linkText of expectedLinks) {
         const link = mobileNavSheet.getByRole("link", {
           exact: true,
@@ -303,6 +287,18 @@ test.describe("Navigation System", () => {
         });
         await expect(link).toBeVisible();
       }
+      const removedLinks = ["Capabilities", "How It Works", "Custom"];
+      for (const linkText of removedLinks) {
+        await expect(
+          mobileNavSheet.getByRole("link", {
+            exact: true,
+            name: linkText,
+          }),
+        ).toHaveCount(0);
+      }
+      await expect(
+        mobileNavSheet.getByRole("link", { exact: true, name: "Contact" }),
+      ).toBeVisible();
       await expect(mobileNavSheet.getByText("Select Language")).toBeVisible();
 
       // Close menu by clicking close button
@@ -375,19 +371,11 @@ test.describe("Navigation System", () => {
         ).toBeVisible();
       };
 
-      await clickMobileMenuRoute(
-        "/en/capabilities",
-        /\/en\/capabilities$/,
-        /starter capabilities/i,
-      );
+      await clickMobileMenuRoute("/en/products", /\/en\/products$/, /product/i);
       await page.goto("/en", { waitUntil: "domcontentloaded" });
       await waitForStablePage(page);
 
-      await clickMobileMenuRoute(
-        "/en/how-it-works",
-        /\/en\/how-it-works$/,
-        /how it works/i,
-      );
+      await clickMobileMenuRoute("/en/blog", /\/en\/blog$/, /blog/i);
       await page.goto("/en", { waitUntil: "domcontentloaded" });
       await waitForStablePage(page);
 

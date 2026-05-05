@@ -43,6 +43,10 @@ const DYNAMIC_ROUTE_BUILDERS: Record<
     pathname: DYNAMIC_PATHS_CONFIG.productMarket.pattern,
     params: { market: match[1]! },
   }),
+  blogArticle: (match) => ({
+    pathname: DYNAMIC_PATHS_CONFIG.blogArticle.pattern,
+    params: { slug: match[1]! },
+  }),
 };
 
 /**

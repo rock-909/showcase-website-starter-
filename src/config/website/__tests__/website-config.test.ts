@@ -22,11 +22,9 @@ describe("website config", () => {
     expect(websiteNavigation.length).toBeGreaterThan(0);
     expect(websiteNavigation.map((item) => item.href)).toEqual([
       "/",
-      "/capabilities",
-      "/how-it-works",
       "/products",
+      "/blog",
       "/about",
-      "/contact",
     ]);
   });
 

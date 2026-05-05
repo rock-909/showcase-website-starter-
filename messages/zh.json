@@ -54,6 +54,7 @@
     "customProject": "定制项目",
     "services": "服务",
     "products": "产品",
+    "blog": "博客",
     "solutions": "解决方案",
     "resources": "资源",
     "enterprise": "企业版",
@@ -122,6 +123,18 @@
         "geo": "地理位置",
         "timezone": "时区"
       }
+    }
+  },
+  "blog": {
+    "index": {
+      "eyebrow": "上线指南",
+      "title": "博客",
+      "description": "围绕 starter 如何变成可公开展示的网站，整理内容、页面、部署、流量和替换边界。",
+      "articleListLabel": "Starter 上线文章",
+      "readArticle": "阅读文章"
+    },
+    "article": {
+      "backToBlog": "返回博客"
     }
   },
   "home": {

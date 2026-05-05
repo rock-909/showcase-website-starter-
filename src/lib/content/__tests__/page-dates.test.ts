@@ -33,9 +33,11 @@ describe("page-dates", () => {
     const nonMdxPages = new Set([
       "",
       getCanonicalPath("products"),
+      getCanonicalPath("blog"),
     ]);
     const representativePageContracts = [
       { path: "", isMdx: false },
+      { path: "/blog", isMdx: false },
       { path: "/capabilities", isMdx: true },
       { path: "/how-it-works", isMdx: true },
       { path: "/products", isMdx: false },
@@ -53,6 +55,8 @@ describe("page-dates", () => {
 
     expect(SINGLE_SITE_PUBLIC_STATIC_PAGE_ROUTES).toContain("customProject");
     expect(isMdxDrivenPage(getCanonicalPath("customProject"))).toBe(true);
+    expect(SINGLE_SITE_PUBLIC_STATIC_PAGE_ROUTES).toContain("blog");
+    expect(isMdxDrivenPage(getCanonicalPath("blog"))).toBe(false);
     expect(SINGLE_SITE_PUBLIC_STATIC_PAGE_ROUTES).toContain("capabilities");
     expect(SINGLE_SITE_PUBLIC_STATIC_PAGE_ROUTES).toContain("howItWorks");
   });

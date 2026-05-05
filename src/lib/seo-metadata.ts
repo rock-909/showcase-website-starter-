@@ -275,6 +275,10 @@ export function createPageSEOConfig(
       type: "website" as const,
       keywords: ["Products", "Solutions", "Enterprise", "B2B"],
     },
+    blog: {
+      type: "website" as const,
+      keywords: ["Blog", "Launch Guide", "Website Starter", "Cloudflare"],
+    },
     privacy: {
       type: "website" as const,
       keywords: ["Privacy", "Policy", "Data Protection"],

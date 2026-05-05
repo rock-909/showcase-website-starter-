@@ -95,8 +95,10 @@ describe("Mobile Navigation - Basic Core Tests", () => {
           "navigation.home": "Home",
           "navigation.about": "About",
           "navigation.products": "Products",
+          "navigation.blog": "Blog",
           "navigation.customProject": "Custom",
           "navigation.contact": "Contact",
+          "navigation.contactSales": "Contact",
           "seo.siteName": "Site Name",
           "seo.description": "Site Description",
           "accessibility.openMenu": "Open menu",
@@ -254,8 +256,8 @@ describe("Mobile Navigation - Basic Core Tests", () => {
       expect(screen.getByText("Home")).toBeInTheDocument();
       expect(screen.getByText("About")).toBeInTheDocument();
       expect(screen.getByText("Products")).toBeInTheDocument();
-      expect(screen.getByText("Custom")).toBeInTheDocument();
-      expect(screen.getByText("Contact")).toBeInTheDocument();
+      expect(screen.getByText("Blog")).toBeInTheDocument();
+      expect(screen.queryByText("Custom")).not.toBeInTheDocument();
     });
 
     it("hides navigation items when menu is closed", async () => {

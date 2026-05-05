@@ -10,33 +10,18 @@ export const SINGLE_SITE_NAVIGATION: SiteNavigationItem[] = [
     translationKey: "navigation.home",
   },
   {
-    key: "capabilities",
-    href: SINGLE_SITE_ROUTE_HREFS.capabilities,
-    translationKey: "navigation.capabilities",
-  },
-  {
-    key: "howItWorks",
-    href: SINGLE_SITE_ROUTE_HREFS.howItWorks,
-    translationKey: "navigation.howItWorks",
-  },
-  {
     key: "products",
     href: SINGLE_SITE_ROUTE_HREFS.products,
     translationKey: "navigation.products",
   },
   {
-    key: "customProject",
-    href: SINGLE_SITE_ROUTE_HREFS.customProject,
-    translationKey: "navigation.customProject",
+    key: "blog",
+    href: SINGLE_SITE_ROUTE_HREFS.blog,
+    translationKey: "navigation.blog",
   },
   {
     key: "about",
     href: SINGLE_SITE_ROUTE_HREFS.about,
     translationKey: "navigation.about",
-  },
-  {
-    key: "contact",
-    href: SINGLE_SITE_ROUTE_HREFS.contact,
-    translationKey: "navigation.contact",
   },
 ];

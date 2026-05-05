@@ -63,6 +63,7 @@ describe("paths configuration", () => {
         "about",
         "contact",
         "products",
+        "blog",
         "privacy",
         "terms",
       ];
@@ -92,6 +93,7 @@ describe("paths configuration", () => {
         "about",
         "contact",
         "products",
+        "blog",
         "privacy",
         "terms",
       ];
@@ -258,6 +260,8 @@ describe("paths configuration", () => {
       expect(getLocalizedPath("capabilities", "zh")).toBe("/capabilities");
       expect(getLocalizedPath("howItWorks", "en")).toBe("/how-it-works");
       expect(getLocalizedPath("howItWorks", "zh")).toBe("/how-it-works");
+      expect(getLocalizedPath("blog", "en")).toBe("/blog");
+      expect(getLocalizedPath("blog", "zh")).toBe("/blog");
       expect(getLocalizedPath("about", "en")).toBe("/about");
       expect(getLocalizedPath("about", "zh")).toBe("/about");
     });
@@ -318,6 +322,7 @@ describe("paths configuration", () => {
       expect(getCanonicalPath("home")).toBe("/");
       expect(getCanonicalPath("contact")).toBe("/contact");
       expect(getCanonicalPath("products")).toBe("/products");
+      expect(getCanonicalPath("blog")).toBe("/blog");
       expect(getCanonicalPath("customProject")).toBe("/custom-project-support");
     });
 
@@ -334,6 +339,7 @@ describe("paths configuration", () => {
       expect(getPageTypeFromPath("", "en")).toBe("home");
       expect(getPageTypeFromPath("/about", "en")).toBe("about");
       expect(getPageTypeFromPath("/contact", "zh")).toBe("contact");
+      expect(getPageTypeFromPath("/blog", "en")).toBe("blog");
     });
 
     it("should return null for invalid paths", () => {
@@ -344,6 +350,7 @@ describe("paths configuration", () => {
     it("should work with both locales", () => {
       expect(getPageTypeFromPath("/products", "en")).toBe("products");
       expect(getPageTypeFromPath("/products", "zh")).toBe("products");
+      expect(getPageTypeFromPath("/blog", "zh")).toBe("blog");
     });
   });
 
@@ -400,6 +407,7 @@ describe("paths configuration", () => {
         "about",
         "contact",
         "products",
+        "blog",
         "privacy",
         "terms",
       ];
@@ -667,6 +675,7 @@ describe("paths configuration", () => {
         "about",
         "contact",
         "products",
+        "blog",
         "privacy",
         "terms",
         "customProject",

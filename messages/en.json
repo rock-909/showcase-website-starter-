@@ -50,10 +50,11 @@
     "howItWorks": "How It Works",
     "about": "About",
     "contact": "Contact",
-    "contactSales": "Contact Sales",
+    "contactSales": "Contact",
     "customProject": "Custom",
     "services": "Services",
     "products": "Products",
+    "blog": "Blog",
     "solutions": "Solutions",
     "resources": "Resources",
     "enterprise": "Enterprise",
@@ -122,6 +123,18 @@
         "geo": "Geo",
         "timezone": "Timezone"
       }
+    }
+  },
+  "blog": {
+    "index": {
+      "eyebrow": "Launch guide",
+      "title": "Blog",
+      "description": "Practical notes for turning a starter into a public showcase website: content, pages, deployment, analytics, and replacement boundaries.",
+      "articleListLabel": "Starter launch articles",
+      "readArticle": "Read article"
+    },
+    "article": {
+      "backToBlog": "Back to blog"
     }
   },
   "home": {
