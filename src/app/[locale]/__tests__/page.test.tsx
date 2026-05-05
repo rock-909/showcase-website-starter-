@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import Home, { generateStaticParams } from "../page";
 
 type MockLinkHref = string | { pathname: string };
-type MockLinkProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
+type MockLinkProps = Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href"> & {
   children: ReactNode;
   href: MockLinkHref;
 };

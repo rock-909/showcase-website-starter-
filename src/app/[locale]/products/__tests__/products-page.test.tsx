@@ -1,6 +1,7 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { LocaleParam } from "@/app/[locale]/generate-static-params";
 import ProductsPage from "../page";
 
 const mockTranslations = {
@@ -131,7 +132,7 @@ async function renderAsyncComponent(
 }
 
 describe("Feature: Product Overview Page", () => {
-  const mockParams = { locale: "en" };
+  const mockParams: LocaleParam = { locale: "en" };
   const RETIRED_BENDING_MACHINES_PATH = "/capabilities/bending-machines";
 
   beforeEach(() => {
