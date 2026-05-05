@@ -68,7 +68,7 @@ export default async function ProductsPage({ params }: ProductsPageProps) {
   const breadcrumbSchema = await buildCatalogBreadcrumbJsonLd({});
 
   return (
-    <main className="mx-auto max-w-[1080px] px-6 py-8 md:py-12">
+    <div className="mx-auto max-w-[1080px] px-6 py-8 md:py-12">
       <JsonLdGraphScript
         locale={locale as SeoLocale}
         data={[breadcrumbSchema]}
@@ -184,6 +184,6 @@ export default async function ProductsPage({ params }: ProductsPageProps) {
           </Button>
         </div>
       </section>
-    </main>
+    </div>
   );
 }

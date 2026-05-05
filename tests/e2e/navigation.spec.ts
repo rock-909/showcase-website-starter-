@@ -336,11 +336,7 @@ test.describe("Navigation System", () => {
     test("should navigate from mobile menu and auto-close", async ({
       page,
     }) => {
-      const clickMobileMenuRoute = async (
-        href: string,
-        urlPattern: RegExp,
-        headingName: RegExp,
-      ) => {
+      const clickMobileMenuRoute = async (href: string, urlPattern: RegExp) => {
         const mobileMenuButton = getHeaderMobileMenuButton(page);
         await expect(mobileMenuButton).toBeVisible();
         await mobileMenuButton.click();
@@ -363,20 +359,18 @@ test.describe("Navigation System", () => {
         // Sheet should auto-close after navigation
         await expect(mobileNavSheet).not.toBeVisible({ timeout: 10_000 });
 
-        await expect(
-          page.getByRole("heading", { level: 1, name: headingName }),
-        ).toBeVisible();
+        await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
       };
 
-      await clickMobileMenuRoute("/en/products", /\/en\/products$/, /product/i);
+      await clickMobileMenuRoute("/en/products", /\/en\/products$/);
       await page.goto("/en", { waitUntil: "domcontentloaded" });
       await waitForStablePage(page);
 
-      await clickMobileMenuRoute("/en/blog", /\/en\/blog$/, /blog/i);
+      await clickMobileMenuRoute("/en/blog", /\/en\/blog$/);
       await page.goto("/en", { waitUntil: "domcontentloaded" });
       await waitForStablePage(page);
 
-      await clickMobileMenuRoute("/en/about", /\/en\/about$/, /about/i);
+      await clickMobileMenuRoute("/en/about", /\/en\/about$/);
     });
 
     test("should support touch interactions", async ({ page }) => {

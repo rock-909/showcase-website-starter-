@@ -42,7 +42,7 @@ export default async function BlogPage({ params }: BlogPageProps) {
   const articles = getStarterBlogArticles(locale);
 
   return (
-    <main className="mx-auto max-w-[1080px] px-6 py-16">
+    <div className="mx-auto max-w-[1080px] px-6 py-16">
       <header className="max-w-3xl">
         <p className="mb-4 text-sm font-semibold uppercase tracking-[0.18em] text-muted-foreground">
           {t("index.eyebrow")}
@@ -83,6 +83,6 @@ export default async function BlogPage({ params }: BlogPageProps) {
           </Link>
         ))}
       </section>
-    </main>
+    </div>
   );
 }

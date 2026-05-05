@@ -63,7 +63,7 @@ export default async function BlogArticlePage({
   const article = loadArticle(locale, slug);
 
   return (
-    <main className="mx-auto max-w-[840px] px-6 py-16">
+    <div className="mx-auto max-w-[840px] px-6 py-16">
       <Link
         href="/blog"
         className="mb-8 inline-flex text-sm font-semibold text-primary hover:underline"
@@ -97,6 +97,6 @@ export default async function BlogArticlePage({
           ))}
         </div>
       </article>
-    </main>
+    </div>
   );
 }

@@ -99,11 +99,18 @@ function HomeHero({ t }: { t: HomeTranslator }) {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-border bg-card p-6 shadow-border">
+        <div
+          className="rounded-2xl border border-border bg-card p-6 shadow-border"
+          data-testid="hero-preview-card"
+          aria-labelledby="hero-preview-title"
+        >
           <p className="text-sm font-semibold uppercase tracking-[0.14em] text-muted-foreground">
             {t("hero.preview.label")}
           </p>
-          <h2 className="mt-3 text-2xl font-bold tracking-[-0.03em]">
+          <h2
+            id="hero-preview-title"
+            className="mt-3 text-2xl font-bold tracking-[-0.03em]"
+          >
             {t("hero.preview.title")}
           </h2>
           <p className="mt-3 text-sm leading-6 text-muted-foreground">
@@ -253,7 +260,7 @@ export default async function Home({ params }: HomePageProps) {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <JsonLdGraphScript locale={locale as Locale} />
-      <main>
+      <div>
         <HomeHero t={t} />
         <CardGridSection
           title={t("problems.title")}
@@ -272,7 +279,7 @@ export default async function Home({ params }: HomePageProps) {
         />
         <StartPathSection t={t} items={content.startPath} />
         <HomeFinalAction t={t} />
-      </main>
+      </div>
     </div>
   );
 }
