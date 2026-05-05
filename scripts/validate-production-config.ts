@@ -15,7 +15,10 @@ import {
   getPublicLogoPath,
 } from "../src/config/public-trust";
 import { validateSiteConfig } from "../src/config/paths/site-config";
-import { SINGLE_SITE_FACTS } from "../src/config/single-site";
+import {
+  SINGLE_SITE_DEFINITION,
+  SINGLE_SITE_FACTS,
+} from "../src/config/single-site";
 
 const MIN_SECRET_LENGTH = 32;
 
@@ -44,6 +47,39 @@ function hasAny(env: EnvMap, ...keys: string[]): boolean {
 
 function isTrue(env: EnvMap, key: string): boolean {
   return readEnv(env, key) === "true";
+}
+
+function containsStarterMarker(value: string | undefined): boolean {
+  if (!value) return true;
+
+  return /Example Showcase Company|example\.com|localhost|127\.0\.0\.1|sales@example\.com|showcase website example|replaceable showcase website example|Example Business Park|Example City|x\.com\/example|linkedin\.com\/company\/example/iu.test(
+    value,
+  );
+}
+
+function validateNoStarterMarker(
+  target: string[],
+  path: string,
+  value: string | undefined,
+  reason: string,
+): void {
+  if (containsStarterMarker(value)) {
+    target.push(`${path} is not public-launch ready (${reason}).`);
+  }
+}
+
+function validateLaunchSignoff(
+  target: string[],
+  env: EnvMap,
+  key: string,
+  surface: string,
+  reason: string,
+): void {
+  if (!isTrue(env, key)) {
+    target.push(
+      `${key} must be true after owner review of ${surface} (${reason}).`,
+    );
+  }
 }
 
 function validateRequiredEnv(
@@ -194,6 +230,80 @@ export function validatePublicLaunchTrustContent(
   if (!shouldCheck) {
     return { warnings, errors };
   }
+
+  validateNoStarterMarker(
+    target,
+    "SITE_CONFIG.name",
+    SINGLE_SITE_DEFINITION.config.name,
+    "replace the starter company identity before client launch",
+  );
+  validateNoStarterMarker(
+    target,
+    "SITE_CONFIG.baseUrl",
+    SINGLE_SITE_DEFINITION.config.baseUrl,
+    "configure the real public domain before client launch",
+  );
+  validateNoStarterMarker(
+    target,
+    "SITE_CONFIG.contact.email",
+    SINGLE_SITE_DEFINITION.config.contact.email,
+    "replace the starter contact email before client launch",
+  );
+  validateNoStarterMarker(
+    target,
+    "SITE_CONFIG.seo.defaultTitle",
+    SINGLE_SITE_DEFINITION.config.seo.defaultTitle,
+    "replace starter SEO title defaults before client launch",
+  );
+  validateNoStarterMarker(
+    target,
+    "SITE_CONFIG.seo.defaultDescription",
+    SINGLE_SITE_DEFINITION.config.seo.defaultDescription,
+    "replace starter SEO description defaults before client launch",
+  );
+  validateNoStarterMarker(
+    target,
+    "SITE_CONFIG.social.twitter",
+    SINGLE_SITE_DEFINITION.config.social.twitter,
+    "replace the starter social profile before client launch",
+  );
+  validateNoStarterMarker(
+    target,
+    "SITE_CONFIG.social.linkedin",
+    SINGLE_SITE_DEFINITION.config.social.linkedin,
+    "replace the starter social profile before client launch",
+  );
+  validateNoStarterMarker(
+    target,
+    "SITE_CONFIG.seo.titleTemplate",
+    SINGLE_SITE_DEFINITION.config.seo.titleTemplate,
+    "replace the starter SEO title template before client launch",
+  );
+  validateNoStarterMarker(
+    target,
+    "SITE_CONFIG.description",
+    SINGLE_SITE_DEFINITION.config.description,
+    "replace the starter company description before client launch",
+  );
+  validateNoStarterMarker(
+    target,
+    "SITE_CONFIG.facts.company.name",
+    SINGLE_SITE_FACTS.company.name,
+    "replace the starter legal/company name before client launch",
+  );
+  validateNoStarterMarker(
+    target,
+    "SITE_CONFIG.facts.company.location",
+    `${SINGLE_SITE_FACTS.company.location.city} ${SINGLE_SITE_FACTS.company.location.address ?? ""}`,
+    "replace starter city/address before client launch",
+  );
+  validateLaunchSignoff(
+    target,
+    env,
+    "PUBLIC_LAUNCH_LEGAL_CONTENT_REVIEWED",
+    "content/pages/{locale}/{about,contact,privacy,terms}.mdx",
+    "confirm legal/contact page truth before client launch",
+  );
 
   if (!getPublicContactPhone(SINGLE_SITE_FACTS.contact.phone)) {
     target.push(

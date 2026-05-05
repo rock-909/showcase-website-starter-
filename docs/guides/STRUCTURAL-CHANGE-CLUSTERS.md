@@ -54,6 +54,7 @@ pnpm review:translation-quartet
 
 - 一个 submission surface 发生实质变化时，其他 family member 也要一起看，防 contract drift
 - 涉及 validation、rate limit、abuse logic，就要走 security-aware review
+- 当前 lead-family proof 分两层看：`lead-family-contract.test.ts` 是 auxiliary contract proof，只看响应外壳和 observability；`lead-family-protection.test.ts`、route tests 和 subscribe tests 是 route-level protection proof。
 - 当前 live contract surface 就是这些文件本身 + `pnpm review:lead-family`
 - 执行命令：
 

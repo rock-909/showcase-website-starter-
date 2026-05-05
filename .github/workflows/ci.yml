@@ -128,7 +128,7 @@ jobs:
             reports/
           if-no-files-found: ignore
 
-      - name: Lead API Family Contract Review
+      - name: Lead API Family Layered Proof Review
         run: pnpm review:lead-family
 
       - name: Homepage Section Cluster Review

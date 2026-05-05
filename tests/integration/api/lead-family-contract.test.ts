@@ -14,11 +14,11 @@ import * as inquiryRoute from "@/app/api/inquiry/route";
 import * as subscribeRoute from "@/app/api/subscribe/route";
 
 /**
- * Auxiliary contract surface checks only.
+ * Auxiliary response and observability checks only.
  *
  * This suite intentionally mocks the core protection and submission pipeline so
- * it can verify response shape and observability headers. It is not the primary
- * proof for runtime protection semantics.
+ * it can verify response shape and observability headers. It is not full lead-chain protection proof.
+ * Route/action protection suites and deployed canaries own that proof boundary.
  */
 vi.mock("@/lib/security/distributed-rate-limit", () => ({
   checkDistributedRateLimit: vi.fn(async () => ({

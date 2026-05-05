@@ -144,7 +144,8 @@ export default defineConfig({
           url: "http://localhost:3000",
           reuseExistingServer: !process.env.CI,
           timeout: process.env.CI ? 60 * 1000 : 180 * 1000, // CI已构建,启动更快
-          // 将关键测试环境变量直接注入到 Next.js 进程
+          // Local E2E proof boundary: this webServer uses test-mode services for stable smoke coverage.
+          // It proves local rendering and interaction only, not real Turnstile or deployed lead proof.
           // NODE_ENV 必须为 production 以确保 React 19 正常工作
           env: {
             NODE_ENV: "production",

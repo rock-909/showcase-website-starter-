@@ -10,16 +10,20 @@ These surfaces deserve first-pass attention because they are closest to business
 
 1. **Lead / inquiry / contact path**
    - `src/app/[locale]/contact/**`
-   - `src/app/api/contact/**`
-   - `src/app/api/verify-turnstile/**`
+   - `src/app/actions.ts`
+   - `src/app/api/inquiry/route.ts`
+   - `src/app/api/subscribe/route.ts`
+   - `src/app/api/verify-turnstile/route.ts`
    - `src/components/forms/**`
-   - `src/components/products/product-inquiry-form*`
+   - `src/lib/lead-pipeline/**`
 
 2. **Idempotency / anti-abuse / trust boundary**
-   - `src/lib/idempotency/**`
+   - `src/lib/idempotency.ts`
    - `src/lib/security/**`
    - `src/lib/turnstile.ts`
-   - `src/lib/lead-pipeline/**`
+   - `src/lib/api/lead-route-response.ts`
+   - `tests/integration/api/lead-family-protection.test.ts`
+   - `tests/integration/api/lead-family-contract.test.ts`
 
 3. **Locale / message / metadata truth**
    - `src/middleware.ts`
@@ -35,6 +39,21 @@ These surfaces deserve first-pass attention because they are closest to business
    - `scripts/cloudflare/**`
    - `scripts/deploy/**`
    - `scripts/release-proof.sh`
+
+5. **E2E / deployed proof boundary**
+   - `tests/e2e/contact-form-smoke.spec.ts`
+   - `tests/e2e/smoke/post-deploy-form.spec.ts`
+   - `playwright.config.ts`
+   - `docs/website/quality-proof.md`
+
+6. **Starter / catalog launch truth**
+   - `docs/website/新项目替换清单.md`
+   - `docs/website/quality-proof.md`
+   - `src/config/website/**`
+   - `src/config/single-site.ts`
+   - `src/config/single-site-product-catalog.ts`
+   - `src/constants/product-specs/**`
+   - `scripts/content-readiness-check.mjs`
 
 ## 2. Known noise (classify before judging repo health)
 

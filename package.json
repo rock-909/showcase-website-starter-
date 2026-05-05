@@ -164,6 +164,8 @@
     "website:build": "pnpm build",
     "website:build:cf": "pnpm build:cf",
     "website:verify": "pnpm release:verify",
+    "website:content:readiness": "node scripts/content-readiness-check.mjs",
+    "website:review:client-boundary": "node scripts/client-boundary-budget.mjs",
     "brand:check": "node scripts/brand-check.mjs",
     "content:check": "pnpm content:slug-check && pnpm validate:translations",
     "component:governance:test": "pnpm exec vitest run tests/architecture/component-governance.test.ts tests/unit/scripts/component-governance-check.test.ts",

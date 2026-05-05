@@ -69,6 +69,8 @@
 - `CI=1 pnpm test:e2e`：关键 UI / runtime 行为改动
 - `pnpm website:build`：改到 `src/config/website/**`、`NEXT_PUBLIC_SITE_KEY` 或站点装配入口
 - `pnpm website:build:cf`：同类改动还要证明 Cloudflare 构建链时
+- `pnpm website:content:readiness`：改到 `content/pages/**`、`messages/{locale}/{critical,deferred}.json`、`public/images/**/*.svg` 或 `src/config/website/**` 时运行
+- `pnpm website:review:client-boundary`：改到 client/server component 边界、interactive islands、forms、theme、cookie 或 header/navigation 交互时运行
 
 它能证明：
 
@@ -135,6 +137,7 @@ Source of truth：
 它能证明：
 
 - 仓库核心门禁在干净 CI 环境里是绿的
+- `pnpm website:content:readiness` 和 `pnpm website:review:client-boundary` 这类轻量 proof 可以在普通 CI 里跑，因为它们不依赖 preview deployment secrets
 
 它不能单独证明：
 
