@@ -34,12 +34,17 @@ vi.mock("@/i18n/routing", () => ({
 
 vi.mock("@/lib/sitemap-utils", async () => {
   const { getCanonicalPath } = await import("@/config/paths/utils");
+  const capabilitiesPath = getCanonicalPath("capabilities");
+  const howItWorksPath = getCanonicalPath("howItWorks");
   const productsPath = getCanonicalPath("products");
 
   return {
     getStaticPageLastModified: vi.fn((page: string) => {
       if (page === "") {
         return new Date("2024-12-01T00:00:00Z");
+      }
+      if (page === capabilitiesPath || page === howItWorksPath) {
+        return new Date("2026-04-26T00:00:00Z");
       }
       const marketSlug = page.startsWith(`${productsPath}/`)
         ? page.slice(productsPath.length + 1)
@@ -57,12 +62,16 @@ vi.mock("@/lib/sitemap-utils", async () => {
 
 vi.mock("@/lib/content/page-dates", async () => {
   const { getCanonicalPath } = await import("@/config/paths/utils");
+  const capabilitiesPath = getCanonicalPath("capabilities");
+  const howItWorksPath = getCanonicalPath("howItWorks");
   const productsPath = getCanonicalPath("products");
 
   return {
     isMdxDrivenPage: vi.fn(
       (path: string) =>
         path !== "" &&
+        path !== capabilitiesPath &&
+        path !== howItWorksPath &&
         path !== productsPath &&
         !path.startsWith(`${productsPath}/`),
     ),
@@ -132,6 +141,18 @@ describe("sitemap.ts", () => {
         priority: 0.8,
         changeFrequency: "monthly",
         lastModified: new Date("2026-04-20T00:00:00Z"),
+      });
+      expect(findEntry(result, "en", "/capabilities")).toMatchObject({
+        url: "https://example.com/en/capabilities",
+        priority: 0.85,
+        changeFrequency: "monthly",
+        lastModified: new Date("2026-04-26T00:00:00Z"),
+      });
+      expect(findEntry(result, "en", "/how-it-works")).toMatchObject({
+        url: "https://example.com/en/how-it-works",
+        priority: 0.85,
+        changeFrequency: "monthly",
+        lastModified: new Date("2026-04-26T00:00:00Z"),
       });
       expect(findEntry(result, "en", "/products/north-america")).toMatchObject({
         url: "https://example.com/en/products/north-america",
@@ -281,15 +302,29 @@ describe("sitemap.ts", () => {
       expect(about?.lastModified).toEqual(new Date("2026-04-20T00:00:00Z"));
     });
 
-    it("should use sidecar dates for non-MDX and product market pages", async () => {
+    it("should use sidecar dates for non-MDX static and product market pages", async () => {
       const result = await sitemap();
+      const capabilitiesPath = getCanonicalPath("capabilities");
+      const howItWorksPath = getCanonicalPath("howItWorks");
       const productsPath = getCanonicalPath("products");
       const [marketSlug] = getAllMarketSlugs();
       const marketPath = getProductMarketPath(marketSlug ?? "");
+      const capabilities = findEntry(result, defaultLocale, capabilitiesPath);
+      const howItWorks = findEntry(result, defaultLocale, howItWorksPath);
       const products = findEntry(result, defaultLocale, productsPath);
       const market = findEntry(result, defaultLocale, marketPath);
 
       expect(marketSlug).toBeDefined();
+      expect(getMdxPageLastModified).not.toHaveBeenCalledWith(capabilitiesPath);
+      expect(getMdxPageLastModified).not.toHaveBeenCalledWith(howItWorksPath);
+      expect(getStaticPageLastModified).toHaveBeenCalledWith(
+        capabilitiesPath,
+        expect.any(Map),
+      );
+      expect(getStaticPageLastModified).toHaveBeenCalledWith(
+        howItWorksPath,
+        expect.any(Map),
+      );
       expect(getStaticPageLastModified).toHaveBeenCalledWith(
         productsPath,
         expect.any(Map),
@@ -297,6 +332,12 @@ describe("sitemap.ts", () => {
       expect(getStaticPageLastModified).toHaveBeenCalledWith(
         marketPath,
         expect.any(Map),
+      );
+      expect(capabilities?.lastModified).toEqual(
+        new Date("2026-04-26T00:00:00Z"),
+      );
+      expect(howItWorks?.lastModified).toEqual(
+        new Date("2026-04-26T00:00:00Z"),
       );
       expect(products?.lastModified).toEqual(new Date("2024-11-01T00:00:00Z"));
       expect(market?.lastModified).toEqual(new Date("2024-11-01T00:00:00Z"));

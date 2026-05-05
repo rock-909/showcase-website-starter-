@@ -343,30 +343,55 @@ test.describe("Navigation System", () => {
     test("should navigate from mobile menu and auto-close", async ({
       page,
     }) => {
-      const mobileMenuButton = getHeaderMobileMenuButton(page);
-      await mobileMenuButton.click();
+      const clickMobileMenuRoute = async (
+        href: string,
+        urlPattern: RegExp,
+        headingName: RegExp,
+      ) => {
+        const mobileMenuButton = getHeaderMobileMenuButton(page);
+        await expect(mobileMenuButton).toBeVisible();
+        await mobileMenuButton.click();
 
-      const mobileNavSheet = page.getByRole("dialog", {
-        name: /mobile navigation/i,
-      });
-      await expect(mobileNavSheet).toBeVisible();
-      await waitForStablePage(page);
+        const mobileNavSheet = page.getByRole("dialog", {
+          name: /mobile navigation/i,
+        });
+        await expect(mobileNavSheet).toBeVisible();
+        await waitForStablePage(page);
 
-      const clickedAbout = await safeClick(
-        page,
-        `${MOBILE_MENU_CONTENT_SELECTOR} a[href="/en/about"]`,
+        const clickedRoute = await safeClick(
+          page,
+          `${MOBILE_MENU_CONTENT_SELECTOR} a[href="${href}"]`,
+        );
+        expect(clickedRoute).toBe(true);
+
+        await page.waitForURL(urlPattern, { waitUntil: "domcontentloaded" });
+        await waitForStablePage(page);
+
+        // Sheet should auto-close after navigation
+        await expect(mobileNavSheet).not.toBeVisible({ timeout: 10_000 });
+
+        await expect(
+          page.getByRole("heading", { level: 1, name: headingName }),
+        ).toBeVisible();
+      };
+
+      await clickMobileMenuRoute(
+        "/en/capabilities",
+        /\/en\/capabilities$/,
+        /website and lead foundation/i,
       );
-      expect(clickedAbout).toBe(true);
-
-      // Wait for navigation
-      await page.waitForURL("**/en/about");
+      await page.goto("/en", { waitUntil: "domcontentloaded" });
       await waitForStablePage(page);
 
-      // Sheet should auto-close after navigation
-      await expect(mobileNavSheet).not.toBeVisible({ timeout: 10_000 });
+      await clickMobileMenuRoute(
+        "/en/how-it-works",
+        /\/en\/how-it-works$/,
+        /no website to a launchable foundation/i,
+      );
+      await page.goto("/en", { waitUntil: "domcontentloaded" });
+      await waitForStablePage(page);
 
-      // Verify we're on the About page (check for h1 heading)
-      await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+      await clickMobileMenuRoute("/en/about", /\/en\/about$/, /about/i);
     });
 
     test("should support touch interactions", async ({ page }) => {

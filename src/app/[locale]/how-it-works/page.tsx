@@ -7,8 +7,20 @@ import {
 import { getLocalizedPath } from "@/config/paths";
 import { generateMetadataForPath } from "@/lib/seo-metadata";
 import type { Locale } from "@/types/content.types";
+import criticalMessages from "@messages/en/critical.json";
 
-const HOW_IT_WORKS_STEP_KEYS = ["0", "1", "2", "3", "4"] as const;
+interface TranslationStep {
+  title: string;
+  description: string;
+}
+
+function getArrayIndexes(items: readonly TranslationStep[]): string[] {
+  return items.map((_, index) => String(index));
+}
+
+const howItWorksStepIndexes = getArrayIndexes(
+  criticalMessages.howItWorks.steps satisfies readonly TranslationStep[],
+);
 
 interface HowItWorksPageProps {
   params: Promise<LocaleParam>;
@@ -41,9 +53,9 @@ export default async function HowItWorksPage({ params }: HowItWorksPageProps) {
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "howItWorks" });
 
-  const steps = HOW_IT_WORKS_STEP_KEYS.map((key) => ({
-    title: t(`steps.${key}.title`),
-    description: t(`steps.${key}.description`),
+  const steps = howItWorksStepIndexes.map((index) => ({
+    title: t(`steps.${index}.title`),
+    description: t(`steps.${index}.description`),
   }));
 
   return (

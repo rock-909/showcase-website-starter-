@@ -7,8 +7,20 @@ import {
 import { getLocalizedPath } from "@/config/paths";
 import { generateMetadataForPath } from "@/lib/seo-metadata";
 import type { Locale } from "@/types/content.types";
+import criticalMessages from "@messages/en/critical.json";
 
-const CAPABILITY_ITEM_KEYS = ["0", "1", "2", "3", "4", "5"] as const;
+interface TranslationCard {
+  title: string;
+  description: string;
+}
+
+function getArrayIndexes(items: readonly TranslationCard[]): string[] {
+  return items.map((_, index) => String(index));
+}
+
+const capabilityItemIndexes = getArrayIndexes(
+  criticalMessages.capabilities.items satisfies readonly TranslationCard[],
+);
 
 interface CapabilitiesPageProps {
   params: Promise<LocaleParam>;
@@ -43,9 +55,9 @@ export default async function CapabilitiesPage({
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "capabilities" });
 
-  const items = CAPABILITY_ITEM_KEYS.map((key) => ({
-    title: t(`items.${key}.title`),
-    description: t(`items.${key}.description`),
+  const items = capabilityItemIndexes.map((index) => ({
+    title: t(`items.${index}.title`),
+    description: t(`items.${index}.description`),
   }));
 
   return (
