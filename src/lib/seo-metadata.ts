@@ -259,9 +259,17 @@ export function createPageSEOConfig(
       type: "website" as const,
       keywords: ["About", "Company", "Team", "Enterprise"],
     },
+    capabilities: {
+      type: "website" as const,
+      keywords: ["Capabilities", "Website Starter", "Lead Foundation", "B2B"],
+    },
     contact: {
       type: "website" as const,
       keywords: ["Contact", "Support", "Business"],
+    },
+    howItWorks: {
+      type: "website" as const,
+      keywords: ["How It Works", "Setup", "Launch", "Website Starter"],
     },
     products: {
       type: "website" as const,

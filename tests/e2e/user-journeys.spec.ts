@@ -74,6 +74,8 @@ test.describe("Journey: Browse Products (BC-013, BC-014)", () => {
 test.describe("Journey: Navigate All Pages (BC-002)", () => {
   const pages = [
     { path: "/en", titlePattern: /Example Showcase Company/i },
+    { path: "/en/capabilities", titlePattern: /Capabilities|Example/i },
+    { path: "/en/how-it-works", titlePattern: /How It Works|Example/i },
     { path: "/en/about", titlePattern: /About/i },
     { path: "/en/products", titlePattern: /Product/i },
     { path: "/en/contact", titlePattern: /Contact|Example/i },

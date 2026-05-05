@@ -153,8 +153,8 @@ describe("URLGenerator", () => {
     it("should generate entries for all pages and languages", () => {
       const entries = generator.generateAllSitemapEntries();
 
-      // 7 live page types x 2 languages = 14 entries (/blog and bending-machines are retired)
-      expect(entries).toHaveLength(14);
+      // 9 live page types x 2 languages = 18 entries (/blog and bending-machines are retired)
+      expect(entries).toHaveLength(18);
       expect(
         entries.some(
           (entry) =>

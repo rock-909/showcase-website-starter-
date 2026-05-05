@@ -233,7 +233,7 @@ export function MobileNavigationInteractive({
         </SheetTrigger>
         <SheetContent
           side="right"
-          className="w-[300px] sm:w-[350px]"
+          className="w-[300px] overflow-y-auto sm:w-[350px]"
           id="mobile-navigation"
           aria-label={NAVIGATION_ARIA.mobileMenu}
           data-testid="mobile-menu-content"

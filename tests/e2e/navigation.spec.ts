@@ -89,6 +89,12 @@ test.describe("Navigation System", () => {
 
       // All navigation items are links (Products no longer has dropdown children)
       await expect(nav.getByRole("link", { name: "Home" })).toBeVisible();
+      await expect(
+        nav.getByRole("link", { name: "Capabilities" }),
+      ).toBeVisible();
+      await expect(
+        nav.getByRole("link", { name: "How It Works" }),
+      ).toBeVisible();
       await expect(nav.getByRole("link", { name: "Products" })).toBeVisible();
       await expect(nav.getByRole("link", { name: "Custom" })).toBeVisible();
       await expect(nav.getByRole("link", { name: "About" })).toBeVisible();
@@ -115,6 +121,30 @@ test.describe("Navigation System", () => {
         const mobileMenuButton = getHeaderMobileMenuButton(page);
         await expect(mobileMenuButton).toBeVisible();
         return;
+      }
+
+      const routeChecks = [
+        {
+          href: "/en/capabilities",
+          pattern: /\/en\/capabilities$/,
+        },
+        {
+          href: "/en/how-it-works",
+          pattern: /\/en\/how-it-works$/,
+        },
+      ] as const;
+
+      for (const route of routeChecks) {
+        const clickedRoute = await safeClick(
+          page,
+          `nav a[href="${route.href}"]:visible`,
+        );
+        expect(clickedRoute).toBe(true);
+        await page.waitForURL(route.pattern, { waitUntil: "domcontentloaded" });
+        await waitForStablePage(page);
+        await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+        await page.goto("/en");
+        await waitForStablePage(page);
       }
 
       // Navigate to About page
@@ -257,7 +287,15 @@ test.describe("Navigation System", () => {
       await expect(mobileNavSheet.getByRole("heading").first()).toBeVisible();
 
       // Verify navigation links in mobile menu (match actual config)
-      const expectedLinks = ["Home", "Products", "Custom", "About", "Contact"];
+      const expectedLinks = [
+        "Home",
+        "Capabilities",
+        "How It Works",
+        "Products",
+        "Custom",
+        "About",
+        "Contact",
+      ];
       for (const linkText of expectedLinks) {
         const link = mobileNavSheet.getByRole("link", {
           exact: true,
@@ -305,30 +343,55 @@ test.describe("Navigation System", () => {
     test("should navigate from mobile menu and auto-close", async ({
       page,
     }) => {
-      const mobileMenuButton = getHeaderMobileMenuButton(page);
-      await mobileMenuButton.click();
+      const clickMobileMenuRoute = async (
+        href: string,
+        urlPattern: RegExp,
+        headingName: RegExp,
+      ) => {
+        const mobileMenuButton = getHeaderMobileMenuButton(page);
+        await expect(mobileMenuButton).toBeVisible();
+        await mobileMenuButton.click();
 
-      const mobileNavSheet = page.getByRole("dialog", {
-        name: /mobile navigation/i,
-      });
-      await expect(mobileNavSheet).toBeVisible();
-      await waitForStablePage(page);
+        const mobileNavSheet = page.getByRole("dialog", {
+          name: /mobile navigation/i,
+        });
+        await expect(mobileNavSheet).toBeVisible();
+        await waitForStablePage(page);
 
-      const clickedAbout = await safeClick(
-        page,
-        `${MOBILE_MENU_CONTENT_SELECTOR} a[href="/en/about"]`,
+        const clickedRoute = await safeClick(
+          page,
+          `${MOBILE_MENU_CONTENT_SELECTOR} a[href="${href}"]`,
+        );
+        expect(clickedRoute).toBe(true);
+
+        await page.waitForURL(urlPattern, { waitUntil: "domcontentloaded" });
+        await waitForStablePage(page);
+
+        // Sheet should auto-close after navigation
+        await expect(mobileNavSheet).not.toBeVisible({ timeout: 10_000 });
+
+        await expect(
+          page.getByRole("heading", { level: 1, name: headingName }),
+        ).toBeVisible();
+      };
+
+      await clickMobileMenuRoute(
+        "/en/capabilities",
+        /\/en\/capabilities$/,
+        /starter capabilities/i,
       );
-      expect(clickedAbout).toBe(true);
-
-      // Wait for navigation
-      await page.waitForURL("**/en/about");
+      await page.goto("/en", { waitUntil: "domcontentloaded" });
       await waitForStablePage(page);
 
-      // Sheet should auto-close after navigation
-      await expect(mobileNavSheet).not.toBeVisible({ timeout: 10_000 });
+      await clickMobileMenuRoute(
+        "/en/how-it-works",
+        /\/en\/how-it-works$/,
+        /how it works/i,
+      );
+      await page.goto("/en", { waitUntil: "domcontentloaded" });
+      await waitForStablePage(page);
 
-      // Verify we're on the About page (check for h1 heading)
-      await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+      await clickMobileMenuRoute("/en/about", /\/en\/about$/, /about/i);
     });
 
     test("should support touch interactions", async ({ page }) => {

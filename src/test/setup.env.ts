@@ -38,6 +38,11 @@ vi.stubEnv("CSP_REPORT_URI", "https://example.com/csp-report");
 vi.stubEnv("ADMIN_API_TOKEN", "test-admin-token");
 vi.stubEnv("TURNSTILE_ALLOWED_ACTIONS", "contact_form");
 vi.stubEnv("TURNSTILE_BYPASS", "false");
+vi.stubEnv("CLOUDFLARE_ZONE_ID", "test-zone-id");
+vi.stubEnv("CLOUDFLARE_ACCOUNT_ID", "test-account-id");
+vi.stubEnv("CLOUDFLARE_ANALYTICS_API_TOKEN", "test-analytics-api-token");
+vi.stubEnv("CLOUDFLARE_ANALYTICS_HOSTNAME", "example.com");
+vi.stubEnv("OPS_DASHBOARD_ACCESS_KEY", "test-ops-access-key");
 
 // Mock @t3-oss/env-nextjs to prevent server-side environment variable access errors
 vi.mock("@t3-oss/env-nextjs", () => ({
@@ -55,6 +60,11 @@ vi.mock("@t3-oss/env-nextjs", () => ({
     ADMIN_API_TOKEN: "test-admin-token",
     TURNSTILE_ALLOWED_ACTIONS: "contact_form",
     TURNSTILE_BYPASS: false,
+    CLOUDFLARE_ZONE_ID: "test-zone-id",
+    CLOUDFLARE_ACCOUNT_ID: "test-account-id",
+    CLOUDFLARE_ANALYTICS_API_TOKEN: "test-analytics-api-token",
+    CLOUDFLARE_ANALYTICS_HOSTNAME: "example.com",
+    OPS_DASHBOARD_ACCESS_KEY: "test-ops-access-key",
     NEXT_PUBLIC_BASE_URL: "https://example.com",
     NEXT_PUBLIC_VERCEL_URL: "example.vercel.app",
   })),
@@ -77,6 +87,11 @@ vi.mock("@/lib/env", () => {
     NEXT_SERVER_ACTIONS_ENCRYPTION_KEY: "test-server-actions-key",
     ALLOW_MEMORY_RATE_LIMIT: false,
     ALLOW_MEMORY_IDEMPOTENCY: false,
+    CLOUDFLARE_ZONE_ID: "test-zone-id",
+    CLOUDFLARE_ACCOUNT_ID: "test-account-id",
+    CLOUDFLARE_ANALYTICS_API_TOKEN: "test-analytics-api-token",
+    CLOUDFLARE_ANALYTICS_HOSTNAME: "example.com",
+    OPS_DASHBOARD_ACCESS_KEY: "test-ops-access-key",
     NEXT_PUBLIC_BASE_URL: "https://example.com",
     NEXT_PUBLIC_VERCEL_URL: "example.vercel.app",
     NEXT_PUBLIC_TURNSTILE_SITE_KEY: "test-site-key-12345",

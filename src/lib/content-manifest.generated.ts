@@ -119,6 +119,36 @@ const _entries: ContentEntry[] = [
   {
     "type": "pages",
     "locale": "en",
+    "slug": "capabilities",
+    "extension": ".mdx",
+    "filePath": "/content/pages/en/capabilities.mdx",
+    "relativePath": "content/pages/en/capabilities.mdx",
+    "metadata": {
+      "locale": "en",
+      "title": "Starter Capabilities",
+      "description": "A website and lead foundation for a small B2B company.",
+      "slug": "capabilities",
+      "publishedAt": "2026-04-26",
+      "updatedAt": "2026-05-04",
+      "lastReviewed": "2026-05-04",
+      "draft": false,
+      "seo": {
+        "title": "Starter Capabilities | Website and Lead Foundation",
+        "description": "See the replaceable public pages, offer story, lead path, Cloudflare deployment proof, owner reporting visibility, and replacement guardrails included in this showcase website starter.",
+        "keywords": [
+          "showcase website starter",
+          "B2B website capabilities",
+          "lead foundation",
+          "Cloudflare website starter"
+        ],
+        "ogImage": "/images/og-image.jpg"
+      }
+    },
+    "content": "\n## A Website and Lead Foundation for a Small B2B Company\n\nThe demo shows the pieces a company needs before a public launch: pages, offer story, inquiry path, deployment proof, and owner traffic visibility.\n\n## Credible Public Pages\n\nHome, capabilities, process, about, contact, privacy, and terms pages start from a working structure.\n\n## Clear Offer Story\n\nProduct, service, resource, and custom-project examples show how real offers can be explained.\n\n## Lead Capture Path\n\nContact and inquiry flows stay visible, testable, and ready for real destinations.\n\n## Cloudflare-First Deploy\n\nThe recommended route is Cloudflare Workers through OpenNext, with Vercel kept as compatibility.\n\n## Owner Reporting Visibility\n\nOnce credentials are configured, the owner can confirm real Cloudflare traffic is visible.\n\n## Replacement Guardrails\n\nDocs and checks keep sample identity, proof, legal copy, and deployment values from being treated as real launch truth.\n"
+  },
+  {
+    "type": "pages",
+    "locale": "en",
     "slug": "contact",
     "extension": ".mdx",
     "filePath": "/content/pages/en/contact.mdx",
@@ -205,6 +235,36 @@ const _entries: ContentEntry[] = [
       ]
     },
     "content": "\n## Custom Project Scope\n\nThis MDX file owns SEO metadata and FAQ content for the custom project page.\n\nThe visible scope cards, process steps, standards, and CTA modules remain structured page sections powered by the translation namespace. Replace those translations when adapting the starter to a real project.\n"
+  },
+  {
+    "type": "pages",
+    "locale": "en",
+    "slug": "how-it-works",
+    "extension": ".mdx",
+    "filePath": "/content/pages/en/how-it-works.mdx",
+    "relativePath": "content/pages/en/how-it-works.mdx",
+    "metadata": {
+      "locale": "en",
+      "title": "How It Works",
+      "description": "Move from no website to a launchable foundation.",
+      "slug": "how-it-works",
+      "publishedAt": "2026-04-26",
+      "updatedAt": "2026-05-04",
+      "lastReviewed": "2026-05-04",
+      "draft": false,
+      "seo": {
+        "title": "How It Works | Setup to Launch",
+        "description": "Use the starter as a complete demo, replace the business facts, connect the lead path, deploy on Cloudflare, and prove the result before calling it launch-ready.",
+        "keywords": [
+          "website setup process",
+          "showcase website launch",
+          "Cloudflare launch workflow",
+          "B2B website starter"
+        ],
+        "ogImage": "/images/og-image.jpg"
+      }
+    },
+    "content": "\n## Move from No Website to a Launchable Foundation\n\nUse the starter as a complete demo, replace the business facts, connect the lead path, deploy on Cloudflare, and prove the result before calling it launch-ready.\n\n1. Replace the business facts: update brand, domain, contact details, offer content, images, legal body, and proof assets.\n2. Review the public story: make sure the homepage and support pages explain the real business clearly.\n3. Connect the lead path: configure form security, email, Airtable or CRM storage, and a safe test submission flow.\n4. Deploy on Cloudflare: run the Cloudflare build and preview proof before a public route is treated as ready.\n5. Check traffic and sign off: set up owner reporting visibility, review real traffic, and confirm the launch state with the owner.\n"
   },
   {
     "type": "pages",
@@ -365,6 +425,36 @@ const _entries: ContentEntry[] = [
   {
     "type": "pages",
     "locale": "zh",
+    "slug": "capabilities",
+    "extension": ".mdx",
+    "filePath": "/content/pages/zh/capabilities.mdx",
+    "relativePath": "content/pages/zh/capabilities.mdx",
+    "metadata": {
+      "locale": "zh",
+      "title": "Starter 能力",
+      "description": "给小型 B2B 公司用的网站和线索基础设施。",
+      "slug": "capabilities",
+      "publishedAt": "2026-04-26",
+      "updatedAt": "2026-05-04",
+      "lastReviewed": "2026-05-04",
+      "draft": false,
+      "seo": {
+        "title": "Starter 能力 | 网站和线索基础设施",
+        "description": "了解这个展示型网站 starter 包含的可替换公开页面、业务表达、线索路径、Cloudflare 部署证明、owner 报告可见性和替换防线。",
+        "keywords": [
+          "展示型网站 starter",
+          "B2B 网站能力",
+          "线索基础设施",
+          "Cloudflare 网站 starter"
+        ],
+        "ogImage": "/images/og-image.jpg"
+      }
+    },
+    "content": "\n## 给小型 B2B 公司用的网站和线索基础设施\n\n这个 demo 展示公开上线前需要的基础部分：页面、业务表达、询盘路径、部署证明和 owner 可见的流量信息。\n\n## 可信的公开页面\n\n首页、能力、流程、关于、联系、隐私和条款页面都从可运行结构开始。\n\n## 清楚的业务表达\n\n产品、服务、资源和定制项目示例说明真实业务应该如何被讲清楚。\n\n## 线索收集路径\n\n联系和询盘流程保持可见、可测，并能接入真实目的地。\n\n## Cloudflare 优先部署\n\n推荐路径是通过 OpenNext 部署到 Cloudflare Workers，Vercel 只保留兼容支持。\n\n## Owner 报告可见性\n\n配置凭证后，owner 可以确认真实 Cloudflare 访问是否可见。\n\n## 替换防线\n\n文档和检查会阻止示例身份、证据、法务文案和部署配置被当成真实上线事实。\n"
+  },
+  {
+    "type": "pages",
+    "locale": "zh",
     "slug": "contact",
     "extension": ".mdx",
     "filePath": "/content/pages/zh/contact.mdx",
@@ -455,6 +545,36 @@ const _entries: ContentEntry[] = [
   {
     "type": "pages",
     "locale": "zh",
+    "slug": "how-it-works",
+    "extension": ".mdx",
+    "filePath": "/content/pages/zh/how-it-works.mdx",
+    "relativePath": "content/pages/zh/how-it-works.mdx",
+    "metadata": {
+      "locale": "zh",
+      "title": "如何使用",
+      "description": "从没有网站，到一套可上线的基础设施。",
+      "slug": "how-it-works",
+      "publishedAt": "2026-04-26",
+      "updatedAt": "2026-05-04",
+      "lastReviewed": "2026-05-04",
+      "draft": false,
+      "seo": {
+        "title": "如何使用 | 从设置到上线",
+        "description": "以这个完整 demo 为起点，替换业务事实，接通线索路径，部署到 Cloudflare，并在证明完成后再说可以上线。",
+        "keywords": [
+          "网站搭建流程",
+          "展示型网站上线",
+          "Cloudflare 上线流程",
+          "B2B 网站 starter"
+        ],
+        "ogImage": "/images/og-image.jpg"
+      }
+    },
+    "content": "\n## 从没有网站，到一套可上线的基础设施\n\n以这个完整 demo 为起点，替换业务事实，接通线索路径，部署到 Cloudflare，并在证明完成后再说可以上线。\n\n1. 替换业务事实：更新品牌、域名、联系方式、业务内容、图片、法务主体和证据材料。\n2. 检查公开表达：确认首页和支持页面能把真实业务讲清楚。\n3. 接通线索路径：配置表单安全、邮件、Airtable 或 CRM 存储，以及安全的测试提交流程。\n4. 部署到 Cloudflare：完成 Cloudflare 构建和预览证明后，才能把公开路由当成可用结果。\n5. 查看流量并确认：配置 Owner 报告可见性，确认真实访问是否可见，再由 owner 做上线确认。\n"
+  },
+  {
+    "type": "pages",
+    "locale": "zh",
     "slug": "privacy",
     "extension": ".mdx",
     "filePath": "/content/pages/zh/privacy.mdx",
@@ -522,15 +642,19 @@ const _entries: ContentEntry[] = [
 
 const _byKeyIndex: Record<string, number> = {
   "pages/en/about": 0,
-  "pages/en/contact": 1,
-  "pages/en/custom-project-support": 2,
-  "pages/en/privacy": 3,
-  "pages/en/terms": 4,
-  "pages/zh/about": 5,
-  "pages/zh/contact": 6,
-  "pages/zh/custom-project-support": 7,
-  "pages/zh/privacy": 8,
-  "pages/zh/terms": 9
+  "pages/en/capabilities": 1,
+  "pages/en/contact": 2,
+  "pages/en/custom-project-support": 3,
+  "pages/en/how-it-works": 4,
+  "pages/en/privacy": 5,
+  "pages/en/terms": 6,
+  "pages/zh/about": 7,
+  "pages/zh/capabilities": 8,
+  "pages/zh/contact": 9,
+  "pages/zh/custom-project-support": 10,
+  "pages/zh/how-it-works": 11,
+  "pages/zh/privacy": 12,
+  "pages/zh/terms": 13
 };
 
 const _byKey: Record<string, ContentEntry> = Object.fromEntries(

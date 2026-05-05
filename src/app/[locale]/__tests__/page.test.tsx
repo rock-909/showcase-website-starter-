@@ -8,6 +8,12 @@ vi.mock("@/components/sections/hero-section", () => ({
   HeroSection: () => <div data-testid="hero-section">Hero</div>,
 }));
 
+vi.mock("@/components/sections/starter-boundary-section", () => ({
+  StarterBoundarySection: () => (
+    <div data-testid="starter-boundary-section">Starter Boundary</div>
+  ),
+}));
+
 vi.mock("@/components/sections/chain-section", () => ({
   ChainSection: () => <div data-testid="chain-section">Chain</div>,
 }));
@@ -65,6 +71,7 @@ describe("Home Page", () => {
       const { getByTestId } = render(HomeComponent);
 
       expect(getByTestId("hero-section")).toBeInTheDocument();
+      expect(getByTestId("starter-boundary-section")).toBeInTheDocument();
       expect(getByTestId("chain-section")).toBeInTheDocument();
       expect(getByTestId("products-section")).toBeInTheDocument();
       expect(getByTestId("resources-section")).toBeInTheDocument();

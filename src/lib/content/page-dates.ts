@@ -7,7 +7,9 @@ import { logger } from "@/lib/logger";
 
 const MDX_PAGE_SLUGS_BY_ROUTE = {
   about: "about",
+  capabilities: "capabilities",
   contact: "contact",
+  howItWorks: "how-it-works",
   privacy: "privacy",
   terms: "terms",
   customProject: "custom-project-support",

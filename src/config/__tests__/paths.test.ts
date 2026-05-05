@@ -58,6 +58,8 @@ describe("paths configuration", () => {
     it("should have valid PageType", () => {
       const pageTypes: PageType[] = [
         "home",
+        "capabilities",
+        "howItWorks",
         "about",
         "contact",
         "products",
@@ -85,6 +87,8 @@ describe("paths configuration", () => {
     it("should have all required page types", () => {
       const expectedPageTypes: PageType[] = [
         "home",
+        "capabilities",
+        "howItWorks",
         "about",
         "contact",
         "products",
@@ -250,6 +254,10 @@ describe("paths configuration", () => {
     it("should return correct path for valid page type and locale", () => {
       expect(getLocalizedPath("home", "en")).toBe("/");
       expect(getLocalizedPath("home", "zh")).toBe("/");
+      expect(getLocalizedPath("capabilities", "en")).toBe("/capabilities");
+      expect(getLocalizedPath("capabilities", "zh")).toBe("/capabilities");
+      expect(getLocalizedPath("howItWorks", "en")).toBe("/how-it-works");
+      expect(getLocalizedPath("howItWorks", "zh")).toBe("/how-it-works");
       expect(getLocalizedPath("about", "en")).toBe("/about");
       expect(getLocalizedPath("about", "zh")).toBe("/about");
     });
@@ -387,6 +395,8 @@ describe("paths configuration", () => {
     it("should work with all page types and locales", () => {
       const pageTypes: PageType[] = [
         "home",
+        "capabilities",
+        "howItWorks",
         "about",
         "contact",
         "products",
@@ -652,6 +662,8 @@ describe("paths configuration", () => {
       const configKeys = Object.keys(PATHS_CONFIG) as PageType[];
       const expectedTypes: PageType[] = [
         "home",
+        "capabilities",
+        "howItWorks",
         "about",
         "contact",
         "products",

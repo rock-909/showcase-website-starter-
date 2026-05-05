@@ -47,6 +47,8 @@ function fromRouteConfig<T>(
 
 export const SINGLE_SITE_PUBLIC_STATIC_PAGE_ROUTES = [
   "home",
+  "capabilities",
+  "howItWorks",
   "about",
   "contact",
   "products",
@@ -63,7 +65,9 @@ export const SINGLE_SITE_PUBLIC_STATIC_PAGES =
 const SINGLE_SITE_STATIC_SITEMAP_PAGE_CONFIG_BY_ROUTE = {
   home: { changeFrequency: "daily", priority: 1.0 },
   about: { changeFrequency: "monthly", priority: 0.8 },
+  capabilities: { changeFrequency: "monthly", priority: 0.85 },
   contact: { changeFrequency: "monthly", priority: 0.8 },
+  howItWorks: { changeFrequency: "monthly", priority: 0.85 },
   products: { changeFrequency: "weekly", priority: 0.9 },
   privacy: { changeFrequency: "monthly", priority: 0.7 },
   terms: { changeFrequency: "monthly", priority: 0.7 },
@@ -108,6 +112,7 @@ export const SINGLE_SITE_STATIC_PAGE_LASTMOD = {
 export const SINGLE_SITE_ROBOTS_DISALLOW_PATHS = [
   "/api/",
   "/_next/",
+  "/ops/",
   "/error-test/",
 ] as const;
 

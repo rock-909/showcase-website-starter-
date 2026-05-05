@@ -4,7 +4,7 @@
 
 **Goal:** Build the first-stage governance foundation for the Starter redesign work so AI agents must reuse components, respect design tokens, expose reviewable Storybook states, and use one checklist before redesigning sections.
 
-**Architecture:** This plan strengthens the existing governance layer through a machine-readable UI primitive registry, required Storybook coverage for every UI primitive, automated component governance checks, and documentation for future redesign work. It does not redesign production pages yet; later plans for full section redesign, product page redesign, Footer, Contact, page-level Storybook, and Tianze synchronization must use this foundation.
+**Architecture:** This plan strengthens the existing governance layer through a machine-readable UI primitive registry, required Storybook coverage for every UI primitive, automated component governance checks, and documentation for future redesign work. It does not redesign production pages yet; later plans for full section redesign, product page redesign, Footer, Contact, page-level Storybook, and future client-site synchronization must use this foundation.
 
 **Tech Stack:** Next.js 16.2.4, React 19.2.5, TypeScript 6.0.3, Tailwind CSS 4.2.4, Storybook 10.3.6, Vitest, Node.js scripts, existing project docs under `docs/website/` and `docs/impeccable/system/`.
 
@@ -30,7 +30,7 @@ This plan intentionally does **not** implement:
 - Footer redesign.
 - Contact form logic redesign.
 - Business/section/page-level Storybook completion.
-- Tianze synchronization.
+- Future client-site synchronization.
 
 ## Required current-project context
 
@@ -303,7 +303,7 @@ Requirements:
 - Do not create story-only production components.
 - Include at least one practical default story per primitive.
 - Include meaningful variants where the primitive already exposes variants or orientations, such as `Separator` horizontal/vertical and `Sheet` side placement.
-- Use generic starter content, not Tianze-specific content.
+- Use generic starter content, not client-site-specific content.
 - For lazy components, use controlled Storybook examples that do not depend on deleting files or causing real import failures.
 
 Validation:

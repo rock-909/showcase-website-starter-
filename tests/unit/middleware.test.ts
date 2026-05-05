@@ -151,6 +151,14 @@ describe("Middleware Cookie Security", () => {
   });
 
   describe("cookie security in different scenarios", () => {
+    it("does not locale-redirect owner ops dashboard routes", async () => {
+      const { config } = await import("@/middleware");
+
+      expect(config.matcher).toContain(
+        "/((?!api|_next|_vercel|admin|ops|.*\\..*).*)",
+      );
+    });
+
     it("should apply security attributes when handling explicit localized request", async () => {
       vi.resetModules();
       const intlMock = vi.fn(() => NextResponse.next());

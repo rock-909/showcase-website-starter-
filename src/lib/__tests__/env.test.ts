@@ -165,6 +165,14 @@ describe("env type safety", () => {
     expect("ALLOW_MEMORY_IDEMPOTENCY" in env).toBe(true);
   });
 
+  it("exposes Cloudflare analytics and ops dashboard vars through the central env object", () => {
+    expect("CLOUDFLARE_ZONE_ID" in env).toBe(true);
+    expect("CLOUDFLARE_ACCOUNT_ID" in env).toBe(true);
+    expect("CLOUDFLARE_ANALYTICS_API_TOKEN" in env).toBe(true);
+    expect("CLOUDFLARE_ANALYTICS_HOSTNAME" in env).toBe(true);
+    expect("OPS_DASHBOARD_ACCESS_KEY" in env).toBe(true);
+  });
+
   it("should have correct client env vars defined", () => {
     expect("NEXT_PUBLIC_BASE_URL" in env).toBe(true);
     expect("NEXT_PUBLIC_TURNSTILE_SITE_KEY" in env).toBe(true);

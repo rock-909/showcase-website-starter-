@@ -33,6 +33,16 @@ export const PATHS_CONFIG = Object.freeze({
     zh: "/products",
   }),
 
+  capabilities: Object.freeze({
+    en: "/capabilities",
+    zh: "/capabilities",
+  }),
+
+  howItWorks: Object.freeze({
+    en: "/how-it-works",
+    zh: "/how-it-works",
+  }),
+
   // 法律页面 - 统一使用标准路径
   privacy: Object.freeze({
     en: "/privacy",

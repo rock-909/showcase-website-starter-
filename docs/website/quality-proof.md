@@ -118,6 +118,19 @@ crawl / indexing truth 也要单独看：`src/config/single-site-seo.ts` 控制 
 
 这不是业务页面证明，也不是询盘链路证明；它只证明出问题时有基本排障线索。
 
+### Owner traffic dashboard proof
+
+`/ops/traffic` is an owner-only proof surface. It proves the deployed site can read real Cloudflare traffic data for the configured hostname.
+
+Minimum proof:
+
+- missing credentials show a safe unconfigured state;
+- unauthorized visitors cannot see data;
+- configured owner access shows Cloudflare analytics data;
+- the API token is never rendered in HTML, browser JavaScript, logs, or `NEXT_PUBLIC_*`.
+
+This proof does not prove sales quality, legal readiness, or form delivery.
+
 ### 4. 表单 canary
 
 目标：证明联系/询盘表单链路在部署环境可用。

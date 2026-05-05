@@ -244,6 +244,17 @@ describe("SEO Metadata", () => {
       });
     });
 
+    it("should return public demo starter page configs", () => {
+      expect(createPageSEOConfig("capabilities")).toEqual({
+        type: "website",
+        keywords: ["Capabilities", "Website Starter", "Lead Foundation", "B2B"],
+      });
+      expect(createPageSEOConfig("howItWorks")).toEqual({
+        type: "website",
+        keywords: ["How It Works", "Setup", "Launch", "Website Starter"],
+      });
+    });
+
     it("should merge custom config with base config", () => {
       const customConfig = {
         title: "Custom Title",
@@ -278,6 +289,8 @@ describe("SEO Metadata", () => {
       ];
       const pageTypes: PageType[] = [
         "home",
+        "capabilities",
+        "howItWorks",
         "about",
         "contact",
         "products",
@@ -298,6 +311,8 @@ describe("SEO Metadata", () => {
     it("should return correct config for all page types", () => {
       const pageTypes: PageType[] = [
         "home",
+        "capabilities",
+        "howItWorks",
         "about",
         "contact",
         "products",

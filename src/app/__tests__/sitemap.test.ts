@@ -133,6 +133,18 @@ describe("sitemap.ts", () => {
         changeFrequency: "monthly",
         lastModified: new Date("2026-04-20T00:00:00Z"),
       });
+      expect(findEntry(result, "en", "/capabilities")).toMatchObject({
+        url: "https://example.com/en/capabilities",
+        priority: 0.85,
+        changeFrequency: "monthly",
+        lastModified: new Date("2026-04-20T00:00:00Z"),
+      });
+      expect(findEntry(result, "en", "/how-it-works")).toMatchObject({
+        url: "https://example.com/en/how-it-works",
+        priority: 0.85,
+        changeFrequency: "monthly",
+        lastModified: new Date("2026-04-20T00:00:00Z"),
+      });
       expect(findEntry(result, "en", "/products/north-america")).toMatchObject({
         url: "https://example.com/en/products/north-america",
         priority: 0.8,
@@ -281,15 +293,29 @@ describe("sitemap.ts", () => {
       expect(about?.lastModified).toEqual(new Date("2026-04-20T00:00:00Z"));
     });
 
-    it("should use sidecar dates for non-MDX and product market pages", async () => {
+    it("should use MDX dates for public demo pages and sidecar dates for non-MDX pages", async () => {
       const result = await sitemap();
+      const capabilitiesPath = getCanonicalPath("capabilities");
+      const howItWorksPath = getCanonicalPath("howItWorks");
       const productsPath = getCanonicalPath("products");
       const [marketSlug] = getAllMarketSlugs();
       const marketPath = getProductMarketPath(marketSlug ?? "");
+      const capabilities = findEntry(result, defaultLocale, capabilitiesPath);
+      const howItWorks = findEntry(result, defaultLocale, howItWorksPath);
       const products = findEntry(result, defaultLocale, productsPath);
       const market = findEntry(result, defaultLocale, marketPath);
 
       expect(marketSlug).toBeDefined();
+      expect(getMdxPageLastModified).toHaveBeenCalledWith(capabilitiesPath);
+      expect(getMdxPageLastModified).toHaveBeenCalledWith(howItWorksPath);
+      expect(getStaticPageLastModified).not.toHaveBeenCalledWith(
+        capabilitiesPath,
+        expect.any(Map),
+      );
+      expect(getStaticPageLastModified).not.toHaveBeenCalledWith(
+        howItWorksPath,
+        expect.any(Map),
+      );
       expect(getStaticPageLastModified).toHaveBeenCalledWith(
         productsPath,
         expect.any(Map),
@@ -297,6 +323,12 @@ describe("sitemap.ts", () => {
       expect(getStaticPageLastModified).toHaveBeenCalledWith(
         marketPath,
         expect.any(Map),
+      );
+      expect(capabilities?.lastModified).toEqual(
+        new Date("2026-04-20T00:00:00Z"),
+      );
+      expect(howItWorks?.lastModified).toEqual(
+        new Date("2026-04-20T00:00:00Z"),
       );
       expect(products?.lastModified).toEqual(new Date("2024-11-01T00:00:00Z"));
       expect(market?.lastModified).toEqual(new Date("2024-11-01T00:00:00Z"));

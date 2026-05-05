@@ -30,9 +30,14 @@ describe("page-dates", () => {
   });
 
   it("keeps sitemap MDX page detection aligned with public static routes", () => {
-    const nonMdxPages = new Set(["", getCanonicalPath("products")]);
+    const nonMdxPages = new Set([
+      "",
+      getCanonicalPath("products"),
+    ]);
     const representativePageContracts = [
       { path: "", isMdx: false },
+      { path: "/capabilities", isMdx: true },
+      { path: "/how-it-works", isMdx: true },
       { path: "/products", isMdx: false },
       { path: "/about", isMdx: true },
       { path: "/custom-project-support", isMdx: true },
@@ -48,6 +53,8 @@ describe("page-dates", () => {
 
     expect(SINGLE_SITE_PUBLIC_STATIC_PAGE_ROUTES).toContain("customProject");
     expect(isMdxDrivenPage(getCanonicalPath("customProject"))).toBe(true);
+    expect(SINGLE_SITE_PUBLIC_STATIC_PAGE_ROUTES).toContain("capabilities");
+    expect(SINGLE_SITE_PUBLIC_STATIC_PAGE_ROUTES).toContain("howItWorks");
   });
 
   it("loads the latest MDX updatedAt across locales for route-derived paths", async () => {

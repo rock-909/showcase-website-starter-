@@ -6,6 +6,7 @@ import { getLocalizedPath } from "@/config/paths";
 import { GridFrame } from "@/components/grid";
 import { JsonLdGraphScript } from "@/components/seo";
 import { HeroSection } from "@/components/sections/hero-section";
+import { StarterBoundarySection } from "@/components/sections/starter-boundary-section";
 import { ChainSection } from "@/components/sections/chain-section";
 import { ProductsSection } from "@/components/sections/products-section";
 import { ResourcesSection } from "@/components/sections/resources-section";
@@ -38,6 +39,8 @@ function renderHomeGridSection(
   switch (sectionId) {
     case "hero":
       return <HeroSection key={sectionId} />;
+    case "starterBoundary":
+      return <StarterBoundarySection key={sectionId} />;
     case "chain":
       return <ChainSection key={sectionId} />;
     case "products":

@@ -3,7 +3,9 @@ import { getCanonicalPath } from "@/config/paths/utils";
 export const SINGLE_SITE_ROUTE_HREFS = {
   home: getCanonicalPath("home"),
   about: getCanonicalPath("about"),
+  capabilities: getCanonicalPath("capabilities"),
   contact: getCanonicalPath("contact"),
+  howItWorks: getCanonicalPath("howItWorks"),
   products: getCanonicalPath("products"),
   privacy: getCanonicalPath("privacy"),
   terms: getCanonicalPath("terms"),

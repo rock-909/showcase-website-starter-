@@ -59,6 +59,16 @@ describe("navigation", () => {
       expect(mainNavigation).toEqual([
         { key: "home", href: "/", translationKey: "navigation.home" },
         {
+          key: "capabilities",
+          href: "/capabilities",
+          translationKey: "navigation.capabilities",
+        },
+        {
+          key: "howItWorks",
+          href: "/how-it-works",
+          translationKey: "navigation.howItWorks",
+        },
+        {
           key: "products",
           href: "/products",
           translationKey: "navigation.products",

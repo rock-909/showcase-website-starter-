@@ -268,5 +268,5 @@ export default function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/api/health", "/", "/((?!api|_next|_vercel|admin|.*\\..*).*)"],
+  matcher: ["/api/health", "/", "/((?!api|_next|_vercel|admin|ops|.*\\..*).*)"],
 };
