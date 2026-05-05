@@ -35,86 +35,80 @@ const _entries: ContentEntry[] = [
     "relativePath": "content/pages/en/about.mdx",
     "metadata": {
       "locale": "en",
-      "title": "About Example Showcase Company",
-      "description": "Learn how this replaceable showcase website example presents offerings, proof, resources, and inquiry paths for a real business.",
+      "title": "About this showcase website starter",
+      "description": "Learn why this starter exists, who it fits, who it does not fit, and what must be replaced before launch.",
       "slug": "about",
       "publishedAt": "2024-01-10",
-      "updatedAt": "2026-04-30",
-      "author": "Example Showcase Company Team",
+      "updatedAt": "2026-05-05",
+      "author": "Showcase Website Starter Team",
       "layout": "default",
       "showToc": true,
-      "lastReviewed": "2026-04-30",
+      "lastReviewed": "2026-05-05",
       "draft": false,
-      "heroTitle": "About Example Showcase Company",
-      "heroSubtitle": "Replaceable showcase website example",
-      "heroDescription": "This page demonstrates how a company can explain its offer, credibility, process, and contact path before real business content is added.",
+      "heroTitle": "A showcase website starter designed for real public launch preparation",
+      "heroSubtitle": "Not a fictional company profile",
+      "heroDescription": "This page explains what the starter is, who it fits, and what must still become real before a public launch.",
       "seo": {
-        "title": "About Example Showcase Company",
-        "description": "A replaceable about-page example for a showcase website starter, built to help future projects present company facts, proof, and next steps.",
+        "title": "About this showcase website starter",
+        "description": "Starter identity, fit, boundaries, and replacement requirements for a public showcase website foundation.",
         "keywords": [
           "showcase website starter",
-          "about page example",
-          "company website example",
-          "inquiry website"
+          "starter boundary",
+          "public launch website"
         ],
         "ogImage": "/images/about-og.jpg"
       },
       "aboutSections": {
-        "valuesTitle": "What This Starter Demonstrates",
+        "valuesTitle": "What this starter is designed to protect",
         "values": {
           "quality": {
-            "title": "Clear Structure",
-            "description": "Pages are organized around offer, proof, resources, and next action so a real project can replace content without rebuilding layout."
+            "title": "Launch structure",
+            "description": "The starter keeps pages, navigation, inquiry paths, and replacement work in one clear public-site structure."
           },
           "innovation": {
-            "title": "Reusable Components",
-            "description": "Shared UI primitives, sections, and Storybook stories help future AI work reuse instead of duplicating components."
+            "title": "Reusable foundation",
+            "description": "It provides a working foundation that can be adapted without rebuilding every route and component from zero."
           },
           "service": {
-            "title": "Simple Inquiry Path",
-            "description": "The contact path stays visible and low-friction, with copy that can be adapted to quote, booking, demo, or sample requests."
+            "title": "Owner clarity",
+            "description": "The site makes visible what a real owner must confirm before launch."
           },
           "integrity": {
-            "title": "Replaceable Proof",
-            "description": "Example certifications, metrics, and claims are placeholders. Real projects must replace them with verified evidence."
+            "title": "Honest boundary",
+            "description": "It is not an empty shell, but it is also not a finished client website."
           }
         },
         "statLabels": {
-          "yearsExperience": "Example Years",
-          "countriesServed": "Example Markets",
-          "happyClients": "Example Team Size",
-          "productsDelivered": "Example Footprint"
+          "yearsExperience": "Starter baseline",
+          "countriesServed": "Locales",
+          "happyClients": "Replacement surfaces",
+          "productsDelivered": "Launch path"
         },
         "cta": {
-          "title": "Adapt This Starter for a Real Website",
-          "description": "Replace brand facts, page copy, images, product or service data, contact handling, and deployment settings before launch.",
-          "button": "Start With Contact"
+          "title": "Review the starter capabilities",
+          "description": "See what the starter includes before replacing it with real business facts and assets.",
+          "button": "View products"
         }
       },
       "faq": [
         {
           "id": "starter-purpose",
           "question": "Is this a finished client website?",
-          "answer": "No. This is a reusable starter with example content. Replace all example business facts before using it for a real company."
+          "answer": "No. This is a reusable starter demo with working structure and replaceable example content."
+        },
+        {
+          "id": "who-fits",
+          "question": "Who is this starter for?",
+          "answer": "It fits projects that do not yet have a public website and need a fast, clear showcase-site foundation."
         },
         {
           "id": "what-to-replace",
-          "question": "What should be replaced first?",
-          "answer": "Start with company name, domain, contact details, product or service categories, page content, proof assets, and deployment secrets."
-        },
-        {
-          "id": "storybook",
-          "question": "Why does this starter include Storybook?",
-          "answer": "Storybook gives humans and AI a component preview surface, making it easier to review variants, states, and reuse decisions."
-        },
-        {
-          "id": "content-source",
-          "question": "Where does page content live?",
-          "answer": "Brand facts live in src/config/website, page prose lives in the locale folders under content/pages, and shared UI text lives in the locale files under messages."
+          "question": "What must be replaced before launch?",
+          "answer": "Replace business facts, page content, images, legal copy, form routing, secrets, and deployment settings."
         }
       ]
     },
-    "content": "\n## What This Project Is\n\nExample Showcase Company is a placeholder identity used to demonstrate a complete showcase website.\n\nThe starter keeps real website structure: homepage sections, product or service examples, an about page, contact flow, legal pages, Storybook, design tokens, rules, tests, and deployment scripts.\n\nThe content is intentionally replaceable. It should help you judge layout and quality, not act as a real business claim.\n\n## What You Replace\n\n### Brand Facts\n\nReplace the company name, legal name, tagline, domain, email, phone, address, and social links.\n\n### Offerings\n\nReplace the example product and service categories with the real offer your project needs to present.\n\n### Proof\n\nReplace placeholder certifications, metrics, customer references, process claims, images, and documents with verified evidence.\n\n### Deployment\n\nReplace Cloudflare account settings, domain routes, form receivers, email service credentials, Turnstile keys, and other secrets.\n\n## Why This Starter Exists\n\nAI can create pages quickly, but without governance it may duplicate components, hard-code styles, scatter copy, or forget verification.\n\nThis starter keeps the reusable pieces in place:\n\n- component governance;\n- Storybook preview;\n- design token rules;\n- content ownership rules;\n- validation commands;\n- Cloudflare/OpenNext deployment path;\n- Codex and Claude workflow entrypoints.\n\n## How to Use It\n\n1. Read `docs/website/README.md`.\n2. Follow `docs/website/新项目替换清单.md`.\n3. Replace brand and content surfaces.\n4. Preview components and pages.\n5. Run validation before launch.\n\n## Contact\n\nThis page uses `sales@example.com` and `https://example.com` as placeholders.\n\nReplace them before using this starter for a real project.\n"
+    "content": "\n## Why this starter exists\n\nMany projects do not just lack pages. They lack a complete public launch foundation: a clear site structure, content ownership, inquiry flow, deployment path, and owner-facing visibility.\n\nThis starter gives those pieces a working shape before a real project replaces the example content.\n\n## Who it fits\n\n- Projects with no current website.\n- Teams that need a public showcase foundation quickly.\n- Sites that need multilingual content, inquiry flow, and Cloudflare deployment basics.\n- Owners who want a reusable starting point instead of a blank visual shell.\n\n## Who it does not fit\n\n- Projects with a complete custom brand system already finished.\n- Sites that need complex commerce, accounts, or backend workflows in the first version.\n- Teams looking for a design-only template with no launch workflow.\n\n## Honest boundary\n\nThis starter is not an empty shell. It has real routes, components, content structure, form paths, and deployment assumptions.\n\nIt is also not a finished client website. A real launch still needs confirmed business facts, real images, legal copy, form destinations, secrets, Cloudflare settings, and deployed smoke proof.\n"
   },
   {
     "type": "pages",
@@ -341,86 +335,80 @@ const _entries: ContentEntry[] = [
     "relativePath": "content/pages/zh/about.mdx",
     "metadata": {
       "locale": "zh",
-      "title": "关于 Example Showcase Company",
-      "description": "了解这个可替换展示型网站示例如何展示业务、证据、资源和询盘路径。",
+      "title": "关于这个展示型网站 starter",
+      "description": "了解这个 starter 为什么存在、适合谁、不适合谁，以及公开上线前必须替换什么。",
       "slug": "about",
       "publishedAt": "2024-01-10",
-      "updatedAt": "2026-04-30",
-      "author": "Example Showcase Company 团队",
+      "updatedAt": "2026-05-05",
+      "author": "Showcase Website Starter Team",
       "layout": "default",
       "showToc": true,
-      "lastReviewed": "2026-04-30",
+      "lastReviewed": "2026-05-05",
       "draft": false,
-      "heroTitle": "关于 Example Showcase Company",
-      "heroSubtitle": "可替换的展示型网站示例",
-      "heroDescription": "这个页面演示真实业务内容接入前，一个公司如何解释业务、可信度、流程和联系路径。",
+      "heroTitle": "一个面向真实公开上线准备的展示型网站 starter",
+      "heroSubtitle": "不是虚构公司介绍",
+      "heroDescription": "这个页面解释 starter 是什么、适合谁，以及公开上线前哪些内容必须变成真实事实。",
       "seo": {
-        "title": "关于 Example Showcase Company",
-        "description": "展示型网站 starter 的关于页面示例，用于帮助后续项目展示公司事实、证据和下一步行动。",
+        "title": "关于这个展示型网站 starter",
+        "description": "展示型网站 starter 的身份、适用对象、边界和公开上线前替换要求。",
         "keywords": [
           "展示型网站 starter",
-          "关于页面示例",
-          "企业网站示例",
-          "询盘网站"
+          "starter 边界",
+          "公开上线网站"
         ],
         "ogImage": "/images/about-og.jpg"
       },
       "aboutSections": {
-        "valuesTitle": "这个 Starter 演示什么",
+        "valuesTitle": "这个 starter 保护什么",
         "values": {
           "quality": {
-            "title": "清晰结构",
-            "description": "页面围绕业务、证据、资源和下一步行动组织，真实项目可以替换内容而不用重搭布局。"
+            "title": "上线结构",
+            "description": "starter 把页面、导航、询盘路径和替换工作放进一套清楚的公开网站结构里。"
           },
           "innovation": {
-            "title": "可复用组件",
-            "description": "共享 UI 组件、页面 section 和 Storybook 预览，帮助后续 AI 工作优先复用而不是重复新建。"
+            "title": "可复用基础",
+            "description": "它提供一套可运行基础，真实项目可以在此基础上替换，而不是每条路由和组件都从零开始。"
           },
           "service": {
-            "title": "简单询盘路径",
-            "description": "联系路径保持清楚、低门槛，可按真实项目改成询价、预约、演示或样品申请。"
+            "title": "Owner 清晰度",
+            "description": "网站把真实 owner 上线前必须确认的事项摆在明面上。"
           },
           "integrity": {
-            "title": "可替换证据",
-            "description": "示例认证、数据和主张都是占位。真实项目必须替换成已确认的证据。"
+            "title": "诚实边界",
+            "description": "它不是空壳模板，但也不是已经完成的客户网站。"
           }
         },
         "statLabels": {
-          "yearsExperience": "示例年限",
-          "countriesServed": "示例市场",
-          "happyClients": "示例团队规模",
-          "productsDelivered": "示例覆盖面"
+          "yearsExperience": "Starter 基线",
+          "countriesServed": "语言版本",
+          "happyClients": "替换面",
+          "productsDelivered": "上线链路"
         },
         "cta": {
-          "title": "把这个 Starter 改成真实网站",
-          "description": "上线前请替换品牌事实、页面文案、图片、产品或服务数据、表单接收方式和部署设置。",
-          "button": "从联系页开始"
+          "title": "查看 starter 能力",
+          "description": "先了解 starter 包含什么，再把它替换成真实业务事实和资产。",
+          "button": "查看产品"
         }
       },
       "faq": [
         {
           "id": "starter-purpose",
-          "question": "这是一个已经完成的客户官网吗？",
-          "answer": "不是。这是带示例内容的可复用 starter。用于真实公司前，必须替换所有示例业务事实。"
+          "question": "这是已经完成的客户官网吗？",
+          "answer": "不是。这是带可运行结构和可替换示例内容的 starter demo。"
+        },
+        {
+          "id": "who-fits",
+          "question": "这个 starter 适合谁？",
+          "answer": "适合还没有公开网站、需要快速获得展示型网站基础的项目。"
         },
         {
           "id": "what-to-replace",
-          "question": "应该先替换什么？",
-          "answer": "先替换公司名、域名、联系方式、产品或服务分类、页面内容、证据资产和部署密钥。"
-        },
-        {
-          "id": "storybook",
-          "question": "为什么这个 starter 包含 Storybook？",
-          "answer": "Storybook 给人和 AI 一个组件预览面，方便确认组件变体、状态和复用决策。"
-        },
-        {
-          "id": "content-source",
-          "question": "页面内容在哪里维护？",
-          "answer": "品牌事实放在 src/config/website，页面正文放在 content/pages 下对应语言目录，通用界面文案放在 messages 下对应语言文件。"
+          "question": "上线前必须替换什么？",
+          "answer": "要替换业务事实、页面内容、图片、法务文案、表单流向、密钥和部署设置。"
         }
       ]
     },
-    "content": "\n## 这个项目是什么\n\nExample Showcase Company 是用于演示完整展示型网站的占位身份。\n\n这个 starter 保留真实网站结构：首页 section、产品或服务示例、关于页面、联系路径、法律页面、Storybook、设计 token、规则、测试和部署脚本。\n\n内容是刻意可替换的。它用于帮助判断布局和质量，不代表真实业务承诺。\n\n## 需要替换什么\n\n### 品牌事实\n\n替换公司名、法定名称、标语、域名、邮箱、电话、地址和社交链接。\n\n### 业务内容\n\n把示例产品和服务分类替换成真实项目需要展示的内容。\n\n### 证据材料\n\n把占位认证、数据、客户参考、流程主张、图片和文档替换成已确认的真实证据。\n\n### 部署配置\n\n替换 Cloudflare 账号设置、域名路由、表单接收方、邮件服务凭据、Turnstile keys 和其他密钥。\n\n## 为什么需要这个 Starter\n\nAI 可以很快生成页面，但如果没有治理，很容易重复创建组件、硬编码样式、文案散落、忘记验证。\n\n这个 starter 保留了后续项目会反复需要的基础能力：\n\n- 组件治理；\n- Storybook 预览；\n- 设计 token 规则；\n- 内容归属规则；\n- 验证命令；\n- Cloudflare/OpenNext 部署链路；\n- Codex 和 Claude 工作流入口。\n\n## 如何使用\n\n1. 先读 `docs/website/README.md`。\n2. 按 `docs/website/新项目替换清单.md` 替换。\n3. 替换品牌和内容面。\n4. 预览组件和页面。\n5. 上线前运行验证。\n\n## 联系方式\n\n本页面使用 `sales@example.com` 和 `https://example.com` 作为占位。\n\n用于真实项目之前，请先替换它们。\n"
+    "content": "\n## 为什么需要这个 starter\n\n很多项目缺的不是一个页面，而是一套完整的公开上线基础：清楚的网站结构、内容归属、询盘流程、部署路径和 owner 可见的信息。\n\n这个 starter 先把这些部分做成可运行形态，再让真实项目替换示例内容。\n\n## 适合谁\n\n- 当前还没有网站的项目。\n- 需要快速获得公开展示基础的团队。\n- 需要多语言内容、询盘路径和 Cloudflare 部署基础的网站。\n- 想从可复用基础开始，而不是从空白视觉壳开始的 owner。\n\n## 不适合谁\n\n- 已经有完整定制品牌系统的项目。\n- 第一版就需要复杂交易、账号或后台工作流的网站。\n- 只想要视觉模板、不需要上线工作流的团队。\n\n## 诚实边界\n\n这个 starter 不是空壳。它有真实路由、组件、内容结构、表单路径和部署假设。\n\n但它也不是最终客户网站。真实上线仍然需要确认过的业务事实、真实图片、法务文案、表单接收方、密钥、Cloudflare 设置和部署 smoke 证明。\n"
   },
   {
     "type": "pages",

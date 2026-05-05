@@ -258,18 +258,18 @@ Notes: Product spec data integrity is unit-tested. E2E journey test verifies a m
 
 ---
 
-#### BC-017: About page communicates the starter profile
+#### BC-017: About page communicates the starter identity and boundary
 
-/about renders generic company information, replaceable proof indicators, and a CTA linking to /contact. Content displays in the active locale.
+/about explains that this is a public-launch-ready showcase website starter, not a fictional company profile. It states who the starter fits, who it does not fit, and what still must become real before launch. The page CTA links to /products so visitors can review the starter capabilities next. Content displays in the active locale.
 
 | Field | Value |
 |-------|-------|
 | Priority | High |
-| Test Type | E2E |
-| Test File | -- |
-| Status | Untested |
+| Test Type | E2E + Unit |
+| Test File | `tests/e2e/about-page-rendering.spec.ts`, `src/components/content/__tests__/about-page-shell.test.tsx` |
+| Status | Covered |
 
-Notes: Navigation to /about is tested extensively (basic-navigation, navigation, i18n). Page content and CTA behavior are not verified.
+Notes: Navigation to /about is tested extensively (basic-navigation, navigation, i18n). About shell tests verify the starter identity hero, FAQ rendering, MDX-frontmatter protection, structured data, and CTA target. E2E verifies the public page renders the starter identity without exposing frontmatter.
 
 ---
 
@@ -393,9 +393,9 @@ All 5 market spec files contain required fields (product families, dimensions, s
 |----------|--------------|---------|---------|----------|---------|
 | Navigation & Discovery | 6 | 4 | 2 | 0 | 0 |
 | Inquiry & Conversion | 6 | 2 | 4 | 0 | 0 |
-| Content & Information | 6 | 3 | 1 | 2 | 1 |
+| Content & Information | 6 | 4 | 1 | 1 | 1 |
 | Resilience & Edge Cases | 6 | 4 | 2 | 0 | 0 |
-| **Total** | **24** | **13** | **9** | **2** | **1** |
+| **Total** | **24** | **14** | **9** | **1** | **1** |
 
 Retired contracts are kept for historical traceability but excluded from active coverage totals.
 
@@ -409,7 +409,6 @@ Retired contracts are kept for historical traceability but excluded from active 
 
 ### High-priority gaps
 
-- **BC-017** (Untested): About page content and CTA
 - **BC-010** (Partial): Contact submission proof is not production-like in both locales
 - **BC-024** (Partial): Route-level idempotency is covered for contact, inquiry, and subscribe; remaining gap is family-wide end-to-end alignment across all lead surfaces
 

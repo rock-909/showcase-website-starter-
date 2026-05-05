@@ -131,7 +131,7 @@ export const SINGLE_SITE_HOME_QUALITY_PROOF_STRIP_ITEMS = [
 ] as const;
 
 export const SINGLE_SITE_ABOUT_PAGE_EXPRESSION = {
-  ctaHref: SINGLE_SITE_HOME_LINK_TARGETS.contact,
+  ctaHref: SINGLE_SITE_HOME_LINK_TARGETS.products,
 } as const;
 
 const SPECIALTY_MARKET_SLUG = "specialty-product-systems" as const;
