@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { fetchCloudflareTrafficSummary } from "@/lib/cloudflare/analytics-client";
 import { getCachedCloudflareTrafficSummary } from "@/lib/cloudflare/analytics-cache";
@@ -8,6 +9,15 @@ import {
   OPS_TRAFFIC_ACCESS_COOKIE_NAME,
   verifyOpsAccessCookieValue,
 } from "@/lib/ops/access-cookie";
+
+export function generateMetadata(): Metadata {
+  return {
+    robots: {
+      index: false,
+      follow: false,
+    },
+  };
+}
 
 function UnconfiguredState() {
   return (
@@ -101,7 +111,7 @@ export default async function OpsTrafficPage({
   searchParams,
 }: {
   searchParams?: Promise<{ access?: string }>;
-} = {}) {
+}) {
   const config = getCloudflareAnalyticsConfig();
   if (!config.configured) {
     return <UnconfiguredState />;

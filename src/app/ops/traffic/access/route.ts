@@ -26,7 +26,10 @@ export async function POST(request: Request) {
 
   if (!secret || accessKey !== secret) {
     const response = redirectTo("/ops/traffic?access=denied");
-    response.cookies.delete(OPS_TRAFFIC_ACCESS_COOKIE_NAME);
+    response.cookies.delete({
+      name: OPS_TRAFFIC_ACCESS_COOKIE_NAME,
+      path: "/ops/traffic",
+    });
     return response;
   }
 

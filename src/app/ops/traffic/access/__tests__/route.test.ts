@@ -43,5 +43,6 @@ describe("ops traffic access route", () => {
     expect(response.headers.get("set-cookie")).toContain(
       "ops_traffic_access=;",
     );
+    expect(response.headers.get("set-cookie")).toContain("Path=/ops/traffic");
   });
 });

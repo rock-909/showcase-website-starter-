@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { setRequestLocale } from "next-intl/server";
 import {
@@ -43,8 +44,24 @@ export async function generateMetadata({
   });
 }
 
-export default async function HowItWorksPage({ params }: HowItWorksPageProps) {
-  const { locale } = await params;
+function HowItWorksLoadingSkeleton() {
+  return (
+    <main className="mx-auto max-w-[1080px] px-6 py-16">
+      <div className="h-10 w-64 animate-pulse rounded bg-muted" />
+      <div className="mt-4 h-6 w-full max-w-2xl animate-pulse rounded bg-muted" />
+      <div className="mt-10 space-y-4">
+        {Array.from({ length: 5 }, (_, index) => (
+          <div
+            key={index}
+            className="h-4 w-full animate-pulse rounded bg-muted"
+          />
+        ))}
+      </div>
+    </main>
+  );
+}
+
+async function HowItWorksContent({ locale }: { locale: string }) {
   setRequestLocale(locale);
   const page = await getPageBySlug("how-it-works", locale as Locale);
 
@@ -63,5 +80,15 @@ export default async function HowItWorksPage({ params }: HowItWorksPageProps) {
         {renderLegalContent(page.content)}
       </article>
     </main>
+  );
+}
+
+export default async function HowItWorksPage({ params }: HowItWorksPageProps) {
+  const { locale } = await params;
+
+  return (
+    <Suspense fallback={<HowItWorksLoadingSkeleton />}>
+      <HowItWorksContent locale={locale} />
+    </Suspense>
   );
 }

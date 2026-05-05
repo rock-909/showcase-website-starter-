@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import OpsTrafficPage from "@/app/ops/traffic/page";
+import OpsTrafficPage, { generateMetadata } from "@/app/ops/traffic/page";
 import { getCachedCloudflareTrafficSummary } from "@/lib/cloudflare/analytics-cache";
 import { getCloudflareAnalyticsConfig } from "@/lib/cloudflare/analytics-config";
 import { verifyOpsAccessCookieValue } from "@/lib/ops/access-cookie";
@@ -37,8 +37,15 @@ const mockedGetCachedTraffic = vi.mocked(getCachedCloudflareTrafficSummary);
 const mockedVerifyCookie = vi.mocked(verifyOpsAccessCookieValue);
 
 describe("OpsTrafficPage", () => {
+  it("keeps the owner dashboard out of search indexes", () => {
+    expect(generateMetadata().robots).toEqual({
+      index: false,
+      follow: false,
+    });
+  });
+
   it("shows a safe unconfigured state without secrets", async () => {
-    const page = await OpsTrafficPage();
+    const page = await OpsTrafficPage({});
 
     render(page);
 
@@ -99,7 +106,7 @@ describe("OpsTrafficPage", () => {
       statusCodes: [],
     });
 
-    const page = await OpsTrafficPage();
+    const page = await OpsTrafficPage({});
 
     render(page);
 

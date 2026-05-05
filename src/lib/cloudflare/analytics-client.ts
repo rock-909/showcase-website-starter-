@@ -19,7 +19,7 @@ const SERVER_ERROR_STATUS_MIN = 500;
 const TRAFFIC_WINDOW_MS = DAYS_PER_WEEK * HOURS_PER_DAY * MILLISECONDS_PER_HOUR;
 
 const TRAFFIC_QUERY = `
-query TrafficDashboard($zoneTag: string!, $hostname: string!, $since: Time!, $until: Time!) {
+query TrafficDashboard($zoneTag: String!, $hostname: String!, $since: Time!, $until: Time!) {
   viewer {
     zones(filter: { zoneTag: $zoneTag }) {
       totals: httpRequestsAdaptiveGroups(

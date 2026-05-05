@@ -1,5 +1,6 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import { renderAsyncPage } from "@/testing/render-async-page";
 import { getContentEntry } from "@/lib/content-manifest";
 import { getPageBySlug } from "@/lib/content";
 import CapabilitiesPage, { generateMetadata } from "../page";
@@ -25,7 +26,7 @@ describe("CapabilitiesPage", () => {
       params: Promise.resolve({ locale: "en" }),
     });
 
-    render(page);
+    await renderAsyncPage(page);
 
     expect(
       screen.getByRole("heading", {

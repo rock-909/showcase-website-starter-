@@ -85,6 +85,8 @@ describe("fetchCloudflareTrafficSummary", () => {
       }),
     );
     const body = JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body));
+    expect(body.query).toContain("$zoneTag: String!");
+    expect(body.query).toContain("$hostname: String!");
     expect(body.query).toContain("sum { visits edgeResponseBytes }");
     expect(body.query).toContain('requestSource: "eyeball"');
   });
