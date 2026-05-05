@@ -1,9 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import { getContentEntry } from "@/lib/content-manifest";
+import { getPageBySlug } from "@/lib/content";
 import CapabilitiesPage, { generateMetadata } from "../page";
 
-const { mockGetPageBySlug, mockGenerateMetadataForPath } = vi.hoisted(() => ({
-  mockGetPageBySlug: vi.fn(),
+const { mockGenerateMetadataForPath } = vi.hoisted(() => ({
   mockGenerateMetadataForPath: vi.fn(() => ({
     title: "MDX SEO Title",
     description: "MDX SEO description",
@@ -14,36 +15,12 @@ vi.mock("next-intl/server", () => ({
   setRequestLocale: vi.fn(),
 }));
 
-vi.mock("@/lib/content", () => ({
-  getPageBySlug: mockGetPageBySlug,
-}));
-
 vi.mock("@/lib/seo-metadata", () => ({
   generateMetadataForPath: mockGenerateMetadataForPath,
 }));
 
 describe("CapabilitiesPage", () => {
-  it("renders the public capabilities story from MDX content", async () => {
-    mockGetPageBySlug.mockResolvedValue({
-      metadata: {
-        title: "Starter capabilities from MDX",
-        description: "MDX-owned capabilities description.",
-        seo: {
-          title: "MDX capabilities SEO title",
-          description: "MDX capabilities SEO description",
-          keywords: ["mdx capabilities", "starter metadata"],
-          ogImage: "/images/capabilities-og.jpg",
-        },
-      },
-      content: [
-        "## Credible public pages",
-        "Home, capabilities, process, about, contact, privacy, and terms pages start from a working structure.",
-        "",
-        "## Replacement guardrails",
-        "Docs and checks keep sample identity from being treated as real launch truth.",
-      ].join("\n"),
-    });
-
+  it("renders the public capabilities story from real MDX content", async () => {
     const page = await CapabilitiesPage({
       params: Promise.resolve({ locale: "en" }),
     });
@@ -53,35 +30,37 @@ describe("CapabilitiesPage", () => {
     expect(
       screen.getByRole("heading", {
         level: 1,
-        name: "Starter capabilities from MDX",
+        name: "Starter Capabilities",
       }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { level: 2, name: "Credible public pages" }),
+      screen.getByRole("heading", { level: 2, name: "Credible Public Pages" }),
     ).toBeInTheDocument();
     expect(
       screen.getByText(
-        "Docs and checks keep sample identity from being treated as real launch truth.",
+        "Docs and checks keep sample identity, proof, legal copy, and deployment values from being treated as real launch truth.",
       ),
     ).toBeInTheDocument();
-    expect(mockGetPageBySlug).toHaveBeenCalledWith("capabilities", "en");
   });
 
-  it("uses MDX metadata for page SEO", async () => {
-    mockGetPageBySlug.mockResolvedValue({
-      metadata: {
-        title: "Fallback capabilities title",
-        description: "Fallback capabilities description",
-        seo: {
-          title: "MDX capabilities SEO title",
-          description: "MDX capabilities SEO description",
-          keywords: ["mdx capabilities", "starter metadata"],
-          ogImage: "/images/capabilities-og.jpg",
-        },
-      },
-      content: "",
-    });
+  it("reads the real content entry and frontmatter for the capabilities slug", async () => {
+    const manifestEntry = getContentEntry("pages", "en", "capabilities");
+    const page = await getPageBySlug("capabilities", "en");
 
+    expect(manifestEntry?.relativePath).toBe(
+      "content/pages/en/capabilities.mdx",
+    );
+    expect(page.metadata.slug).toBe("capabilities");
+    expect(page.metadata.seo?.keywords).toEqual([
+      "showcase website starter",
+      "B2B website capabilities",
+      "lead foundation",
+      "Cloudflare website starter",
+    ]);
+    expect(page.content).toContain("## Credible Public Pages");
+  });
+
+  it("uses real MDX frontmatter for page SEO", async () => {
     await generateMetadata({
       params: Promise.resolve({ locale: "en" }),
     });
@@ -90,10 +69,16 @@ describe("CapabilitiesPage", () => {
       expect.objectContaining({
         pageType: "capabilities",
         config: {
-          title: "MDX capabilities SEO title",
-          description: "MDX capabilities SEO description",
-          keywords: ["mdx capabilities", "starter metadata"],
-          image: "/images/capabilities-og.jpg",
+          title: "Starter Capabilities | Website and Lead Foundation",
+          description:
+            "See the replaceable public pages, offer story, lead path, Cloudflare deployment proof, owner reporting visibility, and replacement guardrails included in this showcase website starter.",
+          keywords: [
+            "showcase website starter",
+            "B2B website capabilities",
+            "lead foundation",
+            "Cloudflare website starter",
+          ],
+          image: "/images/og-image.jpg",
         },
       }),
     );

@@ -1,9 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import { getContentEntry } from "@/lib/content-manifest";
+import { getPageBySlug } from "@/lib/content";
 import HowItWorksPage, { generateMetadata } from "../page";
 
-const { mockGetPageBySlug, mockGenerateMetadataForPath } = vi.hoisted(() => ({
-  mockGetPageBySlug: vi.fn(),
+const { mockGenerateMetadataForPath } = vi.hoisted(() => ({
   mockGenerateMetadataForPath: vi.fn(() => ({
     title: "MDX SEO Title",
     description: "MDX SEO description",
@@ -14,75 +15,58 @@ vi.mock("next-intl/server", () => ({
   setRequestLocale: vi.fn(),
 }));
 
-vi.mock("@/lib/content", () => ({
-  getPageBySlug: mockGetPageBySlug,
-}));
-
 vi.mock("@/lib/seo-metadata", () => ({
   generateMetadataForPath: mockGenerateMetadataForPath,
 }));
 
 describe("HowItWorksPage", () => {
-  it("renders the setup to launch flow from MDX content", async () => {
-    mockGetPageBySlug.mockResolvedValue({
-      metadata: {
-        title: "Move from no website to a launchable foundation.",
-        description: "MDX-owned how it works description.",
-        seo: {
-          title: "MDX how it works SEO title",
-          description: "MDX how it works SEO description",
-        },
-      },
-      content: [
-        "## Step 1: Replace the business facts",
-        "Update brand, domain, contact details, offer content, images, legal body, and proof assets.",
-        "",
-        "## Step 5: Check traffic and sign off",
-        "Set up owner reporting visibility, review real traffic, and confirm the launch state with the owner.",
-      ].join("\n"),
-    });
-
+  it("renders the real MDX setup flow with ordered-list semantics", async () => {
     const page = await HowItWorksPage({
       params: Promise.resolve({ locale: "en" }),
     });
 
-    render(page);
+    const { container } = render(page);
 
     expect(
       screen.getByRole("heading", {
         level: 1,
-        name: "Move from no website to a launchable foundation.",
+        name: "How It Works",
       }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("heading", {
         level: 2,
-        name: "Step 1: Replace the business facts",
+        name: "Move from No Website to a Launchable Foundation",
       }),
     ).toBeInTheDocument();
+    expect(container.querySelector("ol")).not.toBeNull();
+    expect(container.querySelector("ul")).toBeNull();
+    expect(screen.getAllByRole("listitem")).toHaveLength(5);
     expect(
       screen.getByText(
-        "Set up owner reporting visibility, review real traffic, and confirm the launch state with the owner.",
+        "Check traffic and sign off: set up owner reporting visibility, review real traffic, and confirm the launch state with the owner.",
       ),
     ).toBeInTheDocument();
-    expect(mockGetPageBySlug).toHaveBeenCalledWith("how-it-works", "en");
   });
 
-  it("uses MDX metadata for page SEO", async () => {
-    mockGetPageBySlug.mockResolvedValue({
-      metadata: {
-        title: "Fallback how it works title",
-        description: "Fallback how it works description",
-        seo: {
-          title: "MDX how it works SEO title",
-          description: "MDX how it works SEO description",
-          keywords: ["mdx process", "launch metadata"],
-          ogImage: "/images/how-it-works-og.jpg",
-        },
-      },
-      content: "",
-    });
+  it("reads the real content entry and frontmatter for the how-it-works slug", async () => {
+    const manifestEntry = getContentEntry("pages", "en", "how-it-works");
+    const page = await getPageBySlug("how-it-works", "en");
 
+    expect(manifestEntry?.relativePath).toBe(
+      "content/pages/en/how-it-works.mdx",
+    );
+    expect(page.metadata.slug).toBe("how-it-works");
+    expect(page.metadata.seo?.keywords).toEqual([
+      "website setup process",
+      "showcase website launch",
+      "Cloudflare launch workflow",
+      "B2B website starter",
+    ]);
+    expect(page.content).toContain("1. Replace the business facts");
+  });
+
+  it("uses real MDX frontmatter for page SEO", async () => {
     await generateMetadata({
       params: Promise.resolve({ locale: "en" }),
     });
@@ -91,10 +75,16 @@ describe("HowItWorksPage", () => {
       expect.objectContaining({
         pageType: "howItWorks",
         config: {
-          title: "MDX how it works SEO title",
-          description: "MDX how it works SEO description",
-          keywords: ["mdx process", "launch metadata"],
-          image: "/images/how-it-works-og.jpg",
+          title: "How It Works | Setup to Launch",
+          description:
+            "Use the starter as a complete demo, replace the business facts, connect the lead path, deploy on Cloudflare, and prove the result before calling it launch-ready.",
+          keywords: [
+            "website setup process",
+            "showcase website launch",
+            "Cloudflare launch workflow",
+            "B2B website starter",
+          ],
+          image: "/images/og-image.jpg",
         },
       }),
     );

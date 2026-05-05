@@ -37,6 +37,7 @@ export function parseHeadingId(text: string): { displayText: string; id: string 
 interface RenderState {
   elements: ReactNode[];
   listItems: ReactNode[];
+  listType: "ordered" | "unordered" | null;
   tableRows: string[][];
   tableHeaders: string[];
   inTable: boolean;
@@ -46,10 +47,22 @@ interface RenderState {
 function createListElement(state: RenderState): ReactNode | null {
   if (state.listItems.length === 0) return null;
 
+  const className =
+    'mt-3 list-inside space-y-1 text-sm text-muted-foreground';
+  if (state.listType === "ordered") {
+    return (
+      <ol key={`ol-${state.index}`} className={`${className} list-decimal`}>
+        {state.listItems.map((item, i) => (
+          <li key={i}>{item}</li>
+        ))}
+      </ol>
+    );
+  }
+
   return (
     <ul
       key={`ul-${state.index}`}
-      className='mt-3 list-inside list-disc space-y-1 text-sm text-muted-foreground'
+      className={`${className} list-disc`}
     >
       {state.listItems.map((item, i) => (
         <li key={i}>{item}</li>
@@ -102,6 +115,7 @@ function flushList(state: RenderState): void {
   if (el) {
     state.elements.push(el);
     state.listItems = [];
+    state.listType = null;
   }
 }
 
@@ -177,15 +191,22 @@ function handleTableLine(state: RenderState, trimmed: string): boolean {
 function handleListLine(state: RenderState, trimmed: string): boolean {
   // Ordered list
   if (/^\d+\.\s/.test(trimmed)) {
-    flushList(state);
+    if (state.listType === "unordered") {
+      flushList(state);
+    }
     const text = trimmed.replace(/^\d+\.\s/, '');
+    state.listType = "ordered";
     state.listItems.push(renderInlineMarkdownParts(text));
     return true;
   }
 
   // Unordered list
   if (trimmed.startsWith('- ')) {
+    if (state.listType === "ordered") {
+      flushList(state);
+    }
     const text = trimmed.slice(LIST_ITEM_PREFIX_LENGTH);
+    state.listType = "unordered";
     state.listItems.push(renderInlineMarkdownParts(text));
     return true;
   }
@@ -268,6 +289,7 @@ export function renderLegalContent(content: string): ReactNode {
   const state: RenderState = {
     elements: [],
     listItems: [],
+    listType: null,
     tableRows: [],
     tableHeaders: [],
     inTable: false,

@@ -264,7 +264,7 @@ const _entries: ContentEntry[] = [
         "ogImage": "/images/og-image.jpg"
       }
     },
-    "content": "\n## Move from No Website to a Launchable Foundation\n\nUse the starter as a complete demo, replace the business facts, connect the lead path, deploy on Cloudflare, and prove the result before calling it launch-ready.\n\n## Step 1: Replace the Business Facts\n\nUpdate brand, domain, contact details, offer content, images, legal body, and proof assets.\n\n## Step 2: Review the Public Story\n\nMake sure the homepage and support pages explain the real business clearly.\n\n## Step 3: Connect the Lead Path\n\nConfigure form security, email, Airtable or CRM storage, and a safe test submission flow.\n\n## Step 4: Deploy on Cloudflare\n\nRun the Cloudflare build and preview proof before a public route is treated as ready.\n\n## Step 5: Check Traffic and Sign Off\n\nSet up owner reporting visibility, review real traffic, and confirm the launch state with the owner.\n"
+    "content": "\n## Move from No Website to a Launchable Foundation\n\nUse the starter as a complete demo, replace the business facts, connect the lead path, deploy on Cloudflare, and prove the result before calling it launch-ready.\n\n1. Replace the business facts: update brand, domain, contact details, offer content, images, legal body, and proof assets.\n2. Review the public story: make sure the homepage and support pages explain the real business clearly.\n3. Connect the lead path: configure form security, email, Airtable or CRM storage, and a safe test submission flow.\n4. Deploy on Cloudflare: run the Cloudflare build and preview proof before a public route is treated as ready.\n5. Check traffic and sign off: set up owner reporting visibility, review real traffic, and confirm the launch state with the owner.\n"
   },
   {
     "type": "pages",
@@ -570,7 +570,7 @@ const _entries: ContentEntry[] = [
         "ogImage": "/images/og-image.jpg"
       }
     },
-    "content": "\n## 从没有网站，到一套可上线的基础设施\n\n以这个完整 demo 为起点，替换业务事实，接通线索路径，部署到 Cloudflare，并在证明完成后再说可以上线。\n\n## 第 1 步：替换业务事实\n\n更新品牌、域名、联系方式、业务内容、图片、法务主体和证据材料。\n\n## 第 2 步：检查公开表达\n\n确认首页和支持页面能把真实业务讲清楚。\n\n## 第 3 步：接通线索路径\n\n配置表单安全、邮件、Airtable 或 CRM 存储，以及安全的测试提交流程。\n\n## 第 4 步：部署到 Cloudflare\n\n完成 Cloudflare 构建和预览证明后，才能把公开路由当成可用结果。\n\n## 第 5 步：查看流量并确认\n\n配置 Owner 报告可见性，确认真实访问是否可见，再由 owner 做上线确认。\n"
+    "content": "\n## 从没有网站，到一套可上线的基础设施\n\n以这个完整 demo 为起点，替换业务事实，接通线索路径，部署到 Cloudflare，并在证明完成后再说可以上线。\n\n1. 替换业务事实：更新品牌、域名、联系方式、业务内容、图片、法务主体和证据材料。\n2. 检查公开表达：确认首页和支持页面能把真实业务讲清楚。\n3. 接通线索路径：配置表单安全、邮件、Airtable 或 CRM 存储，以及安全的测试提交流程。\n4. 部署到 Cloudflare：完成 Cloudflare 构建和预览证明后，才能把公开路由当成可用结果。\n5. 查看流量并确认：配置 Owner 报告可见性，确认真实访问是否可见，再由 owner 做上线确认。\n"
   },
   {
     "type": "pages",
