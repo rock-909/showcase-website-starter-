@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type ComponentType } from "react";
-import { THIRTY_SECONDS_MS } from "@/constants/time";
+import { IDLE_CALLBACK_FALLBACK_DELAY } from "@/constants/time";
 import { requestIdleCallback } from "@/lib/idle-callback";
 import type { ThemeSwitcherProps } from "@/components/ui/theme-switcher";
 
@@ -15,8 +15,8 @@ export function LazyThemeSwitcher(props: ThemeSwitcherProps) {
 
   useEffect(() => {
     return requestIdleCallback(() => setShouldRender(true), {
-      fallbackDelay: THIRTY_SECONDS_MS,
-      timeout: THIRTY_SECONDS_MS,
+      fallbackDelay: IDLE_CALLBACK_FALLBACK_DELAY,
+      timeout: IDLE_CALLBACK_FALLBACK_DELAY,
     });
   }, []);
 

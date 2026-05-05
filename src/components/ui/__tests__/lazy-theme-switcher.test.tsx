@@ -1,6 +1,6 @@
 import { act, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { THIRTY_SECONDS_MS } from "@/constants/time";
+import { IDLE_CALLBACK_FALLBACK_DELAY } from "@/constants/time";
 import { LazyThemeSwitcher } from "@/components/ui/lazy-theme-switcher";
 
 const { idleCallbacks, mockCleanupIdleCallback, mockRequestIdleCallback } =
@@ -35,8 +35,8 @@ describe("LazyThemeSwitcher", () => {
     render(<LazyThemeSwitcher data-testid="footer-theme-toggle" />);
 
     expect(mockRequestIdleCallback).toHaveBeenCalledWith(expect.any(Function), {
-      fallbackDelay: THIRTY_SECONDS_MS,
-      timeout: THIRTY_SECONDS_MS,
+      fallbackDelay: IDLE_CALLBACK_FALLBACK_DELAY,
+      timeout: IDLE_CALLBACK_FALLBACK_DELAY,
     });
     expect(screen.queryByTestId("footer-theme-toggle")).not.toBeInTheDocument();
 
