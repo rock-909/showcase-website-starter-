@@ -76,6 +76,7 @@ describe("HowItWorksPage", () => {
         seo: {
           title: "MDX how it works SEO title",
           description: "MDX how it works SEO description",
+          keywords: ["mdx process", "launch metadata"],
           ogImage: "/images/how-it-works-og.jpg",
         },
       },
@@ -92,6 +93,7 @@ describe("HowItWorksPage", () => {
         config: {
           title: "MDX how it works SEO title",
           description: "MDX how it works SEO description",
+          keywords: ["mdx process", "launch metadata"],
           image: "/images/how-it-works-og.jpg",
         },
       }),

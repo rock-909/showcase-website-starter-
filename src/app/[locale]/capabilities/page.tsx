@@ -35,6 +35,9 @@ export async function generateMetadata({
     config: {
       title: page.metadata.seo?.title ?? page.metadata.title,
       ...(description ? { description } : {}),
+      ...(page.metadata.seo?.keywords
+        ? { keywords: page.metadata.seo.keywords }
+        : {}),
       ...(image ? { image } : {}),
     },
   });

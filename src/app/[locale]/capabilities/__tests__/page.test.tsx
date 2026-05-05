@@ -31,6 +31,7 @@ describe("CapabilitiesPage", () => {
         seo: {
           title: "MDX capabilities SEO title",
           description: "MDX capabilities SEO description",
+          keywords: ["mdx capabilities", "starter metadata"],
           ogImage: "/images/capabilities-og.jpg",
         },
       },
@@ -74,6 +75,7 @@ describe("CapabilitiesPage", () => {
         seo: {
           title: "MDX capabilities SEO title",
           description: "MDX capabilities SEO description",
+          keywords: ["mdx capabilities", "starter metadata"],
           ogImage: "/images/capabilities-og.jpg",
         },
       },
@@ -90,6 +92,7 @@ describe("CapabilitiesPage", () => {
         config: {
           title: "MDX capabilities SEO title",
           description: "MDX capabilities SEO description",
+          keywords: ["mdx capabilities", "starter metadata"],
           image: "/images/capabilities-og.jpg",
         },
       }),
