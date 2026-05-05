@@ -33,6 +33,13 @@ export const serverEnvSchema = {
   CACHE_INVALIDATION_SECRET: z.string().min(1).optional(),
   NEXT_SERVER_ACTIONS_ENCRYPTION_KEY: z.string().min(1).optional(),
 
+  // Cloudflare analytics and owner dashboard
+  CLOUDFLARE_ZONE_ID: z.string().min(1).optional(),
+  CLOUDFLARE_ACCOUNT_ID: z.string().min(1).optional(),
+  CLOUDFLARE_ANALYTICS_API_TOKEN: z.string().min(1).optional(),
+  CLOUDFLARE_ANALYTICS_HOSTNAME: z.string().min(1).optional(),
+  OPS_DASHBOARD_ACCESS_KEY: z.string().min(16).optional(),
+
   // Runtime and platform configuration
   LOG_LEVEL: z.enum(["error", "warn", "info", "debug"]).optional(),
   CONTENT_ENABLE_DRAFTS: z

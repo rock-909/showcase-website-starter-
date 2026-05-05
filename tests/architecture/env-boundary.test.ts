@@ -92,6 +92,10 @@ describe("env module boundaries", () => {
     expect(source).not.toContain("NEXTAUTH_SECRET");
     expect(source).not.toContain("ADMIN_API_TOKEN");
     expect(source).not.toContain("TURNSTILE_SECRET_KEY");
+    expect(source).not.toContain("CLOUDFLARE_ANALYTICS_API_TOKEN");
+    expect(source).not.toContain("OPS_DASHBOARD_ACCESS_KEY");
+    expect(source).not.toContain("CLOUDFLARE_ZONE_ID");
+    expect(source).not.toContain("CLOUDFLARE_ACCOUNT_ID");
   });
 
   it("keeps CSP nonce out of public env contracts", () => {
