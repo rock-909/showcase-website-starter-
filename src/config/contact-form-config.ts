@@ -5,8 +5,7 @@ import { MILLISECONDS_PER_SECOND, SECONDS_PER_MINUTE } from "@/constants/time";
  * 表单字段枚举键值
  */
 export const CONTACT_FORM_FIELD_KEYS = [
-  "firstName",
-  "lastName",
+  "fullName",
   "email",
   "company",
   "phone",
@@ -70,10 +69,9 @@ export interface ContactFormConfig {
 }
 
 export interface ContactFormFieldValues {
-  firstName: string;
-  lastName: string;
+  fullName: string;
   email: string;
-  company: string;
+  company?: string | undefined;
   message: string;
   phone?: string | undefined;
   subject?: string | undefined;
@@ -82,7 +80,7 @@ export interface ContactFormFieldValues {
   website?: string | undefined;
 }
 
-const CONTACT_NAME_MIN_LENGTH = 2;
+const CONTACT_NAME_MIN_LENGTH = 1;
 const CONTACT_NAME_MAX_LENGTH = 50;
 const CONTACT_EMAIL_MAX_LENGTH = 100;
 const CONTACT_COMPANY_MIN_LENGTH = 2;
@@ -118,36 +116,28 @@ const DEFAULT_FIELD_CONFIGS: Record<
   ContactFormFieldKey,
   ContactFormFieldConfig
 > = {
-  firstName: {
-    key: "firstName",
+  fullName: {
+    key: "fullName",
     enabled: true,
     required: true,
     type: "text",
     order: 1,
-    i18nKey: "firstName",
-  },
-  lastName: {
-    key: "lastName",
-    enabled: true,
-    required: true,
-    type: "text",
-    order: 2,
-    i18nKey: "lastName",
+    i18nKey: "fullName",
   },
   email: {
     key: "email",
     enabled: true,
     required: true,
     type: "email",
-    order: 3,
+    order: 2,
     i18nKey: "email",
   },
   company: {
     key: "company",
     enabled: true,
-    required: true,
+    required: false,
     type: "text",
-    order: 4,
+    order: 3,
     i18nKey: "company",
   },
   phone: {
@@ -155,7 +145,7 @@ const DEFAULT_FIELD_CONFIGS: Record<
     enabled: false, // Disabled per Lead Pipeline requirements - simplify form
     required: false,
     type: "tel",
-    order: 5,
+    order: 4,
     i18nKey: "phone",
   },
   subject: {
@@ -163,7 +153,7 @@ const DEFAULT_FIELD_CONFIGS: Record<
     enabled: true,
     required: false,
     type: "text",
-    order: 6,
+    order: 5,
     i18nKey: "subject",
   },
   message: {
@@ -171,7 +161,7 @@ const DEFAULT_FIELD_CONFIGS: Record<
     enabled: true,
     required: true,
     type: "textarea",
-    order: 7,
+    order: 6,
     i18nKey: "message",
   },
   acceptPrivacy: {
@@ -179,7 +169,7 @@ const DEFAULT_FIELD_CONFIGS: Record<
     enabled: true,
     required: true,
     type: "checkbox",
-    order: 8,
+    order: 7,
     i18nKey: "acceptPrivacy",
   },
   marketingConsent: {
@@ -187,7 +177,7 @@ const DEFAULT_FIELD_CONFIGS: Record<
     enabled: true,
     required: false,
     type: "checkbox",
-    order: 9,
+    order: 8,
     i18nKey: "marketingConsent",
   },
   website: {
@@ -195,7 +185,7 @@ const DEFAULT_FIELD_CONFIGS: Record<
     enabled: true,
     required: false,
     type: "hidden",
-    order: 10,
+    order: 9,
     i18nKey: "website",
   },
 };
@@ -225,8 +215,7 @@ export interface ContactFormFieldDescriptor extends ContactFormFieldConfig {
 }
 
 const PLACEHOLDER_KEYS: Partial<Record<ContactFormFieldKey, string>> = {
-  firstName: "firstNamePlaceholder",
-  lastName: "lastNamePlaceholder",
+  fullName: "fullNamePlaceholder",
   email: "emailPlaceholder",
   company: "companyPlaceholder",
   phone: "phonePlaceholder",

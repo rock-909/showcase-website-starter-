@@ -20,12 +20,13 @@ export async function processContactLead(
   // Lazy import to avoid circular dependencies
   const { resendService } = await import("@/lib/resend");
   const { airtableService } = await import("@/lib/airtable");
+  const company = lead.company?.trim();
 
   const emailData = {
     firstName,
     lastName,
     email: lead.email,
-    company: lead.company ?? "",
+    ...(company ? { company } : {}),
     subject: lead.subject,
     message: lead.message,
     submittedAt: lead.submittedAt || new Date().toISOString(),

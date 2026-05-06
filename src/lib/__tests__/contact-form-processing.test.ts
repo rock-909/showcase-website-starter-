@@ -24,8 +24,7 @@ function createContactFormData(
   subject: string | undefined,
 ): ContactFormWithToken {
   return {
-    firstName: "Alice",
-    lastName: "Example",
+    fullName: "Alice Example",
     email: "alice@example.com",
     company: "Example Co.",
     subject,
@@ -75,6 +74,25 @@ describe("processFormSubmission subject mapping", () => {
     expect(mockProcessLead).toHaveBeenCalledWith(
       expect.objectContaining({
         subject: CONTACT_SUBJECTS.OTHER,
+      }),
+      {},
+    );
+  });
+
+  it("splits fullName only at the downstream lead boundary", async () => {
+    mockProcessLead.mockResolvedValueOnce({
+      success: true,
+      partialSuccess: false,
+      emailSent: true,
+      recordCreated: true,
+      referenceId: "ref-name",
+    });
+
+    await processFormSubmission(createContactFormData("Product inquiry"));
+
+    expect(mockProcessLead).toHaveBeenCalledWith(
+      expect.objectContaining({
+        fullName: "Alice Example",
       }),
       {},
     );

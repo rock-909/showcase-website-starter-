@@ -1,6 +1,7 @@
 "use client";
 
 import { lazy, Suspense, useState, type ReactNode } from "react";
+import { Link } from "@/i18n/routing";
 
 const MobileNavigationInteractive = lazy(() =>
   import("@/components/layout/mobile-navigation-interactive").then((mod) => ({
@@ -24,6 +25,7 @@ interface MobileNavigationIslandProps {
   openMenuLabel?: string;
   closeMenuLabel?: string;
   languageLabel?: string;
+  locale?: "en" | "zh";
 }
 
 interface LanguageToggleIslandProps {
@@ -32,12 +34,58 @@ interface LanguageToggleIslandProps {
 
 interface MobileNavigationFallbackProps {
   children?: ReactNode;
+  languageLabel: string;
+  locale: "en" | "zh";
   onActivate: () => void;
   openMenuLabel: string;
 }
 
+function MobileLanguageFallback({
+  languageLabel,
+  locale,
+}: {
+  languageLabel: string;
+  locale: "en" | "zh";
+}) {
+  const currentLanguageName = LANGUAGE_LABELS[locale];
+
+  return (
+    <details className="mt-3 border-t border-border pt-3">
+      <summary
+        className="flex cursor-pointer list-none items-center justify-between rounded-md px-3 py-2 text-sm font-medium text-muted-foreground [&::-webkit-details-marker]:hidden"
+        data-testid="mobile-language-fallback"
+      >
+        <span translate="no">{languageLabel}</span>
+        <span translate="no">{currentLanguageName}</span>
+      </summary>
+      <div className="mt-1 space-y-1">
+        <Link
+          href={{ pathname: "/", query: { fromLocaleFallback: "1" } }}
+          className="flex items-center justify-between rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+          hrefLang="en"
+          locale="en"
+          prefetch={false}
+        >
+          <span translate="no">English</span>
+        </Link>
+        <Link
+          href={{ pathname: "/", query: { fromLocaleFallback: "1" } }}
+          className="flex items-center justify-between rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+          hrefLang="zh"
+          locale="zh"
+          prefetch={false}
+        >
+          <span translate="no">简体中文</span>
+        </Link>
+      </div>
+    </details>
+  );
+}
+
 function MobileNavigationFallback({
   children,
+  languageLabel,
+  locale,
   onActivate,
   openMenuLabel,
 }: MobileNavigationFallbackProps) {
@@ -83,6 +131,10 @@ function MobileNavigationFallback({
           data-testid="header-mobile-navigation-fallback-panel"
         >
           {children}
+          <MobileLanguageFallback
+            languageLabel={languageLabel}
+            locale={locale}
+          />
         </div>
       ) : null}
     </details>
@@ -94,10 +146,13 @@ export function MobileNavigationIsland({
   openMenuLabel = "Open navigation menu",
   closeMenuLabel = "Close navigation menu",
   languageLabel = "Language",
+  locale = "en",
 }: MobileNavigationIslandProps) {
   const [isActivated, setIsActivated] = useState(false);
   const fallback = (
     <MobileNavigationFallback
+      languageLabel={languageLabel}
+      locale={locale}
       openMenuLabel={openMenuLabel}
       onActivate={() => setIsActivated(true)}
     >

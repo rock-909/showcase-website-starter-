@@ -17,32 +17,19 @@ export function NameFields({ t, isPending }: NameFieldsProps) {
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
       <div className="space-y-2">
-        <Label htmlFor="firstName" className={FORM_FIELD_REQUIRED_CLASS_NAME}>
-          {t("firstName")}
+        <Label htmlFor="fullName" className={FORM_FIELD_REQUIRED_CLASS_NAME}>
+          {t("fullName")}
         </Label>
         <Input
-          id="firstName"
-          name="firstName"
+          id="fullName"
+          name="fullName"
           type="text"
-          placeholder={t("firstNamePlaceholder")}
+          placeholder={t("fullNamePlaceholder")}
           disabled={isPending}
           required
-          aria-describedby="firstName-error"
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="lastName" className={FORM_FIELD_REQUIRED_CLASS_NAME}>
-          {t("lastName")}
-        </Label>
-        <Input
-          id="lastName"
-          name="lastName"
-          type="text"
-          placeholder={t("lastNamePlaceholder")}
-          disabled={isPending}
-          required
-          aria-describedby="lastName-error"
+          autoComplete="name"
+          autoCapitalize="words"
+          aria-describedby="fullName-error"
         />
       </div>
     </div>

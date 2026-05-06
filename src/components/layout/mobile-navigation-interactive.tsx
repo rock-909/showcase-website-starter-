@@ -7,6 +7,7 @@
 import {
   cloneElement,
   isValidElement,
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -123,11 +124,15 @@ function MobileNavigationHeader({
 }
 
 function MobileLanguageSwitcher({
+  isExpanded,
   languageLabel,
+  onExpandedChange,
   pathname,
   onNavigate,
 }: {
+  isExpanded: boolean;
   languageLabel: string;
+  onExpandedChange: (isExpanded: boolean) => void;
   onNavigate?: () => void;
   pathname: string;
 }) {
@@ -137,42 +142,75 @@ function MobileLanguageSwitcher({
     { locale: "en" as const, label: "English" },
     { locale: "zh" as const, label: "简体中文" },
   ];
+  const currentLanguageLabel = currentLocale === "zh" ? "简体中文" : "English";
+
+  const handleNavigate = () => {
+    onExpandedChange(false);
+    onNavigate?.();
+  };
 
   return (
     <div className="space-y-1" data-testid="mobile-language-switcher">
-      <div
-        className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-muted-foreground"
+      <Button
+        type="button"
+        variant="ghost"
+        className="flex w-full items-center justify-between rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors duration-200 hover:bg-accent/50 hover:text-foreground"
+        aria-expanded={isExpanded}
+        aria-label={`${languageLabel} ${currentLanguageLabel}`}
         data-testid="mobile-language-switcher-label"
+        onClick={() => onExpandedChange(!isExpanded)}
       >
-        <Globe className="h-4 w-4" />
-        <span translate="no">{languageLabel}</span>
-      </div>
-      {languages.map(({ locale, label }) => {
-        const isActive = currentLocale === locale;
-        return (
-          <Link
-            key={locale}
-            href={(pathname || "/") as "/"}
-            locale={locale}
-            prefetch={false}
+        <span className="flex items-center gap-2">
+          <Globe className="h-4 w-4" />
+          <span translate="no">{languageLabel}</span>
+        </span>
+        <span className="flex items-center gap-2">
+          <span translate="no">{currentLanguageLabel}</span>
+          <svg
+            aria-hidden="true"
             className={cn(
-              "flex items-center justify-between rounded-md px-3 py-2 text-sm font-medium transition-colors duration-200",
-              isActive
-                ? "bg-accent text-accent-foreground"
-                : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
+              "h-4 w-4 transition-transform duration-200",
+              isExpanded && "rotate-180",
             )}
-            onClick={onNavigate}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           >
-            <span
-              data-testid={`mobile-language-option-label-${locale}`}
-              translate="no"
-            >
-              {label}
-            </span>
-            {isActive && <Check className="h-4 w-4" />}
-          </Link>
-        );
-      })}
+            <path d="m6 9 6 6 6-6" />
+          </svg>
+        </span>
+      </Button>
+      {isExpanded
+        ? languages.map(({ locale, label }) => {
+            const isActive = currentLocale === locale;
+            return (
+              <Link
+                key={locale}
+                href={(pathname || "/") as "/"}
+                locale={locale}
+                prefetch={false}
+                className={cn(
+                  "flex items-center justify-between rounded-md px-3 py-2 text-sm font-medium transition-colors duration-200",
+                  isActive
+                    ? "bg-accent text-accent-foreground"
+                    : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
+                )}
+                onClick={handleNavigate}
+              >
+                <span
+                  data-testid={`mobile-language-option-label-${locale}`}
+                  translate="no"
+                >
+                  {label}
+                </span>
+                {isActive && <Check className="h-4 w-4" />}
+              </Link>
+            );
+          })
+        : null}
     </div>
   );
 }
@@ -201,27 +239,35 @@ export function MobileNavigationInteractive({
   const t = useTranslations();
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(initialOpen);
+  const [isLanguageExpanded, setIsLanguageExpanded] = useState(false);
   const resolvedSiteName = siteName ?? t("navigation.siteName");
   const resolvedSiteDescription =
     siteDescription ?? t("navigation.siteDescription");
 
-  useCloseMenuOnPathChange(pathname, isOpen, () => setIsOpen(false));
+  const handleOpenChange = useCallback((open: boolean) => {
+    setIsOpen(open);
+    if (!open) {
+      setIsLanguageExpanded(false);
+    }
+  }, []);
+
+  useCloseMenuOnPathChange(pathname, isOpen, () => handleOpenChange(false));
 
   const navigationContent = children ? (
     withInteractiveNavigationProps(children, {
       currentPathname: pathname,
-      onNavigate: () => setIsOpen(false),
+      onNavigate: () => handleOpenChange(false),
     })
   ) : (
     <MobileNavigationLinks
       currentPathname={pathname}
-      onNavigate={() => setIsOpen(false)}
+      onNavigate={() => handleOpenChange(false)}
     />
   );
 
   return (
     <div className={cn("header-mobile-only", className)}>
-      <Sheet open={isOpen} onOpenChange={setIsOpen}>
+      <Sheet open={isOpen} onOpenChange={handleOpenChange}>
         <SheetTrigger asChild>
           <MobileMenuButton
             isOpen={isOpen}
@@ -237,7 +283,7 @@ export function MobileNavigationInteractive({
           id="mobile-navigation"
           aria-label={NAVIGATION_ARIA.mobileMenu}
           data-testid="mobile-menu-content"
-          onEscapeKeyDown={() => setIsOpen(false)}
+          onEscapeKeyDown={() => handleOpenChange(false)}
         >
           <MobileNavigationHeader
             siteDescription={resolvedSiteDescription}
@@ -247,9 +293,11 @@ export function MobileNavigationInteractive({
           {navigationContent}
           <Separator className="my-4" />
           <MobileLanguageSwitcher
+            isExpanded={isLanguageExpanded}
             languageLabel={languageLabel}
+            onExpandedChange={setIsLanguageExpanded}
             pathname={pathname}
-            onNavigate={() => setIsOpen(false)}
+            onNavigate={() => handleOpenChange(false)}
           />
         </SheetContent>
       </Sheet>

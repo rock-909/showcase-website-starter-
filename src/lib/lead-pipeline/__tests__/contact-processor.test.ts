@@ -271,7 +271,7 @@ describe("processContactLead — confirmation email retry", () => {
   });
 
   describe("main pipeline contracts", () => {
-    it("builds email and CRM payloads with fallback company and generated submittedAt", async () => {
+    it("builds email and CRM payloads with split names and optional company omitted", async () => {
       mockSendConfirmationEmail.mockResolvedValue("confirmation-id-001");
 
       const { processContactLead } =
@@ -292,12 +292,14 @@ describe("processContactLead — confirmation email retry", () => {
           firstName: "John",
           lastName: "Doe",
           email: "john@example.com",
-          company: "",
           subject: CONTACT_SUBJECTS.PRODUCT_INQUIRY,
           message: VALID_CONTACT_LEAD.message,
           marketingConsent: true,
           submittedAt: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T/),
         }),
+      );
+      expect(mockSendContactFormEmail.mock.calls[0]?.[0]).not.toHaveProperty(
+        "company",
       );
 
       expect(mockCreateLead).toHaveBeenCalledWith(

@@ -190,14 +190,9 @@ export async function processFormSubmission(
   formData: ContactFormWithToken,
   options: ProcessFormSubmissionOptions = {},
 ): Promise<ProcessFormSubmissionResult> {
-  const fullName = [formData.firstName, formData.lastName]
-    .filter(Boolean)
-    .join(" ")
-    .trim();
-
   const leadInput = {
     type: LEAD_TYPES.CONTACT,
-    fullName: fullName || formData.firstName || "Unknown",
+    fullName: formData.fullName,
     email: formData.email,
     company: formData.company,
     subject: mapSubjectToEnum(formData.subject),

@@ -61,6 +61,8 @@ Language toggle (desktop dropdown / mobile sheet link) switches the UI language,
 | Test File | `tests/e2e/i18n.spec.ts` |
 | Status | Covered |
 
+Notes: The JavaScript language switchers preserve the current path directly. The mobile no-JS fallback also preserves the path when the browser sends a same-origin `Referer`; if that header is missing, the fallback language link lands on the selected locale root instead of guessing the previous path.
+
 ---
 
 #### BC-004: Root URL redirects to default locale
@@ -108,7 +110,7 @@ On mobile viewports, tapping the hamburger opens a navigation sheet. Selecting a
 
 #### BC-007: Buyer can submit a contact inquiry
 
-The /contact page renders a form with fields: firstName, lastName, email, company, message, and a privacy policy checkbox. Filling all required fields and passing Turnstile verification enables the submit button. Submission invokes the contact Server Action and displays a success or error message.
+The /contact page renders a form with fields: fullName, email, optional company, message, and a privacy policy checkbox. Filling all required fields and passing Turnstile verification enables the submit button. Submission invokes the contact Server Action and displays a success or error message.
 
 | Field | Value |
 |-------|-------|
@@ -117,13 +119,13 @@ The /contact page renders a form with fields: firstName, lastName, email, compan
 | Test File | `tests/e2e/contact-form-smoke.spec.ts`, `tests/e2e/smoke/post-deploy-form.spec.ts`, `src/app/__tests__/actions.test.ts`, `src/app/__tests__/contact-integration.test.ts` |
 | Status | Partial |
 
-Notes: `tests/e2e/contact-form-smoke.spec.ts` is a test-mode smoke only; it proves local structure and interaction under Playwright test settings. The final production-like submission proof lives in `tests/e2e/smoke/post-deploy-form.spec.ts` against a deployed URL. The contact chain is therefore partially covered, not fully proven by local E2E alone.
+Notes: `tests/e2e/contact-form-smoke.spec.ts` is a test-mode smoke only; it proves local structure and interaction under Playwright test settings. The final production-like submission proof lives in `tests/e2e/smoke/post-deploy-form.spec.ts` against a deployed URL. The contact chain is therefore partially covered, not fully proven by local E2E alone. The local no-JS contact fallback proves rendered structure and a loading state only; it is not a separate no-JS submission path. Its controls stay disabled until the client form loads. Downstream email and Airtable still receive legacy `firstName` / `lastName` fields by best-effort splitting `fullName`; single-part names may produce an empty `lastName`.
 
 ---
 
 #### BC-008: Contact form validates required fields before submission
 
-Empty required fields (firstName, lastName, email, message, acceptPrivacy) prevent submission. Email field validates email format. Submit button stays disabled until Turnstile verification completes.
+Empty required fields (fullName, email, message, acceptPrivacy) prevent submission. Company is optional. Email field validates email format. Submit button stays disabled until Turnstile verification completes.
 
 | Field | Value |
 |-------|-------|

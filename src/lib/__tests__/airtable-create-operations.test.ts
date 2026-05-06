@@ -171,6 +171,42 @@ describe("Airtable Service - Create Operations Tests", () => {
       ]);
     });
 
+    it("maps split full names and optional company into the canonical Airtable fields", async () => {
+      const service = new AirtableServiceClass();
+
+      setServiceReady(service);
+
+      mockCreate.mockResolvedValue([
+        createMockRecord({
+          id: "rec123456",
+          fields: {},
+          createdTime: "2023-01-01T00:00:00Z",
+        }),
+      ]);
+
+      await service.createLead("contact", {
+        firstName: "Smoke",
+        lastName: "Test",
+        email: "smoke@example.com",
+        message: "This is a smoke test message.",
+        referenceId: "CON-test-123",
+      });
+
+      expect(mockCreate).toHaveBeenCalledWith([
+        {
+          fields: expect.objectContaining({
+            "First Name": "Smoke",
+            "Last Name": "Test",
+            Email: "smoke@example.com",
+            Company: "",
+            Message: "This is a smoke test message.",
+            "Reference ID": "CON-test-123",
+            Source: "Website Contact Form",
+          }),
+        },
+      ]);
+    });
+
     it("should include optional fields when provided", async () => {
       const service = new AirtableServiceClass();
 

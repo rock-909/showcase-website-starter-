@@ -1,8 +1,7 @@
 import type { ZodIssue } from "zod";
 
 const FIELD_ERROR_KEY_PREFIX = new Map<string, string>([
-  ["firstName", "errors.firstName"],
-  ["lastName", "errors.lastName"],
+  ["fullName", "errors.fullName"],
   ["email", "errors.email"],
   ["company", "errors.company"],
   ["message", "errors.message"],

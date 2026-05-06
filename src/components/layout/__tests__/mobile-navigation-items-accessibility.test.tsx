@@ -99,14 +99,19 @@ describe("Mobile Navigation - Advanced Integration Tests", () => {
       const toggleButton = screen.getByRole("button", { name: /menu/i });
       await user.click(toggleButton);
 
-      // Test complex keyboard navigation
-      const links = screen.getAllByRole("link");
+      expect(screen.getByRole("navigation")).toBeInTheDocument();
 
-      // Tab through all links
-      for (const link of links) {
-        await user.tab();
-        expect(link).toHaveFocus();
-      }
+      const languageButton = screen.getByRole("button", {
+        name: "Language English",
+      });
+      languageButton.focus();
+      expect(languageButton).toHaveFocus();
+
+      await user.keyboard("{Enter}");
+      expect(languageButton).toHaveAttribute("aria-expanded", "true");
+      expect(
+        screen.getByTestId("mobile-language-option-label-en"),
+      ).toBeInTheDocument();
 
       // Escape should close menu
       await user.keyboard("{Escape}");
@@ -208,16 +213,22 @@ describe("Mobile Navigation - Advanced Integration Tests", () => {
       const links = screen.getAllByRole("link");
       const linkTexts = links.map((link) => link.textContent?.trim());
 
-      // Navigation items + CTA + language switcher links
+      // Navigation items + CTA. Language links are collapsed by default.
       expect(linkTexts).toEqual([
         "Home",
         "Products",
         "Blog",
         "About",
         "Contact Sales",
-        "English✓",
-        "简体中文",
       ]);
+
+      fireEvent.click(screen.getByRole("button", { name: "Language English" }));
+      expect(
+        screen.getByTestId("mobile-language-option-label-en"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId("mobile-language-option-label-zh"),
+      ).toBeInTheDocument();
     });
 
     it("applies consistent styling to navigation items", async () => {
@@ -335,9 +346,10 @@ describe("Mobile Navigation - Advanced Integration Tests", () => {
       expect(trigger).toHaveFocus();
 
       fireEvent.click(trigger);
-      // When Sheet opens, focus moves to the close button inside the Sheet (Radix UI behavior)
-      const closeButton = screen.getByRole("button", { name: /close/i });
-      expect(closeButton).toHaveFocus();
+      expect(screen.getByRole("navigation")).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Language English" }),
+      ).toHaveAttribute("aria-expanded", "false");
     });
 
     it("supports keyboard navigation", async () => {

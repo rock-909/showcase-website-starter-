@@ -9,6 +9,35 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 import { LanguageToggleIsland, MobileNavigationIsland } from "../header-client";
 
+vi.mock("@/i18n/routing", () => ({
+  Link: ({
+    href,
+    children,
+    locale,
+    ...props
+  }: {
+    children: React.ReactNode;
+    href: string | { pathname: string; query?: Record<string, string> };
+    locale?: string;
+  }) => {
+    const path = typeof href === "string" ? href : href.pathname;
+    const query =
+      typeof href === "string" || !href.query
+        ? ""
+        : `?${new URLSearchParams(href.query).toString()}`;
+    const localizedPath =
+      locale && path === "/"
+        ? `/${locale}`
+        : `${locale ? `/${locale}` : ""}${path}`;
+
+    return (
+      <a href={`${localizedPath}${query}`} {...props}>
+        {children}
+      </a>
+    );
+  },
+}));
+
 vi.mock("@/components/layout/mobile-navigation-interactive", () => ({
   MobileNavigationInteractive: ({
     children,
@@ -82,7 +111,7 @@ describe("MobileNavigationIsland", () => {
 
   it("server-renders mobile navigation fallback without loading interactive navigation", () => {
     const html = renderToStaticMarkup(
-      <MobileNavigationIsland>
+      <MobileNavigationIsland languageLabel="Language">
         <nav data-testid="header-mobile-navigation-fallback-links">
           Fallback navigation
         </nav>
@@ -93,6 +122,11 @@ describe("MobileNavigationIsland", () => {
     expect(html).toContain(
       'data-testid="header-mobile-navigation-fallback-links"',
     );
+    expect(html).toContain('data-testid="mobile-language-fallback"');
+    expect(html).toContain("English");
+    expect(html).toContain("简体中文");
+    expect(html).toContain("/en?fromLocaleFallback=1");
+    expect(html).toContain("/zh?fromLocaleFallback=1");
     expect(html).not.toContain("mobile-navigation-interactive");
   });
 

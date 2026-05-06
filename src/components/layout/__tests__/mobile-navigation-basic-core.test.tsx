@@ -324,7 +324,7 @@ describe("Mobile Navigation - Basic Core Tests", () => {
       rerender(<MobileNavigation />);
 
       // 组件应该仍然存在
-      const newTrigger = screen.getByRole("button");
+      const newTrigger = screen.getByTestId("header-mobile-menu-button");
       expect(newTrigger).toBeInTheDocument();
     });
   });

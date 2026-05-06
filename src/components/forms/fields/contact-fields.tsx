@@ -32,16 +32,13 @@ export function ContactFields({ t, isPending }: ContactFieldsProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="company" className={FORM_FIELD_REQUIRED_CLASS_NAME}>
-          {t("company")}
-        </Label>
+        <Label htmlFor="company">{t("company")}</Label>
         <Input
           id="company"
           name="company"
           type="text"
           placeholder={t("companyPlaceholder")}
           disabled={isPending}
-          required
           aria-describedby="company-error"
         />
       </div>

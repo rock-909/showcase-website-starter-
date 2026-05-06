@@ -14,34 +14,26 @@ const applyOptionality = (
 ): z.ZodTypeAny => (field.required ? schema : schema.optional());
 
 /**
- * Factory function for creating name field validators (firstName, lastName)
- * Eliminates code duplication by parameterizing the field label
+ * Single visible name field. Downstream email/CRM integrations split it later.
  */
-const createNameValidator = (fieldLabel: string) => {
-  return ({ field }: ContactFormFieldValidatorContext) => {
-    const { NAME_MIN_LENGTH, NAME_MAX_LENGTH } =
-      CONTACT_FORM_VALIDATION_CONSTANTS;
-    const schema = z
-      .string()
-      .min(
-        NAME_MIN_LENGTH,
-        `${fieldLabel} must be at least ${NAME_MIN_LENGTH} characters`,
-      )
-      .max(
-        NAME_MAX_LENGTH,
-        `${fieldLabel} must be less than ${NAME_MAX_LENGTH} characters`,
-      )
-      .regex(
-        /^[a-zA-Z\s\u4e00-\u9fff]+$/,
-        `${fieldLabel} can only contain letters and spaces`,
-      );
+export function fullName({ field }: ContactFormFieldValidatorContext) {
+  const { NAME_MIN_LENGTH, NAME_MAX_LENGTH } =
+    CONTACT_FORM_VALIDATION_CONSTANTS;
+  const schema = z
+    .string()
+    .trim()
+    .min(
+      NAME_MIN_LENGTH,
+      `Full name must be at least ${NAME_MIN_LENGTH} character`,
+    )
+    .max(
+      NAME_MAX_LENGTH,
+      `Full name must be less than ${NAME_MAX_LENGTH} characters`,
+    )
+    .regex(/^[\p{L}\p{M}\s.'’·-]+$/u, "Full name contains invalid characters");
 
-    return applyOptionality(schema, field);
-  };
-};
-
-export const firstName = createNameValidator("First name");
-export const lastName = createNameValidator("Last name");
+  return applyOptionality(schema, field);
+}
 
 export function email({ field, config }: ContactFormFieldValidatorContext) {
   let schema = z
@@ -73,16 +65,22 @@ export function company({ field }: ContactFormFieldValidatorContext) {
   const schema = z
     .string()
     .transform((val) => val.trim())
+    .transform((val) => (val.length === 0 ? undefined : val))
     .refine(
       (val) =>
-        val.length >= COMPANY_MIN_LENGTH && val.length <= COMPANY_MAX_LENGTH,
+        val === undefined ||
+        (val.length >= COMPANY_MIN_LENGTH && val.length <= COMPANY_MAX_LENGTH),
       {
         message: `Company name must be between ${COMPANY_MIN_LENGTH} and ${COMPANY_MAX_LENGTH} characters`,
       },
     )
-    .refine((val) => /^[a-zA-Z0-9\s\u4e00-\u9fff&.,'-]+$/.test(val), {
-      message: "Company name contains invalid characters",
-    });
+    .refine(
+      (val) =>
+        val === undefined || /^[a-zA-Z0-9\s\u4e00-\u9fff&.,'-]+$/.test(val),
+      {
+        message: "Company name contains invalid characters",
+      },
+    );
 
   return applyOptionality(schema, field);
 }
@@ -156,8 +154,7 @@ export function website({ field }: ContactFormFieldValidatorContext) {
 }
 
 export const contactFieldValidators: ContactFormFieldValidators = {
-  firstName,
-  lastName,
+  fullName,
   email,
   company,
   message,

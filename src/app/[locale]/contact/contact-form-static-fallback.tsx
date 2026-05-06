@@ -23,28 +23,16 @@ export function ContactFormStaticFallback({
       >
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="space-y-2">
-            <label className="text-sm" htmlFor="firstName">
-              <span translate="no">{pick("firstName")}</span>
+            <label className="text-sm" htmlFor="fullName">
+              <span translate="no">{pick("fullName")}</span>
             </label>
             <input
-              id="firstName"
-              name="firstName"
+              id="fullName"
+              name="fullName"
               type="text"
               disabled
               required
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm" htmlFor="lastName">
-              <span translate="no">{pick("lastName")}</span>
-            </label>
-            <input
-              id="lastName"
-              name="lastName"
-              type="text"
-              disabled
-              required
+              autoComplete="name"
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
             />
           </div>
@@ -64,6 +52,13 @@ export function ContactFormStaticFallback({
           <div className="space-y-2">
             <label className="text-sm" htmlFor="company">
               <span translate="no">{pick("company")}</span>
+              <span
+                className="ml-1 text-xs text-muted-foreground"
+                data-contact-form-field-optional="company"
+                translate="no"
+              >
+                {pick("optional")}
+              </span>
             </label>
             <input
               id="company"

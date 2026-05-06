@@ -21,6 +21,22 @@ const isPostDeploy = Boolean(
   process.env.PLAYWRIGHT_BASE_URL,
 );
 
+interface AirtableContactRecordFields {
+  "First Name"?: unknown;
+  "Last Name"?: unknown;
+  Email?: unknown;
+  Company?: unknown;
+}
+
+interface AirtableContactRecord {
+  id?: string;
+  fields?: AirtableContactRecordFields;
+}
+
+interface AirtableContactListResponse {
+  records?: AirtableContactRecord[];
+}
+
 test.describe("Post-Deploy: Production-Like Contact Form Chain", () => {
   test.skip(
     !isPostDeploy,
@@ -30,7 +46,10 @@ test.describe("Post-Deploy: Production-Like Contact Form Chain", () => {
   const CANARY_EMAIL = `smoke-test+${Date.now()}@example.com`;
   const AIRTABLE_BASE_URL = "https://api.airtable.com/v0";
 
-  test("form submission creates Airtable record", async ({ page, request }) => {
+  test("form submission creates Airtable record with split name fields", async ({
+    page,
+    request,
+  }) => {
     const baseId = process.env.AIRTABLE_BASE_ID;
     const apiKey = process.env.AIRTABLE_API_KEY;
     const tableName = process.env.AIRTABLE_TABLE_NAME || "Contacts";
@@ -45,8 +64,7 @@ test.describe("Post-Deploy: Production-Like Contact Form Chain", () => {
     await page.waitForLoadState("load");
 
     // 2. Fill form
-    await page.fill('input[name="firstName"]', "Smoke");
-    await page.fill('input[name="lastName"]', "Test");
+    await page.fill('input[name="fullName"]', "Smoke Test");
     await page.fill('input[name="email"]', CANARY_EMAIL);
     await page.fill('input[name="company"]', "Automated Test");
     await page.fill(
@@ -113,11 +131,16 @@ test.describe("Post-Deploy: Production-Like Contact Form Chain", () => {
     );
 
     expect(airtableResponse.ok()).toBe(true);
-    const body = await airtableResponse.json();
-    expect(body.records.length).toBeGreaterThanOrEqual(1);
+    const body = (await airtableResponse.json()) as AirtableContactListResponse;
+    expect(body.records?.length ?? 0).toBeGreaterThanOrEqual(1);
+
+    const record = body.records?.[0];
+    expect(record?.fields?.["First Name"]).toBe("Smoke");
+    expect(record?.fields?.["Last Name"]).toBe("Test");
+    expect(record?.fields?.Company).toBe("Automated Test");
 
     // 7. Clean up: delete test record
-    const recordId = body.records[0]?.id;
+    const recordId = record?.id;
     if (recordId) {
       await request.delete(
         `${AIRTABLE_BASE_URL}/${baseId}/${encodeURIComponent(tableName)}/${recordId}`,

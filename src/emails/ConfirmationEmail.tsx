@@ -26,7 +26,7 @@ const summaryLineStyle: CSSProperties = {
 export function ConfirmationEmail(data: EmailTemplateData) {
   const summaryLines = [
     `Name: ${data.firstName} ${data.lastName}`,
-    `Company: ${data.company}`,
+    data.company ? `Company: ${data.company}` : null,
     `Email: ${data.email}`,
     data.subject ? `Subject: ${data.subject}` : null,
     `Submitted: ${ResendUtils.formatDateTime(data.submittedAt)}`,

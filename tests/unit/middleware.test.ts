@@ -151,6 +151,155 @@ describe("Middleware Cookie Security", () => {
   });
 
   describe("cookie security in different scenarios", () => {
+    it("redirects no-JS locale fallback links to the same referer path", async () => {
+      vi.resetModules();
+
+      vi.doMock("next-intl/middleware", () => ({
+        default: vi.fn(() => vi.fn(() => NextResponse.next())),
+      }));
+      vi.doMock("@/config/security", () => ({
+        generateNonce: vi.fn(() => "test-nonce-123"),
+        getSecurityHeaders: vi.fn(() => []),
+      }));
+      vi.doMock("@/i18n/routing-config", () => ({
+        routing: {
+          defaultLocale: "en",
+          locales: ["en", "zh"],
+          pathnames: {
+            "/": "/",
+            "/about": "/about",
+            "/contact": "/contact",
+            "/products/[market]": "/products/[market]",
+          },
+        },
+      }));
+
+      const { default: middleware } = await import("@/middleware");
+      const request = new NextRequest(
+        "http://localhost:3000/en?fromLocaleFallback=1",
+        {
+          headers: {
+            referer: "http://localhost:3000/zh/contact",
+          },
+        },
+      );
+
+      const response = middleware(request);
+
+      expect(response.status).toBe(307);
+      expect(response.headers.get("location")).toBe(
+        "http://localhost:3000/en/contact",
+      );
+      expect(response.headers.get("set-cookie")).toContain("NEXT_LOCALE=en");
+    });
+
+    it("removes no-JS locale fallback sentinel query from redirected URLs", async () => {
+      vi.resetModules();
+
+      vi.doMock("next-intl/middleware", () => ({
+        default: vi.fn(() => vi.fn(() => NextResponse.next())),
+      }));
+      vi.doMock("@/config/security", () => ({
+        generateNonce: vi.fn(() => "test-nonce-123"),
+        getSecurityHeaders: vi.fn(() => []),
+      }));
+      vi.doMock("@/i18n/routing-config", () => ({
+        routing: {
+          defaultLocale: "en",
+          locales: ["en", "zh"],
+          pathnames: {
+            "/": "/",
+            "/contact": "/contact",
+          },
+        },
+      }));
+
+      const { default: middleware } = await import("@/middleware");
+      const request = new NextRequest(
+        "http://localhost:3000/en?fromLocaleFallback=1",
+        {
+          headers: {
+            referer:
+              "http://localhost:3000/zh/contact?fromLocaleFallback=1&utm_source=test",
+          },
+        },
+      );
+
+      const response = middleware(request);
+
+      expect(response.status).toBe(307);
+      expect(response.headers.get("location")).toBe(
+        "http://localhost:3000/en/contact?utm_source=test",
+      );
+    });
+
+    it("ignores cross-origin no-JS locale fallback referers", async () => {
+      vi.resetModules();
+      const intlMock = vi.fn(() => NextResponse.next());
+
+      vi.doMock("next-intl/middleware", () => ({
+        default: vi.fn(() => intlMock),
+      }));
+      vi.doMock("@/config/security", () => ({
+        generateNonce: vi.fn(() => "test-nonce-123"),
+        getSecurityHeaders: vi.fn(() => []),
+      }));
+      vi.doMock("@/i18n/routing-config", () => ({
+        routing: {
+          defaultLocale: "en",
+          locales: ["en", "zh"],
+          pathnames: { "/": "/", "/contact": "/contact" },
+        },
+      }));
+
+      const { default: middleware } = await import("@/middleware");
+      const request = new NextRequest(
+        "http://localhost:3000/en?fromLocaleFallback=1",
+        {
+          headers: {
+            referer: "https://example.test/zh/contact",
+          },
+        },
+      );
+
+      const response = middleware(request);
+
+      expect(response.status).not.toBe(307);
+      expect(response.headers.get("location")).toBeNull();
+      expect(intlMock).toHaveBeenCalledTimes(1);
+    });
+
+    it("falls back to the locale root when no-JS locale fallback has no referer", async () => {
+      vi.resetModules();
+      const intlMock = vi.fn(() => NextResponse.next());
+
+      vi.doMock("next-intl/middleware", () => ({
+        default: vi.fn(() => intlMock),
+      }));
+      vi.doMock("@/config/security", () => ({
+        generateNonce: vi.fn(() => "test-nonce-123"),
+        getSecurityHeaders: vi.fn(() => []),
+      }));
+      vi.doMock("@/i18n/routing-config", () => ({
+        routing: {
+          defaultLocale: "en",
+          locales: ["en", "zh"],
+          pathnames: { "/": "/", "/contact": "/contact" },
+        },
+      }));
+
+      const { default: middleware } = await import("@/middleware");
+      const request = new NextRequest(
+        "http://localhost:3000/zh?fromLocaleFallback=1",
+      );
+
+      const response = middleware(request);
+
+      expect(response.status).not.toBe(307);
+      expect(response.headers.get("location")).toBeNull();
+      expect(intlMock).toHaveBeenCalledTimes(1);
+    });
+
     it("does not locale-redirect owner ops dashboard routes", async () => {
       const { config } = await import("@/middleware");
 

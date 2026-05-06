@@ -9,8 +9,7 @@ import { type ContactFormFieldValidatorContext } from "@/config/contact-form-val
 import {
   company,
   email,
-  firstName,
-  lastName,
+  fullName,
   message,
   phone,
   subject,
@@ -44,21 +43,22 @@ function createEmailContext(
 }
 
 describe("contact-field-validators", () => {
-  it("uses the field labels in first/last name errors and rejects invalid leading characters", () => {
-    const firstNameSchema = firstName(createContext("firstName"));
-    const lastNameSchema = lastName(createContext("lastName"));
+  it("validates full name while allowing practical international name punctuation", () => {
+    const schema = fullName(createContext("fullName"));
 
-    for (const [schema, expectedLabel] of [
-      [firstNameSchema, "First name"],
-      [lastNameSchema, "Last name"],
-    ] as const) {
-      const result = schema.safeParse(`1${expectedLabel}`);
-      expect(result.success).toBe(false);
-      if (!result.success) {
-        expect(result.error.issues[0]?.message).toBe(
-          `${expectedLabel} can only contain letters and spaces`,
-        );
-      }
+    expect(schema.parse("Anne-Marie O'Neill")).toBe("Anne-Marie O'Neill");
+    expect(schema.parse("O’Connor")).toBe("O’Connor");
+    expect(schema.parse("José García")).toBe("José García");
+    expect(schema.parse("François Dupont")).toBe("François Dupont");
+    expect(schema.parse("张三")).toBe("张三");
+    expect(schema.parse("阿卜杜拉·买买提")).toBe("阿卜杜拉·买买提");
+
+    const result = schema.safeParse("John123");
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0]?.message).toBe(
+        "Full name contains invalid characters",
+      );
     }
   });
 
@@ -108,6 +108,7 @@ describe("contact-field-validators", () => {
       CONTACT_FORM_VALIDATION_CONSTANTS.COMPANY_MAX_LENGTH,
     );
 
+    expect(schema.parse("")).toBeUndefined();
     expect(schema.parse(`  ${minCompany}  `)).toBe(minCompany);
     expect(schema.parse(maxCompany)).toBe(maxCompany);
 
