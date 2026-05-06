@@ -1,20 +1,15 @@
-import {
-  useActionState,
-  useEffect,
-  useRef,
-  useState,
-  useTransition,
-} from "react";
+import { useState, useTransition } from "react";
 import { logger } from "@/lib/logger-core";
-import { generateIdempotencyKey } from "@/lib/idempotency-key";
 import { appendAttributionToFormData } from "@/lib/utm";
 import { useRateLimit } from "@/components/forms/use-rate-limit";
-import {
-  contactFormAction,
-  type ContactFormResult,
-} from "@/lib/actions/contact";
 import { type FormSubmissionStatus } from "@/lib/forms/form-submission-status";
 import { type ServerActionResult } from "@/lib/server-action-utils";
+
+export interface ContactFormResult {
+  emailSent: boolean;
+  recordCreated: boolean;
+  referenceId?: string | null;
+}
 
 interface SubmitStatusInput {
   isPending: boolean;
@@ -31,7 +26,7 @@ function computeSubmitStatus(input: SubmitStatusInput): FormSubmissionStatus {
 
 export interface UseContactFormResult {
   state: ServerActionResult<ContactFormResult> | null;
-  formAction: (formData: FormData) => void;
+  formAction: (formData: FormData) => Promise<void>;
   isPending: boolean;
   submitStatus: FormSubmissionStatus;
   turnstileToken: string;
@@ -43,15 +38,12 @@ export interface UseContactFormResult {
  * 管理联系表单状态和提交流程。
  */
 export function useContactForm(): UseContactFormResult {
-  const [state, formAction, isPending] = useActionState(
-    contactFormAction,
-    null,
-  );
+  const [state, setState] =
+    useState<ServerActionResult<ContactFormResult> | null>(null);
   const [turnstileToken, setTurnstileToken] = useState<string>("");
-  const idempotencyKeyRef = useRef<string | null>(null);
-  const lastRecordedSuccessRef = useRef(false);
   const [isPendingTransition, startTransition] = useTransition();
-  const isSubmitting = isPending || isPendingTransition;
+  const [isSubmittingRequest, setIsSubmittingRequest] = useState(false);
+  const isSubmitting = isSubmittingRequest || isPendingTransition;
   const { isRateLimited, setLastSubmissionTime } = useRateLimit();
 
   const submitStatus = computeSubmitStatus({
@@ -60,24 +52,7 @@ export function useContactForm(): UseContactFormResult {
     stateError: state?.error,
   });
 
-  useEffect(() => {
-    const isTerminal =
-      Boolean(state?.success) ||
-      Boolean(state?.error) ||
-      Boolean(state?.errorCode);
-    if (!isTerminal) return;
-
-    if (state?.success && !lastRecordedSuccessRef.current) {
-      queueMicrotask(() => {
-        setLastSubmissionTime(new Date());
-      });
-    }
-
-    idempotencyKeyRef.current = null;
-    lastRecordedSuccessRef.current = Boolean(state?.success);
-  }, [state?.success, state?.error, state?.errorCode, setLastSubmissionTime]);
-
-  const enhancedFormAction = (formData: FormData) => {
+  const enhancedFormAction = async (formData: FormData) => {
     if (!turnstileToken) {
       logger.warn("Form submission attempted without Turnstile token");
       return;
@@ -87,14 +62,36 @@ export function useContactForm(): UseContactFormResult {
     formData.append("submittedAt", new Date().toISOString());
     appendAttributionToFormData(formData);
 
-    const idempotencyKey =
-      idempotencyKeyRef.current ?? generateIdempotencyKey();
-    idempotencyKeyRef.current = idempotencyKey;
-    formData.append("idempotencyKey", idempotencyKey);
+    setIsSubmittingRequest(true);
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(createContactRequestBody(formData)),
+      });
+      const payload = (await response.json()) as ContactApiResponse;
+      const nextState = createContactStateFromResponse(payload);
 
-    startTransition(() => {
-      formAction(formData);
-    });
+      if (nextState.success) {
+        setLastSubmissionTime(new Date());
+      }
+
+      startTransition(() => {
+        setState(nextState);
+      });
+    } catch {
+      startTransition(() => {
+        setState({
+          success: false,
+          error: "Failed to submit form. Please try again.",
+          timestamp: new Date().toISOString(),
+        });
+      });
+    } finally {
+      setIsSubmittingRequest(false);
+    }
   };
 
   return {
@@ -105,5 +102,76 @@ export function useContactForm(): UseContactFormResult {
     turnstileToken,
     setTurnstileToken,
     isRateLimited,
+  };
+}
+
+interface ContactApiSuccessResponse {
+  success: true;
+  data: {
+    referenceId: string;
+  };
+}
+
+interface ContactApiErrorResponse {
+  success: false;
+  errorCode?: string;
+}
+
+type ContactApiResponse = ContactApiSuccessResponse | ContactApiErrorResponse;
+
+function getOptionalString(
+  formData: FormData,
+  key: string,
+): string | undefined {
+  const value = formData.get(key);
+  return typeof value === "string" && value.trim() ? value.trim() : undefined;
+}
+
+function getRequiredString(formData: FormData, key: string): string {
+  return getOptionalString(formData, key) ?? "";
+}
+
+function getBoolean(formData: FormData, key: string): boolean {
+  const value = formData.get(key);
+  return value === "true" || value === "on" || value === "1";
+}
+
+function createContactRequestBody(formData: FormData) {
+  return {
+    fullName: getRequiredString(formData, "fullName"),
+    email: getRequiredString(formData, "email"),
+    company: getRequiredString(formData, "company"),
+    phone: getOptionalString(formData, "phone"),
+    subject: getOptionalString(formData, "subject"),
+    message: getRequiredString(formData, "message"),
+    acceptPrivacy: getBoolean(formData, "acceptPrivacy"),
+    marketingConsent: getBoolean(formData, "marketingConsent"),
+    website: getOptionalString(formData, "website") ?? "",
+    turnstileToken: getRequiredString(formData, "turnstileToken"),
+    submittedAt: getRequiredString(formData, "submittedAt"),
+  };
+}
+
+function createContactStateFromResponse(
+  payload: ContactApiResponse,
+): ServerActionResult<ContactFormResult> {
+  const timestamp = new Date().toISOString();
+
+  if (payload.success) {
+    return {
+      success: true,
+      data: {
+        emailSent: false,
+        recordCreated: true,
+        referenceId: payload.data.referenceId,
+      },
+      timestamp,
+    };
+  }
+
+  return {
+    success: false,
+    errorCode: payload.errorCode,
+    timestamp,
   };
 }

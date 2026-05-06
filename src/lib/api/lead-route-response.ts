@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server";
-import {
-  createApiErrorResponse,
-  createApiPartialSuccessResponse,
-} from "@/lib/api/api-response";
+import { createApiErrorResponse } from "@/lib/api/api-response";
 import type { LeadResult } from "@/lib/lead-pipeline/process-lead";
 import {
   API_ERROR_CODES,
@@ -11,7 +8,6 @@ import {
 import {
   HTTP_BAD_REQUEST,
   HTTP_INTERNAL_ERROR,
-  HTTP_OK,
   HTTP_SERVICE_UNAVAILABLE,
 } from "@/constants";
 import { verifyTurnstileDetailed } from "@/lib/turnstile";
@@ -20,7 +16,6 @@ import { logger, sanitizeIP } from "@/lib/logger";
 interface LeadFailureResponseOptions {
   result: LeadResult;
   validationErrorCode: ApiErrorCode;
-  partialSuccessErrorCode: ApiErrorCode;
   processingErrorCode: ApiErrorCode;
 }
 
@@ -45,25 +40,8 @@ export function createLeadSuccessPayload(referenceId: string) {
 export function createLeadFailureResponse(
   options: LeadFailureResponseOptions,
 ): NextResponse {
-  const {
-    result,
-    validationErrorCode,
-    partialSuccessErrorCode,
-    processingErrorCode,
-  } = options;
+  const { result, validationErrorCode, processingErrorCode } = options;
   const isValidationError = result.error === "VALIDATION_ERROR";
-  if (result.partialSuccess && result.referenceId) {
-    return createApiPartialSuccessResponse(
-      partialSuccessErrorCode,
-      {
-        partialSuccess: true as const,
-        referenceId: result.referenceId,
-        emailSent: result.emailSent,
-        recordCreated: result.recordCreated,
-      },
-      HTTP_OK,
-    );
-  }
   return createApiErrorResponse(
     isValidationError ? validationErrorCode : processingErrorCode,
     isValidationError ? HTTP_BAD_REQUEST : HTTP_INTERNAL_ERROR,

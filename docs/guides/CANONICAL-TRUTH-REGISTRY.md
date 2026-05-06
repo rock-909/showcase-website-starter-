@@ -70,9 +70,9 @@ Runtime 正式读取：
 
 | Surface | Canonical source | 说明 |
 |---------|------------------|------|
-| Web request entry | `src/middleware.ts` | locale redirect、安全头、Cloudflare client IP 推导都在这里 |
+| Web request entry | `src/middleware.ts` | locale redirect、安全头和 locale cookie 在这里；不再注入 public form client-IP |
 | Root layout | `src/app/[locale]/layout.tsx` | SSR locale 和 `<html lang>` 真相在这里 |
-| Contact conversion path | `src/app/[locale]/contact/page.tsx` + `src/lib/actions/contact.ts` | 当前主线索路径是 Contact page Server Action |
+| Contact conversion path | `src/app/[locale]/contact/page.tsx` + `src/app/api/contact/route.ts` | 当前浏览器联系表单主路径是 Browser contact route handler；`src/lib/actions/contact.ts` 只是兼容入口 |
 | Message loader | `src/lib/load-messages.ts` | 必须和 `src/i18n/request.ts` 使用同一 split-source truth |
 | Cloudflare build | `pnpm build:cf` / `scripts/cloudflare/build-webpack.mjs` | OpenNext + Cloudflare Pages build path |
 

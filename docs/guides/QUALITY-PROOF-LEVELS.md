@@ -65,7 +65,7 @@
 按需加跑：
 
 - `pnpm build:cf`：平台 / runtime / build-chain 改动
-- `pnpm build:cf:turbo`：Cloudflare 构建工具链本身改动，需要保住对照链时
+- `pnpm deploy:cf:dry-run`：Cloudflare 部署拓扑改动，需要不改远端状态的部署证明时
 - `CI=1 pnpm test:e2e`：关键 UI / runtime 行为改动
 - `pnpm website:build`：改到 `src/config/website/**`、`NEXT_PUBLIC_SITE_KEY` 或站点装配入口
 - `pnpm website:build:cf`：同类改动还要证明 Cloudflare 构建链时
@@ -103,7 +103,7 @@
 - `pnpm review:derivative-readiness`
 - 变更范围对应的 Vitest 套件
 - 串行构建，如 `pnpm clean:next-artifacts && pnpm build`
-- 如果碰到 Cloudflare deploy path，再补 `pnpm clean:next-artifacts && pnpm build:cf:phase6 && pnpm review:cf:official-compare`
+- 如果碰到 Cloudflare deploy path，再补 `pnpm deploy:cf:dry-run && pnpm review:cf:official-compare`
 
 它能证明：
 
@@ -199,7 +199,7 @@ Source of truth：
 
 - `build:cf` 现在走 repo-local Webpack wrapper，而且会自清理后重建，但它和标准构建线仍共享 `.next` 这一类构建产物，所以必须串行跑
 - 想拿到更强的标准构建证据，先跑 `pnpm clean:next-artifacts && pnpm build`，再跑 `pnpm build:cf`
-- 如果碰到 Cloudflare / OpenNext / split-worker 行为，`pnpm deploy:cf:phase6:dry-run` 比 stock preview 更强
+- 如果碰到 Cloudflare / OpenNext / split-worker 行为，`pnpm deploy:cf:dry-run` 比 stock preview 更强
 - 当前 Cloudflare 兼容链里，`src/middleware.ts` 仍是优先入口，不是 `proxy.ts`
 - 翻译 proof 不能只看 flat 文件，要同时覆盖 full bundles 和 critical bundles
 - site-aware 改动不能只做结构 proof；只要改到站点身份或 overlay seam，至少跑一个 non-default-site build

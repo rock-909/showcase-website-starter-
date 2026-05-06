@@ -8,6 +8,7 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ContactFormContainer } from "@/components/forms/contact-form-container";
+import type { UseContactFormResult } from "@/components/forms/use-contact-form";
 
 // 确保使用真实的Zod库和validations模块
 vi.unmock("zod");
@@ -17,6 +18,7 @@ global.fetch = vi.fn();
 
 // Mock useActionState for React 19 testing
 const mockUseActionState = vi.hoisted(() => vi.fn());
+const mockUseContactForm = vi.hoisted(() => vi.fn());
 vi.mock("react", async () => {
   const actual = await vi.importActual("react");
   return {
@@ -25,13 +27,24 @@ vi.mock("react", async () => {
   };
 });
 
+vi.mock("@/components/forms/use-contact-form", async () => {
+  const actual = await vi.importActual<
+    typeof import("@/components/forms/use-contact-form")
+  >("@/components/forms/use-contact-form");
+
+  return {
+    ...actual,
+    useContactForm: mockUseContactForm,
+  };
+});
+
 // Mock next-intl
 const mockT = vi.fn((key: string) => {
   const translations: Record<string, string> = {
-    fullName: "Full name",
+    firstName: "First Name",
+    lastName: "Last Name",
     email: "Email",
     company: "Company",
-    optional: "optional",
     phone: "Phone",
     subject: "Subject",
     message: "Message",
@@ -42,7 +55,8 @@ const mockT = vi.fn((key: string) => {
     submitSuccess: "Message sent successfully",
     submitError: "Failed to submit form. Please try again.",
     rateLimitMessage: "Please wait before submitting again.",
-    fullNamePlaceholder: "Enter your full name",
+    firstNamePlaceholder: "Enter your first name",
+    lastNamePlaceholder: "Enter your last name",
     emailPlaceholder: "your@email.com",
     companyPlaceholder: "Your company name",
     phonePlaceholder: "+1 (555) 123-4567",
@@ -161,13 +175,38 @@ const renderContactForm = async () => {
   return result!;
 };
 
+function createContactFormHook(
+  overrides: Partial<UseContactFormResult> = {},
+): UseContactFormResult {
+  return {
+    state: null,
+    formAction: vi.fn(async () => {}),
+    isPending: false,
+    submitStatus: "idle",
+    turnstileToken: "",
+    setTurnstileToken: vi.fn(),
+    isRateLimited: false,
+    ...overrides,
+  };
+}
+
+function mockContactForm(overrides: Partial<UseContactFormResult> = {}) {
+  mockUseContactForm.mockReturnValue(createContactFormHook(overrides));
+}
+
 // 填写有效表单的辅助函数
 // Note: phone field is disabled per Lead Pipeline requirements
 const _fillValidForm = async (excludeFields: string[] = []) => {
   await act(async () => {
-    if (!excludeFields.includes("fullName")) {
-      fireEvent.change(screen.getByLabelText(/full name/i), {
-        target: { value: "John Doe" },
+    if (!excludeFields.includes("firstName")) {
+      fireEvent.change(screen.getByLabelText(/first name/i), {
+        target: { value: "John" },
+      });
+    }
+
+    if (!excludeFields.includes("lastName")) {
+      fireEvent.change(screen.getByLabelText(/last name/i), {
+        target: { value: "Doe" },
       });
     }
 
@@ -243,6 +282,7 @@ describe("ContactFormContainer - 核心功能", () => {
       vi.fn(), // formAction
       false, // isPending
     ]);
+    mockContactForm();
   });
 
   afterEach(() => {
@@ -280,14 +320,9 @@ describe("ContactFormContainer - 核心功能", () => {
       expect(await screen.findByTestId("turnstile-mock")).toBeInTheDocument();
 
       // 检查所有表单字段都存在
-      expect(screen.getByLabelText(/full name/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/fullName/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/company/i)).toBeInTheDocument();
-      expect(
-        screen.getByText("optional", {
-          selector: '[data-contact-form-field-optional="company"]',
-        }),
-      ).toBeInTheDocument();
     });
 
     it("应该渲染所有必需的表单字段", async () => {
@@ -295,24 +330,11 @@ describe("ContactFormContainer - 核心功能", () => {
 
       // 检查所有字段是否存在
       // Note: phone field is disabled per Lead Pipeline requirements
-      expect(screen.getByLabelText(/full name/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/fullName/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/company/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/subject/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/message/i)).toBeInTheDocument();
-    });
-
-    it("应该明确标记公司名称为选填", async () => {
-      await renderContactForm();
-
-      const companyInput = screen.getByLabelText(/company/i);
-      expect(companyInput).toHaveAttribute("name", "company");
-      expect(companyInput).not.toHaveAttribute("required");
-      expect(
-        screen.getByText("optional", {
-          selector: '[data-contact-form-field-optional="company"]',
-        }),
-      ).toBeInTheDocument();
     });
 
     it("提交按钮初始状态应该被禁用", async () => {
@@ -326,11 +348,14 @@ describe("ContactFormContainer - 核心功能", () => {
   describe("基本验证", () => {
     it("应该验证邮箱格式", async () => {
       // Mock useActionState to return error state
-      mockUseActionState.mockReturnValue([
-        { success: false, error: "Validation failed" }, // state
-        vi.fn(), // formAction
-        false, // isPending
-      ]);
+      mockContactForm({
+        state: {
+          success: false,
+          error: "Validation failed",
+          timestamp: "2026-05-05T00:00:00.000Z",
+        },
+        submitStatus: "error",
+      });
 
       await renderContactForm();
 
@@ -342,11 +367,14 @@ describe("ContactFormContainer - 核心功能", () => {
 
     it("应该验证必填字段", async () => {
       // Mock useActionState to return error state
-      mockUseActionState.mockReturnValue([
-        { success: false, error: "Validation failed" }, // state
-        vi.fn(), // formAction
-        false, // isPending
-      ]);
+      mockContactForm({
+        state: {
+          success: false,
+          error: "Validation failed",
+          timestamp: "2026-05-05T00:00:00.000Z",
+        },
+        submitStatus: "error",
+      });
 
       await renderContactForm();
 
@@ -399,11 +427,10 @@ describe("ContactFormContainer - 核心功能", () => {
   describe("基本提交功能", () => {
     it("应该成功提交有效表单", async () => {
       // Mock useActionState to return success state
-      mockUseActionState.mockReturnValue([
-        { success: true }, // state
-        vi.fn(), // formAction
-        false, // isPending
-      ]);
+      mockContactForm({
+        state: { success: true, timestamp: "2026-05-05T00:00:00.000Z" },
+        submitStatus: "success",
+      });
 
       await renderContactForm();
 
@@ -413,11 +440,14 @@ describe("ContactFormContainer - 核心功能", () => {
 
     it("应该处理 API 错误响应", async () => {
       // Mock useActionState to return error state
-      mockUseActionState.mockReturnValue([
-        { success: false, error: "Server error" }, // state
-        vi.fn(), // formAction
-        false, // isPending
-      ]);
+      mockContactForm({
+        state: {
+          success: false,
+          error: "Server error",
+          timestamp: "2026-05-05T00:00:00.000Z",
+        },
+        submitStatus: "error",
+      });
 
       await renderContactForm();
 

@@ -11,14 +11,14 @@ const KEY_NAME = "NEXT_SERVER_ACTIONS_ENCRYPTION_KEY";
 
 function printUsage() {
   console.error(
-    "Usage: node scripts/cloudflare/sync-server-actions-key.mjs [--env <preview|production|all>] [--scope <phase5|phase6|all>] [--dry-run] [--env-file <path>]",
+    "Usage: node scripts/cloudflare/sync-server-actions-key.mjs [--env <preview|production|all>] [--scope <gateway|split|all>] [--dry-run] [--env-file <path>]",
   );
 }
 
 function parseArgs(argv) {
   const args = {
     env: "all",
-    scope: "all",
+    scope: "split",
     dryRun: false,
     envFile: null,
   };
@@ -54,9 +54,9 @@ function parseArgs(argv) {
     process.exit(1);
   }
 
-  if (!["phase5", "phase6", "all"].includes(args.scope)) {
+  if (!["gateway", "split", "all"].includes(args.scope)) {
     console.error(
-      `[server-actions-key] invalid --scope value: ${args.scope} (expected phase5|phase6|all)`,
+      `[server-actions-key] invalid --scope value: ${args.scope} (expected gateway|split|all)`,
     );
     process.exit(1);
   }
@@ -106,10 +106,10 @@ function loadCommandEnv(args) {
 
 function getWorkerNames(baseWorkerName, scope) {
   const workers = [];
-  if (scope === "phase5" || scope === "all") {
+  if (scope === "gateway" || scope === "all") {
     workers.push(baseWorkerName);
   }
-  if (scope === "phase6" || scope === "all") {
+  if (scope === "split" || scope === "all") {
     workers.push(...getPhase6ServerActionsKeyWorkerNames(baseWorkerName));
   }
   return [...new Set(workers)];

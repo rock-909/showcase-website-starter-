@@ -18,7 +18,8 @@
 
 - **App Router**：页面和路由主框架
 - **Cache Components**：当前缓存架构的一部分
-- **Server Actions**：表单提交和服务端写入主通道
+- **Route Handlers**：浏览器公开写入主通道，联系表单当前走 `/api/contact`
+- **Server Actions**：保留为兼容入口，不作为浏览器联系表单主路径
 - **Turbopack**：默认本地开发构建器（`pnpm dev`）
 - **Webpack**：当前 Cloudflare 构建链主执行面（`pnpm build:cf`）
 
@@ -83,7 +84,7 @@
 ### 安全与防刷
 
 - **@marsidev/react-turnstile 1.5.1**：Cloudflare Turnstile
-- 表单提交以 **Server Actions + Zod + Turnstile** 为主组合
+- 公开表单提交以 **Route Handler + Zod + Turnstile** 为主组合；Server Action 仅作为兼容路径保留
 
 ## 5. 测试与质量门禁
 
@@ -142,8 +143,8 @@
 - `pnpm build`：标准 Next.js 构建
 - `pnpm build:cf`：Cloudflare 构建
 - `pnpm preview:cf`：本地 stock preview，仅用于页面级初筛
-- `pnpm deploy:cf` / `pnpm deploy:cf:preview`：phase6 worker 拓扑部署入口
-- `pnpm deploy:cf:phase6:dry-run`：不改远端状态的 phase6 部署证明
+- `pnpm deploy:cf` / `pnpm deploy:cf:preview`：Cloudflare worker 拓扑部署入口
+- `pnpm deploy:cf:dry-run`：不改远端状态的 Cloudflare 部署证明
 
 ### 额外构建与诊断工具
 
@@ -169,4 +170,4 @@
 ## 8. 一句话总结
 
 这个项目不是普通展示站加一点样式。  
-它现在的真实技术底座是：**Next.js 16 + React 19 + TypeScript + Tailwind 4 + next-intl + MDX + Server Actions + Cloudflare/OpenNext + 一整套 repo-level proof scripts**。
+它现在的真实技术底座是：**Next.js 16 + React 19 + TypeScript + Tailwind 4 + next-intl + MDX + Route Handlers + Cloudflare/OpenNext + 一套精简后的 repo-level proof scripts**。

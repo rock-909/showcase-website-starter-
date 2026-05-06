@@ -24,44 +24,54 @@ export async function processProductLead(
   const { resendService } = await import("@/lib/resend");
   const { airtableService } = await import("@/lib/airtable");
 
-  const [emailResult, crmResult] = await Promise.all([
-    settleService(
-      resendService.sendProductInquiryEmail({
-        firstName,
-        lastName,
-        email: lead.email,
-        company: lead.company,
-        productName: lead.productName,
-        productSlug: lead.productSlug,
-        quantity: lead.quantity,
-        requirements: lead.requirements,
-        marketingConsent: lead.marketingConsent,
-      }),
-      {
-        operationName: "Email send",
-        mapId: (id) => id,
+  const crmResult = await settleService(
+    airtableService.createLead(LEAD_TYPES.PRODUCT, {
+      firstName,
+      lastName,
+      email: lead.email,
+      company: lead.company,
+      message,
+      productSlug: lead.productSlug,
+      productName: lead.productName,
+      quantity: lead.quantity,
+      requirements: lead.requirements,
+      marketingConsent: lead.marketingConsent,
+      referenceId,
+    }),
+    {
+      operationName: "CRM record",
+      mapId: (record) => record?.id,
+    },
+  );
+
+  if (!crmResult.success) {
+    return {
+      emailResult: {
+        success: false,
+        error: new Error("Email skipped because CRM record failed"),
+        latencyMs: 0,
       },
-    ),
-    settleService(
-      airtableService.createLead(LEAD_TYPES.PRODUCT, {
-        firstName,
-        lastName,
-        email: lead.email,
-        company: lead.company,
-        message,
-        productSlug: lead.productSlug,
-        productName: lead.productName,
-        quantity: lead.quantity,
-        requirements: lead.requirements,
-        marketingConsent: lead.marketingConsent,
-        referenceId,
-      }),
-      {
-        operationName: "CRM record",
-        mapId: (record) => record?.id,
-      },
-    ),
-  ]);
+      crmResult,
+    };
+  }
+
+  const emailResult = await settleService(
+    resendService.sendProductInquiryEmail({
+      firstName,
+      lastName,
+      email: lead.email,
+      company: lead.company,
+      productName: lead.productName,
+      productSlug: lead.productSlug,
+      quantity: lead.quantity,
+      requirements: lead.requirements,
+      marketingConsent: lead.marketingConsent,
+    }),
+    {
+      operationName: "Email send",
+      mapId: (id) => id,
+    },
+  );
 
   return { emailResult, crmResult };
 }

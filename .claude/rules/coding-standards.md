@@ -11,79 +11,61 @@ paths:
 
 ## TypeScript
 
-### Strict Mode
-- `strict: true`, `noImplicitAny: true`
-- **No `any`** (tests have limited exceptions)
-- TypeScript docs treat `interface` vs `type` as mostly a design choice; in this repo, default to `interface` for object shapes, and use `type` for unions, tuples, mapped types, or utility-heavy compositions
-- Use `satisfies` for type-safe object literals
-- Repo convention: prefer `const` objects + union types over `enum` unless third-party interop explicitly requires `enum`
+- Keep `strict: true` and `noImplicitAny: true`.
+- No `any` in production code.
+- Default to `interface` for object shapes.
+- Use `type` for unions, tuples, mapped types, and utility-heavy compositions.
+- Prefer `const` objects plus union types over `enum` unless third-party interop
+  makes `enum` clearer.
+- Use `satisfies` for typed object literals.
 
-### exactOptionalPropertyTypes
+With `exactOptionalPropertyTypes`, omit optional properties instead of passing
+explicit `undefined`.
 
-Cannot pass explicit `undefined` to optional properties:
+## Naming
 
-```typescript
-// ❌ Error
-const config: Config = { name: 'test', description: undefined };
-
-// ✅ Correct: conditional spread
-const config: Config = { name: 'test', ...(desc ? { description: desc } : {}) };
-```
-
-## Naming Conventions
-
-| Type | Convention | Example |
-|------|------------|---------|
-| Components | PascalCase | `ProductCard.tsx` |
-| Hooks | `use` prefix | `useBreakpoint.ts` |
-| Utilities | camelCase | `formatPrice.ts` |
-| Constants | SCREAMING_SNAKE | `MAX_ITEMS` |
-| Directories | kebab-case | `user-profile/` |
-| Booleans | `is/has/can/should` | `isLoading` |
-| Event handlers | `handle` prefix | `handleSubmit` |
+| Type | Convention |
+| --- | --- |
+| Components | `PascalCase` |
+| Hooks | `useSomething` |
+| Utilities | `camelCase` |
+| Constants | `SCREAMING_SNAKE` |
+| Directories | `kebab-case` |
+| Booleans | `is/has/can/should` |
+| Event handlers | `handleSomething` |
 
 ## Imports
 
-### Path Aliases
-Always use `@/` alias. No deep relative imports.
-
-### Import Order
-
-Maintain this order (no lint enforcement — the rule itself is the mechanism):
-
-1. `react`, `react/*`
-2. `next`, `next/*`
-3. Third-party modules
-4. `@/types/*`
-5. `@/lib/*`
-6. `@/components/*`
-7. `@/app/*`
-8. Other `@/*` aliases
-9. Relative imports (`./`, `../`)
-
-## Formatting Tooling
-
-Prettier patch upgrades can be handled as a small formatting-tool lane. Do not
-mix them with `prettier-plugin-tailwindcss` minor upgrades or import-sorting
-plugin changes, because those can create broad formatting churn. Prove the lane
-with `pnpm format:check` plus the normal type/lint/build checks.
-
-## Constants
-
-- Organize by domain in `src/constants/`, use `as const`
-- Magic number rules → see `code-quality.md`
-- User-facing text must use i18n keys
+- Use the `@/` alias for app imports.
+- Avoid deep relative imports except within the same small module folder.
+- Keep import order readable:
+  1. React
+  2. Next.js
+  3. third-party packages
+  4. `@/types`
+  5. `@/lib`
+  6. `@/components`
+  7. `@/app`
+  8. other `@/` aliases
+  9. relative imports
 
 ## Logging
 
-```typescript
-// ❌ Bare console in production
-console.log('user submitted', data);
+Production code uses the structured logger:
 
-// ✅ Structured logger
-import { logger } from '@/lib/logger';
-logger.error('API failed', { endpoint, statusCode });
-logger.warn('Rate limit approaching', { remaining, ip });
+```typescript
+import { logger } from "@/lib/logger";
+logger.warn("Rate limit approaching", { remaining });
 ```
 
-Production: only `logger.error()`, `logger.warn()`. Dev: `logger.info()`, `logger.debug()`.
+Client components use the client-safe logger boundary (`@/lib/logger-core`)
+unless Phase 4 proves a merged logger is browser-safe.
+
+No bare `console.*` in production code unless the file is explicitly a logger,
+script, or test utility.
+
+## User-facing text
+
+All buyer-visible text belongs in content files or i18n messages, not inline
+component literals, unless the string is a technical fallback that cannot be
+translated safely.

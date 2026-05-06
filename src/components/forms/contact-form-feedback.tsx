@@ -1,12 +1,9 @@
 import { memo } from "react";
-import {
-  API_ERROR_CODES,
-  isPartialSuccessErrorCode,
-} from "@/constants/api-error-codes";
+import { API_ERROR_CODES } from "@/constants/api-error-codes";
 import { type FormSubmissionStatus } from "@/lib/forms/form-submission-status";
 import { translateApiError } from "@/lib/api/translate-error-code";
 import { type ServerActionResult } from "@/lib/server-action-utils";
-import { type ContactFormResult } from "@/lib/actions/contact";
+import { type ContactFormResult } from "@/components/forms/use-contact-form";
 import { FORM_STATUS_CLASS_NAMES } from "@/components/forms/form-status-styles";
 
 /**
@@ -77,7 +74,6 @@ interface ErrorDisplayProps {
 interface ErrorDisplayState {
   uniqueDetails: string[] | undefined;
   isValidationError: boolean;
-  isPartialSuccess: boolean;
   translatedError: string | undefined;
   shouldShowTranslatedMessage: boolean;
   shouldShowRawMessage: boolean;
@@ -97,7 +93,6 @@ function getErrorDisplayState(
     : undefined;
   const isValidationError =
     state.errorCode === API_ERROR_CODES.CONTACT_VALIDATION_FAILED;
-  const isPartialSuccess = isPartialSuccessErrorCode(state.errorCode);
   const translatedError = state.errorCode
     ? translateApiError(translateApi, state.errorCode)
     : undefined;
@@ -105,18 +100,12 @@ function getErrorDisplayState(
   return {
     uniqueDetails,
     isValidationError,
-    isPartialSuccess,
     translatedError,
     shouldShowTranslatedMessage:
-      translatedError !== undefined && !isValidationError && !isPartialSuccess,
+      translatedError !== undefined && !isValidationError,
     shouldShowRawMessage:
-      state.error !== undefined &&
-      !state.errorCode &&
-      !isValidationError &&
-      !isPartialSuccess,
-    containerClass: isPartialSuccess
-      ? `rounded-lg border p-4 ${FORM_STATUS_CLASS_NAMES.partialSuccess}`
-      : `rounded-lg border p-4 ${FORM_STATUS_CLASS_NAMES.error}`,
+      state.error !== undefined && !state.errorCode && !isValidationError,
+    containerClass: `rounded-lg border p-4 ${FORM_STATUS_CLASS_NAMES.error}`,
   };
 }
 
@@ -130,7 +119,6 @@ export function ErrorDisplay({
 
   const {
     uniqueDetails,
-    isPartialSuccess,
     translatedError,
     shouldShowTranslatedMessage,
     shouldShowRawMessage,
@@ -142,23 +130,18 @@ export function ErrorDisplay({
       ref={containerRef}
       className={containerClass}
       data-testid="contact-form-error-display"
-      role={isPartialSuccess ? "status" : "alert"}
-      aria-live={isPartialSuccess ? "polite" : "assertive"}
+      role="alert"
+      aria-live="assertive"
       tabIndex={-1}
       translate="no"
     >
-      {!isPartialSuccess && (
-        <p
-          className="font-medium"
-          data-testid="contact-form-error-heading"
-          translate="no"
-        >
-          {translateForm("error")}
-        </p>
-      )}
-      {isPartialSuccess && translatedError && (
-        <p className="font-medium text-sm">{translatedError}</p>
-      )}
+      <p
+        className="font-medium"
+        data-testid="contact-form-error-heading"
+        translate="no"
+      >
+        {translateForm("error")}
+      </p>
       {shouldShowTranslatedMessage && (
         <p className="text-sm">{translatedError}</p>
       )}

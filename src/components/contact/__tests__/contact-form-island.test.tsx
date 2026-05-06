@@ -24,8 +24,14 @@ async function renderIsland() {
 }
 
 function mockContactFormModule() {
-  vi.doMock("@/components/contact/contact-form", () => ({
-    ContactForm: LoadedContactForm,
+  vi.doMock("@/components/contact/contact-form", () => {
+    throw new Error("legacy contact form wrapper should not load");
+  });
+  vi.doMock("@/components/forms/contact-form", () => {
+    throw new Error("forms contact wrapper should not load");
+  });
+  vi.doMock("@/components/forms/contact-form-container", () => ({
+    ContactFormContainer: LoadedContactForm,
   }));
 }
 
@@ -34,13 +40,19 @@ function mockContactFormModuleWithRetry() {
   const loadAttempts: string[] = [];
 
   vi.doMock("@/components/contact/contact-form", () => {
+    throw new Error("legacy contact form wrapper should not load");
+  });
+  vi.doMock("@/components/forms/contact-form", () => {
+    throw new Error("forms contact wrapper should not load");
+  });
+  vi.doMock("@/components/forms/contact-form-container", () => {
     loadAttempts.push("load");
 
     if (shouldFail) {
       throw new Error("chunk unavailable");
     }
 
-    return { ContactForm: LoadedContactForm };
+    return { ContactFormContainer: LoadedContactForm };
   });
 
   return {

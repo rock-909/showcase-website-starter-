@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { INTERNAL_TRUSTED_CLIENT_IP_HEADER } from "@/lib/security/client-ip-headers";
 
 const { recordApiResponseSignalMock } = vi.hoisted(() => ({
   recordApiResponseSignalMock: vi.fn().mockResolvedValue(undefined),
@@ -30,14 +29,6 @@ function countOccurrences(haystack: string, needle: string): number {
   return haystack.split(needle).length - 1;
 }
 
-function attachRequestIP(request: NextRequest, ip: string): NextRequest {
-  Object.defineProperty(request, "ip", {
-    value: ip,
-    configurable: true,
-  });
-  return request;
-}
-
 describe("middleware locale cookie", () => {
   beforeEach(() => {
     vi.unstubAllEnvs();
@@ -56,49 +47,6 @@ describe("middleware locale cookie", () => {
     const setCookie = response.headers.get("set-cookie") ?? "";
     expect(countOccurrences(setCookie, "NEXT_LOCALE=")).toBe(1);
     expect(intlMiddlewareMock).toHaveBeenCalledTimes(1);
-  });
-
-  it("short-circuits GET /api/health with stable health payload and observability headers", async () => {
-    const request = new NextRequest("http://localhost/api/health", {
-      headers: {
-        "x-request-id": "health-from-middleware",
-      },
-    });
-
-    const response = middleware(request);
-
-    expect(response.status).toBe(200);
-    expect(response.headers.get("cache-control")).toBe("no-store");
-    expect(response.headers.get("x-request-id")).toBe("health-from-middleware");
-    expect(response.headers.get("x-observability-surface")).toBe(
-      "cache-health",
-    );
-    expect(await response.json()).toEqual({ status: "ok" });
-    expect(recordApiResponseSignalMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        name: "health.get",
-        route: "/api/health",
-        context: expect.objectContaining({
-          requestId: "health-from-middleware",
-          surface: "cache-health",
-        }),
-      }),
-    );
-    expect(intlMiddlewareMock).not.toHaveBeenCalled();
-  });
-
-  it("does not short-circuit non-GET health methods", () => {
-    const request = new NextRequest("http://localhost/api/health", {
-      method: "POST",
-    });
-
-    const response = middleware(request);
-
-    expect(intlMiddlewareMock).toHaveBeenCalledTimes(1);
-    expect(recordApiResponseSignalMock).not.toHaveBeenCalled();
-    expect(response.headers.get("x-middleware-override-headers")).toContain(
-      "x-nonce",
-    );
   });
 
   it("sets NEXT_LOCALE cookie with max-age (persisted preference)", () => {
@@ -179,60 +127,19 @@ describe("middleware locale cookie", () => {
     expect(setCookie).toContain("max-age=31536000");
   });
 
-  it("adds middleware-derived trusted client IP override for Cloudflare headers", () => {
-    const request = attachRequestIP(
-      new NextRequest("http://localhost/en/contact", {
-        headers: {
-          "cf-connecting-ip": "198.51.100.77",
-        },
-      }),
-      "173.245.48.25",
-    );
-
-    const response = middleware(request);
-
-    expect(
-      response.headers.get(
-        `x-middleware-request-${INTERNAL_TRUSTED_CLIENT_IP_HEADER}`,
-      ),
-    ).toBe("198.51.100.77");
-    expect(response.headers.get("x-middleware-override-headers")).toContain(
-      INTERNAL_TRUSTED_CLIENT_IP_HEADER,
-    );
-  });
-
-  it("does not add a trusted internal IP override for untrusted Cloudflare sources", () => {
-    const request = attachRequestIP(
-      new NextRequest("http://localhost/en/contact", {
-        headers: {
-          "cf-connecting-ip": "198.51.100.77",
-        },
-      }),
-      "198.51.100.25",
-    );
-
-    const response = middleware(request);
-
-    expect(
-      response.headers.get(
-        `x-middleware-request-${INTERNAL_TRUSTED_CLIENT_IP_HEADER}`,
-      ),
-    ).toBeNull();
-  });
-
-  it("does not promote raw x-forwarded-for into the trusted internal header", () => {
+  it("does not add client-IP request overrides", () => {
     const request = new NextRequest("http://localhost/en/contact", {
       headers: {
+        "cf-connecting-ip": "198.51.100.77",
         "x-forwarded-for": "203.0.113.9",
       },
     });
 
     const response = middleware(request);
 
-    expect(
-      response.headers.get(
-        `x-middleware-request-${INTERNAL_TRUSTED_CLIENT_IP_HEADER}`,
-      ),
-    ).toBeNull();
+    expect(response.headers.get("x-middleware-override-headers")).toBe(
+      "x-nonce",
+    );
+    expect(response.headers.get("x-middleware-request-x-nonce")).toBeTruthy();
   });
 });

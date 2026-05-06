@@ -32,7 +32,6 @@ vi.mock("@/lib/lead-pipeline", async () => {
     ...actual,
     processLead: vi.fn(async () => ({
       success: true,
-      partialSuccess: false,
       referenceId: "sub-ref-001",
       recordCreated: true,
       emailSent: false,

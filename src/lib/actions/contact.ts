@@ -21,7 +21,6 @@ import {
 } from "@/lib/contact/submit-canonical-contact";
 import {
   createErrorResultWithLogging,
-  createPartialResultWithLogging,
   createSuccessResultWithLogging,
   getFormDataBoolean,
   getFormDataString,
@@ -41,8 +40,6 @@ export interface ContactFormResult {
   recordCreated: boolean;
   /** 统一线索引用ID */
   referenceId?: string | null;
-  /** 是否为部分成功 */
-  partialSuccess?: boolean | undefined;
 }
 
 /**
@@ -159,16 +156,7 @@ async function executeContactSubmissionAttempt(
     emailSent: submissionResult.emailSent,
     recordCreated: submissionResult.recordCreated,
     referenceId: submissionResult.referenceId ?? null,
-    ...(submissionResult.partialSuccess ? { partialSuccess: true } : {}),
   };
-
-  if (submissionResult.partialSuccess) {
-    return createPartialResultWithLogging(
-      normalizedSubmissionResult,
-      submissionResult.errorCode ?? API_ERROR_CODES.CONTACT_PARTIAL_SUCCESS,
-      logger,
-    );
-  }
 
   const processingTime = performance.now() - startTime;
   if (!isRuntimeProduction()) {

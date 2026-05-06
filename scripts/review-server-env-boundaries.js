@@ -21,6 +21,7 @@ const EXCLUDED_FILES = new Set([
   "src/lib/env.ts",
   "src/lib/env-runtime.ts",
   "src/lib/logger.ts",
+  "src/lib/logger-core.ts",
   "src/lib/public-env.ts",
 ]);
 const GUARDED_KEYS = [

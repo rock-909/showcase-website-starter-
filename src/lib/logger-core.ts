@@ -1,16 +1,10 @@
-/* eslint-disable no-console -- logger intentionally wraps console.* with env-based filtering */
+/* eslint-disable no-console -- logger intentionally wraps console.* with client-safe env filtering */
 /**
- * Lightweight logger utility with production-safe behavior.
+ * Browser-safe logger utility with production-safe behavior.
  * - error/warn: Always output for production diagnostics
- * - info: Respects LOG_LEVEL
+ * - info: Respects NEXT_PUBLIC_LOG_LEVEL
  * - debug/log: Development and test only
  */
-
-import {
-  getRuntimeEnvString,
-  isRuntimeDevelopment,
-  isRuntimeTest,
-} from "@/lib/env";
 
 type LogArgs = [message?: unknown, ...optionalParams: unknown[]];
 
@@ -24,7 +18,9 @@ const LOG_LEVELS: Record<LogLevel, number> = {
 };
 
 function isDev(): boolean {
-  return isRuntimeDevelopment() || isRuntimeTest();
+  return (
+    process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test"
+  );
 }
 
 function isValidLogLevel(value: string): value is LogLevel {
@@ -32,7 +28,7 @@ function isValidLogLevel(value: string): value is LogLevel {
 }
 
 function getLogLevel(): LogLevel {
-  const rawLevel = getRuntimeEnvString("LOG_LEVEL");
+  const rawLevel = process.env.NEXT_PUBLIC_LOG_LEVEL;
   const level = rawLevel?.toLowerCase() as LogLevel | undefined;
   if (level && isValidLogLevel(level)) {
     return level;

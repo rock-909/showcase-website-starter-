@@ -102,7 +102,6 @@ export function logPipelineSummary(params: LogPipelineSummaryParams): void {
 
 export interface PipelineObservabilityOutcome {
   success: boolean;
-  partialSuccess: boolean;
 }
 
 interface RecordPipelineObservabilityParams {
@@ -122,19 +121,13 @@ function withRequestId(
 }
 
 function calculatePipelineOutcome(
-  hasEmailOperation: boolean,
-  emailResult: ServiceResult,
+  _hasEmailOperation: boolean,
   crmResult: ServiceResult,
 ): PipelineObservabilityOutcome {
-  const success = hasEmailOperation
-    ? emailResult.success && crmResult.success
-    : crmResult.success;
+  const { success } = crmResult;
 
   return {
     success,
-    partialSuccess: hasEmailOperation
-      ? !success && (emailResult.success || crmResult.success)
-      : false,
   };
 }
 
@@ -186,17 +179,6 @@ function logLeadOutcome(
     return;
   }
 
-  if (outcome.partialSuccess) {
-    logger.warn("Lead processed partially", {
-      type: lead.type,
-      referenceId,
-      emailSent: emailResult.success,
-      recordCreated: crmResult.success,
-      ...withRequestId(requestId),
-    });
-    return;
-  }
-
   logger.error("Lead processing failed completely", {
     type: lead.type,
     referenceId,
@@ -224,11 +206,7 @@ export function recordPipelineObservability(
   emitServiceMetrics(emailResult, crmResult, hasEmailOperation, requestId);
   logServiceFailures(params);
 
-  const outcome = calculatePipelineOutcome(
-    hasEmailOperation,
-    emailResult,
-    crmResult,
-  );
+  const outcome = calculatePipelineOutcome(hasEmailOperation, crmResult);
 
   logPipelineSummary({
     referenceId,

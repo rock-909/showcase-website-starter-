@@ -25,7 +25,6 @@ export interface CanonicalContactSubmissionSuccess {
   data: ContactFormWithToken;
   submissionResult: {
     success?: boolean;
-    partialSuccess?: boolean;
     emailSent: boolean;
     recordCreated: boolean;
     referenceId?: string | null | undefined;

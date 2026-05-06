@@ -7,6 +7,8 @@ const ENV_FACADE = "src/lib/env.ts";
 const ENV_SCHEMAS = "src/lib/env-schemas.ts";
 const ENV_RUNTIME = "src/lib/env-runtime.ts";
 const PUBLIC_ENV = "src/lib/public-env.ts";
+const LOGGER = "src/lib/logger.ts";
+const LOGGER_CORE = "src/lib/logger-core.ts";
 
 function read(repoPath: string) {
   // eslint-disable-next-line security/detect-non-literal-fs-filename -- architecture test reads repo-local files from a fixed allowlist
@@ -114,6 +116,42 @@ describe("env module boundaries", () => {
         isClientComponent &&
         (source.includes('from "@/lib/env"') ||
           source.includes("from '@/lib/env'"))
+      );
+    });
+
+    expect(offenders).toEqual([]);
+  });
+
+  it("keeps the client logger core free of server env and PII helpers", () => {
+    const core = read(LOGGER_CORE);
+    const serverLogger = read(LOGGER);
+
+    expect(core).not.toContain("@/lib/env");
+    expect(core).not.toContain("./env");
+    expect(core).not.toContain("env-schemas");
+    expect(core).not.toContain("env-runtime");
+    expect(core).not.toContain("sanitizeEmail");
+    expect(core).not.toContain("sanitizeIP");
+    expect(core).not.toContain("sanitizeLogContext");
+
+    expect(serverLogger).toContain("@/lib/env");
+    expect(serverLogger).toContain("sanitizeEmail");
+    expect(serverLogger).toContain("sanitizeIP");
+  });
+
+  it("keeps Client Components off the server logger facade and PII helpers", () => {
+    const offenders = walkSourceFiles("src").filter((repoPath) => {
+      const source = read(repoPath);
+      const isClientComponent =
+        source.includes('"use client"') || source.includes("'use client'");
+
+      return (
+        isClientComponent &&
+        (source.includes('from "@/lib/logger"') ||
+          source.includes("from '@/lib/logger'") ||
+          source.includes("sanitizeEmail") ||
+          source.includes("sanitizeIP") ||
+          source.includes("sanitizeLogContext"))
       );
     });
 

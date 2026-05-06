@@ -43,12 +43,10 @@ describe("proof lane contract", () => {
     );
     expect(
       releaseProofScript.indexOf("pnpm review:cf:official-compare:source"),
-    ).toBeLessThan(releaseProofScript.indexOf("pnpm deploy:cf:phase6:dry-run"));
+    ).toBeLessThan(releaseProofScript.indexOf("pnpm deploy:cf:dry-run"));
     expect(
       releaseProofScript.indexOf("pnpm review:cf:official-compare:generated"),
-    ).toBeGreaterThan(
-      releaseProofScript.indexOf("pnpm deploy:cf:phase6:dry-run"),
-    );
+    ).toBeGreaterThan(releaseProofScript.indexOf("pnpm deploy:cf:dry-run"));
     expect(releaseProofScript).toContain("pnpm review:derivative-readiness");
   });
 
@@ -95,34 +93,68 @@ describe("proof lane contract", () => {
     expect(releaseProofRunbook).toContain("manual launch gate");
   });
 
-  it("keeps review:mutation:critical pointed at an existing script", () => {
+  it("keeps phase and mutation lanes out of the public package command surface", () => {
     const packageJson = JSON.parse(readRepoFile("package.json")) as {
       scripts: Record<string, string>;
     };
-    const command = packageJson.scripts["review:mutation:critical"];
+    const releaseProofScript = readRepoFile("scripts/release-proof.sh");
+    const scriptNames = Object.keys(packageJson.scripts);
 
-    expect(command).toBe("node scripts/review-mutation-critical.js");
-    expect(() =>
-      readRepoFile("scripts/review-mutation-critical.js"),
-    ).not.toThrow();
+    for (const stableCommand of [
+      "build:cf",
+      "preview:cf",
+      "deploy:cf",
+      "deploy:cf:preview",
+      "deploy:cf:dry-run",
+      "smoke:cf:preview",
+      "smoke:cf:deploy",
+      "website:build:cf",
+    ]) {
+      expect(packageJson.scripts[stableCommand]).toBeTruthy();
+    }
+
+    expect(
+      scriptNames.filter((name) => name.startsWith("test:mutation")),
+    ).toEqual([]);
+    expect(packageJson.scripts["review:mutation:critical"]).toBeUndefined();
+    expect(scriptNames.filter((name) => name.includes(":phase"))).toEqual([]);
+    expect(releaseProofScript).toContain("pnpm deploy:cf:dry-run");
+    expect(releaseProofScript).not.toContain("deploy:cf:phase6");
   });
 
-  it("keeps starter readiness proof commands wired into grouped guardrails", () => {
+  it("keeps starter readiness proof commands available after grouped guardrail runner removal", () => {
     const packageJson = JSON.parse(readRepoFile("package.json")) as {
       scripts: Record<string, string>;
     };
-    const allGuardrailsScript = readRepoFile(
-      "scripts/run-all-guardrails-review.js",
+    const ciWorkflow = readRepoFile(".github/workflows/ci.yml");
+    const groupedRunnerExists = fs.existsSync(
+      path.join(REPO_ROOT, "scripts/run-all-guardrails-review.js"),
     );
 
+    expect(packageJson.scripts["brand:check"]).toBe(
+      "node scripts/brand-check.mjs",
+    );
+    expect(packageJson.scripts["content:check"]).toBe(
+      "pnpm content:slug-check && pnpm validate:translations",
+    );
+    expect(packageJson.scripts["component:check"]).toBe(
+      "pnpm component:governance:test && pnpm component:governance && pnpm storybook:build",
+    );
+    expect(packageJson.scripts["website:check"]).toBe(
+      "pnpm type-check && pnpm lint:check && pnpm test && pnpm build",
+    );
+    expect(packageJson.scripts["website:build:cf"]).toBe("pnpm build:cf");
     expect(packageJson.scripts["website:content:readiness"]).toBe(
       "node scripts/content-readiness-check.mjs",
     );
     expect(packageJson.scripts["website:review:client-boundary"]).toBe(
       "node scripts/client-boundary-budget.mjs",
     );
-    expect(allGuardrailsScript).toContain("website:content:readiness");
-    expect(allGuardrailsScript).toContain("website:review:client-boundary");
+    expect(groupedRunnerExists).toBe(false);
+    expect(ciWorkflow).toContain("pnpm brand:check");
+    expect(ciWorkflow).toContain("pnpm content:check");
+    expect(ciWorkflow).toContain("pnpm website:review:client-boundary");
+    expect(ciWorkflow).toContain("pnpm website:build:cf");
   });
 
   it("does not overclaim local contact smoke as real submission proof", () => {
@@ -238,7 +270,8 @@ describe("proof lane contract", () => {
       ".codex/skills/ai-smell-audit/references/repo-profile.md",
     );
 
-    expect(repoProfile).toContain("src/app/actions.ts");
+    expect(repoProfile).toContain("src/app/api/contact/**");
+    expect(repoProfile).toContain("src/lib/actions/contact.ts");
     expect(repoProfile).toContain("src/app/api/inquiry/route.ts");
     expect(repoProfile).toContain("src/app/api/subscribe/route.ts");
     expect(repoProfile).toContain("src/app/api/verify-turnstile/route.ts");
@@ -250,7 +283,7 @@ describe("proof lane contract", () => {
     expect(repoProfile).toContain("tests/e2e/smoke/post-deploy-form.spec.ts");
     expect(repoProfile).toContain("playwright.config.ts");
     expect(repoProfile).toContain("docs/website/quality-proof.md");
-    expect(repoProfile).not.toContain("src/app/api/contact/**");
+    expect(repoProfile).not.toContain("src/app/actions.ts");
     expect(repoProfile).not.toContain(
       "src/components/products/product-inquiry-form",
     );
@@ -260,6 +293,12 @@ describe("proof lane contract", () => {
   it("records closure for every 2026-05-03 ai-smell finding", () => {
     const closure = readRepoFile(
       "docs/audits/ai-smell-remediation-20260503.md",
+    );
+    const rootAuditReportExists = fs.existsSync(
+      path.join(REPO_ROOT, "audit-report-20260503.md"),
+    );
+    const rootAuditSummaryExists = fs.existsSync(
+      path.join(REPO_ROOT, "audit-owner-summary-20260503.md"),
     );
 
     for (const findingId of [
@@ -277,6 +316,9 @@ describe("proof lane contract", () => {
     }
 
     expect(closure).toContain("Public Demo Starter Site is out of scope");
+    expect(closure).toContain("docs/audits/audit-report-20260503.md");
+    expect(rootAuditReportExists).toBe(false);
+    expect(rootAuditSummaryExists).toBe(false);
     expect(closure).toContain("Fresh verification");
     expect(closure).toContain(
       "| Finding | Changed files | Closure method | Verification | Remaining boundary |",

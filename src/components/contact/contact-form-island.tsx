@@ -15,8 +15,9 @@ interface ContactFormIslandProps {
 }
 
 const defaultLoadContactForm = async (): Promise<LoadedContactForm> => {
-  const contactFormModule = await import("@/components/contact/contact-form");
-  return { Component: contactFormModule.ContactForm };
+  const contactFormModule =
+    await import("@/components/forms/contact-form-container");
+  return { Component: contactFormModule.ContactFormContainer };
 };
 
 type ContactFormLoadState =

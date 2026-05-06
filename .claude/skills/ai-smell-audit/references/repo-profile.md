@@ -11,6 +11,7 @@ These surfaces deserve first-pass attention because they are closest to business
 1. **Lead / inquiry / contact path**
    - `src/app/[locale]/contact/**`
    - `src/app/api/contact/**`
+   - `src/lib/actions/contact.ts`
    - `src/app/api/verify-turnstile/**`
    - `src/components/forms/**`
    - `src/components/products/product-inquiry-form*`

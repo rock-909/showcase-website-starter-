@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Close every finding from `/Users/Data/workspace/showcase-website-starter/audit-report-20260503.md` without changing the product direction of the repository.
+Close every finding from `docs/audits/audit-report-20260503.md` without changing the product direction of the repository.
 
 Stage 1 keeps the current positioning:
 

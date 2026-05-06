@@ -80,15 +80,15 @@ const scripts = packageJson.scripts ?? {};
 const deployScriptChecks = [
   {
     name: "deploy:cf",
-    expected: "pnpm deploy:cf:phase6:production",
+    expected: "node scripts/cloudflare/deploy.mjs --env production",
   },
   {
     name: "deploy:cf:preview",
-    expected: "pnpm deploy:cf:phase6:preview",
+    expected: "node scripts/cloudflare/deploy.mjs --env preview",
   },
   {
     name: "deploy:cf:dry-run",
-    expected: "pnpm deploy:cf:phase6:dry-run",
+    expected: "node scripts/cloudflare/deploy.mjs --env preview --dry-run",
   },
   {
     name: "preview:cf:wrangler",
@@ -184,7 +184,7 @@ if (!GENERATED_ONLY) {
     if (!matches) {
       failures.push({
         file: "package.json",
-        label: "legacy Cloudflare deploy entrypoints must not bypass phase6",
+        label: "stable Cloudflare deploy entrypoints must use the deploy wrapper",
         missing: [`${check.name}: ${check.expected}`],
         forbidden: [],
       });
@@ -202,7 +202,7 @@ if (!GENERATED_ONLY) {
         failures.push({
           file: "package.json",
           label:
-            "Cloudflare deploy aliases must stay exact and must not chain cleanup/destructive actions",
+            "Cloudflare deploy aliases must stay exact and must not chain destructive actions",
           missing: [],
           forbidden,
         });
@@ -211,7 +211,10 @@ if (!GENERATED_ONLY) {
   }
 
   for (const [name, script] of Object.entries(scripts)) {
-    if (!name.startsWith("deploy:cf:phase6") || typeof script !== "string") {
+    if (
+      !["deploy:cf", "deploy:cf:preview", "deploy:cf:dry-run"].includes(name) ||
+      typeof script !== "string"
+    ) {
       continue;
     }
 
@@ -224,7 +227,7 @@ if (!GENERATED_ONLY) {
       failures.push({
         file: "package.json",
         label:
-          "phase6 deploy scripts must not include cleanup/destructive actions",
+          "Cloudflare deploy scripts must not include destructive actions",
         missing: [],
         forbidden,
       });
@@ -242,12 +245,12 @@ if (!SOURCE_ONLY) {
       failures.push({
         file: path.relative(ROOT, PHASE6_CONFIG_DIR),
         label: "phase6 generated deploy config must exist for strict compare",
-        missing: ["run pnpm build:cf:phase6 before strict compare"],
+        missing: ["run pnpm deploy:cf:dry-run before strict compare"],
         forbidden: [],
       });
     } else if (phase6ConfigFiles.length === 0) {
       console.warn(
-        "cf-official-compare: phase6 generated config directory is empty; run with --require-generated after pnpm build:cf:phase6 for deploy-artifact proof.",
+        "cf-official-compare: phase6 generated config directory is empty; run with --require-generated after pnpm deploy:cf:dry-run for deploy-artifact proof.",
       );
     }
 
@@ -273,12 +276,12 @@ if (!SOURCE_ONLY) {
     failures.push({
       file: path.relative(ROOT, PHASE6_CONFIG_DIR),
       label: "phase6 generated deploy config must exist for strict compare",
-      missing: ["run pnpm build:cf:phase6 before strict compare"],
+      missing: ["run pnpm deploy:cf:dry-run before strict compare"],
       forbidden: [],
     });
   } else {
     console.warn(
-      "cf-official-compare: phase6 generated config absent; run with --require-generated after pnpm build:cf:phase6 for deploy-artifact proof.",
+      "cf-official-compare: phase6 generated config absent; run with --require-generated after pnpm deploy:cf:dry-run for deploy-artifact proof.",
     );
   }
 }

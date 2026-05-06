@@ -564,8 +564,8 @@ find src/app/api src/components/products src/lib -maxdepth 3 -type f | sort | rg
 - `/tmp/audit/findings-lane-B-20260503.md`
 - `/tmp/audit/findings-lane-C-20260503.md`
 - `/tmp/audit/flows-3truth-20260503.md`
-- `/Users/Data/workspace/showcase-website-starter/audit-owner-summary-20260503.md`
-- `/Users/Data/workspace/showcase-website-starter/audit-report-20260503.md`
+- `docs/audits/audit-owner-summary-20260503.md`
+- `docs/audits/audit-report-20260503.md`
 
 ### 8.2 Baseline evidence
 

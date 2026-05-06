@@ -1,8 +1,6 @@
 name: Uplink Health Check
 
 on:
-  schedule:
-    - cron: '*/15 * * * *' # Every 15 minutes
   workflow_dispatch:
 
 jobs:
@@ -14,9 +12,13 @@ jobs:
     steps:
       - name: Check site health endpoint
         run: |
+          if [ -z "${{ vars.SITE_URL }}" ]; then
+            echo "::error::SITE_URL is required for manual uplink health checks"
+            exit 1
+          fi
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
             --max-time 10 \
-            "${{ vars.SITE_URL || 'https://example.com' }}/api/health")
+            "${{ vars.SITE_URL }}/api/health")
           echo "Site health: $STATUS"
           if [ "$STATUS" != "200" ]; then
             echo "::error::Site health endpoint returned $STATUS"

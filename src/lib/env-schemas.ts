@@ -1,13 +1,6 @@
 import { z } from "zod";
 
 export const serverEnvSchema = {
-  // Database
-  DATABASE_URL: z.string().url().optional(),
-
-  // Authentication
-  NEXTAUTH_SECRET: z.string().min(1).optional(),
-  NEXTAUTH_URL: z.string().url().optional(),
-
   // Email Service (Resend)
   RESEND_API_KEY: z.string().min(1).optional(),
   EMAIL_FROM: z.string().email().optional(),
@@ -28,9 +21,7 @@ export const serverEnvSchema = {
     .optional()
     .transform((val) => val === "true"),
 
-  // Admin & automation secrets
-  ADMIN_API_TOKEN: z.string().min(1).optional(),
-  CACHE_INVALIDATION_SECRET: z.string().min(1).optional(),
+  // Cloudflare split-worker Server Action compatibility
   NEXT_SERVER_ACTIONS_ENCRYPTION_KEY: z.string().min(1).optional(),
 
   // Cloudflare analytics and owner dashboard
@@ -70,13 +61,6 @@ export const serverEnvSchema = {
     .optional()
     .transform((val) => val === "true"),
 
-  // AI Translation Service (Lingo.dev)
-  LINGO_DEV_API_KEY: z.string().min(1).optional(),
-  OPENAI_API_KEY: z.string().min(1).optional(),
-  GROQ_API_KEY: z.string().min(1).optional(),
-  GOOGLE_API_KEY: z.string().min(1).optional(),
-  MISTRAL_API_KEY: z.string().min(1).optional(),
-
   // Vercel
   VERCEL_URL: z.string().optional(),
   VERCEL_GIT_COMMIT_SHA: z.string().optional(),
@@ -110,80 +94,6 @@ export const serverEnvSchema = {
     .transform((val) => val === "true"),
   CSP_REPORT_URI: z.string().url().optional(),
   CORS_ALLOWED_ORIGINS: z.string().optional(),
-
-  // Network & API Configuration
-  API_TIMEOUT: z.coerce.number().optional(),
-  UPLOAD_TIMEOUT: z.coerce.number().optional(),
-  WEBSOCKET_TIMEOUT: z.coerce.number().optional(),
-  HEALTH_CHECK_TIMEOUT: z.coerce.number().optional(),
-
-  // Retry Configuration
-  DEFAULT_RETRIES: z.coerce.number().optional(),
-  API_RETRIES: z.coerce.number().optional(),
-  UPLOAD_RETRIES: z.coerce.number().optional(),
-  RETRY_DELAY_BASE: z.coerce.number().optional(),
-
-  // Rate Limiting
-  API_REQUESTS_PER_MINUTE: z.coerce.number().optional(),
-  UPLOADS_PER_HOUR: z.coerce.number().optional(),
-  CONTACT_FORMS_PER_HOUR: z.coerce.number().optional(),
-
-  // Development Server Ports
-  PORT: z.coerce.number().optional(),
-  API_PORT: z.coerce.number().optional(),
-  DEV_TOOLS_PORT: z.coerce.number().optional(),
-  TEST_PORT: z.coerce.number().optional(),
-  MONITORING_PORT: z.coerce.number().optional(),
-  API_MONITORING_PORT: z.coerce.number().optional(),
-
-  // Development Experience
-  HOT_RELOAD_DELAY: z.coerce.number().optional(),
-  FILE_WATCH_DEBOUNCE: z.coerce.number().optional(),
-  DEV_TOOLS_REFRESH_INTERVAL: z.coerce.number().optional(),
-
-  // Cache Configuration
-  STATIC_CACHE_TTL: z.coerce.number().optional(),
-  API_CACHE_TTL: z.coerce.number().optional(),
-  SESSION_CACHE_TTL: z.coerce.number().optional(),
-  I18N_CACHE_TTL: z.coerce.number().optional(),
-
-  // Memory Limits
-  MAX_UPLOAD_SIZE: z.coerce.number().optional(),
-  MAX_REQUEST_SIZE: z.coerce.number().optional(),
-  MAX_CACHE_SIZE: z.coerce.number().optional(),
-  MAX_LOG_SIZE: z.coerce.number().optional(),
-
-  // Performance Monitoring
-  PERFORMANCE_SAMPLE_RATE: z.coerce.number().optional(),
-  ERROR_SAMPLE_RATE: z.coerce.number().optional(),
-  MONITORING_INTERVAL: z.coerce.number().optional(),
-  HEALTH_CHECK_INTERVAL: z.coerce.number().optional(),
-
-  // Web Vitals Thresholds
-  LCP_GOOD_THRESHOLD: z.coerce.number().optional(),
-  FID_GOOD_THRESHOLD: z.coerce.number().optional(),
-  CLS_GOOD_THRESHOLD: z.coerce.number().optional(),
-  TTFB_GOOD_THRESHOLD: z.coerce.number().optional(),
-
-  // Security Configuration
-  JWT_EXPIRES_IN: z.coerce.number().optional(),
-  BCRYPT_ROUNDS: z.coerce.number().optional(),
-  CSRF_TOKEN_LENGTH: z.coerce.number().optional(),
-  SESSION_TIMEOUT: z.coerce.number().optional(),
-
-  // Feature Flags
-  ENABLE_PERFORMANCE_MONITORING: z
-    .string()
-    .transform((val) => val === "true")
-    .optional(),
-  ENABLE_ERROR_TRACKING: z
-    .string()
-    .transform((val) => val === "true")
-    .optional(),
-  ENABLE_AB_TESTING: z
-    .string()
-    .transform((val) => val === "true")
-    .optional(),
 };
 
 export const clientEnvSchema = {

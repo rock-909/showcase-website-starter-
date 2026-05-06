@@ -92,7 +92,7 @@ function getLatestCommittedChangeTimestampMs(filePath) {
 function loadMutationReport() {
   if (!fs.existsSync(REPORT_PATH)) {
     throw new Error(
-      "缺少 reports/mutation/mutation-report.json，请先运行 pnpm test:mutation",
+      "缺少 reports/mutation/mutation-report.json，请按需手动运行 Stryker 局部变异测试",
     );
   }
 
@@ -141,22 +141,22 @@ function getSuggestedMutationCommand(touchedDirectories) {
   const touchesFormSchema = touchedDirectories.includes("src/lib/form-schema/");
 
   if (touchesFormSchema) {
-    return "pnpm test:mutation";
+    return "pnpm exec stryker run --mutate 'src/lib/form-schema/**/*.ts'";
   }
 
   if (touchesLead && touchesSecurity) {
-    return "pnpm test:mutation:lead-security";
+    return "pnpm exec stryker run --mutate 'src/lib/lead-pipeline/**/*.ts,src/lib/security/**/*.ts'";
   }
 
   if (touchesSecurity) {
-    return "pnpm test:mutation:security";
+    return "pnpm exec stryker run --mutate 'src/lib/security/**/*.ts'";
   }
 
   if (touchesLead) {
-    return "pnpm test:mutation:lead";
+    return "pnpm exec stryker run --mutate 'src/lib/lead-pipeline/**/*.ts'";
   }
 
-  return "pnpm test:mutation";
+  return "pnpm exec stryker run";
 }
 
 function main({

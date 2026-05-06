@@ -31,15 +31,15 @@ pnpm validate:translations
 pnpm clean:next-artifacts
 pnpm build
 pnpm build:cf
-pnpm deploy:cf:phase6:dry-run
+pnpm deploy:cf:dry-run
 pnpm review:cf:official-compare:generated
 pnpm test:release-smoke
 
 echo "Cloudflare proof split:"
 echo "  - Local stock preview: pnpm smoke:cf:preview"
 echo "  - Strict local stock preview (includes /api/health): pnpm smoke:cf:preview:strict"
-echo "  - Stronger local split-worker proof: pnpm deploy:cf:phase6:dry-run"
-echo "  - Real preview publish path: pnpm deploy:cf:phase6:preview"
+echo "  - Stronger local split-worker proof: pnpm deploy:cf:dry-run"
+echo "  - Real preview publish path: pnpm deploy:cf:preview"
 echo "  - Deployed GET smoke: pnpm smoke:cf:deploy -- --base-url \"$DEPLOYED_BASE_URL\""
 echo "  - Real deployed lead canary manual launch gate: POST_DEPLOY_TEST=1 PLAYWRIGHT_BASE_URL=\"$DEPLOYED_BASE_URL\" pnpm test:e2e:post-deploy"
 echo "  - The lead canary requires deployed Airtable/Resend/Turnstile credentials and must be recorded before broad public launch."

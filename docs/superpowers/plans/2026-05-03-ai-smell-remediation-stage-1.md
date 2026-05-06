@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Close every finding from `/Users/Data/workspace/showcase-website-starter/audit-report-20260503.md` while keeping the repository a reusable starter, not a Public Demo Starter Site.
+**Goal:** Close every finding from `docs/audits/audit-report-20260503.md` while keeping the repository a reusable starter, not a Public Demo Starter Site.
 
 **Architecture:** Treat this as proof/truth remediation, not runtime refactor. Use static contract tests for wording and documentation boundaries, one behavior test for content-readiness scan coverage, and small documentation edits for starter/client-launch truth.
 
@@ -52,8 +52,8 @@ Do not revert or absorb unrelated existing changes. At plan time, these paths ar
 - `/Users/Data/workspace/showcase-website-starter/scripts/run-all-guardrails-review.js`
 - `/Users/Data/workspace/showcase-website-starter/scripts/run-scripts-env-review.js`
 - `/Users/Data/workspace/showcase-website-starter/.codex/environments/`
-- `/Users/Data/workspace/showcase-website-starter/audit-owner-summary-20260503.md`
-- `/Users/Data/workspace/showcase-website-starter/audit-report-20260503.md`
+- `docs/audits/audit-owner-summary-20260503.md`
+- `docs/audits/audit-report-20260503.md`
 - `/Users/Data/workspace/showcase-website-starter/tests/unit/scripts/guardrail-runner-deprecation.test.ts`
 
 ## Mandatory commit guard
@@ -1224,7 +1224,7 @@ Create `/Users/Data/workspace/showcase-website-starter/docs/audits/ai-smell-reme
 ```md
 # AI Smell Remediation Closure — 2026-05-03
 
-This note closes the findings recorded in `/Users/Data/workspace/showcase-website-starter/audit-report-20260503.md`.
+This note closes the findings recorded in `docs/audits/audit-report-20260503.md`.
 
 Stage 1 keeps the repository as a reusable showcase website starter. Public Demo Starter Site is out of scope for this closure and needs a separate design.
 
