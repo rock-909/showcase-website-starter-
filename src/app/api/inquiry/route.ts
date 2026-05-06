@@ -149,6 +149,7 @@ const POST_RATE_LIMITED = withRateLimit(
             ? data.turnstileToken
             : undefined,
         clientIP,
+        expectedAction: "product_inquiry",
         missingTokenErrorCode: API_ERROR_CODES.INQUIRY_SECURITY_REQUIRED,
         invalidTokenErrorCode: API_ERROR_CODES.INQUIRY_SECURITY_FAILED,
         missingTokenLogMessage: "Product inquiry missing Turnstile token",

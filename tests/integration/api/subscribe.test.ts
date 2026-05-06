@@ -118,6 +118,20 @@ describe("api/subscribe", () => {
     expect(vi.mocked(leadPipeline.processLead)).toHaveBeenCalledTimes(2);
   });
 
+  it("binds Turnstile verification to the newsletter_subscribe action", async () => {
+    const utils = await import("@/lib/turnstile");
+
+    await route.POST(
+      makeReq({ email: "ok@example.com", turnstileToken: "valid-token" }),
+    );
+
+    expect(utils.verifyTurnstileDetailed).toHaveBeenCalledWith(
+      "valid-token",
+      expect.any(String),
+      { expectedAction: "newsletter_subscribe" },
+    );
+  });
+
   it("returns 400 when turnstileToken is missing", async () => {
     const res = await route.POST(makeReq({ email: "test@example.com" }));
     expect(res.status).toBe(400);

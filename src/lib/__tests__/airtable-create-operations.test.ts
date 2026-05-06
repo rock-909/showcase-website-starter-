@@ -248,6 +248,80 @@ describe("Airtable Service - Create Operations Tests", () => {
       ]);
     });
 
+    it("neutralizes spreadsheet formula prefixes in contact lead text fields", async () => {
+      const service = new AirtableServiceClass();
+      setServiceReady(service);
+
+      mockCreate.mockResolvedValue([
+        createMockRecord({
+          id: "recFormula",
+          fields: {},
+          createdTime: "2023-01-01T00:00:00Z",
+        }),
+      ]);
+
+      await service.createLead("contact", {
+        firstName: '=HYPERLINK("https://example.test")',
+        lastName: "+SUM(1,1)",
+        email: "formula@example.com",
+        company: "-Acme",
+        subject: "@subject",
+        message: " =cmd",
+        referenceId: "CON-formula-123",
+      });
+
+      expect(mockCreate).toHaveBeenCalledWith([
+        {
+          fields: expect.objectContaining({
+            "First Name": `'=HYPERLINK("https://example.test")`,
+            "Last Name": "'+SUM(1,1)",
+            Company: "'-Acme",
+            Subject: "'@subject",
+            Message: "'=cmd",
+          }),
+        },
+      ]);
+    });
+
+    it("neutralizes spreadsheet formula prefixes in product lead text fields", async () => {
+      const service = new AirtableServiceClass();
+      setServiceReady(service);
+
+      mockCreate.mockResolvedValue([
+        createMockRecord({
+          id: "recProductFormula",
+          fields: {},
+          createdTime: "2023-01-01T00:00:00Z",
+        }),
+      ]);
+
+      await service.createLead("product", {
+        firstName: "Buyer",
+        lastName: "One",
+        email: "buyer@example.com",
+        company: "@Buyer Co",
+        message: "=message",
+        productName: "+Product",
+        productSlug: "-product-slug",
+        quantity: "@100",
+        requirements: "=requirements",
+        referenceId: "PROD-formula-123",
+      });
+
+      expect(mockCreate).toHaveBeenCalledWith([
+        {
+          fields: expect.objectContaining({
+            Company: "'@Buyer Co",
+            Message: "'=message",
+            "Product Name": "'+Product",
+            "Product Slug": "'-product-slug",
+            Quantity: "'@100",
+            Requirements: "'=requirements",
+          }),
+        },
+      ]);
+    });
+
     it("should throw error when service is not configured", async () => {
       const service = new AirtableServiceClass();
 

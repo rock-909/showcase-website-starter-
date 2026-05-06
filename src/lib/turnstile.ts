@@ -22,6 +22,10 @@ interface TurnstileVerificationResult {
   "error-codes"?: string[];
 }
 
+interface VerifyTurnstileOptions {
+  expectedAction?: string;
+}
+
 function buildTurnstilePayload(
   token: string,
   ip: string,
@@ -89,15 +93,30 @@ function validateTurnstileHostnameResponse(
 function validateTurnstileActionResponse(
   result: TurnstileVerificationResult,
   ip: string,
+  expectedAction?: string,
 ): boolean {
+  if (expectedAction) {
+    const actualAction = result.action?.trim();
+    if (actualAction === expectedAction) {
+      return true;
+    }
+
+    logger.warn("Turnstile verification rejected due to mismatched action", {
+      action: result.action,
+      expectedAction,
+      ip: sanitizeIP(ip),
+    });
+    return false;
+  }
+
   if (isAllowedTurnstileAction(result.action)) {
     return true;
   }
 
-  const expectedAction = getExpectedTurnstileAction();
+  const configuredExpectedAction = getExpectedTurnstileAction();
   logger.warn("Turnstile verification rejected due to mismatched action", {
     action: result.action,
-    expectedAction,
+    expectedAction: configuredExpectedAction,
     ip: sanitizeIP(ip),
   });
   return false;
@@ -145,6 +164,7 @@ export async function verifyTurnstile(
 export async function verifyTurnstileDetailed(
   token: string,
   ip: string,
+  options: VerifyTurnstileOptions = {},
 ): Promise<{ success: boolean; errorCodes?: string[] }> {
   try {
     if (shouldBypassTurnstile(ip)) {
@@ -169,7 +189,7 @@ export async function verifyTurnstileDetailed(
       return { success: false, errorCodes: ["invalid-hostname"] };
     }
 
-    if (!validateTurnstileActionResponse(result, ip)) {
+    if (!validateTurnstileActionResponse(result, ip, options.expectedAction)) {
       return { success: false, errorCodes: ["invalid-action"] };
     }
 

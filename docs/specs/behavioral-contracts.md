@@ -202,6 +202,21 @@ Notes: Contact route validation is covered through the canonical contact path. I
 
 ---
 
+#### BC-012A: Lead submission retries and anti-abuse checks remain stable
+
+Lead submission surfaces must preserve stable behavior for duplicate starter submissions, endpoint-bound Turnstile action checks, downstream timeout ambiguity, Airtable sink handling, and Cloudflare client-IP handling.
+
+| Field | Value |
+|-------|-------|
+| Priority | High |
+| Test Type | Unit + Integration |
+| Test File | `src/lib/lead-pipeline/__tests__/with-timeout.test.ts`, `src/lib/__tests__/airtable-create-operations.test.ts`, `src/lib/security/__tests__/client-ip.test.ts`, `tests/integration/api/subscribe.test.ts`, `src/app/api/inquiry/__tests__/route.test.ts`, `src/app/__tests__/actions.test.ts`, `src/app/__tests__/contact-integration.test.ts` |
+| Status | Covered |
+
+Notes: Duplicate starter submissions are processed independently instead of replayed. Timeout tests prove timeout is distinguishable from normal service rejection; they do not claim downstream Airtable or Resend requests are canceled. Cloudflare client-IP tests preserve the stop line that raw `cf-connecting-ip` alone is not enough when the trusted source cannot be proven.
+
+---
+
 ### Content & Information
 
 #### BC-013: Products page explains starter capabilities

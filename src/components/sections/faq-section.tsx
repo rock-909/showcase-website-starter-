@@ -1,6 +1,5 @@
 import { JsonLdScript } from "@/components/seo";
-import { FaqAccordion } from "@/components/sections/faq-accordion";
-import { SectionHead } from "@/components/ui/section-head";
+import { FaqSectionView } from "@/components/sections/faq-section-view";
 import { siteFacts } from "@/config/site-facts";
 import { generateFaqSchemaFromItems } from "@/lib/content/mdx-faq";
 import {
@@ -96,15 +95,11 @@ export async function FaqSection(props: FaqSectionProps) {
   return (
     <>
       {renderJsonLd ? <JsonLdScript data={schemaData} /> : null}
-      <section className="section-divider py-14 md:py-[72px]">
-        <div className="mx-auto max-w-[1080px] px-6">
-          <SectionHead
-            title={sectionTitle}
-            {...(subtitle ? { subtitle } : {})}
-          />
-          <FaqAccordion items={faqData} />
-        </div>
-      </section>
+      <FaqSectionView
+        title={sectionTitle}
+        {...(subtitle ? { subtitle } : {})}
+        items={faqData}
+      />
     </>
   );
 }

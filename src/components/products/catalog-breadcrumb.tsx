@@ -1,18 +1,11 @@
 import { getTranslations } from "next-intl/server";
-import { Link, routing } from "@/i18n/routing";
+import { routing } from "@/i18n/routing";
 import { JsonLdScript } from "@/components/seo";
 import { SITE_CONFIG } from "@/config/paths";
 import { getCanonicalPath, getProductMarketPath } from "@/config/paths/utils";
 import type { MarketDefinition } from "@/constants/product-catalog";
 import { buildBreadcrumbListSchema } from "@/lib/structured-data-generators";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { CatalogBreadcrumbView } from "@/components/products/catalog-breadcrumb-view";
 
 interface CatalogBreadcrumbProps {
   market?: MarketDefinition;
@@ -56,38 +49,12 @@ export async function CatalogBreadcrumb({
 
   return (
     <>
-      <Breadcrumb>
-        <BreadcrumbList>
-          {/* Home */}
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link href="/">{tBreadcrumb("home")}</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-
-          {/* Products */}
-          <BreadcrumbItem>
-            {market ? (
-              <BreadcrumbLink asChild>
-                <Link href={productsPath}>{tBreadcrumb("products")}</Link>
-              </BreadcrumbLink>
-            ) : (
-              <BreadcrumbPage>{tBreadcrumb("products")}</BreadcrumbPage>
-            )}
-          </BreadcrumbItem>
-
-          {/* Market */}
-          {market && (
-            <>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbPage>{marketLabel || market.label}</BreadcrumbPage>
-              </BreadcrumbItem>
-            </>
-          )}
-        </BreadcrumbList>
-      </Breadcrumb>
+      <CatalogBreadcrumbView
+        homeLabel={tBreadcrumb("home")}
+        productsLabel={tBreadcrumb("products")}
+        productsHref={productsPath}
+        {...(market ? { marketLabel: marketLabel || market.label } : {})}
+      />
 
       {renderJsonLd ? (
         <JsonLdScript
