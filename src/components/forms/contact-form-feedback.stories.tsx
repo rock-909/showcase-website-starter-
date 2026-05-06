@@ -6,7 +6,7 @@ import {
 } from "@/components/forms/contact-form-feedback";
 import {
   contactFormApiStoryTranslate,
-  contactFormPartialSuccessState,
+  contactFormProcessingErrorState,
   contactFormRawErrorState,
   contactFormStoryTranslate,
   contactFormValidationErrorState,
@@ -75,9 +75,9 @@ export const RawError: Story = {
   },
 };
 
-export const PartialSuccess: Story = {
+export const ProcessingError: Story = {
   args: {
     status: "idle",
-    state: contactFormPartialSuccessState,
+    state: contactFormProcessingErrorState,
   },
 };

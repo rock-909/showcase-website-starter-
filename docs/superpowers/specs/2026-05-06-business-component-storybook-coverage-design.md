@@ -114,7 +114,7 @@ fixture 只服务视觉和状态审查。它不能成为产品事实、品牌事
 - 表单 pending / disabled。
 - submit success。
 - validation error。
-- partial success。
+- processing error / validation error。
 - Turnstile placeholder / unavailable fallback。
 - optional company。
 - long English / long Chinese labels and placeholders。

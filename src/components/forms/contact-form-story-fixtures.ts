@@ -64,9 +64,9 @@ const longChineseFormMessages = {
 } as const;
 
 const apiMessages = {
-  CONTACT_PARTIAL_SUCCESS:
-    "We received your message, but part of the follow-up failed. Please wait before retrying.",
   CONTACT_VALIDATION_FAILED: "Please check the form and try again.",
+  CONTACT_PROCESSING_ERROR:
+    "The contact request could not be processed. Please try again.",
   RATE_LIMIT_EXCEEDED: "Too many attempts. Please wait before trying again.",
   TURNSTILE_MISSING_TOKEN: "Security verification is required.",
 } as const;
@@ -95,15 +95,9 @@ export const contactFormValidationErrorState = {
   timestamp: STORY_TIMESTAMP,
 } satisfies ServerActionResult<ContactFormResult>;
 
-export const contactFormPartialSuccessState = {
+export const contactFormProcessingErrorState = {
   success: false,
-  errorCode: API_ERROR_CODES.CONTACT_PARTIAL_SUCCESS,
-  data: {
-    emailSent: true,
-    recordCreated: false,
-    referenceId: "story-ref-1001",
-    partialSuccess: true,
-  },
+  errorCode: API_ERROR_CODES.CONTACT_PROCESSING_ERROR,
   timestamp: STORY_TIMESTAMP,
 } satisfies ServerActionResult<ContactFormResult>;
 

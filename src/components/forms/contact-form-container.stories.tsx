@@ -7,7 +7,7 @@ import {
 import {
   contactFormApiStoryTranslate,
   contactFormLongChineseTranslate,
-  contactFormPartialSuccessState,
+  contactFormProcessingErrorState,
   contactFormStoryTranslate,
   contactFormSuccessState,
   contactFormValidationErrorState,
@@ -69,9 +69,9 @@ export const SubmitSuccess: Story = {
   },
 };
 
-export const PartialSuccess: Story = {
+export const ProcessingError: Story = {
   args: {
-    state: contactFormPartialSuccessState,
+    state: contactFormProcessingErrorState,
   },
 };
 

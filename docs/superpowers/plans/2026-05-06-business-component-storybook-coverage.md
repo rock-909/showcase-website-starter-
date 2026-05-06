@@ -151,7 +151,7 @@ Required exports:
 - `contactFormLongEnglishTranslate`
 - `contactFormLongChineseTranslate`
 - `contactFormValidationErrorState`
-- `contactFormPartialSuccessState`
+- `contactFormProcessingErrorState`
 
 Expected behavior:
 
@@ -185,14 +185,14 @@ Required stories in `src/components/forms/contact-form-container.stories.tsx`:
 - `Pending`
 - `ValidationError`
 - `SubmitSuccess`
-- `PartialSuccess`
+- `ProcessingError`
 - `RateLimited`
 
 Acceptance criteria:
 
 - `Pending` disables visible fields and shows the pending submit label.
 - `ValidationError` renders the error display with validation details.
-- `PartialSuccess` renders a status-style message without the generic error heading.
+- `ProcessingError` renders a translated API error without validation details.
 - Storybook does not call the real `contactFormAction`.
 
 ### Task 1.4: Add lower-level form field stories
@@ -232,7 +232,7 @@ Required stories:
 - `SubmittingStatus`
 - `ValidationError`
 - `RawError`
-- `PartialSuccess`
+- `ProcessingError`
 
 Create `src/components/forms/lazy-turnstile.stories.tsx`.
 
