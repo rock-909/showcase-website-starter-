@@ -16,14 +16,23 @@ const FILE_CONTRACT_FIXTURES = [
     expectedFindings: 0,
   },
   {
-    ruleId: "critical-lead-route-missing-idempotency",
-    config: "tests/semgrep/rules/critical-lead-route-missing-idempotency.yaml",
+    ruleId: "starter-lead-route-missing-safe-json-body",
+    config:
+      "tests/semgrep/rules/starter-lead-route-missing-safe-json-body.yaml",
+    target: "tests/semgrep/targets/src/app/api/contact/route.ts",
+    expectedFindings: 0,
+  },
+  {
+    ruleId: "starter-lead-route-missing-safe-json-body",
+    config:
+      "tests/semgrep/rules/starter-lead-route-missing-safe-json-body.yaml",
     target: "tests/semgrep/targets/src/app/api/inquiry/route.ts",
     expectedFindings: 0,
   },
   {
-    ruleId: "critical-lead-route-missing-idempotency",
-    config: "tests/semgrep/rules/critical-lead-route-missing-idempotency.yaml",
+    ruleId: "starter-lead-route-missing-safe-json-body",
+    config:
+      "tests/semgrep/rules/starter-lead-route-missing-safe-json-body.yaml",
     target: "tests/semgrep/targets/src/app/api/subscribe/route.ts",
     expectedFindings: 0,
   },

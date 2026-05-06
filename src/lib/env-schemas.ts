@@ -56,10 +56,6 @@ export const serverEnvSchema = {
     .string()
     .optional()
     .transform((val) => val === "true"),
-  ALLOW_MEMORY_IDEMPOTENCY: z
-    .string()
-    .optional()
-    .transform((val) => val === "true"),
 
   // Vercel
   VERCEL_URL: z.string().optional(),

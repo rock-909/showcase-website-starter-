@@ -7,7 +7,6 @@
     "src/lib/lead-pipeline/**/*.ts",
     "src/lib/security/**/*.ts",
     "src/lib/form-schema/**/*.ts",
-    "src/lib/idempotency*.ts",
     "!src/**/__tests__/**",
     "!src/**/*.test.ts",
     "!src/**/*.spec.ts",

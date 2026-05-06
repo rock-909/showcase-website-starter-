@@ -9,6 +9,7 @@
  * - Rate limiting (via withRateLimit HOF)
  * - JSON parsing + validation
  * - Turnstile token presence check
+ * - No starter-default replay-key requirement
  */
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -102,7 +103,6 @@ function createRequest(
     body: typeof body === "string" ? body : JSON.stringify(body),
     headers: {
       "Content-Type": "application/json",
-      "Idempotency-Key": `test-inquiry-key-${Date.now()}-${Math.random()}`,
       "x-forwarded-for": "203.0.113.50",
       ...headers,
     },
@@ -178,9 +178,7 @@ describe("/api/inquiry — integration (protection chain)", () => {
     });
 
     it("invalid JSON returns 400 before turnstile check", async () => {
-      const request = createRequest("not valid json {{{", {
-        "Idempotency-Key": "invalid-json-key",
-      });
+      const request = createRequest("not valid json {{{");
 
       const response = await POST(request);
       const data = await response.json();

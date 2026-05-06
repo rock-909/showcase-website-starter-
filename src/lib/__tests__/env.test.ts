@@ -161,7 +161,6 @@ describe("env type safety", () => {
   it("exposes the production runtime contract vars through the central env object", () => {
     expect("NEXT_SERVER_ACTIONS_ENCRYPTION_KEY" in env).toBe(true);
     expect("ALLOW_MEMORY_RATE_LIMIT" in env).toBe(true);
-    expect("ALLOW_MEMORY_IDEMPOTENCY" in env).toBe(true);
   });
 
   it("exposes Cloudflare analytics and ops dashboard vars through the central env object", () => {

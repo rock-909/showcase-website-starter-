@@ -28,9 +28,9 @@ Browser-exposed write endpoints need:
 - small route-local or shared rate limit when currently wired;
 - stable machine-readable error codes.
 
-Do not add body hashing, distributed rate limiting, or idempotency as starter
-defaults. Keep them only while existing runtime code still needs them, or add
-them later when a real incident justifies the extra complexity.
+Do not add body hashing, distributed rate limiting, or duplicate-submission
+replay as starter defaults. Add them later only when a real incident justifies
+the extra complexity.
 
 ## Lead-family behavior
 

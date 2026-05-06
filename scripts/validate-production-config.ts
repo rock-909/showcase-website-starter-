@@ -149,7 +149,7 @@ export function validateProductionRuntimeContract(
   // SIMPLIFIED: No intermediate allow branch. If no Redis/KV, error immediately.
   if (!hasUpstash && !hasKv) {
     errors.push(
-      "Production rate limiting and idempotency require Upstash Redis or Vercel KV. Configure at least one store.",
+      "Production rate limiting requires Upstash Redis. Configure UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN.",
     );
   } else if (!hasUpstash && hasKv) {
     errors.push(
@@ -207,9 +207,9 @@ export function validateProductionRuntimeContract(
   );
 
   // ENFORCED: Degraded flags are never allowed in production.
-  if (hasAny(env, "ALLOW_MEMORY_RATE_LIMIT", "ALLOW_MEMORY_IDEMPOTENCY")) {
+  if (hasAny(env, "ALLOW_MEMORY_RATE_LIMIT")) {
     errors.push(
-      "Degraded in-memory store flags (ALLOW_MEMORY_RATE_LIMIT, ALLOW_MEMORY_IDEMPOTENCY) cannot be used in production. " +
+      "Degraded in-memory rate-limit store flag (ALLOW_MEMORY_RATE_LIMIT) cannot be used in production. " +
         "Configure Upstash Redis or Vercel KV for production deployments.",
     );
   }

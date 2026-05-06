@@ -15,7 +15,7 @@ vi.mock("@/config/cors", () => ({
   isSameOrigin: mockIsSameOrigin,
   CORS_CONFIG: {
     allowedMethods: ["POST", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Idempotency-Key"],
+    allowedHeaders: ["Content-Type"],
     maxAge: 3600,
   },
 }));
@@ -64,9 +64,7 @@ describe("CORS Utils", () => {
       const headers = getCorsHeaders(request);
 
       expect(headers["Access-Control-Allow-Methods"]).toBe("POST, OPTIONS");
-      expect(headers["Access-Control-Allow-Headers"]).toBe(
-        "Content-Type, Idempotency-Key",
-      );
+      expect(headers["Access-Control-Allow-Headers"]).toBe("Content-Type");
       expect(headers["Access-Control-Max-Age"]).toBe("3600");
     });
 
@@ -105,7 +103,7 @@ describe("CORS Utils", () => {
       });
 
       expect(headers["Access-Control-Allow-Headers"]).toBe(
-        "Content-Type, Idempotency-Key, Authorization, X-Custom",
+        "Content-Type, Authorization, X-Custom",
       );
     });
   });

@@ -66,7 +66,7 @@ describe("validate-production-config runtime contract", () => {
     expect(result.errors).toEqual(
       expect.arrayContaining([
         expect.stringContaining(
-          "Production rate limiting and idempotency require Upstash Redis or Vercel KV",
+          "Production rate limiting requires Upstash Redis",
         ),
       ]),
     );
@@ -78,7 +78,6 @@ describe("validate-production-config runtime contract", () => {
       UPSTASH_REDIS_REST_URL: undefined,
       UPSTASH_REDIS_REST_TOKEN: undefined,
       ALLOW_MEMORY_RATE_LIMIT: "true",
-      ALLOW_MEMORY_IDEMPOTENCY: "true",
     };
 
     const result = validateProductionRuntimeContract(env);
@@ -86,7 +85,7 @@ describe("validate-production-config runtime contract", () => {
     expect(result.errors).toEqual(
       expect.arrayContaining([
         expect.stringContaining(
-          "Degraded in-memory store flags (ALLOW_MEMORY_RATE_LIMIT, ALLOW_MEMORY_IDEMPOTENCY) cannot be used in production",
+          "Degraded in-memory rate-limit store flag (ALLOW_MEMORY_RATE_LIMIT) cannot be used in production",
         ),
       ]),
     );
@@ -104,13 +103,12 @@ describe("validate-production-config runtime contract", () => {
       KV_REST_API_URL: "https://kv.example.com",
       KV_REST_API_TOKEN: "kv-token",
       ALLOW_MEMORY_RATE_LIMIT: "true",
-      ALLOW_MEMORY_IDEMPOTENCY: "true",
     });
 
     expect(partialUpstash.errors).toEqual(
       expect.arrayContaining([
         expect.stringContaining(
-          "Production rate limiting and idempotency require Upstash Redis or Vercel KV",
+          "Production rate limiting requires Upstash Redis",
         ),
       ]),
     );

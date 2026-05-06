@@ -33,7 +33,6 @@ const contactSubmissionSchema = contactFormSchema.extend({
 export type ContactFormWithToken = ContactFormFieldValues & {
   turnstileToken: string;
   submittedAt: string;
-  idempotencyKey?: string;
 };
 
 interface ContactValidationFailure {

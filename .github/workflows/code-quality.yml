@@ -93,4 +93,4 @@ jobs:
           echo "- **Semgrep 扫描**: ${{ needs.semgrep-full-scan.result }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "> **Note**: 基础质量检查（type-check, lint, test）由 ci.yml 统一处理" >> $GITHUB_STEP_SUMMARY
-          echo "> PR 级别的 Semgrep baseline 扫描已移至 ci.yml" >> $GITHUB_STEP_SUMMARY
+          echo "> PR 不默认运行 Semgrep；本工作流在 main push / nightly / manual 场景执行深度扫描" >> $GITHUB_STEP_SUMMARY

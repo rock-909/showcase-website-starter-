@@ -1,15 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { withIdempotency } from "@/lib/idempotency";
+import { safeParseJson } from "@/lib/api/safe-parse-json";
 
 async function handlePost(request: NextRequest): Promise<NextResponse> {
-  // ok: critical-lead-route-missing-idempotency
-  return withIdempotency(
-    request,
-    async () => {
-      return NextResponse.json({ ok: true });
-    },
-    { required: true },
-  );
+  // ok: starter-lead-route-missing-safe-json-body
+  const parsed = await safeParseJson<{ productSlug?: string }>(request);
+  if (!parsed.ok) {
+    return NextResponse.json({ success: false });
+  }
+
+  return NextResponse.json({ ok: true });
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {

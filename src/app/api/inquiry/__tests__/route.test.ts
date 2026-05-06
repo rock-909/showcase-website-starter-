@@ -65,7 +65,7 @@ vi.mock("@/lib/api/cors-utils", () => ({
     const origin = request.headers.get("origin");
     const headers: Record<string, string> = {
       "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Idempotency-Key",
+      "Access-Control-Allow-Headers": "Content-Type",
     };
     if (origin) {
       headers["Access-Control-Allow-Origin"] = origin;
@@ -78,19 +78,15 @@ vi.mock("@/lib/api/cors-utils", () => ({
 }));
 
 describe("/api/inquiry route", () => {
-  let idempotencyCounter = 0;
-
   function createInquiryRequest(
     body: BodyInit | null,
     headers: Record<string, string> = {},
   ): NextRequest {
-    idempotencyCounter += 1;
     return new NextRequest("http://localhost:3000/api/inquiry", {
       method: "POST",
       body,
       headers: {
         "Content-Type": "application/json",
-        "Idempotency-Key": `test-inquiry-key-${idempotencyCounter}`,
         ...headers,
       },
     });
@@ -179,7 +175,7 @@ describe("/api/inquiry route", () => {
       expect(data.success).toBe(false);
     });
 
-    it("should return 400 when Idempotency-Key is missing", async () => {
+    it("should process valid inquiry without a replay key", async () => {
       const request = new NextRequest("http://localhost:3000/api/inquiry", {
         method: "POST",
         body: JSON.stringify(validInquiryData),
@@ -189,9 +185,9 @@ describe("/api/inquiry route", () => {
       const response = await POST(request);
       const data = await response.json();
 
-      expect(response.status).toBe(400);
-      expect(data.success).toBe(false);
-      expect(data.errorCode).toBe(API_ERROR_CODES.IDEMPOTENCY_KEY_REQUIRED);
+      expect(response.status).toBe(200);
+      expect(data.success).toBe(true);
+      expect(processLead).toHaveBeenCalledTimes(1);
     });
 
     it("should return 413 when payload exceeds the shared JSON body limit", async () => {
@@ -207,19 +203,12 @@ describe("/api/inquiry route", () => {
       expect(data.errorCode).toBe(API_ERROR_CODES.PAYLOAD_TOO_LARGE);
     });
 
-    it("should replay cached response for duplicate idempotency key", async () => {
-      const sharedKey = "duplicate-key";
+    it("should process repeated valid inquiry requests independently", async () => {
       const firstRequest = createInquiryRequest(
         JSON.stringify(validInquiryData),
-        {
-          "Idempotency-Key": sharedKey,
-        },
       );
       const secondRequest = createInquiryRequest(
         JSON.stringify(validInquiryData),
-        {
-          "Idempotency-Key": sharedKey,
-        },
       );
 
       const firstResponse = await POST(firstRequest);
@@ -229,8 +218,9 @@ describe("/api/inquiry route", () => {
 
       expect(firstResponse.status).toBe(200);
       expect(secondResponse.status).toBe(200);
-      expect(secondData).toEqual(firstData);
-      expect(processLead).toHaveBeenCalledTimes(1);
+      expect(firstData.success).toBe(true);
+      expect(secondData.success).toBe(true);
+      expect(processLead).toHaveBeenCalledTimes(2);
     });
 
     it("should return 400 when turnstile token is missing", async () => {

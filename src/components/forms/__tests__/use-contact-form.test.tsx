@@ -86,6 +86,6 @@ describe("useContactForm", () => {
       marketingConsent: true,
       turnstileToken: "valid-token",
     });
-    expect(body).not.toHaveProperty("idempotencyKey");
+    expect(body).not.toHaveProperty("replayKey");
   });
 });

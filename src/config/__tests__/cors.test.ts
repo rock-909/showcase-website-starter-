@@ -184,7 +184,7 @@ describe("CORS Configuration", () => {
       const { CORS_CONFIG } = await import("../cors");
 
       expect(CORS_CONFIG.allowedHeaders).toContain("Content-Type");
-      expect(CORS_CONFIG.allowedHeaders).toContain("Idempotency-Key");
+      expect(CORS_CONFIG.allowedHeaders).toEqual(["Content-Type"]);
     });
 
     it("should have maxAge set", async () => {

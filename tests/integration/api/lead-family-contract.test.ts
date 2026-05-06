@@ -1,6 +1,5 @@
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { resetIdempotencyState } from "@/lib/idempotency";
 import { API_ERROR_CODES } from "@/constants/api-error-codes";
 import {
   OBSERVABILITY_SURFACE_HEADER,
@@ -86,7 +85,6 @@ function makeRequest(
       body: JSON.stringify(body),
       headers: {
         "Content-Type": "application/json",
-        "Idempotency-Key": `${pathname}-key`,
         ...(extraHeaders as Record<string, string>),
       },
     }),
@@ -110,7 +108,6 @@ function expectLeadObservabilityHeaders(
 describe("lead API family response contract (auxiliary)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    resetIdempotencyState();
     resetSystemObservability();
   });
 
@@ -234,7 +231,6 @@ describe("lead API family response contract (auxiliary)", () => {
           body: "not-json",
           headers: {
             "Content-Type": "application/json",
-            "Idempotency-Key": "inquiry-invalid-json",
           },
         }),
       ),

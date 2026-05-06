@@ -140,7 +140,7 @@ This proof does not prove sales quality, legal readiness, or form delivery.
 
 - 使用当前真实表单 API 的 payload，不写旧项目 payload。
 - 有非生产测试策略，例如 Turnstile 测试 token 或明确 staging bypass。
-- 有 idempotency key，避免重复写入。
+- 默认不要求重复提交键；strict submit 只能打非生产目标，并且要接受重复测试线索或在目标系统里人工清理。真实客户项目如果自行加入重复提交保护，再把对应字段放进 canary payload。
 - 目标 URL 限制在 localhost、preview、staging 或明确的非生产域名。
 - 报告记录提交 reference，便于人工去 Airtable/邮件系统核对。
 

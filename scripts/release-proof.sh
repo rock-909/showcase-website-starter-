@@ -11,11 +11,6 @@ if [[ "${ALLOW_MEMORY_RATE_LIMIT:-}" == "true" || "${ALLOW_MEMORY_RATE_LIMIT:-}"
   exit 1
 fi
 
-if [[ "${ALLOW_MEMORY_IDEMPOTENCY:-}" == "true" || "${ALLOW_MEMORY_IDEMPOTENCY:-}" == "1" ]]; then
-  echo "release-proof must not run with ALLOW_MEMORY_IDEMPOTENCY enabled" >&2
-  exit 1
-fi
-
 echo "== Release verification flow =="
 pnpm review:docs-truth
 pnpm review:cf:official-compare:source
