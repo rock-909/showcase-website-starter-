@@ -1,5 +1,3 @@
-"use client";
-
 import { useFormStatus } from "react-dom";
 import type { ContactFormResult } from "@/lib/actions/contact";
 import type { FormSubmissionStatus } from "@/lib/forms/form-submission-status";
