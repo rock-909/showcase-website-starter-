@@ -387,6 +387,7 @@ describe("idempotency behavioral contracts", () => {
         fingerprint: "POST:/api/inquiry",
         response: { ok: true },
         status: "success",
+        statusCode: 201,
       },
       1_234,
     );

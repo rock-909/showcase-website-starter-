@@ -14,7 +14,7 @@
 import { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { HTTP_OK } from "@/constants";
+import { HTTP_BAD_REQUEST, HTTP_OK } from "@/constants";
 
 import { clearAllIdempotencyKeys, withIdempotency } from "../idempotency";
 
@@ -165,6 +165,31 @@ describe("idempotency security properties", () => {
       // If results are stored in IdempotencyStore, handler should NOT execute again.
       expect(executionCount.value).toBe(0);
       expect(data).not.toHaveProperty("reExecuted");
+    });
+
+    it("should preserve normalized object HTTP status when replaying from the store", async () => {
+      const key = "status-replay-key-1";
+      const request1 = createRequest("POST", "/api/inquiry", key);
+      const firstResponse = await withIdempotency(request1, async () => ({
+        success: false,
+        errorCode: "SECURITY_REQUIRED",
+        statusCode: HTTP_BAD_REQUEST,
+      }));
+
+      clearAllIdempotencyKeys();
+
+      const request2 = createRequest("POST", "/api/inquiry", key);
+      const secondResponse = await withIdempotency(request2, async () => ({
+        success: true,
+        reExecuted: true,
+      }));
+
+      expect(firstResponse.status).toBe(HTTP_BAD_REQUEST);
+      expect(secondResponse.status).toBe(HTTP_BAD_REQUEST);
+      expect(await secondResponse.json()).toEqual({
+        success: false,
+        errorCode: "SECURITY_REQUIRED",
+      });
     });
   });
 });

@@ -341,6 +341,7 @@ async function handleWithIdempotencyKey<T>(
             status: "success",
             fingerprint,
             response: normalized.body,
+            statusCode: normalized.statusCode,
             createdAt: now,
             expiresAt: now + ttlMs,
           },
