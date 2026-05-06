@@ -140,6 +140,18 @@ describe("/api/inquiry route", () => {
       );
     });
 
+    it("binds Turnstile verification to the product_inquiry action", async () => {
+      const request = createInquiryRequest(JSON.stringify(validInquiryData));
+
+      await POST(request);
+
+      expect(verifyTurnstileDetailed).toHaveBeenCalledWith(
+        "valid-token",
+        expect.any(String),
+        { expectedAction: "product_inquiry" },
+      );
+    });
+
     it("should apply CORS headers on POST response when Origin is present", async () => {
       const origin = "http://localhost:3000";
       const request = createInquiryRequest(JSON.stringify(validInquiryData), {

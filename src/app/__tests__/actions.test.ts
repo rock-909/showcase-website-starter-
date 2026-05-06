@@ -428,6 +428,7 @@ describe("actions.ts", () => {
         expect(verifyTurnstileDetailed).toHaveBeenCalledWith(
           "valid-token",
           "172.16.0.100",
+          { expectedAction: "contact_form" },
         );
       });
 
@@ -448,6 +449,7 @@ describe("actions.ts", () => {
         expect(verifyTurnstileDetailed).toHaveBeenCalledWith(
           "valid-token",
           "198.51.100.77",
+          { expectedAction: "contact_form" },
         );
       });
     });

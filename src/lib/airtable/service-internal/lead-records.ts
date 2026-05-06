@@ -8,9 +8,9 @@ import type {
   NewsletterLeadData,
   ProductLeadData,
 } from "@/lib/airtable/types";
+import { sanitizeAirtableTextField } from "@/lib/airtable/service-internal/field-sanitization";
 import { LEAD_TYPES, type LeadType } from "@/lib/lead-pipeline/lead-schema";
 import { logger, sanitizeEmail } from "@/lib/logger";
-import { sanitizePlainText } from "@/lib/security-validation";
 
 type AirtableFieldValue = string | number | boolean;
 type AirtableFields = Record<string, AirtableFieldValue>;
@@ -47,27 +47,33 @@ function addReferenceId(fields: AirtableFields, referenceId?: string): void {
 }
 
 function addContactFields(fields: AirtableFields, data: ContactLeadData): void {
-  fields["First Name"] = sanitizePlainText(data.firstName);
-  fields["Last Name"] = sanitizePlainText(data.lastName);
-  fields["Company"] = data.company ? sanitizePlainText(data.company) : "";
-  fields["Subject"] = data.subject || "";
-  fields["Message"] = sanitizePlainText(data.message);
+  fields["First Name"] = sanitizeAirtableTextField(data.firstName);
+  fields["Last Name"] = sanitizeAirtableTextField(data.lastName);
+  fields["Company"] = data.company
+    ? sanitizeAirtableTextField(data.company)
+    : "";
+  fields["Subject"] = data.subject
+    ? sanitizeAirtableTextField(data.subject)
+    : "";
+  fields["Message"] = sanitizeAirtableTextField(data.message);
   fields["Marketing Consent"] = data.marketingConsent || false;
 }
 
 function addProductFields(fields: AirtableFields, data: ProductLeadData): void {
-  fields["First Name"] = sanitizePlainText(data.firstName);
-  fields["Last Name"] = sanitizePlainText(data.lastName);
-  fields["Company"] = data.company ? sanitizePlainText(data.company) : "";
-  fields["Message"] = sanitizePlainText(data.message);
-  fields["Product Name"] = data.productName;
-  fields["Product Slug"] = data.productSlug;
+  fields["First Name"] = sanitizeAirtableTextField(data.firstName);
+  fields["Last Name"] = sanitizeAirtableTextField(data.lastName);
+  fields["Company"] = data.company
+    ? sanitizeAirtableTextField(data.company)
+    : "";
+  fields["Message"] = sanitizeAirtableTextField(data.message);
+  fields["Product Name"] = sanitizeAirtableTextField(data.productName);
+  fields["Product Slug"] = sanitizeAirtableTextField(data.productSlug);
   fields["Quantity"] =
     typeof data.quantity === "number"
       ? data.quantity.toString()
-      : data.quantity;
+      : sanitizeAirtableTextField(data.quantity);
   if (data.requirements) {
-    fields["Requirements"] = sanitizePlainText(data.requirements);
+    fields["Requirements"] = sanitizeAirtableTextField(data.requirements);
   }
   fields["Marketing Consent"] = data.marketingConsent || false;
 }

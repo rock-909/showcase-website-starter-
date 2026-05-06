@@ -56,7 +56,7 @@ export async function waitForCompletion(
     }
     if (entry.status === "success") {
       return NextResponse.json(entry.response, {
-        status: HTTP_OK,
+        status: entry.statusCode ?? HTTP_OK,
       });
     }
     if (entry.status === "error") {

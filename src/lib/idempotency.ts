@@ -18,7 +18,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
 import { API_ERROR_CODES } from "@/constants/api-error-codes";
 import { createApiErrorResponse } from "@/lib/api/api-response";
-import { HTTP_BAD_REQUEST, HTTP_SERVICE_UNAVAILABLE } from "@/constants";
+import {
+  HTTP_BAD_REQUEST,
+  HTTP_OK,
+  HTTP_SERVICE_UNAVAILABLE,
+} from "@/constants";
 import {
   type IdempotencyStore,
   createIdempotencyStore,
@@ -141,7 +145,9 @@ function handleExistingEntry(
   }
 
   if (existing.status === "success") {
-    return NextResponse.json(existing.response);
+    return NextResponse.json(existing.response, {
+      status: existing.statusCode ?? HTTP_OK,
+    });
   }
 
   if (existing.status === "error") {
@@ -153,6 +159,89 @@ function handleExistingEntry(
 
   // Status is "pending" — wait for completion (this is a Promise, not awaited by caller)
   return waitForCompletion(idempotencyKey, store);
+}
+
+function isJsonResponse(response: NextResponse): boolean {
+  const contentType = response.headers.get("content-type") ?? "";
+  return contentType.toLowerCase().includes("application/json");
+}
+
+async function persistDirectJsonResponse(params: {
+  response: NextResponse;
+  store: IdempotencyStore;
+  idempotencyKey: string;
+  fingerprint: string;
+  createdAt: number;
+  ttlMs: number;
+}): Promise<boolean> {
+  const { response, store, idempotencyKey, fingerprint, createdAt, ttlMs } =
+    params;
+
+  if (!isJsonResponse(response)) {
+    return false;
+  }
+
+  const body = await response.clone().json();
+  await store.set(
+    idempotencyKey,
+    {
+      status: "success",
+      fingerprint,
+      response: body,
+      statusCode: response.status,
+      createdAt,
+      expiresAt: createdAt + ttlMs,
+    },
+    ttlMs,
+  );
+  return true;
+}
+
+async function deleteNonCachedIdempotencyKey(
+  idempotencyKey: string,
+  store: IdempotencyStore,
+): Promise<void> {
+  try {
+    await store.delete(idempotencyKey);
+  } catch (deleteError) {
+    logger.warn("Failed to delete non-cached idempotency key", {
+      deleteError,
+      idempotencyKey,
+    });
+  }
+}
+
+async function handleDirectNextResponse(params: {
+  result: NextResponse;
+  store: IdempotencyStore;
+  idempotencyKey: string;
+  fingerprint: string;
+  createdAt: number;
+  ttlMs: number;
+}): Promise<NextResponse> {
+  const { result, store, idempotencyKey, fingerprint, createdAt, ttlMs } =
+    params;
+
+  try {
+    const persisted = await persistDirectJsonResponse({
+      response: result,
+      store,
+      idempotencyKey,
+      fingerprint,
+      createdAt,
+      ttlMs,
+    });
+    if (persisted) return result;
+  } catch (persistError) {
+    logger.error(
+      "Failed to persist direct JSON idempotency result — key remains PENDING until TTL expires",
+      { persistError, idempotencyKey },
+    );
+    return result;
+  }
+
+  await deleteNonCachedIdempotencyKey(idempotencyKey, store);
+  return result;
 }
 
 /**
@@ -230,18 +319,14 @@ async function handleWithIdempotencyKey<T>(
       const result = await handler();
 
       if (result instanceof NextResponse) {
-        // Don't cache responses where the handler returns a NextResponse directly
-        // (both 2xx and non-2xx). For idempotency caching, handlers must return
-        // a plain serializable object instead of a NextResponse.
-        try {
-          await store.delete(idempotencyKey);
-        } catch (deleteError) {
-          logger.warn("Failed to delete non-cached idempotency key", {
-            deleteError,
-            idempotencyKey,
-          });
-        }
-        return result;
+        return handleDirectNextResponse({
+          result,
+          store,
+          idempotencyKey,
+          fingerprint,
+          createdAt: now,
+          ttlMs,
+        });
       }
 
       const normalized = normalizeHandlerResult(result);

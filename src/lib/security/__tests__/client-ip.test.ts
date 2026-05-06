@@ -171,6 +171,19 @@ describe("client-ip", () => {
         expect(ip).toBe("198.51.100.50");
       });
 
+      it("falls back when Cloudflare platform has cf-connecting-ip but no trusted source proof", () => {
+        // Stop line: cf-connecting-ip alone is not trusted when request.ip is missing.
+        // A future Cloudflare/OpenNext runtime proof may add a narrower trusted signal.
+        setEnv("DEPLOYMENT_PLATFORM", "cloudflare");
+        const request = createMockRequest({
+          headers: {
+            "cf-connecting-ip": "198.51.100.77",
+          },
+        });
+
+        expect(getClientIP(request)).toBe("0.0.0.0");
+      });
+
       it("should trust Cloudflare IPv6 edge ranges", () => {
         const request = createMockRequest({
           ip: "2400:cb00::1",

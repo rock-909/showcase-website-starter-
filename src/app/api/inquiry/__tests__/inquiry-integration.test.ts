@@ -136,6 +136,7 @@ describe("/api/inquiry — integration (protection chain)", () => {
       expect(verifyTurnstileDetailed).toHaveBeenCalledWith(
         "valid-turnstile-token",
         expect.any(String),
+        { expectedAction: "product_inquiry" },
       );
       expect(processLead).toHaveBeenCalledWith(
         expect.objectContaining({

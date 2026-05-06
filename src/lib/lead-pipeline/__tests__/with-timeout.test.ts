@@ -4,7 +4,8 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { withTimeout } from "../with-timeout";
+import { settleService } from "../settle-service";
+import { OperationTimeoutError, withTimeout } from "../with-timeout";
 
 describe("withTimeout", () => {
   beforeEach(() => {
@@ -40,6 +41,52 @@ describe("withTimeout", () => {
     await expect(resultPromise).rejects.toThrow(
       "slowOperation timed out after 500ms",
     );
+  });
+
+  it("rejects with OperationTimeoutError so timeout unknown-state is distinguishable", async () => {
+    const neverResolves = new Promise(() => {});
+
+    const resultPromise = withTimeout(neverResolves, 500, "airtableSubmission");
+
+    vi.advanceTimersByTime(500);
+
+    await expect(resultPromise).rejects.toBeInstanceOf(OperationTimeoutError);
+    await expect(resultPromise).rejects.toMatchObject({
+      name: "OperationTimeoutError",
+      operationName: "airtableSubmission",
+      timeoutMs: 500,
+    });
+  });
+
+  it("clears the timeout timer when the wrapped promise settles first", async () => {
+    const clearTimeoutSpy = vi.spyOn(globalThis, "clearTimeout");
+
+    const result = await withTimeout(
+      Promise.resolve("done"),
+      1000,
+      "quickOperation",
+    );
+
+    expect(result).toBe("done");
+    expect(clearTimeoutSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("settleService preserves OperationTimeoutError on timed-out operations", async () => {
+    const neverResolves = new Promise(() => {});
+
+    const resultPromise = settleService(neverResolves, {
+      operationName: "CRM record",
+      timeoutMs: 500,
+    });
+
+    vi.advanceTimersByTime(500);
+    const result = await resultPromise;
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error).toBeInstanceOf(OperationTimeoutError);
+      expect(result.error.message).toBe("CRM record timed out after 500ms");
+    }
   });
 
   it("should preserve original error when promise rejects before timeout", async () => {

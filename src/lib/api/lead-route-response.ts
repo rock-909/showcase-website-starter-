@@ -27,6 +27,7 @@ interface LeadFailureResponseOptions {
 interface TurnstileValidationOptions {
   token: string | undefined;
   clientIP: string;
+  expectedAction: string;
   missingTokenErrorCode: ApiErrorCode;
   invalidTokenErrorCode: ApiErrorCode;
   missingTokenLogMessage: string;
@@ -87,6 +88,7 @@ export async function validateLeadTurnstileToken(
   const {
     token,
     clientIP,
+    expectedAction,
     missingTokenErrorCode,
     invalidTokenErrorCode,
     missingTokenLogMessage,
@@ -100,7 +102,9 @@ export async function validateLeadTurnstileToken(
     return createApiErrorResponse(missingTokenErrorCode, HTTP_BAD_REQUEST);
   }
 
-  const verificationResult = await verifyTurnstileDetailed(token, clientIP);
+  const verificationResult = await verifyTurnstileDetailed(token, clientIP, {
+    expectedAction,
+  });
 
   if (!verificationResult.success) {
     const errorCodes = verificationResult.errorCodes ?? [];

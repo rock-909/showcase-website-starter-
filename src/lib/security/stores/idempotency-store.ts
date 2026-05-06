@@ -8,6 +8,7 @@ export interface IdempotencyEntry {
   status: "pending" | "success" | "error";
   fingerprint?: string;
   response?: unknown;
+  statusCode?: number;
   error?: string;
   createdAt: number;
   expiresAt: number;

@@ -134,6 +134,7 @@ function handlePost(
         const turnstileError = await validateLeadTurnstileToken({
           token: turnstileToken,
           clientIP,
+          expectedAction: "newsletter_subscribe",
           missingTokenErrorCode: API_ERROR_CODES.SUBSCRIBE_SECURITY_REQUIRED,
           invalidTokenErrorCode: API_ERROR_CODES.SUBSCRIBE_SECURITY_FAILED,
           missingTokenLogMessage:

@@ -126,6 +126,20 @@ describe("api/subscribe", () => {
     expect(json2.success).toBe(true);
   });
 
+  it("binds Turnstile verification to the newsletter_subscribe action", async () => {
+    const utils = await import("@/lib/turnstile");
+
+    await route.POST(
+      makeReq({ email: "ok@example.com", turnstileToken: "valid-token" }),
+    );
+
+    expect(utils.verifyTurnstileDetailed).toHaveBeenCalledWith(
+      "valid-token",
+      expect.any(String),
+      { expectedAction: "newsletter_subscribe" },
+    );
+  });
+
   it("returns 409 when the same idempotency key is reused with a different body", async () => {
     const leadPipeline = await import("@/lib/lead-pipeline");
     const headers = { "Idempotency-Key": "key-body-conflict" };
