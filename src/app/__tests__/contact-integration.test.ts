@@ -148,6 +148,7 @@ describe("Contact form — integration (happy path chain)", () => {
       expect(verifyTurnstileDetailed).toHaveBeenCalledWith(
         "valid-turnstile-token",
         expect.any(String),
+        { expectedAction: "contact_form" },
       );
       expect(processFormSubmission).toHaveBeenCalledTimes(1);
     });
@@ -181,6 +182,7 @@ describe("Contact form — integration (happy path chain)", () => {
       expect(verifyTurnstileDetailed).toHaveBeenCalledWith(
         "valid-turnstile-token",
         "0.0.0.0",
+        { expectedAction: "contact_form" },
       );
     });
   });

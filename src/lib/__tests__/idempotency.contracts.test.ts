@@ -249,6 +249,32 @@ describe("idempotency behavioral contracts", () => {
     expect(await response.json()).toEqual({ cached: true, source: "store" });
   });
 
+  it("replays stored success responses with their original HTTP status", async () => {
+    mocks.mockStore.get.mockResolvedValue({
+      createdAt: 1,
+      expiresAt: 2,
+      fingerprint: "POST:/api/inquiry",
+      response: {
+        errorCode: API_ERROR_CODES.INQUIRY_SECURITY_REQUIRED,
+        success: false,
+      },
+      status: "success",
+      statusCode: HTTP_BAD_REQUEST,
+    });
+
+    const response = await withIdempotency(
+      createRequest("POST", "/api/inquiry", "cached-error-key"),
+      async () => ({ shouldNotRun: true }),
+      { fingerprint: "POST:/api/inquiry" },
+    );
+
+    expect(response.status).toBe(HTTP_BAD_REQUEST);
+    expect(await response.json()).toEqual({
+      errorCode: API_ERROR_CODES.INQUIRY_SECURITY_REQUIRED,
+      success: false,
+    });
+  });
+
   it("fails closed when an existing entry already settled as error", async () => {
     mocks.mockStore.get.mockResolvedValue({
       createdAt: 1,
@@ -361,6 +387,7 @@ describe("idempotency behavioral contracts", () => {
         fingerprint: "POST:/api/inquiry",
         response: { ok: true },
         status: "success",
+        statusCode: 201,
       },
       1_234,
     );
@@ -409,27 +436,59 @@ describe("idempotency behavioral contracts", () => {
     expect(await response.json()).toEqual({ waited: true });
   });
 
-  it("passes through direct NextResponse results and warns if cleanup fails", async () => {
-    const directResponse = NextResponse.json({ direct: true }, { status: 202 });
-    const deleteError = new Error("delete failed");
-    mocks.mockStore.delete.mockRejectedValue(deleteError);
+  it("persists direct JSON NextResponse results for idempotent replay", async () => {
+    vi.spyOn(Date, "now").mockReturnValue(3_000);
+    const directResponse = NextResponse.json(
+      {
+        errorCode: API_ERROR_CODES.INQUIRY_SECURITY_REQUIRED,
+        success: false,
+      },
+      { status: HTTP_BAD_REQUEST },
+    );
 
     const response = await withIdempotency(
-      createRequest("POST", "/api/inquiry", "direct-response-key"),
+      createRequest("POST", "/api/inquiry", "direct-json-key"),
+      async () => directResponse,
+      {
+        fingerprint: "POST:/api/inquiry",
+        ttl: 1_234,
+      },
+    );
+
+    expect(response).toBe(directResponse);
+    expect(mocks.mockStore.set).toHaveBeenCalledWith(
+      "direct-json-key",
+      {
+        createdAt: 3_000,
+        expiresAt: 4_234,
+        fingerprint: "POST:/api/inquiry",
+        response: {
+          errorCode: API_ERROR_CODES.INQUIRY_SECURITY_REQUIRED,
+          success: false,
+        },
+        status: "success",
+        statusCode: HTTP_BAD_REQUEST,
+      },
+      1_234,
+    );
+    expect(mocks.mockStore.delete).not.toHaveBeenCalled();
+  });
+
+  it("keeps non-JSON direct NextResponse results as pass-through and deletes the pending key", async () => {
+    const directResponse = new NextResponse("plain text", {
+      headers: { "Content-Type": "text/plain" },
+      status: 202,
+    });
+
+    const response = await withIdempotency(
+      createRequest("POST", "/api/inquiry", "direct-non-json-key"),
       async () => directResponse,
       { fingerprint: "POST:/api/inquiry" },
     );
 
     expect(response).toBe(directResponse);
     expect(mocks.mockStore.set).not.toHaveBeenCalled();
-    expect(mocks.mockStore.delete).toHaveBeenCalledWith("direct-response-key");
-    expect(mocks.mockLoggerWarn).toHaveBeenCalledWith(
-      "Failed to delete non-cached idempotency key",
-      {
-        deleteError,
-        idempotencyKey: "direct-response-key",
-      },
-    );
+    expect(mocks.mockStore.delete).toHaveBeenCalledWith("direct-non-json-key");
   });
 
   it("returns the normalized response even when persisting the completed result fails", async () => {

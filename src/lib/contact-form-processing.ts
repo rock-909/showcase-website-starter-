@@ -152,6 +152,7 @@ export async function validateContactSubmission(
   const verificationResult = await verifyTurnstileDetailed(
     formData.turnstileToken,
     clientIP,
+    { expectedAction: "contact_form" },
   );
 
   if (!verificationResult.success) {
