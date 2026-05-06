@@ -1,9 +1,13 @@
 "use client";
 
-import { useEffect, useState, type ComponentType, type ReactNode } from "react";
-import { Button } from "@/components/ui/button";
+import { useEffect, useState, type ReactNode } from "react";
 
-type ContactFormComponent = ComponentType;
+import {
+  ContactFormIslandView,
+  type ContactFormComponent,
+  type ContactFormLoadState,
+} from "@/components/contact/contact-form-island-view";
+
 interface LoadedContactForm {
   Component: ContactFormComponent;
 }
@@ -19,11 +23,6 @@ const defaultLoadContactForm = async (): Promise<LoadedContactForm> => {
     await import("@/components/forms/contact-form-container");
   return { Component: contactFormModule.ContactFormContainer };
 };
-
-type ContactFormLoadState =
-  | { status: "loading" }
-  | { status: "failed" }
-  | { Component: ContactFormComponent; status: "loaded" };
 
 function reportContactFormLoadError(error: unknown) {
   if (typeof globalThis.reportError !== "function") {
@@ -70,31 +69,13 @@ export function ContactFormIsland({
     };
   }, [loadAttempt]);
 
-  if (loadState.status === "failed") {
-    return (
-      <div
-        className="rounded-lg border border-destructive/30 bg-destructive/5 p-6 text-sm text-destructive"
-        role="alert"
-      >
-        <p>{errorMessage}</p>
-        <Button
-          className="mt-4"
-          onClick={() => setLoadAttempt((attempt) => attempt + 1)}
-          size="sm"
-          type="button"
-          variant="outline"
-        >
-          {retryLabel}
-        </Button>
-      </div>
-    );
-  }
-
-  if (loadState.status === "loading") {
-    return <>{fallback}</>;
-  }
-
-  const { Component: ContactFormComponent } = loadState;
-
-  return <ContactFormComponent />;
+  return (
+    <ContactFormIslandView
+      errorMessage={errorMessage}
+      fallback={fallback}
+      retryLabel={retryLabel}
+      loadState={loadState}
+      onRetry={() => setLoadAttempt((attempt) => attempt + 1)}
+    />
+  );
 }
