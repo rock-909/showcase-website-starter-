@@ -15,10 +15,7 @@ import { checkDistributedRateLimit } from "@/lib/security/distributed-rate-limit
 import { API_ERROR_CODES } from "@/constants/api-error-codes";
 import { getClientIPFromHeaders } from "@/lib/security/client-ip";
 import { hmacKey } from "@/lib/security/rate-limit-key-strategies";
-import {
-  createCanonicalContactFingerprint,
-  submitCanonicalContactSubmission,
-} from "@/lib/contact/submit-canonical-contact";
+import { submitCanonicalContactSubmission } from "@/lib/contact/submit-canonical-contact";
 import {
   createErrorResultWithLogging,
   createSuccessResultWithLogging,
@@ -28,7 +25,6 @@ import {
   type ServerAction,
   type ServerActionResult,
 } from "@/lib/server-action-utils";
-import { withIdempotentResult } from "@/lib/idempotency";
 
 /**
  * 联系表单提交结果类型
@@ -50,8 +46,6 @@ export interface ContactFormWithToken extends ContactFormData {
   turnstileToken: string;
   /** 提交时间戳 */
   submittedAt: string;
-  /** 幂等键 */
-  idempotencyKey?: string;
 }
 
 /**
@@ -69,7 +63,6 @@ function extractContactFormData(formData: FormData): ContactFormWithToken {
     marketingConsent: getFormDataBoolean(formData, "marketingConsent"),
     turnstileToken: getFormDataString(formData, "turnstileToken"),
     submittedAt: getFormDataString(formData, "submittedAt"),
-    idempotencyKey: getFormDataString(formData, "idempotencyKey"),
   };
 }
 
@@ -99,7 +92,7 @@ async function performRateLimitCheck(
 }
 
 /**
- * Perform idempotent-safe checks (honeypot only).
+ * Perform cheap bot checks before validation and external calls.
  * Returns early result if blocked, null to continue processing.
  */
 function performHoneypotCheck(
@@ -205,81 +198,17 @@ export const contactFormAction: ServerAction<FormData, ContactFormResult> =
 
       // 提取表单数据
       const contactData = extractContactFormData(formData);
-      if (!contactData.idempotencyKey) {
-        const rateLimitResult = await performRateLimitCheck(clientIP);
-        if (rateLimitResult) {
-          return rateLimitResult;
-        }
+      const rateLimitResult = await performRateLimitCheck(clientIP);
+      if (rateLimitResult) {
+        return rateLimitResult;
       }
 
-      const idempotentResult = await withIdempotentResult(
-        contactData.idempotencyKey ?? null,
-        async () => {
-          const rateLimitResult = await performRateLimitCheck(clientIP);
-          if (rateLimitResult) {
-            return rateLimitResult;
-          }
-
-          const honeypotResult = performHoneypotCheck(formData);
-          if (honeypotResult) {
-            return honeypotResult;
-          }
-
-          return executeContactSubmissionAttempt(
-            contactData,
-            clientIP,
-            startTime,
-          );
-        },
-        {
-          required: true,
-          fingerprint: createCanonicalContactFingerprint(contactData),
-        },
-      );
-
-      if (idempotentResult.ok) {
-        return idempotentResult.result;
+      const honeypotResult = performHoneypotCheck(formData);
+      if (honeypotResult) {
+        return honeypotResult;
       }
 
-      switch (idempotentResult.reason) {
-        case "missing":
-          return createErrorResultWithLogging(
-            {
-              code: API_ERROR_CODES.IDEMPOTENCY_KEY_REQUIRED,
-              message: "Idempotency key required",
-            },
-            undefined,
-            logger,
-          );
-        case "reused":
-          return createErrorResultWithLogging(
-            {
-              code: API_ERROR_CODES.IDEMPOTENCY_KEY_REUSED,
-              message: "Idempotency key reused",
-            },
-            undefined,
-            logger,
-          );
-        case "timeout":
-          return createErrorResultWithLogging(
-            {
-              code: API_ERROR_CODES.IDEMPOTENCY_REQUEST_TIMEOUT,
-              message: "Request timeout",
-            },
-            undefined,
-            logger,
-          );
-        case "failed":
-        default:
-          return createErrorResultWithLogging(
-            {
-              code: API_ERROR_CODES.IDEMPOTENCY_REQUEST_FAILED,
-              message: "Request failed",
-            },
-            undefined,
-            logger,
-          );
-      }
+      return executeContactSubmissionAttempt(contactData, clientIP, startTime);
     } catch (error) {
       const processingTime = performance.now() - startTime;
       logger.error("Contact form Server Action failed", {

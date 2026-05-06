@@ -1,7 +1,6 @@
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { API_ERROR_CODES } from "@/constants/api-error-codes";
-import { resetIdempotencyState } from "@/lib/idempotency";
 import * as inquiryRoute from "@/app/api/inquiry/route";
 import * as subscribeRoute from "@/app/api/subscribe/route";
 import { processLead } from "@/lib/lead-pipeline";
@@ -9,9 +8,10 @@ import { processLead } from "@/lib/lead-pipeline";
 /**
  * Protection contract checks for the remaining lead API family.
  *
- * This suite asserts shared idempotency, rate-limit, and Turnstile semantics,
- * but still uses mocks around the deeper processing pipeline. Treat it as an
- * integration-layer guard, not deployed proof.
+ * This suite asserts the starter-default lead route gates: body parsing,
+ * rate-limit, Turnstile, and no default replay-key requirement. It still uses
+ * mocks around the deeper processing pipeline, so treat it as an
+ * integration-layer guard rather than deployed proof.
  */
 vi.mock("@/lib/security/distributed-rate-limit", () => ({
   checkDistributedRateLimit: vi.fn(async () => ({
@@ -79,7 +79,6 @@ function makeRequest(
       body: JSON.stringify(body),
       headers: {
         "Content-Type": "application/json",
-        "Idempotency-Key": `${pathname}-key`,
         ...(headers as Record<string, string>),
       },
     }),
@@ -89,45 +88,29 @@ function makeRequest(
 describe("lead API family protection contract", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    resetIdempotencyState();
   });
 
-  it("all write-path family routes require Idempotency-Key", async () => {
+  it("starter lead routes do not require replay keys by default", async () => {
     const inquiry = await inquiryRoute.POST(
-      new NextRequest(
-        new Request("http://localhost/api/inquiry", {
-          method: "POST",
-          body: JSON.stringify({
-            email: "buyer@example.com",
-            fullName: "Buyer",
-            company: "Buyer Co",
-            productSlug: "north-america",
-            productName: "North America",
-            turnstileToken: "valid-token",
-          }),
-          headers: { "Content-Type": "application/json" },
-        }),
-      ),
+      makeRequest("/api/inquiry", {
+        email: "buyer@example.com",
+        fullName: "Buyer",
+        company: "Buyer Co",
+        productSlug: "north-america",
+        productName: "North America",
+        turnstileToken: "valid-token",
+      }),
     );
     const subscribe = await subscribeRoute.POST(
-      new NextRequest(
-        new Request("http://localhost/api/subscribe", {
-          method: "POST",
-          body: JSON.stringify({
-            email: "newsletter@example.com",
-            turnstileToken: "valid-token",
-          }),
-          headers: { "Content-Type": "application/json" },
-        }),
-      ),
+      makeRequest("/api/subscribe", {
+        email: "newsletter@example.com",
+        turnstileToken: "valid-token",
+      }),
     );
 
-    expect((await inquiry.json()).errorCode).toBe(
-      API_ERROR_CODES.IDEMPOTENCY_KEY_REQUIRED,
-    );
-    expect((await subscribe.json()).errorCode).toBe(
-      API_ERROR_CODES.IDEMPOTENCY_KEY_REQUIRED,
-    );
+    expect(inquiry.status).toBe(200);
+    expect(subscribe.status).toBe(200);
+    expect(vi.mocked(processLead)).toHaveBeenCalledTimes(2);
   });
 
   it("all write-path family routes return 429 under rate limiting", async () => {

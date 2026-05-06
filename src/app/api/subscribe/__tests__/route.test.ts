@@ -1,7 +1,6 @@
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { API_ERROR_CODES } from "@/constants/api-error-codes";
-import { resetIdempotencyState } from "@/lib/idempotency";
 import { processLead } from "@/lib/lead-pipeline";
 import { verifyTurnstileDetailed } from "@/lib/turnstile";
 import { POST } from "../route";
@@ -39,20 +38,16 @@ vi.mock("@/lib/lead-pipeline", async () => {
   };
 });
 
-let requestCounter = 0;
-
 function makeSubscribeRequest(
   body: unknown,
   headers: Record<string, string> = {},
 ): NextRequest {
-  requestCounter += 1;
   return new NextRequest(
     new Request("http://localhost/api/subscribe", {
       method: "POST",
       body: JSON.stringify(body),
       headers: {
         "Content-Type": "application/json",
-        "Idempotency-Key": `subscribe-route-test-${requestCounter}`,
         ...headers,
       },
     }),
@@ -62,7 +57,6 @@ function makeSubscribeRequest(
 describe("/api/subscribe route", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    resetIdempotencyState();
   });
 
   it("rejects invalid JSON before Turnstile verification", async () => {
@@ -72,7 +66,6 @@ describe("/api/subscribe route", () => {
         body: "{bad json",
         headers: {
           "Content-Type": "application/json",
-          "Idempotency-Key": "subscribe-invalid-json",
         },
       }),
     );
@@ -86,7 +79,7 @@ describe("/api/subscribe route", () => {
     expect(processLead).not.toHaveBeenCalled();
   });
 
-  it("requires idempotency key", async () => {
+  it("does not require replay keys for valid starter subscriptions", async () => {
     const response = await POST(
       new NextRequest("http://localhost/api/subscribe", {
         method: "POST",
@@ -100,12 +93,14 @@ describe("/api/subscribe route", () => {
       }),
     );
 
-    expect(response.status).toBe(400);
+    expect(response.status).toBe(200);
     await expect(response.json()).resolves.toEqual({
-      success: false,
-      errorCode: API_ERROR_CODES.IDEMPOTENCY_KEY_REQUIRED,
+      success: true,
+      data: {
+        referenceId: "sub-ref-001",
+      },
     });
-    expect(processLead).not.toHaveBeenCalled();
+    expect(processLead).toHaveBeenCalledTimes(1);
   });
 
   it("rejects missing email before Turnstile verification", async () => {

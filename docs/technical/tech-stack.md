@@ -123,7 +123,7 @@
 - **@ianvs/prettier-plugin-sort-imports 4.7.1**
 - **dependency-cruiser 17.3.10**：依赖边界检查
 - **knip 6.7.0**：未使用代码扫描
-- **Stryker 9.6.1**：变异测试工具，主要覆盖 lead/security/form-schema/idempotency 高风险逻辑
+- **Stryker 9.6.1**：变异测试工具，主要覆盖 lead/security/form-schema 高风险逻辑
 - **commitlint 20.5.2**
 - **lefthook 2.1.6**
 

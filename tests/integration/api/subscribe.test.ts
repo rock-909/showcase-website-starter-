@@ -2,7 +2,6 @@ import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as route from "@/app/api/subscribe/route";
 import { API_ERROR_CODES } from "@/constants/api-error-codes";
-import { resetIdempotencyState } from "@/lib/idempotency";
 
 vi.mock("@/lib/security/distributed-rate-limit", () => ({
   checkDistributedRateLimit: vi.fn(async () => ({
@@ -36,7 +35,6 @@ const makeReq = (body: unknown, headers: HeadersInit = {}) =>
       body: JSON.stringify(body),
       headers: {
         "Content-Type": "application/json",
-        "Idempotency-Key": "test-idempotency-key",
         ...(headers as Record<string, string>),
       },
     }),
@@ -45,7 +43,6 @@ const makeReq = (body: unknown, headers: HeadersInit = {}) =>
 describe("api/subscribe", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    resetIdempotencyState();
   });
 
   it("handles malformed payload gracefully (returns JSON response)", async () => {
@@ -55,7 +52,6 @@ describe("api/subscribe", () => {
         body: "this is not json",
         headers: {
           "Content-Type": "application/json",
-          "Idempotency-Key": "test-idempotency-key",
         },
       }),
     );
@@ -77,7 +73,6 @@ describe("api/subscribe", () => {
         }),
         headers: {
           "Content-Type": "application/json",
-          "Idempotency-Key": "test-idempotency-key",
           "Content-Length": "70000",
         },
       }),
@@ -90,39 +85,37 @@ describe("api/subscribe", () => {
     expect(json.errorCode).toBe(API_ERROR_CODES.PAYLOAD_TOO_LARGE);
   });
 
-  it("returns 400 when Idempotency-Key is missing", async () => {
+  it("accepts valid email without a replay key", async () => {
     const req = new NextRequest(
       new Request("http://localhost/api/subscribe", {
         method: "POST",
-        body: JSON.stringify({ email: "ok@example.com", turnstileToken: "x" }),
+        body: JSON.stringify({
+          email: "ok@example.com",
+          turnstileToken: "valid-token",
+        }),
         headers: { "Content-Type": "application/json" },
       }),
     );
 
     const res = await route.POST(req);
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(200);
     const json = await res.json();
-    expect(json.errorCode).toBe(API_ERROR_CODES.IDEMPOTENCY_KEY_REQUIRED);
+    expect(json.success).toBe(true);
   });
 
-  it("accepts valid email with idempotency key and caches", async () => {
-    const headers = { "Idempotency-Key": "key-1" };
+  it("processes repeated valid subscribe requests independently", async () => {
+    const leadPipeline = await import("@/lib/lead-pipeline");
     const res1 = await route.POST(
-      makeReq(
-        { email: "ok@example.com", turnstileToken: "valid-token" },
-        headers,
-      ),
+      makeReq({ email: "ok@example.com", turnstileToken: "valid-token" }),
     );
     expect(res1.status).toBe(200);
     const res2 = await route.POST(
-      makeReq(
-        { email: "ok@example.com", turnstileToken: "valid-token" },
-        headers,
-      ),
+      makeReq({ email: "ok@example.com", turnstileToken: "valid-token" }),
     );
     expect(res2.status).toBe(200);
     const json2 = await res2.json();
     expect(json2.success).toBe(true);
+    expect(vi.mocked(leadPipeline.processLead)).toHaveBeenCalledTimes(2);
   });
 
   it("binds Turnstile verification to the newsletter_subscribe action", async () => {
@@ -137,31 +130,6 @@ describe("api/subscribe", () => {
       expect.any(String),
       { expectedAction: "newsletter_subscribe" },
     );
-  });
-
-  it("returns 409 when the same idempotency key is reused with a different body", async () => {
-    const leadPipeline = await import("@/lib/lead-pipeline");
-    const headers = { "Idempotency-Key": "key-body-conflict" };
-
-    const first = await route.POST(
-      makeReq(
-        { email: "ok@example.com", turnstileToken: "valid-token" },
-        headers,
-      ),
-    );
-    const second = await route.POST(
-      makeReq(
-        { email: "different@example.com", turnstileToken: "valid-token" },
-        headers,
-      ),
-    );
-
-    expect(first.status).toBe(200);
-    expect(second.status).toBe(409);
-    expect(vi.mocked(leadPipeline.processLead)).toHaveBeenCalledTimes(1);
-
-    const json = await second.json();
-    expect(json.errorCode).toBe(API_ERROR_CODES.IDEMPOTENCY_KEY_REUSED);
   });
 
   it("returns 400 when turnstileToken is missing", async () => {

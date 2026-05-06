@@ -1287,7 +1287,7 @@ class QualityGate {
       // npm audit 检查
       gate.checks.audit = await this.runSecurityAudit();
 
-      // Semgrep（本地门禁可见；CI 由 .github/workflows/ci.yml 的 security job 执行）
+      // Semgrep（本地门禁可见；CI 深度扫描由 code-quality.yml 在 main/nightly/manual 执行）
       const shouldRunSemgrep =
         !this.config.ciGateMode ||
         readEnvBoolean("QUALITY_FORCE_SEMGREP") === true;
@@ -1297,7 +1297,8 @@ class QualityGate {
       } else {
         gate.checks.semgrep = {
           status: "skipped",
-          reason: "CI pipeline runs Semgrep in a dedicated security job",
+          reason:
+            "CI mode skips Semgrep unless QUALITY_FORCE_SEMGREP=true; code-quality.yml runs deep scans on main/nightly/manual",
           errors: 0,
           warnings: 0,
         };
@@ -1694,8 +1695,8 @@ class QualityGate {
   /**
    * 运行 Semgrep 扫描（仅统计 ERROR/WARNING 数量）
    *
-   * 注意：CI 中 Semgrep 由 .github/workflows/ci.yml 的 security job 负责，
-   * quality gate 默认不重复执行（除非 QUALITY_FORCE_SEMGREP=true）。
+   * 注意：CI mode 下 quality gate 默认不跑 Semgrep（除非 QUALITY_FORCE_SEMGREP=true）。
+   * 远程深度扫描由 .github/workflows/code-quality.yml 在 main/nightly/manual 负责。
    */
   async runSemgrepScan() {
     const reportDir = path.join(process.cwd(), "reports");

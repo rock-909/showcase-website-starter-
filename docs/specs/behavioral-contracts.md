@@ -110,13 +110,13 @@ On mobile viewports, tapping the hamburger opens a navigation sheet. Selecting a
 
 #### BC-007: Buyer can submit a contact inquiry
 
-The /contact page renders a form with fields: fullName, email, optional company, message, and a privacy policy checkbox. Filling all required fields and passing Turnstile verification enables the submit button. Submission invokes the contact Server Action and displays a success or error message.
+The /contact page renders a form with fields: fullName, email, optional company, message, and a privacy policy checkbox. Filling all required fields and passing Turnstile verification enables the submit button. Browser submission posts JSON to `/api/contact` and displays a success or error message.
 
 | Field | Value |
 |-------|-------|
 | Priority | Critical |
 | Test Type | E2E + Integration |
-| Test File | `tests/e2e/contact-form-smoke.spec.ts`, `tests/e2e/smoke/post-deploy-form.spec.ts`, `src/app/__tests__/actions.test.ts`, `src/app/__tests__/contact-integration.test.ts` |
+| Test File | `tests/e2e/contact-form-smoke.spec.ts`, `tests/e2e/smoke/post-deploy-form.spec.ts`, `src/components/forms/__tests__/use-contact-form.test.tsx`, `src/app/api/contact/__tests__/route.test.ts` |
 | Status | Partial |
 
 Notes: `tests/e2e/contact-form-smoke.spec.ts` is a test-mode smoke only; it proves local structure and interaction under Playwright test settings. The final production-like submission proof lives in `tests/e2e/smoke/post-deploy-form.spec.ts` against a deployed URL. The contact chain is therefore partially covered, not fully proven by local E2E alone. The local no-JS contact fallback proves rendered structure and a loading state only; it is not a separate no-JS submission path. Its controls stay disabled until the client form loads. Downstream email and Airtable still receive legacy `firstName` / `lastName` fields by best-effort splitting `fullName`; single-part names may produce an empty `lastName`.
@@ -131,7 +131,7 @@ Empty required fields (fullName, email, message, acceptPrivacy) prevent submissi
 |-------|-------|
 | Priority | Critical |
 | Test Type | E2E + Unit |
-| Test File | `tests/e2e/contact-form-smoke.spec.ts`, `src/components/forms/__tests__/contact-form-validation.test.tsx`, `src/app/__tests__/actions.test.ts` |
+| Test File | `tests/e2e/contact-form-smoke.spec.ts`, `src/components/forms/__tests__/contact-form-validation.test.tsx`, `src/app/api/contact/__tests__/route.test.ts` |
 | Status | Partial |
 
 Notes: Required attribute presence is verified. Client-side validation UX (error messages appearing inline) is not fully tested.
@@ -174,46 +174,46 @@ Notes: Locale-specific labels and field rendering are covered in local test-mode
 
 #### BC-011: Lead submission surfaces enforce rate limiting
 
-The contact Server Action, /api/inquiry, and /api/subscribe reject repeated requests when the same client exceeds the configured request limit within the time window.
+The `/api/contact`, `/api/inquiry`, and `/api/subscribe` route handlers reject repeated requests when the same client exceeds the configured request limit within the time window.
 
 | Field | Value |
 |-------|-------|
 | Priority | High |
 | Test Type | Integration |
-| Test File | `src/app/__tests__/contact-integration.test.ts`, `tests/integration/api/lead-family-protection.test.ts` |
+| Test File | `src/app/api/contact/__tests__/route.test.ts`, `tests/integration/api/lead-family-protection.test.ts` |
 | Status | Covered |
 
-Notes: `src/app/__tests__/contact-integration.test.ts` covers the Server Action rate-limit gate. `tests/integration/api/lead-family-protection.test.ts` covers inquiry and subscribe at the route layer.
+Notes: `/api/contact` has route-level coverage. `tests/integration/api/lead-family-protection.test.ts` covers inquiry and subscribe at the route layer.
 
 ---
 
 #### BC-012: Lead submission surfaces reject invalid Turnstile tokens
 
-The contact Server Action and /api/inquiry reject requests with missing, empty, or invalid Turnstile tokens, returning an appropriate error response.
+The `/api/contact`, `/api/inquiry`, and `/api/subscribe` route handlers reject requests with missing, empty, or invalid Turnstile tokens, returning an appropriate error response.
 
 | Field | Value |
 |-------|-------|
 | Priority | High |
 | Test Type | Integration |
-| Test File | `src/app/__tests__/contact-integration.test.ts`, `tests/integration/api/lead-family-protection.test.ts` |
+| Test File | `src/app/api/contact/__tests__/route.test.ts`, `tests/integration/api/lead-family-protection.test.ts` |
 | Status | Partial |
 
-Notes: Contact Server Action Turnstile validation is covered. Inquiry route protection is covered in the shared API protection suite. Full deployed bilingual proof is still partial.
+Notes: Contact route validation is covered through the canonical contact path. Inquiry and subscribe route protection are covered in the shared API protection suite. Full deployed bilingual proof is still partial.
 
 ---
 
 #### BC-012A: Lead submission retries and anti-abuse checks remain stable
 
-Lead submission surfaces must preserve stable behavior for duplicate submissions, Turnstile action checks, downstream timeout ambiguity, and Airtable sink handling.
+Lead submission surfaces must preserve stable behavior for duplicate starter submissions, endpoint-bound Turnstile action checks, downstream timeout ambiguity, Airtable sink handling, and Cloudflare client-IP handling.
 
 | Field | Value |
 |-------|-------|
 | Priority | High |
 | Test Type | Unit + Integration |
-| Test File | `src/lib/__tests__/idempotency.contracts.test.ts`, `src/lib/lead-pipeline/__tests__/with-timeout.test.ts`, `src/lib/__tests__/airtable-create-operations.test.ts`, `src/lib/security/__tests__/client-ip.test.ts`, `tests/integration/api/subscribe.test.ts`, `src/app/api/inquiry/__tests__/route.test.ts`, `src/app/__tests__/actions.test.ts`, `src/app/__tests__/contact-integration.test.ts` |
+| Test File | `src/lib/lead-pipeline/__tests__/with-timeout.test.ts`, `src/lib/__tests__/airtable-create-operations.test.ts`, `src/lib/security/__tests__/client-ip.test.ts`, `tests/integration/api/subscribe.test.ts`, `src/app/api/inquiry/__tests__/route.test.ts`, `src/app/__tests__/actions.test.ts`, `src/app/__tests__/contact-integration.test.ts` |
 | Status | Covered |
 
-Notes: Timeout tests prove timeout is distinguishable from normal service rejection; they do not claim downstream Airtable or Resend requests are canceled. Cloudflare client-IP tests preserve the stop line that raw `cf-connecting-ip` alone is not enough when the trusted source cannot be proven.
+Notes: Duplicate starter submissions are processed independently instead of replayed. Timeout tests prove timeout is distinguishable from normal service rejection; they do not claim downstream Airtable or Resend requests are canceled. Cloudflare client-IP tests preserve the stop line that raw `cf-connecting-ip` alone is not enough when the trusted source cannot be proven.
 
 ---
 
@@ -376,18 +376,18 @@ Notes: `tests/integration/api/health.test.ts` covers the route in-suite. Deploye
 
 ---
 
-#### BC-024: Lead submission surfaces handle duplicate submissions idempotently
+#### BC-024: Starter lead routes accept duplicate submissions without dropping leads
 
-The contact Server Action dedupes by `idempotencyKey` form field, while /api/inquiry and /api/subscribe require an `Idempotency-Key` header. Resubmitting the same payload with the same key returns the cached result instead of creating a duplicate lead.
+The starter submission defaults for /api/contact, /api/inquiry, /api/subscribe, and the temporary contact Server Action do not require a replay key or body hashing. Each valid submission is processed as its own lead after the body-size gate, Zod validation, Turnstile, and the currently wired rate limit. Duplicated leads are acceptable starter behavior; dropped leads are not.
 
 | Field | Value |
 |-------|-------|
 | Priority | High |
 | Test Type | Integration |
-| Test File | `src/app/__tests__/actions.test.ts`, `src/app/__tests__/contact-integration.test.ts`, `tests/integration/api/lead-family-protection.test.ts`, `src/app/api/inquiry/__tests__/route.test.ts`, `tests/integration/api/subscribe.test.ts` |
-| Status | Partial |
+| Test File | `src/app/api/contact/__tests__/route.test.ts`, `tests/integration/api/lead-family-protection.test.ts`, `src/app/api/inquiry/__tests__/route.test.ts`, `tests/integration/api/subscribe.test.ts` |
+| Status | Covered |
 
-Notes: Contact Server Action replay behavior is covered in action/integration tests. Inquiry route replay is covered in `src/app/api/inquiry/__tests__/route.test.ts`, and subscribe replay/conflict semantics are covered in `tests/integration/api/subscribe.test.ts`. The remaining proof boundary is family-wide end-to-end alignment across all lead surfaces, so this contract stays Partial rather than Covered.
+Notes: Contact Server Action compatibility now follows the same no-key, repeated-submission starter default as the public route handlers. The starter route contract is covered by no-key success checks plus repeated-submission checks in the contact/inquiry/subscribe route and action suites and the lead-family protection suite.
 
 ---
 
@@ -427,7 +427,7 @@ Retired contracts are kept for historical traceability but excluded from active 
 ### High-priority gaps
 
 - **BC-010** (Partial): Contact submission proof is not production-like in both locales
-- **BC-024** (Partial): Route-level idempotency is covered for contact, inquiry, and subscribe; remaining gap is family-wide end-to-end alignment across all lead surfaces
+- No current high-priority gap for BC-024: starter route duplicate-submission behavior is now covered.
 
 ### Medium-priority gaps
 

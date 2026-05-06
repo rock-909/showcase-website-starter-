@@ -42,16 +42,16 @@ The passing tests are not enough to close the risks. Some tests currently encode
 
 ### BC-LSH-001: Timed-out lead side effects are unknown, not proven failed
 
-**Given** a lead pipeline downstream operation exceeds its configured timeout,  
-**When** the pipeline records the service result,  
+**Given** a lead pipeline downstream operation exceeds its configured timeout,
+**When** the pipeline records the service result,
 **Then** the timeout must be represented by a dedicated timeout error type or metadata that downstream logging and tests can distinguish from a normal rejection.
 
 The implementation must not claim that the downstream request was canceled unless the downstream API receives and honors an abort signal.
 
 ### BC-LSH-002: JSON `NextResponse` results are replayable with idempotency
 
-**Given** a request has an `Idempotency-Key` and the handler returns a JSON `NextResponse`,  
-**When** the same key and fingerprint are submitted again,  
+**Given** a request has an `Idempotency-Key` and the handler returns a JSON `NextResponse`,
+**When** the same key and fingerprint are submitted again,
 **Then** the second request must replay the first response body and HTTP status without re-running the handler.
 
 This includes validation, Turnstile, partial-success, and processing-error responses that are JSON responses.
@@ -60,8 +60,8 @@ Non-JSON `NextResponse` values are out of scope and may keep the current pass-th
 
 ### BC-LSH-003: Turnstile action must match the endpoint
 
-**Given** `/api/subscribe` receives a Turnstile token whose verification response has action `product_inquiry`,  
-**When** the token is verified,  
+**Given** `/api/subscribe` receives a Turnstile token whose verification response has action `product_inquiry`,
+**When** the token is verified,
 **Then** the request must be rejected even if `product_inquiry` is globally allowed.
 
 Endpoint bindings:
@@ -75,16 +75,16 @@ Endpoint bindings:
 
 ### BC-LSH-004: Airtable lead text is formula-neutralized at the sink
 
-**Given** a lead field starts with `=`, `+`, `-`, or `@` after trimming leading whitespace,  
-**When** the field is written to Airtable,  
+**Given** a lead field starts with `=`, `+`, `-`, or `@` after trimming leading whitespace,
+**When** the field is written to Airtable,
 **Then** the Airtable field value must be neutralized so spreadsheet export/import cannot treat it as a formula.
 
 This is sink-specific. Do not change the global `sanitizePlainText()` behavior and do not change Resend email rendering unless a separate email-specific requirement is approved.
 
 ### BC-LSH-005: Cloudflare client-IP fallback remains narrow
 
-**Given** the runtime is configured as Cloudflare and `NextRequest.ip` is unavailable,  
-**When** a request includes `cf-connecting-ip`,  
+**Given** the runtime is configured as Cloudflare and `NextRequest.ip` is unavailable,
+**When** a request includes `cf-connecting-ip`,
 **Then** the code may use that header only if there is runtime evidence that the request came through the Cloudflare/OpenNext boundary.
 
 If that evidence is missing, the request must continue to fall back to `0.0.0.0` rather than trusting raw proxy headers.

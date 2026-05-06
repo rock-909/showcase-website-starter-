@@ -138,7 +138,7 @@ export const CORS_CONFIG = {
   allowedMethods: ["POST", "OPTIONS"],
 
   /** Allowed headers for form requests */
-  allowedHeaders: ["Content-Type", "Idempotency-Key"],
+  allowedHeaders: ["Content-Type"],
 
   /** Preflight cache duration in seconds (1 hour) */
   maxAge: 3600,

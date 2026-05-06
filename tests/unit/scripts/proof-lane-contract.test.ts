@@ -199,22 +199,23 @@ describe("proof lane contract", () => {
     expect(structuralClusters).toContain("route-level protection proof");
   });
 
-  it("keeps BC-024 idempotency gap analysis aligned with listed route coverage", () => {
+  it("keeps BC-024 duplicate-submission contract aligned with starter defaults", () => {
     const behavioralContracts = readRepoFile(
       "docs/specs/behavioral-contracts.md",
     );
 
+    expect(behavioralContracts).toContain("do not require a replay key");
+    expect(behavioralContracts).not.toContain("`Idempotency-Key`");
     expect(behavioralContracts).toContain(
-      "Inquiry route replay is covered in `src/app/api/inquiry/__tests__/route.test.ts`",
+      "Duplicated leads are acceptable starter behavior; dropped leads are not",
     );
-    expect(behavioralContracts).toContain(
-      "subscribe replay/conflict semantics are covered in `tests/integration/api/subscribe.test.ts`",
-    );
+    expect(behavioralContracts).toContain("Status | Covered");
     expect(behavioralContracts).not.toContain(
-      "Idempotency only tested for contact, not inquiry/subscribe",
+      "Route-level idempotency is covered for contact, inquiry, and subscribe",
     );
+    expect(behavioralContracts).not.toContain("compatibility-only");
     expect(behavioralContracts).toContain(
-      "family-wide end-to-end alignment across all lead surfaces",
+      "Contact Server Action compatibility now follows the same no-key",
     );
   });
 

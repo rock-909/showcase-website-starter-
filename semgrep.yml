@@ -505,7 +505,7 @@ rules:
   - id: no-raw-request-json-in-api
     pattern: |
       await $REQ.json()
-    message: 'API 路由中避免直接使用 request.json()，请走 safeParseJson 或 readAndHashJsonBody'
+    message: 'API 路由中避免直接使用 request.json()，请走 safeParseJson'
     languages: [typescript, javascript]
     severity: WARNING
     paths:
@@ -591,13 +591,13 @@ rules:
       category: correctness
       technology: [nextjs]
 
-  - id: critical-lead-route-missing-idempotency
-    message: '关键公开写路径必须显式使用 withIdempotency(..., { required: true })'
+  - id: starter-lead-route-missing-safe-json-body
+    message: 'starter 公开 lead route 必须显式使用 safeParseJson()，保留 JSON body size gate 和统一错误码'
     languages: [generic]
     severity: WARNING
     patterns:
       - pattern-regex: '(?s).+'
-      - pattern-not-regex: '(?s).*withIdempotency\s*\([\s\S]*required\s*:\s*true'
+      - pattern-not-regex: '(?s).*safeParseJson\s*<'
     paths:
       include:
         - "src/app/api/contact/route.ts"

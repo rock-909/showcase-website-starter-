@@ -86,7 +86,6 @@ vi.mock("@/lib/env", () => {
     ADMIN_API_TOKEN: "test-admin-token",
     NEXT_SERVER_ACTIONS_ENCRYPTION_KEY: "test-server-actions-key",
     ALLOW_MEMORY_RATE_LIMIT: false,
-    ALLOW_MEMORY_IDEMPOTENCY: false,
     CLOUDFLARE_ZONE_ID: "test-zone-id",
     CLOUDFLARE_ACCOUNT_ID: "test-account-id",
     CLOUDFLARE_ANALYTICS_API_TOKEN: "test-analytics-api-token",

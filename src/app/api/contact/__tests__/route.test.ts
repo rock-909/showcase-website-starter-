@@ -86,6 +86,24 @@ describe("/api/contact route", () => {
     vi.clearAllMocks();
   });
 
+  it("returns 429 before canonical contact submission when rate limited", async () => {
+    const rateLimit = await import("@/lib/security/distributed-rate-limit");
+    vi.mocked(rateLimit.checkDistributedRateLimit).mockResolvedValueOnce({
+      allowed: false,
+      remaining: 0,
+      resetTime: Date.now() + 60000,
+      retryAfter: 60,
+    });
+
+    const response = await POST(createContactRequest(createValidContactBody()));
+    const data = await response.json();
+
+    expect(response.status).toBe(429);
+    expect(data.success).toBe(false);
+    expect(data.errorCode).toBe(API_ERROR_CODES.RATE_LIMIT_EXCEEDED);
+    expect(submitCanonicalContactSubmission).not.toHaveBeenCalled();
+  });
+
   it("rejects invalid payload before canonical contact submission", async () => {
     const response = await POST(
       createContactRequest({
@@ -125,6 +143,25 @@ describe("/api/contact route", () => {
         clientIP: "203.0.113.10",
       },
     );
+  });
+
+  it("returns body-size error before canonical contact submission", async () => {
+    const response = await POST(
+      new NextRequest("http://localhost:3000/api/contact", {
+        method: "POST",
+        body: JSON.stringify(createValidContactBody()),
+        headers: {
+          "Content-Type": "application/json",
+          "Content-Length": "70000",
+        },
+      }),
+    );
+    const data = await response.json();
+
+    expect(response.status).toBe(413);
+    expect(data.success).toBe(false);
+    expect(data.errorCode).toBe(API_ERROR_CODES.PAYLOAD_TOO_LARGE);
+    expect(submitCanonicalContactSubmission).not.toHaveBeenCalled();
   });
 
   it("returns reference ID for successful contact submission", async () => {

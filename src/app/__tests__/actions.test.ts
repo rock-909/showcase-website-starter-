@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { API_ERROR_CODES } from "@/constants/api-error-codes";
-import { resetIdempotencyState } from "@/lib/idempotency";
 import { checkDistributedRateLimit } from "@/lib/security/distributed-rate-limit";
 import { verifyTurnstile, verifyTurnstileDetailed } from "@/lib/turnstile";
 import { contactFormAction } from "@/lib/actions/contact";
@@ -63,7 +62,6 @@ vi.mock("@/lib/contact-form-processing", async (importOriginal) => {
 describe("actions.ts", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    resetIdempotencyState();
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2024-06-15T12:00:00Z"));
     vi.stubEnv("VERCEL", "1");
@@ -87,12 +85,6 @@ describe("actions.ts", () => {
     return formData;
   }
 
-  async function settleDuplicateReplay<T>(work: Promise<T>): Promise<T> {
-    await Promise.resolve();
-    await vi.advanceTimersByTimeAsync(50);
-    return work;
-  }
-
   describe("contactFormAction", () => {
     const createValidFormData = (
       overrides: Partial<Record<string, string>> = {},
@@ -107,19 +99,20 @@ describe("actions.ts", () => {
       marketingConsent: "false",
       turnstileToken: "valid-token",
       submittedAt: new Date().toISOString(),
-      idempotencyKey: "contact-action-key",
       ...overrides,
     });
 
-    it("should return error when idempotency key is missing", async () => {
-      const dataWithoutKey = { ...createValidFormData() };
-      delete (dataWithoutKey as { idempotencyKey?: string }).idempotencyKey;
-      const formData = createFormData(dataWithoutKey);
+    it("should process valid submissions without a replay key", async () => {
+      const formData = createFormData(createValidFormData());
 
       const result = await contactFormAction(null, formData);
 
-      expect(result.success).toBe(false);
-      expect(result.errorCode).toBe(API_ERROR_CODES.IDEMPOTENCY_KEY_REQUIRED);
+      expect(result.success).toBe(true);
+      expect(result.data).toEqual({
+        emailSent: true,
+        recordCreated: true,
+        referenceId: "ref-123",
+      });
       expect(checkDistributedRateLimit).toHaveBeenCalledTimes(1);
     });
 
@@ -175,27 +168,24 @@ describe("actions.ts", () => {
       expect(result).toBeDefined();
     });
 
-    it("should dedupe duplicate submissions with the same idempotency key", async () => {
+    it("processes repeated valid submissions independently", async () => {
       const freshData = {
         ...createValidFormData(),
         submittedAt: new Date().toISOString(),
-        idempotencyKey: "contact-action-dedupe-key",
       };
       const formData = createFormData(freshData);
       const duplicateFormData = createFormData(freshData);
 
       const firstResult = await contactFormAction(null, formData);
-      const secondResult = await settleDuplicateReplay(
-        contactFormAction(null, duplicateFormData),
-      );
+      const secondResult = await contactFormAction(null, duplicateFormData);
 
       expect(firstResult.success).toBe(true);
       expect(secondResult.success).toBe(true);
       const processing = await import("@/lib/contact-form-processing");
-      expect(processing.processFormSubmission).toHaveBeenCalledTimes(1);
+      expect(processing.processFormSubmission).toHaveBeenCalledTimes(2);
     });
 
-    it("should replay duplicate submissions before rate limiting runs again", async () => {
+    it("rate limits repeated submissions independently", async () => {
       vi.mocked(checkDistributedRateLimit)
         .mockResolvedValueOnce({
           allowed: true,
@@ -213,20 +203,21 @@ describe("actions.ts", () => {
       const replayData = {
         ...createValidFormData(),
         submittedAt: new Date().toISOString(),
-        idempotencyKey: "contact-action-replay-key",
       };
 
       const firstResult = await contactFormAction(
         null,
         createFormData(replayData),
       );
-      const replayResult = await settleDuplicateReplay(
-        contactFormAction(null, createFormData(replayData)),
+      const secondResult = await contactFormAction(
+        null,
+        createFormData(replayData),
       );
 
       expect(firstResult.success).toBe(true);
-      expect(replayResult).toEqual(firstResult);
-      expect(checkDistributedRateLimit).toHaveBeenCalledTimes(1);
+      expect(secondResult.success).toBe(false);
+      expect(secondResult.errorCode).toBe(API_ERROR_CODES.RATE_LIMIT_EXCEEDED);
+      expect(checkDistributedRateLimit).toHaveBeenCalledTimes(2);
     });
 
     it("should return error when submittedAt is not provided", async () => {
@@ -308,7 +299,6 @@ describe("actions.ts", () => {
         marketingConsent: "false",
         turnstileToken: "valid-token",
         submittedAt: new Date().toISOString(),
-        idempotencyKey: "contact-security-key",
       };
     }
 

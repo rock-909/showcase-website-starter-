@@ -13,7 +13,7 @@
 #   - 本地脚本也按 Node 24.15.0 作为预检基线，不再把 Node 22 当作默认兼容真相
 # =============================================================================
 # CI 架构说明：
-#   - ci.yml: 主流水线，PR 必需检查（type-check, lint, test, security, etc.）
+#   - ci.yml: 主流水线，PR 必需检查（type-check, lint, test, build, lead proof 等）
 #   - code-quality.yml: 深度安全扫描（Semgrep full），仅 main + nightly
 #   - vercel-deploy.yml: 手动 Vercel 兼容部署，不是默认 CI/上线路径
 # =============================================================================

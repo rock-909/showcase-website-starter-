@@ -19,12 +19,11 @@ import {
 } from "@/lib/api/request-observability";
 import { isRuntimeProduction } from "@/lib/env";
 import { recordApiResponseSignal } from "@/lib/observability/api-signals";
-import { readAndHashJsonBody } from "@/lib/api/read-and-hash-body";
+import { safeParseJson } from "@/lib/api/safe-parse-json";
 import {
   withRateLimit,
   type RateLimitContext,
 } from "@/lib/api/with-rate-limit";
-import { createRequestFingerprint, withIdempotency } from "@/lib/idempotency";
 import { processLead, type LeadResult } from "@/lib/lead-pipeline";
 import {
   LEAD_TYPES,
@@ -50,10 +49,12 @@ function createSuccessResponse(
     });
   }
 
-  return createLeadSuccessPayload(
-    requireLeadReferenceId(
-      result,
-      "referenceId missing on successful lead result",
+  return NextResponse.json(
+    createLeadSuccessPayload(
+      requireLeadReferenceId(
+        result,
+        "referenceId missing on successful lead result",
+      ),
     ),
   );
 }
@@ -87,7 +88,7 @@ function handlePost(
 ): Promise<NextResponse> {
   return (async () => {
     const observability = getRequestObservability(request, "lead-family");
-    const parsedBody = await readAndHashJsonBody<{
+    const parsedBody = await safeParseJson<{
       email?: unknown;
       pageType?: string;
       turnstileToken?: string;
@@ -100,60 +101,46 @@ function handlePost(
       );
     }
 
-    return withIdempotency(
-      request,
-      async () => {
-        const email = parsedBody.data?.email;
-        const turnstileToken = parsedBody.data?.turnstileToken;
+    const email = parsedBody.data?.email;
+    const turnstileToken = parsedBody.data?.turnstileToken;
 
-        if (email === undefined || email === "") {
-          return createApiErrorResponse(
-            API_ERROR_CODES.SUBSCRIBE_VALIDATION_EMAIL_REQUIRED,
-            HTTP_BAD_REQUEST,
-          );
-        }
+    if (email === undefined || email === "") {
+      return createApiErrorResponse(
+        API_ERROR_CODES.SUBSCRIBE_VALIDATION_EMAIL_REQUIRED,
+        HTTP_BAD_REQUEST,
+      );
+    }
 
-        const leadValidation = newsletterLeadSchema.safeParse({
-          type: LEAD_TYPES.NEWSLETTER,
-          email,
-        });
-        if (!leadValidation.success) {
-          return createApiErrorResponse(
-            API_ERROR_CODES.SUBSCRIBE_VALIDATION_EMAIL_INVALID,
-            HTTP_BAD_REQUEST,
-          );
-        }
+    const leadValidation = newsletterLeadSchema.safeParse({
+      type: LEAD_TYPES.NEWSLETTER,
+      email,
+    });
+    if (!leadValidation.success) {
+      return createApiErrorResponse(
+        API_ERROR_CODES.SUBSCRIBE_VALIDATION_EMAIL_INVALID,
+        HTTP_BAD_REQUEST,
+      );
+    }
 
-        const turnstileError = await validateLeadTurnstileToken({
-          token: turnstileToken,
-          clientIP,
-          expectedAction: "newsletter_subscribe",
-          missingTokenErrorCode: API_ERROR_CODES.SUBSCRIBE_SECURITY_REQUIRED,
-          invalidTokenErrorCode: API_ERROR_CODES.SUBSCRIBE_SECURITY_FAILED,
-          missingTokenLogMessage:
-            "Newsletter subscription missing Turnstile token",
-          invalidTokenLogMessage: "Newsletter Turnstile verification failed",
-        });
-        if (turnstileError) return turnstileError;
+    const turnstileError = await validateLeadTurnstileToken({
+      token: turnstileToken,
+      clientIP,
+      expectedAction: "newsletter_subscribe",
+      missingTokenErrorCode: API_ERROR_CODES.SUBSCRIBE_SECURITY_REQUIRED,
+      invalidTokenErrorCode: API_ERROR_CODES.SUBSCRIBE_SECURITY_FAILED,
+      missingTokenLogMessage: "Newsletter subscription missing Turnstile token",
+      invalidTokenLogMessage: "Newsletter Turnstile verification failed",
+    });
+    if (turnstileError) return turnstileError;
 
-        // Process via unified Lead Pipeline
-        const result = await processLead(leadValidation.data, {
-          requestId: observability.requestId,
-        });
+    // Process via unified Lead Pipeline
+    const result = await processLead(leadValidation.data, {
+      requestId: observability.requestId,
+    });
 
-        return result.success
-          ? createSuccessResponse(
-              result,
-              leadValidation.data.email,
-              observability,
-            )
-          : createErrorResponse(result, observability);
-      },
-      {
-        required: true,
-        fingerprint: createRequestFingerprint(request, parsedBody.bodyHash),
-      },
-    );
+    return result.success
+      ? createSuccessResponse(result, leadValidation.data.email, observability)
+      : createErrorResponse(result, observability);
   })();
 }
 
