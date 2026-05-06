@@ -88,15 +88,13 @@
       "title": "Contact Us",
       "description": "Get in touch with us. We'd love to hear from you.",
       "optional": "optional",
-      "firstName": "First Name",
-      "lastName": "Last Name",
+      "fullName": "Full name",
       "email": "Email Address",
       "company": "Company Name",
       "phone": "Phone Number",
       "subject": "Subject",
       "message": "Message",
-      "firstNamePlaceholder": "Enter your first name",
-      "lastNamePlaceholder": "Enter your last name",
+      "fullNamePlaceholder": "Enter your full name",
       "emailPlaceholder": "your@email.com",
       "companyPlaceholder": "Your company name",
       "phonePlaceholder": "+1 (555) 123-4567",
@@ -115,17 +113,11 @@
       "rateLimitMessage": "You've recently contacted us. Please wait a moment before sending another message.",
       "errors": {
         "generic": "Please review the highlighted fields and try again.",
-        "firstName": {
-          "required": "First name is required",
-          "tooShort": "First name must be at least 2 characters",
-          "tooLong": "First name must be less than 50 characters",
-          "invalid": "First name can only contain letters and spaces"
-        },
-        "lastName": {
-          "required": "Last name is required",
-          "tooShort": "Last name must be at least 2 characters",
-          "tooLong": "Last name must be less than 50 characters",
-          "invalid": "Last name can only contain letters and spaces"
+        "fullName": {
+          "required": "Full name is required",
+          "tooShort": "Full name is required",
+          "tooLong": "Full name must be less than 50 characters",
+          "invalid": "Full name contains invalid characters"
         },
         "email": {
           "required": "Email address is required",
@@ -156,10 +148,8 @@
         }
       },
       "validation": {
-        "firstNameRequired": "First name is required",
-        "firstNameTooShort": "First name must be at least 2 characters",
-        "lastNameRequired": "Last name is required",
-        "lastNameTooShort": "Last name must be at least 2 characters",
+        "fullNameRequired": "Full name is required",
+        "fullNameTooShort": "Full name is required",
         "emailRequired": "Email address is required",
         "emailInvalid": "Please enter a valid email address",
         "messageRequired": "Message is required",

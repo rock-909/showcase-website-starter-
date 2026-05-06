@@ -28,10 +28,10 @@ vi.mock("react", async () => {
 // Mock next-intl
 const mockT = vi.fn((key: string) => {
   const translations: Record<string, string> = {
-    firstName: "First Name",
-    lastName: "Last Name",
+    fullName: "Full name",
     email: "Email",
     company: "Company",
+    optional: "optional",
     phone: "Phone",
     subject: "Subject",
     message: "Message",
@@ -42,8 +42,7 @@ const mockT = vi.fn((key: string) => {
     submitSuccess: "Message sent successfully",
     submitError: "Failed to submit form. Please try again.",
     rateLimitMessage: "Please wait before submitting again.",
-    firstNamePlaceholder: "Enter your first name",
-    lastNamePlaceholder: "Enter your last name",
+    fullNamePlaceholder: "Enter your full name",
     emailPlaceholder: "your@email.com",
     companyPlaceholder: "Your company name",
     phonePlaceholder: "+1 (555) 123-4567",
@@ -166,15 +165,9 @@ const renderContactForm = async () => {
 // Note: phone field is disabled per Lead Pipeline requirements
 const _fillValidForm = async (excludeFields: string[] = []) => {
   await act(async () => {
-    if (!excludeFields.includes("firstName")) {
-      fireEvent.change(screen.getByLabelText(/first name/i), {
-        target: { value: "John" },
-      });
-    }
-
-    if (!excludeFields.includes("lastName")) {
-      fireEvent.change(screen.getByLabelText(/last name/i), {
-        target: { value: "Doe" },
+    if (!excludeFields.includes("fullName")) {
+      fireEvent.change(screen.getByLabelText(/full name/i), {
+        target: { value: "John Doe" },
       });
     }
 
@@ -287,10 +280,14 @@ describe("ContactFormContainer - 核心功能", () => {
       expect(await screen.findByTestId("turnstile-mock")).toBeInTheDocument();
 
       // 检查所有表单字段都存在
-      expect(screen.getByLabelText(/first name/i)).toBeInTheDocument();
-      expect(screen.getByLabelText(/last name/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/full name/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/company/i)).toBeInTheDocument();
+      expect(
+        screen.getByText("optional", {
+          selector: '[data-contact-form-field-optional="company"]',
+        }),
+      ).toBeInTheDocument();
     });
 
     it("应该渲染所有必需的表单字段", async () => {
@@ -298,12 +295,24 @@ describe("ContactFormContainer - 核心功能", () => {
 
       // 检查所有字段是否存在
       // Note: phone field is disabled per Lead Pipeline requirements
-      expect(screen.getByLabelText(/first name/i)).toBeInTheDocument();
-      expect(screen.getByLabelText(/last name/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/full name/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/company/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/subject/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/message/i)).toBeInTheDocument();
+    });
+
+    it("应该明确标记公司名称为选填", async () => {
+      await renderContactForm();
+
+      const companyInput = screen.getByLabelText(/company/i);
+      expect(companyInput).toHaveAttribute("name", "company");
+      expect(companyInput).not.toHaveAttribute("required");
+      expect(
+        screen.getByText("optional", {
+          selector: '[data-contact-form-field-optional="company"]',
+        }),
+      ).toBeInTheDocument();
     });
 
     it("提交按钮初始状态应该被禁用", async () => {

@@ -183,6 +183,31 @@ describe("resend - Email Operations", () => {
       );
     });
 
+    it("should send contact form email when company is omitted", async () => {
+      const service = new ResendServiceClass();
+      const { company: _company, ...emailDataWithoutCompany } = validEmailData;
+
+      mockResendSend.mockClear();
+      mockResendSend.mockResolvedValue({
+        data: { id: "test-message-id" },
+        error: null,
+      });
+
+      const result = await service.sendContactFormEmail(
+        emailDataWithoutCompany,
+      );
+
+      expect(result).toBe("test-message-id");
+      expect(mockResendSend).toHaveBeenCalledWith(
+        expect.objectContaining({
+          react: expect.objectContaining({
+            props: expect.not.objectContaining({ company: expect.anything() }),
+          }),
+          text: expect.any(String),
+        }),
+      );
+    });
+
     it("should use custom subject when provided", async () => {
       const service = new ResendServiceClass();
       const dataWithSubject = { ...validEmailData, subject: "Custom Subject" };
@@ -299,6 +324,31 @@ describe("resend - Confirmation and Validation", () => {
           tags: expect.arrayContaining([
             { name: "type", value: "confirmation" },
           ]),
+        }),
+      );
+    });
+
+    it("should send confirmation email when company is omitted", async () => {
+      const service = new ResendServiceClass();
+      const { company: _company, ...emailDataWithoutCompany } = validEmailData;
+
+      mockResendSend.mockClear();
+      mockResendSend.mockResolvedValue({
+        data: { id: "confirmation-message-id" },
+        error: null,
+      });
+
+      const result = await service.sendConfirmationEmail(
+        emailDataWithoutCompany,
+      );
+
+      expect(result).toBe("confirmation-message-id");
+      expect(mockResendSend).toHaveBeenCalledWith(
+        expect.objectContaining({
+          react: expect.objectContaining({
+            props: expect.not.objectContaining({ company: expect.anything() }),
+          }),
+          text: expect.any(String),
         }),
       );
     });

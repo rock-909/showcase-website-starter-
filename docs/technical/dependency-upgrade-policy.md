@@ -94,7 +94,7 @@ ESLint 10 不能只改版本号。当前仓库采用：
 - `typescript 6.0.3`
 - 移除 `tsconfig.json` 里的 `baseUrl`，保留显式 `paths` alias
 - 移除旧的 `ignoreDeprecations: 5.0`，不再靠静默配置掩盖编译器弃用项
-- 补齐 `tsconfig.typecheck-source.json`，让已有 `pnpm type-check:source` 脚本可执行
+- 补齐 `tsconfig.typecheck-source.json`，让 `pnpm type-check:source` 先生成 Next 类型，再用 source-only TypeScript 配置检查源码
 
 这次升级的关键点：
 
@@ -110,6 +110,14 @@ ESLint 10 不能只改版本号。当前仓库采用：
 - 与 Turnstile / IntersectionObserver 相关测试通过
 - `pnpm build` 和 `pnpm build:cf` 都要跑，因为 Next 文档明确生产构建会执行类型检查
 - `pnpm deps:check` 不再出现 TypeScript hold 项
+
+`next-env.d.ts` 处理方式：
+
+- 这是 Next.js 自动生成的类型入口，不是项目手写源码。
+- 按 Next.js 16 本地文档，它要保留在 `tsconfig.json` / 测试 tsconfig 的 `include` 里，让 TypeScript 能识别 Next 类型。
+- 同一份文档也建议把它加入 `.gitignore`；本项目按这个方式执行，不再跟踪提交它。
+- `pnpm type-check`、`pnpm type-check:source`、`pnpm type-check:generated` 和 `pnpm type-check:tests` 都先跑 `next typegen`，确保干净 checkout、CI 和本机验证时文件会被重新生成。
+- 不要编辑 `next-env.d.ts`。自定义全局类型放到独立 `.d.ts` 文件，再通过 tsconfig include 接入。
 
 ### `@types/node` / Node runtime
 

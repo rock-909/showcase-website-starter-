@@ -98,10 +98,9 @@ describe("actions.ts", () => {
     const createValidFormData = (
       overrides: Partial<Record<string, string>> = {},
     ): Record<string, string> => ({
-      firstName: "John",
-      lastName: "Doe",
+      fullName: "John Doe",
       email: "john@example.com",
-      company: "Acme Inc",
+      company: "",
       phone: "+1234567890",
       subject: "General Inquiry",
       message: "Hello, this is a test message with enough length.",
@@ -303,10 +302,9 @@ describe("actions.ts", () => {
   describe("Server Action Security", () => {
     function getValidFormData(): Record<string, string> {
       return {
-        firstName: "John",
-        lastName: "Doe",
+        fullName: "John Doe",
         email: "john@example.com",
-        company: "Acme Inc",
+        company: "",
         phone: "+1234567890",
         subject: "General Inquiry",
         message: "Hello, this is a test message with enough length.",

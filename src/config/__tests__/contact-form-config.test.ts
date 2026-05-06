@@ -29,8 +29,7 @@ describe("contact form configuration builder", () => {
     const fields = buildFormFieldsFromConfig(CONTACT_FORM_CONFIG);
     // phone field is disabled per Lead Pipeline requirements
     expect(fields.map((field) => field.key)).toEqual([
-      "firstName",
-      "lastName",
+      "fullName",
       "email",
       "company",
       "subject",
@@ -66,10 +65,9 @@ describe("contact form configuration builder", () => {
       contactFieldValidators,
     );
     const basePayload = {
-      firstName: "John",
-      lastName: "Doe",
+      fullName: "John Doe",
       email: "john.doe@allowed.com",
-      company: "Test Company",
+      company: "",
       message: "Hello there, this is a valid message.",
       acceptPrivacy: true,
       website: "",

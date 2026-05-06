@@ -41,9 +41,11 @@ export function ContactFormEmail(data: EmailTemplateData) {
       <EmailField label="Email">
         <Text style={valueTextStyle}>{data.email}</Text>
       </EmailField>
-      <EmailField label="Company">
-        <Text style={valueTextStyle}>{data.company}</Text>
-      </EmailField>
+      {data.company ? (
+        <EmailField label="Company">
+          <Text style={valueTextStyle}>{data.company}</Text>
+        </EmailField>
+      ) : null}
       {data.phone ? (
         <EmailField label="Phone">
           <Text style={valueTextStyle}>{data.phone}</Text>

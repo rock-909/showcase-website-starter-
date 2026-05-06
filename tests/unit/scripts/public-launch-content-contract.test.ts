@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { deepMerge } from "../../../scripts/translation-flat-utils";
 
 const REPO_ROOT = path.resolve(__dirname, "../../..");
 const LIVE_TEXT_PATHS = [
@@ -26,7 +27,23 @@ function readRepoFile(relativePath: string): string {
   return fs.readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
 }
 
+function readRepoJson(relativePath: string): unknown {
+  return JSON.parse(readRepoFile(relativePath));
+}
+
 describe("public launch content contract", () => {
+  it("keeps flat translation compatibility files in sync with split sources", () => {
+    for (const locale of ["en", "zh"] as const) {
+      const critical = readRepoJson(`messages/${locale}/critical.json`);
+      const deferred = readRepoJson(`messages/${locale}/deferred.json`);
+      const flat = readRepoJson(`messages/${locale}.json`);
+
+      expect(flat, `messages/${locale}.json`).toEqual(
+        deepMerge(critical, deferred),
+      );
+    }
+  });
+
   it("ships public contact fallback copy in the live contact namespace", () => {
     for (const locale of ["en", "zh"] as const) {
       const source = JSON.parse(

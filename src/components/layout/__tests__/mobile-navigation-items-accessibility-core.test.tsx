@@ -329,9 +329,9 @@ describe("Mobile Navigation - Core Tests", () => {
 
       // Should still render navigation items
       expect(screen.getByRole("navigation")).toBeInTheDocument();
-      // +3 = CTA button + 2 language links (English, 简体中文)
+      // +1 = CTA link. Language links stay collapsed until the language row is opened.
       expect(screen.getAllByRole("link")).toHaveLength(
-        mobileNavigation.length + 3,
+        mobileNavigation.length + 1,
       );
     });
 

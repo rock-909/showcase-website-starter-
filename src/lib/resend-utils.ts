@@ -44,7 +44,7 @@ export class ResendUtils {
       firstName: sanitizePlainText(data.firstName),
       lastName: sanitizePlainText(data.lastName),
       email: data.email.toLowerCase().trim(),
-      company: sanitizePlainText(data.company),
+      company: data.company ? sanitizePlainText(data.company) : undefined,
       message: sanitizePlainText(data.message),
       phone: data.phone ? sanitizePlainText(data.phone) : undefined,
       subject: data.subject ? sanitizePlainText(data.subject) : undefined,

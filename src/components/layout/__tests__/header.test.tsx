@@ -4,6 +4,7 @@
  * Tests for the async Server Component Header using a render helper
  * that awaits the component before passing to React Testing Library.
  */
+import { cloneElement, isValidElement, type ReactNode } from "react";
 import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { Header } from "@/components/layout/header";
@@ -21,7 +22,11 @@ vi.mock("@/components/layout/logo", () => ({
 // Mock header islands and Idle wrapper to render immediately in tests
 vi.mock("@/components/layout/header-client", () => ({
   MobileNavigationIsland: () => (
-    <nav data-testid="mobile-navigation">Mobile Navigation</nav>
+    <div data-testid="mobile-navigation">
+      <button data-testid="header-mobile-menu-button" type="button">
+        Menu
+      </button>
+    </div>
   ),
   LanguageToggleIsland: () => (
     <button data-testid="language-toggle-button">Language Toggle</button>
@@ -36,11 +41,17 @@ vi.mock("@/components/ui/button", () => ({
     size: _size,
     ...props
   }: {
-    children: React.ReactNode;
+    children: ReactNode;
     asChild?: boolean;
     variant?: string;
     size?: string;
-  }) => (asChild ? <>{children}</> : <button {...props}>{children}</button>),
+  }) => {
+    if (asChild && isValidElement(children)) {
+      return cloneElement(children, props);
+    }
+
+    return <button {...props}>{children}</button>;
+  },
 }));
 
 /**
@@ -83,6 +94,46 @@ describe("Header Component", () => {
 
       expect(screen.getByTestId("mobile-navigation")).toBeInTheDocument();
       expect(screen.getByTestId("language-toggle-button")).toBeInTheDocument();
+    });
+
+    it("places desktop contact CTA before the language selector", async () => {
+      await renderAsyncComponent(
+        Header({ locale: "en", mainNavItems: MAIN_NAV_ITEMS }),
+      );
+
+      const utilityRegion = screen.getByTestId("header-utility-controls");
+      const contactCta = screen.getByTestId("header-cta");
+      const languageToggle = screen.getByTestId("language-toggle-button");
+
+      expect(utilityRegion.compareDocumentPosition(contactCta)).toBe(
+        Node.DOCUMENT_POSITION_CONTAINED_BY | Node.DOCUMENT_POSITION_FOLLOWING,
+      );
+      expect(
+        contactCta.compareDocumentPosition(languageToggle) &
+          Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    });
+
+    it("keeps a compact contact CTA visible in the mobile header", async () => {
+      await renderAsyncComponent(
+        Header({ locale: "en", mainNavItems: MAIN_NAV_ITEMS }),
+      );
+
+      const utilityRegion = screen.getByTestId("header-utility-controls");
+      const mobileContactWrapper = screen.getByTestId(
+        "header-mobile-cta-wrapper",
+      );
+      const mobileContactCta = screen.getByTestId("header-mobile-cta");
+      const menuButton = screen.getByTestId("header-mobile-menu-button");
+
+      expect(mobileContactWrapper).toHaveClass("header-mobile-only");
+      expect(mobileContactCta).toHaveAttribute("href", "/contact");
+      expect(mobileContactCta).toHaveTextContent("Contact Sales");
+      expect(
+        mobileContactCta.compareDocumentPosition(menuButton) &
+          Node.DOCUMENT_POSITION_FOLLOWING,
+      ).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+      expect(utilityRegion).toContainElement(mobileContactCta);
     });
 
     it("protects desktop navigation labels and CTA without broad wrappers", async () => {

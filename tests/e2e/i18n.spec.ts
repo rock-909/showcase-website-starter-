@@ -581,10 +581,21 @@ test.describe("Internationalization (i18n)", () => {
       });
       await expect(mobileNavSheet).toBeVisible();
 
-      // Find and click Chinese language link in mobile menu
+      const mobileLanguageButton = mobileNavSheet.getByRole("button", {
+        name: /select language english/i,
+      });
+      await expect(mobileLanguageButton).toBeVisible();
+
+      // Mobile language options are intentionally collapsed by default.
       const chineseLink = mobileNavSheet.getByRole("link", {
         name: "简体中文",
       });
+      await expect(chineseLink).toHaveCount(0);
+      try {
+        await mobileLanguageButton.tap();
+      } catch {
+        await mobileLanguageButton.click();
+      }
       await expect(chineseLink).toBeVisible();
       try {
         await chineseLink.tap();
@@ -613,6 +624,11 @@ test.describe("Internationalization (i18n)", () => {
         name: /mobile navigation/i,
       });
       await expect(mobileNavSheetZh).toBeVisible();
+      await expect(
+        mobileNavSheetZh.getByRole("button", {
+          name: /选择语言 简体中文/i,
+        }),
+      ).toBeVisible();
 
       // Verify Chinese navigation items in mobile menu
       await expect(

@@ -24,18 +24,31 @@ export interface FormFieldsProps {
   isPending: boolean;
 }
 
+function OptionalFieldMarker({
+  fieldKey,
+  label,
+}: {
+  fieldKey: string;
+  label: string;
+}) {
+  return (
+    <span
+      className="text-xs font-normal text-muted-foreground"
+      data-contact-form-field-optional={fieldKey}
+      translate="no"
+    >
+      {label}
+    </span>
+  );
+}
+
 export function getFieldInputProps(
   field: ContactFormFieldDescriptor,
 ): Partial<React.ComponentProps<"input"> & React.ComponentProps<"textarea">> {
   switch (field.key) {
-    case "firstName":
+    case "fullName":
       return {
-        autoComplete: "given-name",
-        autoCapitalize: "words",
-      };
-    case "lastName":
-      return {
-        autoComplete: "family-name",
+        autoComplete: "name",
         autoCapitalize: "words",
       };
     case "email":
@@ -99,6 +112,12 @@ export const FormFields = memo(({ t, isPending }: FormFieldsProps) => {
             <div key={field.key} className="space-y-2">
               <Label htmlFor={field.key} className={renderLabelClass(field)}>
                 {t(field.labelKey)}
+                {!field.required && !field.isHoneypot ? (
+                  <OptionalFieldMarker
+                    fieldKey={field.key}
+                    label={t("optional")}
+                  />
+                ) : null}
               </Label>
               <Input
                 id={field.key}
@@ -107,6 +126,7 @@ export const FormFields = memo(({ t, isPending }: FormFieldsProps) => {
                 placeholder={renderPlaceholder(field)}
                 disabled={isPending}
                 required={field.required}
+                aria-describedby={`${field.key}-error`}
                 {...getFieldInputProps(field)}
               />
             </div>
@@ -125,6 +145,7 @@ export const FormFields = memo(({ t, isPending }: FormFieldsProps) => {
             placeholder={renderPlaceholder(field)}
             disabled={isPending}
             required={field.required}
+            aria-describedby={`${field.key}-error`}
             rows={4}
             {...getFieldInputProps(field)}
           />

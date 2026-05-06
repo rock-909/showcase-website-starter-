@@ -12,14 +12,17 @@ export const emailTemplateDataSchema = z.object({
   company: z
     .string()
     .transform((val) => val.trim())
+    .transform((val) => (val.length === 0 ? undefined : val))
     .refine(
       (val) =>
-        val.length >= CONTACT_FORM_VALIDATION_CONSTANTS.COMPANY_MIN_LENGTH &&
-        val.length <= CONTACT_FORM_VALIDATION_CONSTANTS.COMPANY_MAX_LENGTH,
+        val === undefined ||
+        (val.length >= CONTACT_FORM_VALIDATION_CONSTANTS.COMPANY_MIN_LENGTH &&
+          val.length <= CONTACT_FORM_VALIDATION_CONSTANTS.COMPANY_MAX_LENGTH),
       {
         message: `Company name must be between ${CONTACT_FORM_VALIDATION_CONSTANTS.COMPANY_MIN_LENGTH} and ${CONTACT_FORM_VALIDATION_CONSTANTS.COMPANY_MAX_LENGTH} characters`,
       },
-    ),
+    )
+    .optional(),
   message: z.string(),
   phone: z.string().optional(),
   subject: z.string().optional(),

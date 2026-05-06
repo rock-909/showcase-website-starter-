@@ -11,6 +11,7 @@ import { REQUEST_ID_HEADER } from "@/lib/api/request-observability";
 const intlMiddleware = createMiddleware(routing);
 const SUPPORTED_LOCALES = new Set<string>(routing.locales);
 const NONCE_REQUEST_HEADER_KEY = "x-nonce";
+const LOCALE_FALLBACK_QUERY_PARAM = "fromLocaleFallback";
 function getRequestIdForHealth(request: NextRequest): string {
   const fromRequest =
     request.headers.get(REQUEST_ID_HEADER)?.trim() ||
@@ -201,6 +202,105 @@ function isKnownLocalizedPath(pathname: string): boolean {
   );
 }
 
+function stripLocalePrefix(pathname: string): string | null {
+  const segments = splitPathSegments(pathname);
+  const [, ...rest] = segments;
+
+  if (rest.length === 0) {
+    return "/";
+  }
+
+  return `/${rest.join("/")}`;
+}
+
+function isNoJsLocaleFallbackRequest(request: NextRequest): boolean {
+  return request.nextUrl.searchParams.get(LOCALE_FALLBACK_QUERY_PARAM) === "1";
+}
+
+function getSameOriginRefererUrl(request: NextRequest): URL | null {
+  const refererHeader = request.headers.get("referer");
+  if (!refererHeader) {
+    return null;
+  }
+
+  let refererUrl: URL;
+  try {
+    refererUrl = new URL(refererHeader);
+  } catch {
+    return null;
+  }
+
+  if (refererUrl.origin !== request.nextUrl.origin) {
+    return null;
+  }
+
+  return refererUrl;
+}
+
+function getKnownRefererPath(refererUrl: URL): string | null {
+  const refererLocale = extractLocaleCandidate(refererUrl.pathname);
+  if (!refererLocale) {
+    return null;
+  }
+
+  const refererPath = stripLocalePrefix(refererUrl.pathname);
+  if (!refererPath || !isKnownLocalizedPath(refererPath)) {
+    return null;
+  }
+
+  return refererPath;
+}
+
+function getCleanRefererSearch(refererUrl: URL): string {
+  const searchParams = new URLSearchParams(refererUrl.search);
+  searchParams.delete(LOCALE_FALLBACK_QUERY_PARAM);
+
+  const search = searchParams.toString();
+  return search ? `?${search}` : "";
+}
+
+function getNoJsLocaleFallbackTarget(request: NextRequest): URL | null {
+  if (!isNoJsLocaleFallbackRequest(request)) {
+    return null;
+  }
+
+  const targetLocale = extractLocaleCandidate(request.nextUrl.pathname);
+  if (!targetLocale) {
+    return null;
+  }
+
+  const refererUrl = getSameOriginRefererUrl(request);
+  if (!refererUrl) return null;
+
+  const refererPath = getKnownRefererPath(refererUrl);
+  if (!refererPath) return null;
+
+  const targetUrl = request.nextUrl.clone();
+  targetUrl.pathname =
+    refererPath === "/" ? `/${targetLocale}` : `/${targetLocale}${refererPath}`;
+  targetUrl.search = getCleanRefererSearch(refererUrl);
+  return targetUrl;
+}
+
+function tryHandleNoJsLocaleFallback(
+  request: NextRequest,
+  nonce: string,
+): NextResponse | null {
+  const targetUrl = getNoJsLocaleFallbackTarget(request);
+  if (!targetUrl) {
+    return null;
+  }
+
+  const locale = extractLocaleCandidate(targetUrl.pathname);
+  const response = NextResponse.redirect(targetUrl);
+  if (locale) {
+    setLocaleCookie(response, locale);
+  }
+  removeLeakedMiddlewareCookieHeader(response);
+  addSecurityHeaders(response, nonce);
+  return response;
+}
+
 function tryHandleInvalidLocalePrefix(
   request: NextRequest,
   nonce: string,
@@ -238,6 +338,16 @@ function tryHandleInvalidLocalePrefix(
   return resp;
 }
 
+function tryHandlePreIntlRedirect(
+  request: NextRequest,
+  nonce: string,
+): NextResponse | null {
+  return (
+    tryHandleInvalidLocalePrefix(request, nonce) ??
+    tryHandleNoJsLocaleFallback(request, nonce)
+  );
+}
+
 export default function middleware(request: NextRequest) {
   const healthHandled = tryHandleHealthRoute(request);
   if (healthHandled) {
@@ -247,10 +357,14 @@ export default function middleware(request: NextRequest) {
   const nonce = generateNonce();
   const trustedClientIP = getTrustedClientIPForInternalHeader(request);
 
-  const invalidLocaleHandled = tryHandleInvalidLocalePrefix(request, nonce);
-  if (invalidLocaleHandled) {
-    applyCommonMiddlewareHeaders(invalidLocaleHandled, nonce, trustedClientIP);
-    return invalidLocaleHandled;
+  const preIntlRedirectHandled = tryHandlePreIntlRedirect(request, nonce);
+  if (preIntlRedirectHandled) {
+    applyCommonMiddlewareHeaders(
+      preIntlRedirectHandled,
+      nonce,
+      trustedClientIP,
+    );
+    return preIntlRedirectHandled;
   }
 
   const response = intlMiddleware(request);

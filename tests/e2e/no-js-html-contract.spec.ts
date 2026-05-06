@@ -6,11 +6,25 @@ const localeCases = [
     locale: "en",
     skipLabel: "Skip to main content",
     contactHeading: /Contact Us/i,
+    languageLabel: "Select Language",
+    currentLanguage: "English",
+    targetFallbackHref: "/zh?fromLocaleFallback=1",
+    targetLocale: "zh",
+    targetContactHeading: /联系我们/i,
+    fullNameLabel: "Full name",
+    optionalLabel: "optional",
   },
   {
     locale: "zh",
     skipLabel: "跳转到主要内容",
     contactHeading: /联系我们/i,
+    languageLabel: "选择语言",
+    currentLanguage: "简体中文",
+    targetFallbackHref: "/en?fromLocaleFallback=1",
+    targetLocale: "en",
+    targetContactHeading: /Contact Us/i,
+    fullNameLabel: "姓名",
+    optionalLabel: "选填",
   },
 ] as const;
 
@@ -63,6 +77,70 @@ for (const localeCase of localeCases) {
       await expect(
         page.getByRole("navigation", { name: /mobile navigation menu/i }),
       ).toBeVisible();
+      await expect(
+        page.getByText(localeCase.languageLabel, { exact: true }),
+      ).toBeVisible();
+      const languageFallback = page.getByTestId("mobile-language-fallback");
+      await expect(languageFallback).toContainText(localeCase.currentLanguage);
+
+      const fallbackPanel = page.getByTestId(
+        "header-mobile-navigation-fallback-panel",
+      );
+      const englishLanguageLink = fallbackPanel.locator(
+        'a[href="/en?fromLocaleFallback=1"]',
+      );
+      const chineseLanguageLink = fallbackPanel.locator(
+        'a[href="/zh?fromLocaleFallback=1"]',
+      );
+
+      await expect(englishLanguageLink).toBeHidden();
+      await expect(chineseLanguageLink).toBeHidden();
+      await expect(englishLanguageLink).toHaveAttribute(
+        "href",
+        "/en?fromLocaleFallback=1",
+      );
+      await expect(chineseLanguageLink).toHaveAttribute(
+        "href",
+        "/zh?fromLocaleFallback=1",
+      );
+
+      await languageFallback.click();
+
+      await expect(englishLanguageLink).toBeVisible();
+      await expect(chineseLanguageLink).toBeVisible();
+    });
+
+    test("mobile language fallback preserves the current path when same-origin referer is present", async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width: 390, height: 844 });
+      await page.goto(`http://localhost:3000/${localeCase.locale}/contact`, {
+        waitUntil: "domcontentloaded",
+      });
+
+      const trigger = getHeaderMobileMenuButton(page);
+      await trigger.click();
+
+      const fallbackPanel = page.getByTestId(
+        "header-mobile-navigation-fallback-panel",
+      );
+      const languageFallback = page.getByTestId("mobile-language-fallback");
+      await languageFallback.click();
+
+      const targetLanguageLink = fallbackPanel.locator(
+        `a[href="${localeCase.targetFallbackHref}"]`,
+      );
+      await expect(targetLanguageLink).toBeVisible();
+
+      await targetLanguageLink.click();
+
+      await expect
+        .poll(() => new URL(page.url()).pathname)
+        .toBe(`/${localeCase.targetLocale}/contact`);
+      expect(new URL(page.url()).search).toBe("");
+      await expect(
+        page.getByRole("heading", { name: localeCase.targetContactHeading }),
+      ).toBeVisible();
     });
 
     test("contact page renders form structure without JavaScript", async ({
@@ -86,9 +164,24 @@ for (const localeCase of localeCases) {
       expectExactlyOneMain(html);
       expect(html).toContain('id="main-content"');
       expect(html).toContain("<form");
+
+      const fullNameInput = page.getByLabel(localeCase.fullNameLabel).first();
+      const companyInput = page.locator('input[name="company"]').first();
+      const submitButton = page.getByRole("button", {
+        name: /send message|发送消息/i,
+      });
+
+      await expect(fullNameInput).toBeDisabled();
+      await expect(fullNameInput).toHaveAttribute("required", "");
+      await expect(companyInput).toBeDisabled();
+      await expect(companyInput).not.toHaveAttribute("required", "");
+      await expect(
+        page.getByText(localeCase.optionalLabel, { exact: true }).first(),
+      ).toBeVisible();
+      await expect(submitButton).toBeDisabled();
+
       for (const fieldName of [
-        "firstName",
-        "lastName",
+        "fullName",
         "email",
         "company",
         "message",

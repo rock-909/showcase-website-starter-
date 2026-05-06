@@ -70,8 +70,7 @@ vi.mock("@marsidev/react-turnstile", () => ({
 // Mock next-intl
 const mockT = vi.fn((key: string) => {
   const translations: Record<string, string> = {
-    firstName: "First Name",
-    lastName: "Last Name",
+    fullName: "Full name",
     email: "Email",
     company: "Company",
     phone: "Phone",
@@ -136,11 +135,8 @@ const renderContactForm = async () => {
 
 const _fillValidForm = async () => {
   await act(async () => {
-    fireEvent.change(screen.getByLabelText(/first name/i), {
-      target: { value: "John" },
-    });
-    fireEvent.change(screen.getByLabelText(/last name/i), {
-      target: { value: "Doe" },
+    fireEvent.change(screen.getByLabelText(/full name/i), {
+      target: { value: "John Doe" },
     });
     fireEvent.change(screen.getByLabelText(/email/i), {
       target: { value: "john.doe@example.com" },
@@ -270,11 +266,8 @@ describe("ContactFormContainer - 提交和错误处理", () => {
 
       // 填写表单但不启用 Turnstile
       await act(async () => {
-        fireEvent.change(screen.getByLabelText(/first name/i), {
-          target: { value: "John" },
-        });
-        fireEvent.change(screen.getByLabelText(/last name/i), {
-          target: { value: "Doe" },
+        fireEvent.change(screen.getByLabelText(/full name/i), {
+          target: { value: "John Doe" },
         });
         fireEvent.change(screen.getByLabelText(/email/i), {
           target: { value: "john.doe@example.com" },
@@ -446,8 +439,7 @@ describe("ContactFormContainer - 提交和错误处理", () => {
       await renderContactForm();
 
       // 验证表单渲染正确，数据格式化由Server Actions处理
-      expect(screen.getByLabelText(/first name/i)).toBeInTheDocument();
-      expect(screen.getByLabelText(/last name/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/full name/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/message/i)).toBeInTheDocument();
 

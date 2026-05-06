@@ -171,13 +171,12 @@ function HeaderUtilityControls({
   return (
     <div
       className="header-nav-right"
-      {...(!locale ? { "data-testid": "language-toggle-button" } : {})}
+      data-testid={
+        locale ? "header-utility-controls" : "language-toggle-button"
+      }
     >
       {locale ? (
         <>
-          <div className="header-full-desktop-only h-10 w-28 items-center justify-end">
-            <LanguageToggleIsland locale={locale} />
-          </div>
           <Button
             variant="default"
             size="sm"
@@ -194,11 +193,36 @@ function HeaderUtilityControls({
               </span>
             </Link>
           </Button>
+          <div
+            className="header-mobile-only"
+            data-testid="header-mobile-cta-wrapper"
+          >
+            <Button
+              variant="default"
+              size="sm"
+              asChild
+              className="h-9 px-3 text-xs font-semibold"
+            >
+              <Link
+                href={SINGLE_SITE_HOME_LINK_TARGETS.contact}
+                prefetch={false}
+                data-testid="header-mobile-cta"
+              >
+                <span data-testid="header-mobile-contact-label" translate="no">
+                  {contactSalesLabel}
+                </span>
+              </Link>
+            </Button>
+          </div>
+          <div className="header-full-desktop-only h-10 w-28 items-center justify-end">
+            <LanguageToggleIsland locale={locale} />
+          </div>
           <div className="header-mobile-only h-10 w-10">
             <MobileNavigationIsland
               openMenuLabel={openMenuLabel}
               closeMenuLabel={closeMenuLabel}
               languageLabel={mobileLanguageLabel}
+              locale={locale}
             >
               <MobileNavigationLinks
                 contactSalesLabel={contactSalesLabel}

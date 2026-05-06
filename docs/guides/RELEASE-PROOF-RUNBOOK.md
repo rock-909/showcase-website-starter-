@@ -59,7 +59,8 @@ These commands prove content residue and source client-boundary budget only. The
 - 再跑 Tier A scan：先确认是不是高风险面
 - 再跑 cluster scan：判断是不是共改簇
 - 先校验翻译，再进 build，失败更快
-- `type-check:source` 早于构建，因为要把源码真相和旧生成物分开看
+- `type-check:source` 早于构建；它会先运行 `next typegen`，再用 source-only TypeScript 配置检查源码
+- `next-env.d.ts` 是 Next.js 生成文件：保留在 TypeScript `include` 里，但不入库；提交前只确认它没有作为未跟踪源码被带入
 - `clean:next-artifacts` 早于 `build`，避免脏 `.next` 误导
 - `build` 早于 `build:cf`，因为两条线仍共享构建产物族
 - `CF_APPLY_GENERATED_PATCH=true pnpm build:cf` 才是当前更强的本地 Cloudflare build proof

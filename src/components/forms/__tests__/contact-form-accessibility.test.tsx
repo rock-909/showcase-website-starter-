@@ -16,8 +16,7 @@ vi.mock("react", async () => {
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => {
     const translations: Record<string, string> = {
-      firstName: "First Name",
-      lastName: "Last Name",
+      fullName: "Full name",
       email: "Email",
       company: "Company",
       subject: "Subject",
@@ -27,8 +26,7 @@ vi.mock("next-intl", () => ({
       submit: "Submit",
       submitting: "Submitting...",
       submitError: "Failed to submit form. Please try again.",
-      firstNamePlaceholder: "Enter your first name",
-      lastNamePlaceholder: "Enter your last name",
+      fullNamePlaceholder: "Enter your full name",
       emailPlaceholder: "Enter your email",
       companyPlaceholder: "Enter your company",
       subjectPlaceholder: "Enter your subject",
@@ -110,13 +108,9 @@ describe("ContactFormContainer accessibility", () => {
 
     await screen.findByTestId("turnstile-success");
 
-    expect(screen.getByLabelText(/first name/i)).toHaveAttribute(
+    expect(screen.getByLabelText(/full name/i)).toHaveAttribute(
       "autocomplete",
-      "given-name",
-    );
-    expect(screen.getByLabelText(/last name/i)).toHaveAttribute(
-      "autocomplete",
-      "family-name",
+      "name",
     );
     expect(screen.getByLabelText(/email/i)).toHaveAttribute(
       "autocomplete",

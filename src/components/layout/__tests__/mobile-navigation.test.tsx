@@ -1,5 +1,5 @@
 import React from "react";
-import { screen, waitFor } from "@testing-library/react";
+import { fireEvent, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -92,22 +92,24 @@ vi.mock("@/components/ui/sheet", () => {
         <div
           data-testid="sheet"
           data-open={open?.toString()}
-          onClick={() => onOpenChange?.(false)}
-        >
-          {React.Children.map(children, (child) => {
-            if (React.isValidElement(child) && child.type === "SheetTrigger") {
-              // Pass the state to SheetTrigger
-              return React.cloneElement(
-                child as React.ReactElement,
-                {
-                  ...(child.props || {}),
-                  __sheetOpen: open,
-                  __onOpenChange: onOpenChange,
-                } as any,
-              );
+          onClick={(event) => {
+            if (event.target === event.currentTarget) {
+              onOpenChange?.(false);
             }
-            return child;
-          })}
+          }}
+        >
+          {React.Children.map(children, (child) =>
+            React.isValidElement(child)
+              ? React.cloneElement(
+                  child as React.ReactElement,
+                  {
+                    ...(child.props || {}),
+                    __sheetOpen: open,
+                    __onOpenChange: onOpenChange,
+                  } as any,
+                )
+              : child,
+          )}
         </div>
       );
     },
@@ -126,6 +128,7 @@ vi.mock("@/components/ui/sheet", () => {
         data-testid="sheet-content"
         data-side={side}
         id={id}
+        tabIndex={-1}
         onKeyDown={(e) => e.key === "Escape" && onEscapeKeyDown?.()}
       >
         {children}
@@ -155,6 +158,7 @@ vi.mock("@/components/ui/sheet", () => {
         // When asChild is true, we need to clone the child and add our test id and click handler
         const child = React.Children.only(children);
         return React.cloneElement(child, {
+          ...(React.isValidElement(child) ? (child as any).props : {}),
           "data-testid": "sheet-trigger",
           "aria-expanded": __sheetOpen ? "true" : "false",
           "data-state": __sheetOpen ? "open" : "closed",
@@ -164,7 +168,6 @@ vi.mock("@/components/ui/sheet", () => {
             }
             __onOpenChange?.(!__sheetOpen);
           },
-          ...(React.isValidElement(child) ? (child as any).props : {}),
         });
       }
       return (
@@ -335,11 +338,14 @@ describe("MobileNavigation Component", () => {
   });
 
   describe("Navigation Items", () => {
-    it("renders protected language switcher labels when open", async () => {
+    it("renders protected language switcher labels only after expanding language options", async () => {
       renderWithIntl(<MobileNavigation />);
 
       const trigger = screen.getByRole("button", { name: /menu/i });
       await user.click(trigger);
+      await user.click(
+        screen.getByRole("button", { name: "Language English" }),
+      );
 
       expect(screen.getByTestId("mobile-language-switcher")).not.toHaveClass(
         "notranslate",
@@ -456,7 +462,9 @@ describe("MobileNavigation Component", () => {
       await user.click(trigger);
 
       // Escape should close menu
-      await user.keyboard("{Escape}");
+      fireEvent.keyDown(screen.getByTestId("sheet-content"), {
+        key: "Escape",
+      });
 
       await waitFor(() => {
         const sheet = screen.getByTestId("sheet");
@@ -635,16 +643,51 @@ describe("MobileLanguageSwitcher Integration", () => {
     mockLocale.current = "en";
   });
 
-  it("renders language options in mobile menu", async () => {
+  it("keeps language options collapsed by default while showing the current language", async () => {
     renderWithIntl(<MobileNavigation />);
 
     const trigger = screen.getByRole("button", { name: /menu/i });
     await user.click(trigger);
 
-    // Should show language section
-    expect(screen.getByText(/Language|Select Language/)).toBeInTheDocument();
-    expect(screen.getByText("English")).toBeInTheDocument();
-    expect(screen.getByText("简体中文")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Language English" }),
+    ).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByText("简体中文")).not.toBeInTheDocument();
+  });
+
+  it("expands language options only after the language row is clicked", async () => {
+    renderWithIntl(<MobileNavigation />);
+
+    const trigger = screen.getByRole("button", { name: /menu/i });
+    await user.click(trigger);
+    await user.click(screen.getByRole("button", { name: "Language English" }));
+
+    expect(
+      screen.getByRole("button", { name: "Language English" }),
+    ).toHaveAttribute("aria-expanded", "true");
+    expect(
+      screen.getByTestId("mobile-language-option-label-en"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByTestId("mobile-language-option-label-zh"),
+    ).toBeInTheDocument();
+  });
+
+  it("renders mobile navigation links before the language row", async () => {
+    renderWithIntl(<MobileNavigation />);
+
+    const trigger = screen.getByRole("button", { name: /menu/i });
+    await user.click(trigger);
+
+    const nav = screen.getByRole("navigation", { name: /mobile menu/i });
+    const languageRow = screen.getByRole("button", {
+      name: "Language English",
+    });
+
+    expect(
+      nav.compareDocumentPosition(languageRow) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
   });
 
   it("detects current locale from next-intl locale context", async () => {
@@ -654,9 +697,12 @@ describe("MobileLanguageSwitcher Integration", () => {
 
     const trigger = screen.getByRole("button", { name: /menu/i });
     await user.click(trigger);
+    await user.click(screen.getByRole("button", { name: "Language 简体中文" }));
 
     // Chinese should be marked as active (has check icon)
-    const chineseLink = screen.getByText("简体中文").closest("a");
+    const chineseLink = screen
+      .getByTestId("mobile-language-option-label-zh")
+      .closest("a");
     expect(chineseLink).toHaveClass("bg-accent");
   });
 
@@ -667,9 +713,12 @@ describe("MobileLanguageSwitcher Integration", () => {
 
     const trigger = screen.getByRole("button", { name: /menu/i });
     await user.click(trigger);
+    await user.click(screen.getByRole("button", { name: "Language English" }));
 
     // English should be marked as active
-    const englishLink = screen.getByText("English").closest("a");
+    const englishLink = screen
+      .getByTestId("mobile-language-option-label-en")
+      .closest("a");
     expect(englishLink).toHaveClass("bg-accent");
   });
 
@@ -678,9 +727,10 @@ describe("MobileLanguageSwitcher Integration", () => {
 
     const trigger = screen.getByRole("button", { name: /menu/i });
     await user.click(trigger);
+    await user.click(screen.getByRole("button", { name: "Language English" }));
 
     // Click on a language link
-    const chineseLink = screen.getByText("简体中文");
+    const chineseLink = screen.getByTestId("mobile-language-option-label-zh");
     await user.click(chineseLink);
 
     // Menu should close
@@ -688,6 +738,30 @@ describe("MobileLanguageSwitcher Integration", () => {
       const sheet = screen.getByTestId("sheet");
       expect(sheet).toHaveAttribute("data-open", "false");
     });
+  });
+
+  it("collapses language options again after closing and reopening the menu", async () => {
+    renderWithIntl(<MobileNavigation />);
+
+    const trigger = screen.getByRole("button", { name: /menu/i });
+    await user.click(trigger);
+    await user.click(screen.getByRole("button", { name: "Language English" }));
+    expect(
+      screen.getByTestId("mobile-language-option-label-zh"),
+    ).toBeInTheDocument();
+
+    await user.click(trigger);
+    await waitFor(() => {
+      expect(screen.getByTestId("sheet")).toHaveAttribute("data-open", "false");
+    });
+
+    await user.click(trigger);
+    expect(
+      screen.getByRole("button", { name: "Language English" }),
+    ).toHaveAttribute("aria-expanded", "false");
+    expect(
+      screen.queryByTestId("mobile-language-option-label-zh"),
+    ).not.toBeInTheDocument();
   });
 
   it("shows check icon for active language", async () => {
@@ -701,9 +775,12 @@ describe("MobileLanguageSwitcher Integration", () => {
 
     const trigger = screen.getByRole("button", { name: /menu/i });
     await user.click(trigger);
+    await user.click(screen.getByRole("button", { name: "Language English" }));
 
     // Check icon should be visible for English
-    const englishLink = screen.getByText("English").closest("a");
+    const englishLink = screen
+      .getByTestId("mobile-language-option-label-en")
+      .closest("a");
     expect(
       englishLink?.querySelector('[data-testid="check-icon"]'),
     ).toBeInTheDocument();

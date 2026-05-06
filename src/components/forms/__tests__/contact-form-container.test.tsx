@@ -25,8 +25,7 @@ vi.mock("react", async () => {
 const mockT = vi.fn((key: string) => {
   const translations: Record<string, string> = {
     // Form fields
-    firstName: "First Name",
-    lastName: "Last Name",
+    fullName: "Full name",
     email: "Email",
     company: "Company",
     phone: "Phone",
@@ -34,8 +33,7 @@ const mockT = vi.fn((key: string) => {
     message: "Message",
 
     // Placeholders
-    firstNamePlaceholder: "Enter your first name",
-    lastNamePlaceholder: "Enter your last name",
+    fullNamePlaceholder: "Enter your full name",
     emailPlaceholder: "Enter your email",
     companyPlaceholder: "Enter your company",
     phonePlaceholder: "Enter your phone (optional)",
@@ -129,8 +127,7 @@ Object.defineProperty(navigator, "userAgent", {
 
 // 通用表单填写函数
 const validFormData = {
-  firstName: "John",
-  lastName: "Doe",
+  fullName: "John Doe",
   email: "john.doe@example.com",
   company: "Test Company",
   phone: "+1234567890",
@@ -140,11 +137,8 @@ const validFormData = {
 
 const _fillValidForm = async () => {
   await act(async () => {
-    fireEvent.change(screen.getByLabelText(/first name/i), {
-      target: { value: validFormData.firstName },
-    });
-    fireEvent.change(screen.getByLabelText(/last name/i), {
-      target: { value: validFormData.lastName },
+    fireEvent.change(screen.getByLabelText(/full name/i), {
+      target: { value: validFormData.fullName },
     });
     fireEvent.change(screen.getByLabelText(/email/i), {
       target: { value: validFormData.email },
