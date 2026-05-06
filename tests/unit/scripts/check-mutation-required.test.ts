@@ -28,6 +28,30 @@ describe("check-mutation-required", () => {
       expect(changedFiles).toEqual([]);
       expect(runGitFn).not.toHaveBeenCalled();
     });
+
+    it("asks git for non-deleted changed files only", () => {
+      const runGitFn = vi.fn(() =>
+        ["src/lib/security/rate-limit.ts", "src/components/hero.tsx"].join(
+          "\n",
+        ),
+      );
+
+      const changedFiles = mutationCheck.getChangedFiles({
+        hasOriginMainFn: () => true,
+        runGitFn,
+      });
+
+      expect(runGitFn).toHaveBeenCalledWith([
+        "diff",
+        "--diff-filter=ACMRT",
+        "origin/main...HEAD",
+        "--name-only",
+      ]);
+      expect(changedFiles).toEqual([
+        "src/lib/security/rate-limit.ts",
+        "src/components/hero.tsx",
+      ]);
+    });
   });
 
   describe("suggested mutation commands", () => {

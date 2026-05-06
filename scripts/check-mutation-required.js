@@ -51,7 +51,12 @@ function getChangedFiles({
     return [];
   }
 
-  const output = runGitFn(["diff", "origin/main...HEAD", "--name-only"]);
+  const output = runGitFn([
+    "diff",
+    "--diff-filter=ACMRT",
+    "origin/main...HEAD",
+    "--name-only",
+  ]);
   if (!output) return [];
 
   return output
