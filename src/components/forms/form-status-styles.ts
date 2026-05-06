@@ -5,8 +5,6 @@ export const FORM_STATUS_CLASS_NAMES = {
     "border-[var(--error-border)] bg-[var(--error-muted)] text-[var(--error-foreground)]",
   submitting:
     "border-[var(--info-border)] bg-[var(--info-muted)] text-[var(--info-foreground)]",
-  partialSuccess:
-    "border-[var(--warning-border)] bg-[var(--warning-muted)] text-[var(--warning-foreground)]",
   warningText: "text-[var(--warning-foreground)]",
 } as const;
 

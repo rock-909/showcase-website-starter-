@@ -1,4 +1,3 @@
-import { readFileSync } from "node:fs";
 import { describe, expect, it, vi } from "vitest";
 
 const mutationCheck =
@@ -32,38 +31,31 @@ describe("check-mutation-required", () => {
   });
 
   describe("suggested mutation commands", () => {
-    const packageJson = JSON.parse(readFileSync("package.json", "utf8")) as {
-      scripts: Record<string, string>;
-    };
-
-    function extractPnpmScripts(command: string): string[] {
-      return command
-        .split("&&")
-        .map((part) => part.trim())
-        .map((part) => part.match(/^pnpm (?<script>[^\s]+)$/)?.groups?.script)
-        .filter((script): script is string => Boolean(script));
-    }
-
     it.each([
-      [["src/lib/lead-pipeline/"], "lead only"],
-      [["src/lib/security/"], "security only"],
-      [["src/lib/form-schema/"], "form schema"],
-      [["src/lib/lead-pipeline/", "src/lib/security/"], "lead and security"],
-    ])("only suggests package scripts that exist for %s", (directories) => {
-      const command = mutationCheck.getSuggestedMutationCommand(directories);
-      const scripts = extractPnpmScripts(command);
+      [
+        ["src/lib/lead-pipeline/"],
+        "pnpm exec stryker run --mutate 'src/lib/lead-pipeline/**/*.ts'",
+      ],
+      [
+        ["src/lib/security/"],
+        "pnpm exec stryker run --mutate 'src/lib/security/**/*.ts'",
+      ],
+      [
+        ["src/lib/form-schema/"],
+        "pnpm exec stryker run --mutate 'src/lib/form-schema/**/*.ts'",
+      ],
+      [
+        ["src/lib/lead-pipeline/", "src/lib/security/"],
+        "pnpm exec stryker run --mutate 'src/lib/lead-pipeline/**/*.ts,src/lib/security/**/*.ts'",
+      ],
+    ])(
+      "suggests explicit manual Stryker command for %s",
+      (directories, expected) => {
+        const command = mutationCheck.getSuggestedMutationCommand(directories);
 
-      expect(scripts).not.toHaveLength(0);
-      expect(scripts).toEqual(
-        scripts.filter((script) => script in packageJson.scripts),
-      );
-    });
-
-    it("uses one comma-separated mutate scope for the combined lead-security script", () => {
-      expect(packageJson.scripts["test:mutation:lead-security"]).toBe(
-        "stryker run --mutate 'src/lib/lead-pipeline/**/*.ts,src/lib/security/**/*.ts'",
-      );
-    });
+        expect(command).toBe(expected);
+      },
+    );
   });
 
   describe("getLatestRelevantChangeTimestampMs", () => {
@@ -177,7 +169,7 @@ describe("check-mutation-required", () => {
           "命中目录: src/lib/security/",
           "报告 mutate scope: src/lib/lead-pipeline/**/*.ts",
           "未覆盖目录: src/lib/security/",
-          "请运行 pnpm test:mutation:security 并更新 reports/mutation/mutation-report.json",
+          "请运行 pnpm exec stryker run --mutate 'src/lib/security/**/*.ts' 并更新 reports/mutation/mutation-report.json",
         ].join("\n"),
       );
       expect(isReportFreshEnoughFn).toHaveBeenCalledWith(
@@ -209,7 +201,7 @@ describe("check-mutation-required", () => {
           "命中目录: src/lib/lead-pipeline/",
           "报告 mutate scope: src/lib/security/**/*.ts",
           "未覆盖目录: src/lib/lead-pipeline/",
-          "请运行 pnpm test:mutation:lead 并更新 reports/mutation/mutation-report.json",
+          "请运行 pnpm exec stryker run --mutate 'src/lib/lead-pipeline/**/*.ts' 并更新 reports/mutation/mutation-report.json",
         ].join("\n"),
       );
     });
@@ -240,7 +232,7 @@ describe("check-mutation-required", () => {
           "命中目录: src/lib/lead-pipeline/, src/lib/security/",
           "报告 mutate scope: src/lib/security/**/*.ts",
           "未覆盖目录: src/lib/lead-pipeline/",
-          "请运行 pnpm test:mutation:lead-security 并更新 reports/mutation/mutation-report.json",
+          "请运行 pnpm exec stryker run --mutate 'src/lib/lead-pipeline/**/*.ts,src/lib/security/**/*.ts' 并更新 reports/mutation/mutation-report.json",
         ].join("\n"),
       );
     });

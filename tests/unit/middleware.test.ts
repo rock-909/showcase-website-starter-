@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { INTERNAL_TRUSTED_CLIENT_IP_HEADER } from "@/lib/security/client-ip-headers";
 
 // Mock next-intl/middleware
 vi.mock("next-intl/middleware", () => ({
@@ -34,14 +33,6 @@ describe("Middleware Cookie Security", () => {
     vi.unstubAllGlobals();
     vi.unstubAllEnvs();
   });
-
-  function attachRequestIP(request: NextRequest, ip: string): NextRequest {
-    Object.defineProperty(request, "ip", {
-      value: ip,
-      configurable: true,
-    });
-    return request;
-  }
 
   describe("setLocaleCookie security attributes", () => {
     it("should set httpOnly: true to prevent XSS access", async () => {
@@ -472,49 +463,20 @@ describe("Middleware Cookie Security", () => {
       expect(intlMock).toHaveBeenCalledTimes(1);
     });
 
-    it("should expose a middleware-derived trusted client IP override", async () => {
+    it("should not expose middleware-derived client IP overrides", async () => {
       vi.stubEnv("CF_PAGES", "1");
       const { default: middleware } = await import("@/middleware");
 
-      const request = attachRequestIP(
-        new NextRequest("http://localhost:3000/en/contact", {
-          headers: {
-            "cf-connecting-ip": "198.51.100.77",
-          },
-        }),
-        "173.245.48.25",
-      );
+      const request = new NextRequest("http://localhost:3000/en/contact", {
+        headers: {
+          "cf-connecting-ip": "198.51.100.77",
+        },
+      });
       const response = middleware(request);
 
-      expect(
-        response.headers.get(
-          `x-middleware-request-${INTERNAL_TRUSTED_CLIENT_IP_HEADER}`,
-        ),
-      ).toBe("198.51.100.77");
-      expect(response.headers.get("x-middleware-override-headers")).toContain(
-        INTERNAL_TRUSTED_CLIENT_IP_HEADER,
+      expect(response.headers.get("x-middleware-override-headers")).toBe(
+        "x-nonce",
       );
-    });
-
-    it("should not expose a middleware-derived trusted client IP override for untrusted Cloudflare sources", async () => {
-      vi.stubEnv("CF_PAGES", "1");
-      const { default: middleware } = await import("@/middleware");
-
-      const request = attachRequestIP(
-        new NextRequest("http://localhost:3000/en/contact", {
-          headers: {
-            "cf-connecting-ip": "198.51.100.77",
-          },
-        }),
-        "198.51.100.25",
-      );
-      const response = middleware(request);
-
-      expect(
-        response.headers.get(
-          `x-middleware-request-${INTERNAL_TRUSTED_CLIENT_IP_HEADER}`,
-        ),
-      ).toBeNull();
     });
   });
 });

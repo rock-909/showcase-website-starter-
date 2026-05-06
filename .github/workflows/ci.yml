@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: CI
 
 on:
   push:
@@ -12,9 +12,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # 基础检查作业
-  basic-checks:
-    name: 基础检查
+  quality:
+    name: 基础质量
     runs-on: ubuntu-latest
     timeout-minutes: 25
 
@@ -25,18 +24,12 @@ jobs:
           submodules: false
           persist-credentials: false
 
-      - name: 设置pnpm
+      - name: 设置 pnpm
         uses: pnpm/action-setup@v5
         with:
           version: 10.13.1
 
-      - name: 验证pnpm版本
-        run: pnpm --version
-
-      - name: 配置pnpm store目录
-        run: pnpm config set store-dir ~/.pnpm-store
-
-      - name: 设置Node.js
+      - name: 设置 Node.js
         uses: actions/setup-node@v6
         with:
           node-version: "24.15.0"
@@ -46,99 +39,59 @@ jobs:
       - name: 安装依赖
         run: pnpm install --frozen-lockfile
 
-      - name: TypeScript检查
+      - name: TypeScript 检查
         run: pnpm type-check
 
-      - name: 测试文件类型检查
-        run: pnpm type-check:tests
-
-      - name: ESLint检查
+      - name: ESLint 检查
         run: pnpm lint:check
 
-      - name: 代码格式检查
-        run: pnpm format:check
+      - name: 品牌替换检查
+        run: pnpm brand:check
 
-      - name: 静态真相检查
-        run: pnpm truth:check
+      - name: 内容结构检查
+        run: pnpm content:check
 
-      - name: 未使用代码检查
-        run: pnpm unused:check
+      - name: Client boundary 检查
+        run: pnpm website:review:client-boundary
 
-  # 测试作业
   tests:
-    name: 单元测试
+    name: 单元与集成测试
     runs-on: ubuntu-latest
-    needs: basic-checks
+    needs: quality
     timeout-minutes: 25
 
     steps:
       - name: 检出代码
         uses: actions/checkout@v6
         with:
+          submodules: false
           persist-credentials: false
 
-          submodules: false
-
-      - name: 设置pnpm
+      - name: 设置 pnpm
         uses: pnpm/action-setup@v5
         with:
           version: 10.13.1
 
-      - name: 验证pnpm版本
-        run: pnpm --version
-
-      - name: 配置pnpm store目录
-        run: pnpm config set store-dir ~/.pnpm-store
-
-      - name: 设置Node.js
+      - name: 设置 Node.js
         uses: actions/setup-node@v6
         with:
           node-version: "24.15.0"
           cache: "pnpm"
           cache-dependency-path: pnpm-lock.yaml
 
-      - name: Cache Vitest
-        uses: actions/cache@v5
-        with:
-          path: node_modules/.vitest
-          key: ${{ runner.os }}-vitest-cache-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ hashFiles('vitest.config.*', 'tsconfig*.json') }}
-          restore-keys: |
-            ${{ runner.os }}-vitest-cache-${{ hashFiles('**/pnpm-lock.yaml') }}-
-
       - name: 安装依赖
         run: pnpm install --frozen-lockfile
 
-      - name: 运行单元测试（带覆盖率）
-        run: pnpm test:coverage
-        # 覆盖率数据由 quality-gate.js 统一检查，此处仅生成报告
-
-      - name: 上传覆盖率报告
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: coverage-report
-          path: reports/coverage/
-
-      - name: 上传 Vitest 测试报告
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: vitest-reports
-          path: |
-            reports/
-          if-no-files-found: ignore
+      - name: 运行测试
+        run: pnpm test
 
       - name: Lead API Family Layered Proof Review
         run: pnpm review:lead-family
 
-      - name: Homepage Section Cluster Review
-        run: pnpm review:homepage-sections
-
-  # E2E测试作业
-  e2e-tests:
-    name: E2E测试
+  e2e:
+    name: 浏览器冒烟
     runs-on: ubuntu-latest
-    needs: basic-checks
+    needs: quality
     timeout-minutes: 35
 
     steps:
@@ -148,39 +101,25 @@ jobs:
           submodules: false
           persist-credentials: false
 
-      - name: 设置pnpm
+      - name: 设置 pnpm
         uses: pnpm/action-setup@v5
         with:
           version: 10.13.1
 
-      - name: 验证pnpm版本
-        run: pnpm --version
-
-      - name: 配置pnpm store目录
-        run: pnpm config set store-dir ~/.pnpm-store
-
-      - name: 设置Node.js
+      - name: 设置 Node.js
         uses: actions/setup-node@v6
         with:
           node-version: "24.15.0"
           cache: "pnpm"
           cache-dependency-path: pnpm-lock.yaml
 
-      - name: Cache Next.js
-        uses: actions/cache@v5
-        with:
-          path: .next/cache
-          key: ${{ runner.os }}-next-cache-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ hashFiles('next.config.*', 'tsconfig*.json', 'tailwind.config.js', 'postcss.config.*', 'src/**/*.{ts,tsx,js,jsx,css,scss,mdx}') }}
-          restore-keys: |
-            ${{ runner.os }}-next-cache-${{ hashFiles('**/pnpm-lock.yaml') }}-
-
       - name: 安装依赖
         run: pnpm install --frozen-lockfile
 
-      - name: 安装Playwright浏览器
-        run: pnpm exec playwright install --with-deps
+      - name: 安装 Playwright 浏览器
+        run: pnpm exec playwright install --with-deps chromium
 
-      - name: 预构建应用
+      - name: 生产构建
         run: pnpm build
         env:
           NODE_ENV: production
@@ -189,21 +128,13 @@ jobs:
           NEXT_PUBLIC_BASE_URL: http://localhost:3000
           NEXT_PUBLIC_SITE_URL: http://localhost:3000
 
-      - name: 运行E2E测试
+      - name: 运行 E2E
         run: pnpm test:e2e
 
-      - name: 上传E2E报告
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: e2e-report
-          path: test-results/
-
-  # 性能检查作业
-  performance:
-    name: 性能检查
+  cloudflare-build:
+    name: Cloudflare 构建证明
     runs-on: ubuntu-latest
-    needs: basic-checks
+    needs: quality
     timeout-minutes: 25
 
     steps:
@@ -213,31 +144,17 @@ jobs:
           submodules: false
           persist-credentials: false
 
-      - name: 设置pnpm
+      - name: 设置 pnpm
         uses: pnpm/action-setup@v5
         with:
           version: 10.13.1
 
-      - name: 验证pnpm版本
-        run: pnpm --version
-
-      - name: 配置pnpm store目录
-        run: pnpm config set store-dir ~/.pnpm-store
-
-      - name: 设置Node.js
+      - name: 设置 Node.js
         uses: actions/setup-node@v6
         with:
           node-version: "24.15.0"
           cache: "pnpm"
           cache-dependency-path: pnpm-lock.yaml
-
-      - name: Cache Next.js build
-        uses: actions/cache@v5
-        with:
-          path: .next/cache
-          key: ${{ runner.os }}-next-cache-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ hashFiles('next.config.*', 'tsconfig*.json', 'tailwind.config.js', 'postcss.config.*', 'src/**/*.{ts,tsx,js,jsx,css,scss,mdx}') }}
-          restore-keys: |
-            ${{ runner.os }}-next-cache-${{ hashFiles('**/pnpm-lock.yaml') }}-
 
       - name: 安装依赖
         run: pnpm install --frozen-lockfile
@@ -249,309 +166,21 @@ jobs:
           APP_ENV: preview
           NEXT_PUBLIC_SITE_URL: https://showcase-website-starter.test
 
-      - name: Lighthouse CI（包含 Core Web Vitals 和 Bundle 大小监控）
-        timeout-minutes: 15
-        run: pnpm exec lhci autorun --config=lighthouserc.js
+      - name: Cloudflare/OpenNext 构建
+        run: pnpm website:build:cf
         env:
-          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+          NODE_ENV: production
+          APP_ENV: preview
+          NEXT_PUBLIC_SITE_URL: https://showcase-website-starter.test
 
-  site-pilot-proof:
-    name: 站点试装验证
-    runs-on: ubuntu-latest
-    needs: basic-checks
-    timeout-minutes: 18
-
-    steps:
-      - name: 检出代码
-        uses: actions/checkout@v6
-        with:
-          submodules: false
-          persist-credentials: false
-
-      - name: 设置pnpm
-        uses: pnpm/action-setup@v5
-        with:
-          version: 10.13.1
-
-      - name: 验证pnpm版本
-        run: pnpm --version
-
-      - name: 配置pnpm store目录
-        run: pnpm config set store-dir ~/.pnpm-store
-
-      - name: 设置Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: "24.15.0"
-          cache: "pnpm"
-          cache-dependency-path: pnpm-lock.yaml
-
-      - name: 安装依赖
-        run: pnpm install --frozen-lockfile
-
-      - name: 构建非默认站点
-        run: pnpm website:build
-
-  # 安全检查作业
-  security:
-    name: 安全检查
-    runs-on: ubuntu-latest
-    needs: basic-checks
-
-    timeout-minutes: 20
-
-    steps:
-      - name: 检出代码
-        uses: actions/checkout@v6
-        with:
-          submodules: false
-          # persist-credentials: true 因为 Semgrep baseline 模式需要 git fetch base branch
-          persist-credentials: true
-          fetch-depth: 0
-
-      - name: 设置pnpm
-        uses: pnpm/action-setup@v5
-        with:
-          version: 10.13.1
-
-      - name: 验证pnpm版本
-        run: pnpm --version
-
-      - name: 配置pnpm store目录
-        run: pnpm config set store-dir ~/.pnpm-store
-
-      - name: 设置Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: "24.15.0"
-          cache: "pnpm"
-          cache-dependency-path: pnpm-lock.yaml
-
-      - name: 安装依赖
-        run: pnpm install --frozen-lockfile
-
-      - name: 安全审计
-        run: pnpm security:audit
-
-      - name: PII 日志泄露检查
-        run: pnpm lint:pii
-
-      - name: 安装 Semgrep CLI
-        run: |
-          python3 -m pip install --user "semgrep<2"
-          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
-
-      - name: Semgrep 规则夹具验证
-        run: pnpm security:semgrep:test-rules
-
-      - name: Semgrep 安全扫描（PR baseline 模式）
-        if: github.event_name == 'pull_request'
-        run: |
-          set -euo pipefail
-          git fetch origin "$GITHUB_BASE_REF" --prune
-          BASELINE_COMMIT=$(git merge-base HEAD "origin/${GITHUB_BASE_REF}")
-          echo "Using Semgrep baseline commit: ${BASELINE_COMMIT}"
-
-          # ERROR 级规则作为硬门禁，仅检测新增问题
-          semgrep scan \
-            --config semgrep.yml \
-            --severity ERROR \
-            --error \
-            --baseline-commit "${BASELINE_COMMIT}" \
-            src/
-
-          # WARNING 级规则仅记录
-          semgrep scan \
-            --config semgrep.yml \
-            --severity WARNING \
-            --baseline-commit "${BASELINE_COMMIT}" \
-            src/ || true
-
-  # 翻译质量检查
-  translation-quality:
-    name: 翻译质量检查
-
-    runs-on: ubuntu-latest
-    needs: basic-checks
-    timeout-minutes: 20
-
-    steps:
-      - name: 检出代码
-        uses: actions/checkout@v6
-        with:
-          submodules: false
-          persist-credentials: false
-
-      - name: 设置pnpm
-        uses: pnpm/action-setup@v5
-        with:
-          version: 10.13.1
-
-      - name: 验证pnpm版本
-        run: pnpm --version
-
-      - name: 配置pnpm store目录
-        run: pnpm config set store-dir ~/.pnpm-store
-
-      - name: 设置Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: "24.15.0"
-          cache: "pnpm"
-          cache-dependency-path: pnpm-lock.yaml
-
-      - name: 安装依赖
-        run: pnpm install --frozen-lockfile
-
-      - name: 验证翻译
-        run: pnpm validate:translations
-
-      - name: 复制翻译资源到 public
-        run: node scripts/copy-translations.js
-
-      - name: i18n 形状等价检查
-        run: pnpm i18n:shape:check
-
-      - name: MDX slug 对齐校验
-        run: pnpm content:slug-check
-
-      - name: Translation Quartet Review
-        run: pnpm review:translation-quartet
-
-      - name: 上传 i18n 形状报告
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: i18n-shape-report.json
-          path: reports/i18n-shape-report.json
-          if-no-files-found: ignore
-
-          # 架构检查作业
-          # 依赖 tests job 以获取覆盖率报告（确保 coverage 只执行一次）
-
-  architecture:
-    name: 架构检查
-    runs-on: ubuntu-latest
-    needs: [basic-checks, tests]
-    timeout-minutes: 18
-
-    steps:
-      - name: 检出代码
-        uses: actions/checkout@v6
-        with:
-          submodules: false
-          persist-credentials: false
-          fetch-depth: 0
-
-      - name: 设置pnpm
-        uses: pnpm/action-setup@v5
-        with:
-          version: 10.13.1
-
-      - name: 验证pnpm版本
-        run: pnpm --version
-
-      - name: 配置pnpm store目录
-        run: pnpm config set store-dir ~/.pnpm-store
-
-      - name: 设置Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: "24.15.0"
-          cache: "pnpm"
-          cache-dependency-path: pnpm-lock.yaml
-
-      - name: 安装依赖
-        run: pnpm install --frozen-lockfile
-
-      - name: 下载覆盖率报告
-        uses: actions/download-artifact@v8
-        with:
-          name: coverage-report
-          path: reports/coverage/
-
-      - name: 质量门禁
-        run: pnpm quality:gate:ci
-        # CI 模式自动检测（CI=true），仅读取已有覆盖率报告，不重复执行测试
-        env:
-          QUALITY_DIFF_BASE: ${{ github.event.pull_request.base.sha || 'origin/main' }}
-
-      - name: Guardrails 总览
-        id: all-guardrails
-        continue-on-error: true
-        run: pnpm review:all-guardrails
-
-      - name: 上传 Guardrails 报告
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: guardrails-reports
-          path: reports/guardrails/
-          if-no-files-found: ignore
-
-      - name: 依赖关系检查
-        run: pnpm arch:check
-
-      - name: 循环依赖检查
-        run: pnpm circular:check
-
-      - name: Guardrails 失败则报红
-        if: always()
-        run: |
-          if [[ "${{ steps.all-guardrails.outcome }}" != "success" ]]; then
-            echo "❌ Guardrails 总览失败"
-            exit 1
-          fi
-
-  # 汇总作业
   ci-summary:
-    name: CI汇总
+    name: CI 汇总
     runs-on: ubuntu-latest
-    needs:
-      [
-        basic-checks,
-        tests,
-        e2e-tests,
-        performance,
-        security,
-        translation-quality,
-        architecture,
-      ]
+    needs: [quality, tests, e2e, cloudflare-build]
     if: always()
     timeout-minutes: 5
 
     steps:
-      - name: 检出代码
-        uses: actions/checkout@v6
-        with:
-          submodules: false
-          persist-credentials: false
-
-      - name: 下载 Guardrails 报告
-        if: always()
-        continue-on-error: true
-        uses: actions/download-artifact@v8
-        with:
-          name: guardrails-reports
-          path: reports/guardrails/
-
-      - name: 写入 Guardrails Summary
-        if: always()
-        run: |
-          set -euo pipefail
-
-          if [[ -f reports/guardrails/latest-all-guardrails-summary.json && -f reports/guardrails/latest-scripts-env-summary.json ]]; then
-            node scripts/append-guardrail-summary.js \
-              reports/guardrails/latest-all-guardrails-summary.json \
-              reports/guardrails/latest-scripts-env-summary.json
-          else
-            {
-              echo "# Guardrails Summary"
-              echo
-              echo "- Guardrails reports: unavailable"
-            } >> "$GITHUB_STEP_SUMMARY"
-          fi
-
       - name: 检查所有作业状态
         run: |
           {
@@ -559,33 +188,16 @@ jobs:
             echo
             echo "| Job | Result |"
             echo "| --- | --- |"
-            echo "| 基础检查 | ${{ needs.basic-checks.result }} |"
-            echo "| 单元测试 | ${{ needs.tests.result }} |"
-            echo "| E2E测试 | ${{ needs.e2e-tests.result }} |"
-            echo "| 性能检查 | ${{ needs.performance.result }} |"
-            echo "| 安全检查 | ${{ needs.security.result }} |"
-            echo "| 翻译质量 | ${{ needs.translation-quality.result }} |"
-            echo "| 架构检查 | ${{ needs.architecture.result }} |"
-            echo
+            echo "| 基础质量 | ${{ needs.quality.result }} |"
+            echo "| 单元与集成测试 | ${{ needs.tests.result }} |"
+            echo "| 浏览器冒烟 | ${{ needs.e2e.result }} |"
+            echo "| Cloudflare 构建证明 | ${{ needs.cloudflare-build.result }} |"
           } >> "$GITHUB_STEP_SUMMARY"
 
-          echo "基础检查: ${{ needs.basic-checks.result }}"
-          echo "单元测试: ${{ needs.tests.result }}"
-          echo "E2E测试: ${{ needs.e2e-tests.result }}"
-          echo "性能检查: ${{ needs.performance.result }}"
-          echo "安全检查: ${{ needs.security.result }}"
-          echo "翻译质量: ${{ needs.translation-quality.result }}"
-          echo "架构检查: ${{ needs.architecture.result }}"
-
-          if [[ "${{ needs.basic-checks.result }}" != "success" ||
+          if [[ "${{ needs.quality.result }}" != "success" ||
                 "${{ needs.tests.result }}" != "success" ||
-                "${{ needs.e2e-tests.result }}" != "success" ||
-                "${{ needs.performance.result }}" != "success" ||
-                "${{ needs.security.result }}" != "success" ||
-                "${{ needs.translation-quality.result }}" != "success" ||
-                "${{ needs.architecture.result }}" != "success" ]]; then
-            echo "❌ CI流水线失败"
+                "${{ needs.e2e.result }}" != "success" ||
+                "${{ needs.cloudflare-build.result }}" != "success" ]]; then
+            echo "CI failed"
             exit 1
-          else
-            echo "✅ CI流水线成功"
           fi

@@ -2,6 +2,7 @@ import { act } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ContactFormContainer } from "@/components/forms/contact-form-container";
 import { FORM_STATUS_CLASS_NAMES } from "@/components/forms/form-status-styles";
+import type { UseContactFormResult } from "@/components/forms/use-contact-form";
 import * as contactFormConfig from "@/config/contact-form-config";
 import { fireEvent, render, screen } from "@/test/utils";
 
@@ -13,6 +14,7 @@ global.fetch = vi.fn();
 
 // Mock useActionState for React 19 testing
 const mockUseActionState = vi.hoisted(() => vi.fn());
+const mockUseContactForm = vi.hoisted(() => vi.fn());
 vi.mock("react", async () => {
   const actual = await vi.importActual("react");
   return {
@@ -21,11 +23,23 @@ vi.mock("react", async () => {
   };
 });
 
+vi.mock("@/components/forms/use-contact-form", async () => {
+  const actual = await vi.importActual<
+    typeof import("@/components/forms/use-contact-form")
+  >("@/components/forms/use-contact-form");
+
+  return {
+    ...actual,
+    useContactForm: mockUseContactForm,
+  };
+});
+
 // Mock next-intl with comprehensive translations
 const mockT = vi.fn((key: string) => {
   const translations: Record<string, string> = {
     // Form fields
-    fullName: "Full name",
+    firstName: "First Name",
+    lastName: "Last Name",
     email: "Email",
     company: "Company",
     phone: "Phone",
@@ -33,7 +47,8 @@ const mockT = vi.fn((key: string) => {
     message: "Message",
 
     // Placeholders
-    fullNamePlaceholder: "Enter your full name",
+    firstNamePlaceholder: "Enter your first name",
+    lastNamePlaceholder: "Enter your last name",
     emailPlaceholder: "Enter your email",
     companyPlaceholder: "Enter your company",
     phonePlaceholder: "Enter your phone (optional)",
@@ -48,8 +63,6 @@ const mockT = vi.fn((key: string) => {
     submitSuccess: "Form submitted successfully!",
     submitError: "Failed to submit form. Please try again.",
     rateLimitMessage: "Please wait before submitting again.",
-    CONTACT_PARTIAL_SUCCESS:
-      "We received your message, but part of the follow-up failed. Please wait before retrying.",
     CONTACT_SUBMISSION_EXPIRED:
       "This form expired. Please refresh the page and try again.",
     TURNSTILE_VERIFICATION_FAILED:
@@ -127,7 +140,8 @@ Object.defineProperty(navigator, "userAgent", {
 
 // 通用表单填写函数
 const validFormData = {
-  fullName: "John Doe",
+  firstName: "John",
+  lastName: "Doe",
   email: "john.doe@example.com",
   company: "Test Company",
   phone: "+1234567890",
@@ -137,8 +151,11 @@ const validFormData = {
 
 const _fillValidForm = async () => {
   await act(async () => {
-    fireEvent.change(screen.getByLabelText(/full name/i), {
-      target: { value: validFormData.fullName },
+    fireEvent.change(screen.getByLabelText(/first name/i), {
+      target: { value: validFormData.firstName },
+    });
+    fireEvent.change(screen.getByLabelText(/last name/i), {
+      target: { value: validFormData.lastName },
     });
     fireEvent.change(screen.getByLabelText(/email/i), {
       target: { value: validFormData.email },
@@ -171,6 +188,25 @@ function expectSemanticStatusClasses(element: HTMLElement, classNames: string) {
   }
 }
 
+function createContactFormHook(
+  overrides: Partial<UseContactFormResult> = {},
+): UseContactFormResult {
+  return {
+    state: null,
+    formAction: vi.fn(async () => {}),
+    isPending: false,
+    submitStatus: "idle",
+    turnstileToken: "",
+    setTurnstileToken: vi.fn(),
+    isRateLimited: false,
+    ...overrides,
+  };
+}
+
+function mockContactForm(overrides: Partial<UseContactFormResult> = {}) {
+  mockUseContactForm.mockReturnValue(createContactFormHook(overrides));
+}
+
 describe("ContactFormContainer - 剩余高级测试", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -182,6 +218,7 @@ describe("ContactFormContainer - 剩余高级测试", () => {
       vi.fn(), // formAction
       false, // isPending
     ]);
+    mockContactForm();
   });
 
   afterEach(() => {
@@ -203,11 +240,10 @@ describe("ContactFormContainer - 剩余高级测试", () => {
 
     it("应该显示正确的状态消息样式", async () => {
       // Mock useActionState to return success state
-      mockUseActionState.mockReturnValue([
-        { success: true }, // state
-        vi.fn(), // formAction
-        false, // isPending
-      ]);
+      mockContactForm({
+        state: { success: true, timestamp: "2026-05-05T00:00:00.000Z" },
+        submitStatus: "success",
+      });
 
       render(<ContactFormContainer />);
 
@@ -230,45 +266,37 @@ describe("ContactFormContainer - 剩余高级测试", () => {
       ).toHaveTextContent("Form submitted successfully!");
     });
 
-    it("partial-success 状态应该显示琥珀色提示，不显示通用错误标题", () => {
-      mockUseActionState.mockReturnValue([
-        {
+    it("未知 API 错误应该显示通用错误标题和错误样式", () => {
+      mockContactForm({
+        state: {
           success: false,
-          errorCode: "CONTACT_PARTIAL_SUCCESS",
-          data: {
-            emailSent: true,
-            recordCreated: false,
-            referenceId: "ref-partial-123",
-            partialSuccess: true,
-          },
+          errorCode: "UNKNOWN_ERROR",
+          timestamp: "2026-05-05T00:00:00.000Z",
         },
-        vi.fn(),
-        false,
-      ]);
+        submitStatus: "error",
+      });
 
       render(<ContactFormContainer />);
 
       expect(
-        screen.getByText(
-          "We received your message, but part of the follow-up failed. Please wait before retrying.",
-        ),
+        screen.getByTestId("contact-form-error-heading"),
       ).toBeInTheDocument();
-      expect(
-        screen.queryByTestId("contact-form-error-heading"),
-      ).not.toBeInTheDocument();
       expectSemanticStatusClasses(
         screen.getByTestId("contact-form-error-display"),
-        FORM_STATUS_CLASS_NAMES.partialSuccess,
+        FORM_STATUS_CLASS_NAMES.error,
       );
     });
 
     it("应该显示错误状态消息样式", async () => {
       // Mock useActionState to return error state
-      mockUseActionState.mockReturnValue([
-        { success: false, error: "Server error" }, // state
-        vi.fn(), // formAction
-        false, // isPending
-      ]);
+      mockContactForm({
+        state: {
+          success: false,
+          error: "Server error",
+          timestamp: "2026-05-05T00:00:00.000Z",
+        },
+        submitStatus: "error",
+      });
 
       render(<ContactFormContainer />);
 
@@ -311,7 +339,7 @@ describe("ContactFormContainer - 配置驱动", () => {
   });
 
   beforeEach(() => {
-    mockUseActionState.mockReturnValue([null, vi.fn(), false]);
+    mockContactForm();
   });
 
   it("根据配置控制 required 与星号", () => {
@@ -349,15 +377,15 @@ describe("ContactFormContainer - ErrorDisplay", () => {
   });
 
   it("should display validation error details", () => {
-    mockUseActionState.mockReturnValue([
-      {
+    mockContactForm({
+      state: {
         success: false,
         error: "Validation failed",
         details: ["errors.invalidEmail", "errors.messageTooShort"],
+        timestamp: "2026-05-05T00:00:00.000Z",
       },
-      vi.fn(),
-      false,
-    ]);
+      submitStatus: "error",
+    });
 
     render(<ContactFormContainer />);
 
@@ -373,15 +401,15 @@ describe("ContactFormContainer - ErrorDisplay", () => {
   });
 
   it("should display raw error message for non-validation errors", () => {
-    mockUseActionState.mockReturnValue([
-      {
+    mockContactForm({
+      state: {
         success: false,
         error: "Server connection failed",
         details: undefined,
+        timestamp: "2026-05-05T00:00:00.000Z",
       },
-      vi.fn(),
-      false,
-    ]);
+      submitStatus: "error",
+    });
 
     render(<ContactFormContainer />);
 
@@ -389,16 +417,16 @@ describe("ContactFormContainer - ErrorDisplay", () => {
   });
 
   it("should not render raw english details for translated error-code paths", () => {
-    mockUseActionState.mockReturnValue([
-      {
+    mockContactForm({
+      state: {
         success: false,
         errorCode: "CONTACT_SUBMISSION_EXPIRED",
         error: "Form submission expired or invalid",
         details: undefined,
+        timestamp: "2026-05-05T00:00:00.000Z",
       },
-      vi.fn(),
-      false,
-    ]);
+      submitStatus: "error",
+    });
 
     render(<ContactFormContainer />);
 
@@ -411,7 +439,10 @@ describe("ContactFormContainer - ErrorDisplay", () => {
   });
 
   it("should not display ErrorDisplay when no error", () => {
-    mockUseActionState.mockReturnValue([{ success: true }, vi.fn(), false]);
+    mockContactForm({
+      state: { success: true, timestamp: "2026-05-05T00:00:00.000Z" },
+      submitStatus: "success",
+    });
 
     render(<ContactFormContainer />);
 
@@ -433,11 +464,10 @@ describe("ContactFormContainer - 提交状态计算", () => {
   });
 
   it("should show submitting status when isPending is true", () => {
-    mockUseActionState.mockReturnValue([
-      null,
-      vi.fn(),
-      true, // isPending
-    ]);
+    mockContactForm({
+      isPending: true,
+      submitStatus: "submitting",
+    });
 
     render(<ContactFormContainer />);
 
@@ -455,7 +485,7 @@ describe("ContactFormContainer - 提交状态计算", () => {
   });
 
   it("should show idle status when no state changes", () => {
-    mockUseActionState.mockReturnValue([null, vi.fn(), false]);
+    mockContactForm();
 
     render(<ContactFormContainer />);
 

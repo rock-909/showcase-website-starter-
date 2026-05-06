@@ -143,31 +143,6 @@ export function createSuccessResultWithLogging<T>(
   return result;
 }
 
-export function createPartialResultWithLogging<T>(
-  data: T,
-  errorCode: string,
-  logger?: { warn: (message: string, meta?: unknown) => void },
-): ServerActionResult<T> {
-  const timestamp = new Date().toISOString();
-
-  if (logger) {
-    logger.warn("Server Action partial success", {
-      errorCode,
-      timestamp,
-    });
-  }
-
-  return {
-    success: false,
-    errorCode,
-    data,
-    timestamp,
-  };
-}
-
-/**
- * 创建带日志记录的 Server Action 部分成功响应
- */
 /**
  * Server Action 错误处理装饰器
  * 统一处理 Server Action 中的异常

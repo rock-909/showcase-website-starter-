@@ -14,6 +14,7 @@ import {
 } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ContactFormContainer } from "@/components/forms/contact-form-container";
+import type { UseContactFormResult } from "@/components/forms/use-contact-form";
 
 // 确保使用真实的Zod库和validations模块
 vi.unmock("zod");
@@ -21,14 +22,17 @@ vi.unmock("zod");
 // Mock fetch
 global.fetch = vi.fn();
 
-// Mock useActionState for React 19 testing
-const mockUseActionState = vi.hoisted(() => vi.fn());
 const mockUseRateLimit = vi.hoisted(() => vi.fn());
-vi.mock("react", async () => {
-  const actual = await vi.importActual("react");
+const mockUseContactForm = vi.hoisted(() => vi.fn());
+
+vi.mock("@/components/forms/use-contact-form", async () => {
+  const actual = await vi.importActual<
+    typeof import("@/components/forms/use-contact-form")
+  >("@/components/forms/use-contact-form");
+
   return {
     ...actual,
-    useActionState: mockUseActionState,
+    useContactForm: mockUseContactForm,
   };
 });
 
@@ -133,6 +137,25 @@ const renderContactForm = async () => {
   return utils!;
 };
 
+function createContactFormHook(
+  overrides: Partial<UseContactFormResult> = {},
+): UseContactFormResult {
+  return {
+    state: null,
+    formAction: vi.fn(async () => {}),
+    isPending: false,
+    submitStatus: "idle",
+    turnstileToken: "",
+    setTurnstileToken: vi.fn(),
+    isRateLimited: false,
+    ...overrides,
+  };
+}
+
+function mockContactForm(overrides: Partial<UseContactFormResult> = {}) {
+  mockUseContactForm.mockReturnValue(createContactFormHook(overrides));
+}
+
 const _fillValidForm = async () => {
   await act(async () => {
     fireEvent.change(screen.getByLabelText(/full name/i), {
@@ -194,12 +217,7 @@ describe("ContactFormContainer - 提交和错误处理", () => {
     ).IntersectionObserver =
       MockIntersectionObserver as unknown as typeof IntersectionObserver;
 
-    // Default useActionState mock - idle state
-    mockUseActionState.mockReturnValue([
-      null, // state
-      vi.fn(), // formAction
-      false, // isPending
-    ]);
+    mockContactForm();
     mockUseRateLimit.mockReturnValue({
       isRateLimited: false,
       lastSubmissionTime: null,
@@ -234,12 +252,14 @@ describe("ContactFormContainer - 提交和错误处理", () => {
 
   describe("网络错误处理", () => {
     it("应该处理网络错误", async () => {
-      // Mock useActionState to return error state
-      mockUseActionState.mockReturnValue([
-        { success: false, error: "Network error" }, // state
-        vi.fn(), // formAction
-        false, // isPending
-      ]);
+      mockContactForm({
+        state: {
+          success: false,
+          error: "Network error",
+          timestamp: "2026-05-05T00:00:00.000Z",
+        },
+        submitStatus: "error",
+      });
 
       await renderContactForm();
 
@@ -248,12 +268,14 @@ describe("ContactFormContainer - 提交和错误处理", () => {
     });
 
     it("应该处理速率限制错误", async () => {
-      // Mock useActionState to return rate limit error state
-      mockUseActionState.mockReturnValue([
-        { success: false, error: "Rate limit exceeded" }, // state
-        vi.fn(), // formAction
-        false, // isPending
-      ]);
+      mockContactForm({
+        state: {
+          success: false,
+          error: "Rate limit exceeded",
+          timestamp: "2026-05-05T00:00:00.000Z",
+        },
+        submitStatus: "error",
+      });
 
       await renderContactForm();
 
@@ -295,61 +317,11 @@ describe("ContactFormContainer - 提交和错误处理", () => {
   });
 
   describe("速率限制功能", () => {
-    it("should start cooldown only after successful submission state", async () => {
-      const recordSubmission = vi.fn();
-      const setLastSubmissionTime = vi.fn();
-
-      mockUseActionState.mockReturnValue([{ success: true }, vi.fn(), false]);
-      mockUseRateLimit.mockReturnValue({
-        isRateLimited: false,
-        lastSubmissionTime: null,
-        recordSubmission,
-        setLastSubmissionTime,
-      });
-
-      await renderContactForm();
-
-      await waitFor(() => {
-        expect(setLastSubmissionTime).toHaveBeenCalledTimes(1);
-      });
-      expect(recordSubmission).not.toHaveBeenCalled();
-    });
-
-    it("should not start cooldown when submission state is error", async () => {
-      const recordSubmission = vi.fn();
-      const setLastSubmissionTime = vi.fn();
-
-      mockUseActionState.mockReturnValue([
-        { success: false, error: "Validation failed" },
-        vi.fn(),
-        false,
-      ]);
-      mockUseRateLimit.mockReturnValue({
-        isRateLimited: false,
-        lastSubmissionTime: null,
-        recordSubmission,
-        setLastSubmissionTime,
-      });
-
-      await renderContactForm();
-
-      await waitFor(() => {
-        expect(setLastSubmissionTime).not.toHaveBeenCalled();
-      });
-      expect(recordSubmission).not.toHaveBeenCalled();
-    });
-
     it("应该在成功提交后显示速率限制", async () => {
-      mockUseActionState.mockReturnValue([
-        { success: true }, // state
-        vi.fn(), // formAction
-        false, // isPending
-      ]);
-      mockUseRateLimit.mockReturnValue({
+      mockContactForm({
+        state: { success: true, timestamp: "2026-05-05T00:00:00.000Z" },
+        submitStatus: "success",
         isRateLimited: true,
-        lastSubmissionTime: new Date("2026-03-09T00:00:00.000Z"),
-        recordSubmission: vi.fn(),
-        setLastSubmissionTime: vi.fn(),
       });
 
       await renderContactForm();
@@ -371,17 +343,15 @@ describe("ContactFormContainer - 提交和错误处理", () => {
     });
 
     it("should re-enable submission after cooldown duration elapses", async () => {
-      mockUseActionState.mockReturnValue([{ success: true }, vi.fn(), false]);
-
       let isRateLimited = true;
-      mockUseRateLimit.mockImplementation(() => ({
-        isRateLimited,
-        lastSubmissionTime: isRateLimited
-          ? new Date("2026-03-09T00:00:00.000Z")
-          : null,
-        recordSubmission: vi.fn(),
-        setLastSubmissionTime: vi.fn(),
-      }));
+      mockUseContactForm.mockImplementation(() =>
+        createContactFormHook({
+          state: { success: true, timestamp: "2026-05-05T00:00:00.000Z" },
+          submitStatus: "success",
+          isRateLimited,
+          turnstileToken: "mock-token",
+        }),
+      );
 
       const { rerender } = await renderContactForm();
 
@@ -405,12 +375,9 @@ describe("ContactFormContainer - 提交和错误处理", () => {
     });
 
     it("速率限制应该在5分钟后解除", async () => {
-      // Mock useActionState to return idle state (no rate limiting)
-      mockUseActionState.mockReturnValue([
-        null, // state
-        vi.fn(), // formAction
-        false, // isPending
-      ]);
+      mockContactForm({
+        turnstileToken: "mock-token",
+      });
 
       await renderContactForm();
 
@@ -429,16 +396,14 @@ describe("ContactFormContainer - 提交和错误处理", () => {
 
   describe("数据格式化", () => {
     it("应该正确格式化提交数据", async () => {
-      // Mock useActionState to return success state
-      mockUseActionState.mockReturnValue([
-        { success: true }, // state
-        vi.fn(), // formAction
-        false, // isPending
-      ]);
+      mockContactForm({
+        state: { success: true, timestamp: "2026-05-05T00:00:00.000Z" },
+        submitStatus: "success",
+      });
 
       await renderContactForm();
 
-      // 验证表单渲染正确，数据格式化由Server Actions处理
+      // 验证表单渲染正确，数据格式化由 route handler 提交链路处理
       expect(screen.getByLabelText(/full name/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/message/i)).toBeInTheDocument();

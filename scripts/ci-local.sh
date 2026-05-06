@@ -15,7 +15,7 @@
 # CI 架构说明：
 #   - ci.yml: 主流水线，PR 必需检查（type-check, lint, test, security, etc.）
 #   - code-quality.yml: 深度安全扫描（Semgrep full），仅 main + nightly
-#   - vercel-deploy.yml: 部署专用（MISSING_MESSAGE 检测 + 健康检查）
+#   - vercel-deploy.yml: 手动 Vercel 兼容部署，不是默认 CI/上线路径
 # =============================================================================
 # 质量门禁：所有阈值由 scripts/quality-gate.js 统一管理
 # =============================================================================
@@ -376,38 +376,44 @@ run_translation_checks() {
     fi
 }
 
-# 架构检查
-run_architecture_checks() {
-    print_header "🏗️  架构检查 (Architecture Checks)"
+# Starter proof checks
+run_starter_proof_checks() {
+    print_header "🧩 Starter Proof Checks"
+
+    print_step "品牌替换检查"
+    if pnpm brand:check; then
+        print_success "品牌替换检查通过"
+    else
+        print_error "品牌替换检查失败"
+        return 1
+    fi
+
+    print_step "内容结构检查"
+    if pnpm content:check; then
+        print_success "内容结构检查通过"
+    else
+        print_error "内容结构检查失败"
+        return 1
+    fi
+
+    print_step "Client boundary 检查"
+    if pnpm website:review:client-boundary; then
+        print_success "Client boundary 检查通过"
+    else
+        print_error "Client boundary 检查失败"
+        return 1
+    fi
 
     if [ "$QUICK_MODE" = "true" ]; then
-        print_skip "架构检查（快速模式跳过）"
+        print_skip "Cloudflare 构建证明（快速模式跳过）"
         return 0
     fi
 
-    print_step "Guardrails 总览"
-    if pnpm review:all-guardrails; then
-        print_success "Guardrails 总览通过"
+    print_step "Cloudflare 构建证明"
+    if pnpm website:build:cf; then
+        print_success "Cloudflare 构建证明通过"
     else
-        print_error "Guardrails 总览失败"
-        return 1
-    fi
-
-    # 依赖关系检查
-    print_step "依赖关系检查"
-    if pnpm arch:check; then
-        print_success "依赖关系检查通过"
-    else
-        print_error "依赖关系检查失败"
-        return 1
-    fi
-
-    # 循环依赖检查
-    print_step "循环依赖检查"
-    if pnpm circular:check; then
-        print_success "循环依赖检查通过"
-    else
-        print_error "循环依赖检查失败"
+        print_error "Cloudflare 构建证明失败"
         return 1
     fi
 }
@@ -459,7 +465,7 @@ main() {
     run_performance_checks || exit 1
     run_security_checks || exit 1
     run_translation_checks || exit 1
-    run_architecture_checks || exit 1
+    run_starter_proof_checks || exit 1
 
     # 打印总结
     print_summary

@@ -49,7 +49,6 @@ function withRequestId(
 function createValidationFailureResult(): LeadResult {
   return {
     success: false,
-    partialSuccess: false,
     emailSent: false,
     recordCreated: false,
     error: "VALIDATION_ERROR",
@@ -59,7 +58,6 @@ function createValidationFailureResult(): LeadResult {
 function createProcessingFailureResult(referenceId: string): LeadResult {
   return {
     success: false,
-    partialSuccess: false,
     emailSent: false,
     recordCreated: false,
     referenceId,
@@ -84,7 +82,6 @@ async function dispatchLeadHandler(
 
 export interface LeadResult {
   success: boolean;
-  partialSuccess: boolean;
   emailSent: boolean;
   recordCreated: boolean;
   referenceId?: string | undefined;
@@ -137,15 +134,10 @@ export async function processLead(
 
     return {
       success: outcome.success,
-      partialSuccess: outcome.partialSuccess,
       emailSent: emailResult.success,
       recordCreated: crmResult.success,
-      referenceId:
-        outcome.success || outcome.partialSuccess ? referenceId : undefined,
-      error:
-        outcome.success || outcome.partialSuccess
-          ? undefined
-          : "PROCESSING_FAILED",
+      referenceId: outcome.success ? referenceId : undefined,
+      error: outcome.success ? undefined : "PROCESSING_FAILED",
     };
   } catch (error) {
     const totalLatencyMs = pipelineTimer.stop();

@@ -62,7 +62,6 @@ interface ProcessFormSubmissionOptions {
 
 export interface ProcessFormSubmissionResult {
   success: boolean;
-  partialSuccess: boolean;
   emailSent: boolean;
   recordCreated: boolean;
   referenceId?: string | null | undefined;
@@ -95,10 +94,9 @@ function validateSubmissionTime(
   return null;
 }
 
-export async function validateContactSubmission(
+export function validateContactSubmissionPayload(
   body: unknown,
-  clientIP: string,
-): Promise<ContactValidationResult> {
+): ContactValidationResult {
   if (
     !body ||
     typeof body !== "object" ||
@@ -131,6 +129,25 @@ export async function validateContactSubmission(
   if (timeValidationError) {
     return timeValidationError;
   }
+
+  return {
+    success: true,
+    error: null,
+    details: null,
+    data: formData,
+  };
+}
+
+export async function validateContactSubmission(
+  body: unknown,
+  clientIP: string,
+): Promise<ContactValidationResult> {
+  const payloadValidation = validateContactSubmissionPayload(body);
+  if (!payloadValidation.success || !payloadValidation.data) {
+    return payloadValidation;
+  }
+
+  const formData = payloadValidation.data;
 
   const verificationResult = await verifyTurnstileDetailed(
     formData.turnstileToken,
@@ -192,7 +209,7 @@ export async function processFormSubmission(
 ): Promise<ProcessFormSubmissionResult> {
   const leadInput = {
     type: LEAD_TYPES.CONTACT,
-    fullName: formData.fullName,
+    fullName: formData.fullName || "Unknown",
     email: formData.email,
     company: formData.company,
     subject: mapSubjectToEnum(formData.subject),
@@ -209,29 +226,9 @@ export async function processFormSubmission(
   if (result.success) {
     return {
       success: true,
-      partialSuccess: false,
       emailSent: result.emailSent,
       recordCreated: result.recordCreated,
       referenceId: result.referenceId,
-    };
-  }
-
-  if (result.partialSuccess && result.referenceId) {
-    logger.warn("Contact form submission completed partially", {
-      email: sanitizeEmail(formData.email),
-      referenceId: result.referenceId,
-      emailSent: result.emailSent,
-      recordCreated: result.recordCreated,
-      ...(options.requestId ? { requestId: options.requestId } : {}),
-    });
-
-    return {
-      success: false,
-      partialSuccess: true,
-      emailSent: result.emailSent,
-      recordCreated: result.recordCreated,
-      referenceId: result.referenceId,
-      errorCode: API_ERROR_CODES.CONTACT_PARTIAL_SUCCESS,
     };
   }
 

@@ -8,6 +8,7 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ContactFormContainer } from "@/components/forms/contact-form-container";
+import type { UseContactFormResult } from "@/components/forms/use-contact-form";
 
 // 确保使用真实的Zod库和validations模块
 vi.unmock("zod");
@@ -15,13 +16,16 @@ vi.unmock("zod");
 // Mock fetch
 global.fetch = vi.fn();
 
-// Mock useActionState for React 19 testing
-const mockUseActionState = vi.hoisted(() => vi.fn());
-vi.mock("react", async () => {
-  const actual = await vi.importActual("react");
+const mockUseContactForm = vi.hoisted(() => vi.fn());
+
+vi.mock("@/components/forms/use-contact-form", async () => {
+  const actual = await vi.importActual<
+    typeof import("@/components/forms/use-contact-form")
+  >("@/components/forms/use-contact-form");
+
   return {
     ...actual,
-    useActionState: mockUseActionState,
+    useContactForm: mockUseContactForm,
   };
 });
 
@@ -75,6 +79,34 @@ const mockT = vi.fn((key: string) => {
 vi.mock("next-intl", () => ({
   useTranslations: () => mockT,
 }));
+
+function createContactFormHook(
+  overrides: Partial<UseContactFormResult> = {},
+): UseContactFormResult {
+  return {
+    state: null,
+    formAction: vi.fn(async () => {}),
+    isPending: false,
+    submitStatus: "idle",
+    turnstileToken: "",
+    setTurnstileToken: vi.fn(),
+    isRateLimited: false,
+    ...overrides,
+  };
+}
+
+function mockValidationFailure() {
+  mockUseContactForm.mockReturnValue(
+    createContactFormHook({
+      state: {
+        success: false,
+        error: "Validation failed",
+        timestamp: "2026-05-05T00:00:00.000Z",
+      },
+      submitStatus: "error",
+    }),
+  );
+}
 
 // 填写有效表单但排除指定字段的辅助函数
 const _fillValidFormExcept = async (excludeFields: string[]) => {
@@ -131,12 +163,7 @@ describe("ContactFormContainer - 验证逻辑", () => {
     vi.clearAllMocks();
     vi.useFakeTimers();
 
-    // Default useActionState mock - idle state
-    mockUseActionState.mockReturnValue([
-      null, // state
-      vi.fn(), // formAction
-      false, // isPending
-    ]);
+    mockUseContactForm.mockReturnValue(createContactFormHook());
   });
 
   afterEach(() => {
@@ -145,74 +172,49 @@ describe("ContactFormContainer - 验证逻辑", () => {
 
   describe("字段长度验证", () => {
     it("应该验证姓名长度", async () => {
-      // Mock useActionState to return error state for validation failure
-      mockUseActionState.mockReturnValue([
-        { success: false, error: "Validation failed" }, // state
-        vi.fn(), // formAction
-        false, // isPending
-      ]);
+      mockValidationFailure();
 
       render(<ContactFormContainer />);
 
-      // React 19 Server Actions显示通用错误消息
+      // React 19 form state 显示通用错误消息
       expect(screen.getByText("submitError")).toBeInTheDocument();
     });
 
     it("应该验证消息长度", async () => {
-      // Mock useActionState to return error state for validation failure
-      mockUseActionState.mockReturnValue([
-        { success: false, error: "Validation failed" }, // state
-        vi.fn(), // formAction
-        false, // isPending
-      ]);
+      mockValidationFailure();
 
       render(<ContactFormContainer />);
 
-      // React 19 Server Actions显示通用错误消息
+      // React 19 form state 显示通用错误消息
       expect(screen.getByText("submitError")).toBeInTheDocument();
     });
 
     it("应该处理极长的输入", async () => {
-      // Mock useActionState to return error state for validation failure
-      mockUseActionState.mockReturnValue([
-        { success: false, error: "Validation failed" }, // state
-        vi.fn(), // formAction
-        false, // isPending
-      ]);
+      mockValidationFailure();
 
       render(<ContactFormContainer />);
 
-      // React 19 Server Actions显示通用错误消息
+      // React 19 form state 显示通用错误消息
       expect(screen.getByText("submitError")).toBeInTheDocument();
     });
   });
 
   describe("格式验证", () => {
     it("应该验证电话号码格式", async () => {
-      // Mock useActionState to return error state
-      mockUseActionState.mockReturnValue([
-        { success: false, error: "Validation failed" }, // state
-        vi.fn(), // formAction
-        false, // isPending
-      ]);
+      mockValidationFailure();
 
       render(<ContactFormContainer />);
 
-      // React 19 Server Actions显示通用错误消息
+      // React 19 form state 显示通用错误消息
       expect(screen.getByText("submitError")).toBeInTheDocument();
     });
 
     it("应该正确处理特殊字符", async () => {
-      // Mock useActionState to return error state
-      mockUseActionState.mockReturnValue([
-        { success: false, error: "Validation failed" }, // state
-        vi.fn(), // formAction
-        false, // isPending
-      ]);
+      mockValidationFailure();
 
       render(<ContactFormContainer />);
 
-      // React 19 Server Actions显示通用错误消息
+      // React 19 form state 显示通用错误消息
       expect(screen.getByText("submitError")).toBeInTheDocument();
     });
   });

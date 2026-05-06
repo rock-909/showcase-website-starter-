@@ -4,7 +4,7 @@ import { FORM_FIELD_REQUIRED_CLASS_NAME } from "@/components/forms/form-status-s
 
 /**
  * Contact fields component - React 19 Native Form Version
- * 使用原生HTML表单属性，配合Server Actions进行表单处理
+ * 使用原生 HTML 表单属性，配合 route handler 提交链路处理
  */
 interface ContactFieldsProps {
   /** 国际化翻译函数 */

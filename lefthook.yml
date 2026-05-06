@@ -151,7 +151,7 @@ pre-push:
         else
           node scripts/check-mutation-required.js
         fi
-      fail_text: '变异测试报告过期 — 请运行 pnpm test:mutation'
+      fail_text: '变异测试报告过期 — 请按提示手动运行 pnpm exec stryker run --mutate ...'
 
     architecture-truth:
       run: |

@@ -127,8 +127,8 @@ describe("processProductLead", () => {
     const settleCalls = vi.mocked(settleService).mock.calls;
     expect(settleCalls).toHaveLength(2);
 
-    const [, emailOptions] = settleCalls[0]!;
-    const [, crmOptions] = settleCalls[1]!;
+    const [, crmOptions] = settleCalls[0]!;
+    const [, emailOptions] = settleCalls[1]!;
 
     expect(emailOptions).toEqual(
       expect.objectContaining({

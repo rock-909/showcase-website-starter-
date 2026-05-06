@@ -11,170 +11,76 @@ paths:
   - "src/config/security.ts"
 ---
 
-# Security Implementation
+# Security Rules
 
-> This file mixes framework-backed security behavior with repo security policy. Repo-specific rules are labeled where the framework does not prescribe one exact approach.
+Use this file when changing API routes, public write endpoints, Server Actions,
+validation, rate limits, CSP, sensitive server code, or env exposure.
 
-## Use This File When
+For Cloudflare build/runtime topology, use `cloudflare.md`.
 
-- Creating or changing API routes, public write endpoints, Server Actions, validation, rate limits, CSP, or sensitive server code
-- Changing environment variable contracts or client/server exposure boundaries
-- Reviewing contact, inquiry, subscribe, Turnstile, health, or CSP report behavior
+## Public write endpoints
 
-## Do Not Use This File For
+Browser-exposed write endpoints need:
 
-- Cloudflare build/runtime topology; use `cloudflare.md`
-- General test mocking rules; use `testing.md`
-- General TypeScript style; use `coding-standards.md`
+- body size gate;
+- Zod validation;
+- Turnstile or equivalent browser anti-abuse check;
+- small route-local or shared rate limit when currently wired;
+- stable machine-readable error codes.
 
-## Endpoint Decision Table
+Do not add body hashing, distributed rate limiting, or idempotency as starter
+defaults. Keep them only while existing runtime code still needs them, or add
+them later when a real incident justifies the extra complexity.
 
-| Endpoint type | Required protection |
-|---------------|---------------------|
-| Browser-exposed public write endpoint | Zod validation + body size gate + rate limit + anti-abuse check |
-| Side-effectful public write endpoint | Above protections + idempotency |
-| Lead-family endpoint | `src/lib/lead-pipeline/lead-schema.ts` + pipeline-specific tests |
-| CSP report endpoint | Rate limit + body size gate; never trust payload content |
-| Health endpoint | No sensitive data, credentials, config dumps, or environment details |
-| Authenticated/session endpoint in future | Route-level authn/authz + cookie/CSRF rules added in the same branch |
+## Lead-family behavior
 
-## Server Code Protection
+Target behavior for contact, inquiry, and subscribe:
 
-- Add `import "server-only"` at top of sensitive server files
-- Server Actions / Route Handlers must perform authn/authz internally (DAL-style); proxy/middleware may act as optional front-line filtering only and must not be the sole auth layer
-
-## New API Route Steps
-
-When creating a public write endpoint (POST/PUT/PATCH/DELETE):
-
-1. Define or reuse a Zod schema in the relevant domain schema module. Lead-family endpoints use `src/lib/lead-pipeline/lead-schema.ts`.
-2. Add rate limit preset in `src/lib/security/distributed-rate-limit.ts`
-3. Write the route handler using the shared API helpers:
-
-```typescript
-import 'server-only';
-import { NextRequest } from 'next/server';
-import { API_ERROR_CODES } from '@/constants/api-error-codes';
-import {
-  createApiErrorResponse,
-  createApiSuccessResponse,
-} from '@/lib/api/api-response';
-import { readAndHashJsonBody } from '@/lib/api/read-and-hash-body';
-import { withRateLimit, type RateLimitContext } from '@/lib/api/with-rate-limit';
-import { mySchema } from '@/lib/my-domain/schema';
-
-async function handlePost(
-  request: NextRequest,
-  { clientIP }: RateLimitContext,
-) {
-  const body = await readAndHashJsonBody(request, { route: '/api/my-route' });
-  if (!body.ok) {
-    return createApiErrorResponse(body.errorCode, body.statusCode);
-  }
-
-  const parsed = mySchema.safeParse(body.data);
-  if (!parsed.success) {
-    return createApiErrorResponse(API_ERROR_CODES.INVALID_REQUEST, 400);
-  }
-
-  // Business logic here
-  return createApiSuccessResponse({ /* result */ });
-}
-
-export const POST = withRateLimit('my-endpoint', handlePost);
+```text
+browser form -> route handler -> Zod -> Turnstile -> process lead -> Airtable first -> optional email
 ```
 
-4. Add endpoint to the "Known API Endpoints" table below
-5. Add tests covering rate limit, validation rejection, and happy path
+- Airtable record creation is the business success condition.
+- Email failure after record creation returns user success and logs internally.
+- Airtable failure returns failure and must not send email.
+- User-facing `partialSuccess` is not part of the target contract.
 
-## XSS Prevention
+Until Phase 2/3 finishes, existing routes may still carry old wrappers. Do not
+copy those wrappers into new code.
 
-- **Never** use unfiltered `dangerouslySetInnerHTML` → use `DOMPurify.sanitize()` instead
-- URLs must validate protocol (only `https://`, `http://`, `/`)
+## Server-only code
 
-## Input Validation
+- Add `import "server-only"` to sensitive server modules.
+- Route handlers and Server Actions must validate and authorize internally.
+- Middleware/proxy filtering is optional front-line protection, not the only
+  authorization layer.
 
-- **Repo policy**: all user input uses Zod schema validation
-- API routes must validate request data with `schema.parse(...)` or `schema.safeParse(...)` before processing. Use `safeParse` when the route needs to return a structured validation response instead of throwing.
-- Query params: explicitly validate type (may be string/array/object)
-- File paths: use allowlist or `path.resolve()` + prefix check (symlinks may escape)
-- Public JSON endpoints must have an explicit **body size gate** before or during parsing
-- Shared JSON parsers (for example `safeParseJson`) are preferred over per-route ad hoc parsing so size/error behavior stays consistent
+## Endpoint notes
 
-## Static Analysis (Semgrep)
+| Endpoint | Expected protection |
+| --- | --- |
+| `/api/inquiry` | Turnstile + validation + body size gate + rate limit while wired |
+| `/api/subscribe` | Turnstile + validation + body size gate + rate limit while wired |
+| `/api/contact` | same public route model as inquiry/subscribe |
+| `/api/csp-report` | body size gate + rate limit; never trust payload content |
+| `/api/verify-turnstile` | body size gate; no secrets in response |
+| `/api/health` | public health only; no credentials, config dumps, or env details |
 
-- Code-level security scanning is governed by Semgrep (`semgrep.yml`); CI runs baseline scanning in the `security` job of `.github/workflows/ci.yml`.
-- `eslint-plugin-security`'s `security/detect-object-injection` is disabled by default in this project because it cannot understand TypeScript type constraints and creates tool-driven code noise; object-injection coverage is handled by Semgrep rules instead.
+## CSP and headers
 
-## API Security
+- Security header behavior lives in `src/config/security.ts` and middleware.
+- CSP reports go to `/api/csp-report`.
+- Do not use unfiltered `dangerouslySetInnerHTML`.
+- URL values must allow only `https://`, `http://`, or site-relative `/`.
 
-### API Error Contract
+## Env boundaries
 
-- Public API routes must expose a stable machine-readable error contract.
-- Prefer `errorCode` + shared response helpers (for example `createApiErrorResponse()` / `createApiSuccessResponse()`) over free-text `error` / `message` fields.
-- Do not treat English literals as protocol.
-- Do not return raw validation internals or ad hoc `details` payloads to clients unless the endpoint explicitly defines that contract.
-- When server routes move to `errorCode`, client consumers and tests must move with them; do not keep dual contracts alive.
+- App/runtime code reads server values through `@/lib/env`.
+- Browser code reads public values through `@/lib/public-env`.
+- Do not expose server secrets through `NEXT_PUBLIC_*`.
+- Sensitive keys include `AIRTABLE_API_KEY`, `RESEND_API_KEY`,
+  `TURNSTILE_SECRET_KEY`, `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY`,
+  Cloudflare API tokens, and owner dashboard access keys.
 
-| Measure | Config |
-|---------|--------|
-| Rate Limiting | Default 10/min/IP, canonical contact lead path 5/min/IP |
-| Anti-abuse / Bot filtering | Cloudflare Turnstile (human verification, not a CSRF token) |
-| Idempotency | Required for side-effectful public write paths where duplicate submission matters |
-| CSRF | Not required in the current architecture (no cookie-based session auth); if that changes, add Origin validation + SameSite + CSRF token |
-
-Rate limit utility: `src/lib/security/distributed-rate-limit.ts`
-
-### Known API Endpoints & Protection Status
-
-| Endpoint | Required Protection | Status |
-|----------|---------------------|--------|
-| Contact page Server Action | Turnstile + Rate Limit + validation + idempotency on the canonical lead path | ✅ |
-| `/api/inquiry` | Turnstile + Rate Limit + Idempotency + JSON body size gate | ✅ |
-| `/api/subscribe` | Turnstile + Rate Limit + Idempotency + JSON body size gate | ✅ |
-| `/api/csp-report` | Rate Limit + Body size gate | ✅ |
-| `/api/verify-turnstile` | JSON body size gate | ✅ |
-| `/api/health` | (Public healthcheck) | - |
-
-New write endpoints (POST/PUT/PATCH/DELETE) must define an explicit anti-abuse strategy before merge: auth, OR Turnstile + rate-limit + input validation (the latter applies to public submission flows such as contact/subscribe).
-
-### Public Write Endpoint Rule
-
-For public write endpoints, verify all applicable controls:
-- rate limit
-- body size gate
-- input validation
-- Turnstile or equivalent anti-abuse check when exposed to browsers
-- idempotency when duplicate submissions would create duplicate side effects
-
-### Security Headers
-- `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload`
-- `X-Frame-Options: DENY`
-- `X-Content-Type-Options: nosniff`
-- `Referrer-Policy: strict-origin-when-cross-origin`
-
-## Content Security Policy
-
-- Config: `src/config/security.ts`
-- Report endpoint: `/api/csp-report`
-- Core: `default-src 'self'`, `frame-ancestors 'none'`, nonce over `unsafe-inline`
-
-## Environment Variables
-
-### Contract Ownership
-- App/runtime code reads typed values through `@/lib/env`; do not add direct `process.env.*` reads in application modules.
-- Node scripts use `scripts/lib/runtime-env.js` or a local validator when they intentionally inspect deployment environment.
-- Deployment config and Cloudflare/Vercel secrets supply the actual values; code only declares and validates the contract.
-- Production readiness is enforced by `scripts/validate-production-config.ts`, including:
-  - `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY` for stable Server Actions encryption.
-  - `ALLOW_MEMORY_RATE_LIMIT` and `ALLOW_MEMORY_IDEMPOTENCY` as degraded local/test flags that must not be present in production.
-
-### Client Exposure
-- `NEXT_PUBLIC_` vars exposed to client bundle — use sparingly
-
-### Sensitive Keys (Never Commit)
-- `AIRTABLE_API_KEY`, `RESEND_API_KEY`, `TURNSTILE_SECRET_KEY`, `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY`
-
-### Cookie Config
-- Locale cookie (`NEXT_LOCALE`) uses `sameSite: 'lax'` so cross-origin navigations preserve the chosen language (set in `src/middleware.ts`).
-- For any future authentication or session cookie, default to `httpOnly: true`, `secure: true`, `sameSite: 'strict'` unless a specific flow requires otherwise.
+For future auth/session cookies, default to `httpOnly`, `secure`, and
+`sameSite: "strict"` unless a specific flow proves otherwise.

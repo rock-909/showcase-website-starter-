@@ -1,6 +1,6 @@
 # AI Smell Remediation Closure — 2026-05-03
 
-This note closes the findings recorded in `/Users/Data/workspace/showcase-website-starter/audit-report-20260503.md`.
+This note closes the findings recorded in `docs/audits/audit-report-20260503.md`.
 
 Stage 1 keeps the repository as a reusable showcase website starter. Public Demo Starter Site is out of scope for this closure and needs a separate design.
 

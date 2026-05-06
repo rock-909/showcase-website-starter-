@@ -1,16 +1,12 @@
 name: Vercel 部署
 
 # ============================================================================
-# 职责：Vercel 部署 + MISSING_MESSAGE 检测 + 健康检查
-# 触发：main 分支推送、PR、手动触发
-# 依赖：质量检查由 ci.yml 统一负责，此 workflow 仅关注部署
+# 职责：手动 Vercel 兼容部署 + MISSING_MESSAGE 检测 + 健康检查
+# 触发：仅手动触发。默认生产路径是 Cloudflare/OpenNext。
+# 依赖：质量检查由 ci.yml 统一负责，此 workflow 仅保留兼容证明。
 # ============================================================================
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main, "pr/**"]
   workflow_dispatch:
 
 concurrency:
@@ -25,7 +21,7 @@ jobs:
     timeout-minutes: 15
     # Secrets are not available for fork PRs, and may be unset in template repos.
     # When secrets are missing, we skip the actual deploy steps (job still succeeds).
-    if: github.event_name != 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch'
 
     outputs:
       preview_url: ${{ steps.vercel_cli_deploy.outputs.deployment-url }}
@@ -612,7 +608,7 @@ jobs:
     name: 部署总结
     runs-on: ubuntu-latest
     needs: [deploy-to-vercel]
-    if: always() && github.event_name != 'workflow_dispatch'
+    if: always() && github.event_name == 'workflow_dispatch'
     timeout-minutes: 5
 
     steps:

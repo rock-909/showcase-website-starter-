@@ -13,12 +13,13 @@ const CHECKS = [
       "src/config/single-site-seo.ts",
       "messages/en.json",
       "messages/zh.json",
-      "Contact page Server Action",
+      "Browser contact route handler",
     ],
     forbidden: [
       "Canonical site registry:",
       "Canonical site definitions:",
       "Canonical site-specific overlay sources:",
+      "Contact page Server Action",
     ],
   },
   {
