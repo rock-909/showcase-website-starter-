@@ -68,7 +68,6 @@ describe("processLead observability contracts", () => {
     mockTimerStop.mockReturnValue(321);
     mockRecordPipelineObservability.mockReturnValue({
       success: true,
-      partialSuccess: false,
     });
   });
 
@@ -77,7 +76,6 @@ describe("processLead observability contracts", () => {
 
     expect(result).toEqual({
       success: false,
-      partialSuccess: false,
       emailSent: false,
       recordCreated: false,
       error: "VALIDATION_ERROR",
@@ -106,7 +104,6 @@ describe("processLead observability contracts", () => {
     mockProcessContactLead.mockResolvedValue({ emailResult, crmResult });
     mockRecordPipelineObservability.mockReturnValue({
       success: true,
-      partialSuccess: false,
     });
 
     const result = await processLead(VALID_CONTACT_LEAD, {
@@ -135,7 +132,7 @@ describe("processLead observability contracts", () => {
     );
   });
 
-  it("uses the consolidated helper outcome for partial successes", async () => {
+  it("treats record-created email failures as successful user-facing submissions", async () => {
     const emailResult = {
       success: false as const,
       error: new Error("Email failed"),
@@ -148,8 +145,7 @@ describe("processLead observability contracts", () => {
     };
     mockProcessContactLead.mockResolvedValue({ emailResult, crmResult });
     mockRecordPipelineObservability.mockReturnValue({
-      success: false,
-      partialSuccess: true,
+      success: true,
     });
 
     const result = await processLead(VALID_CONTACT_LEAD, {
@@ -157,8 +153,7 @@ describe("processLead observability contracts", () => {
     });
 
     expect(result).toEqual({
-      success: false,
-      partialSuccess: true,
+      success: true,
       emailSent: false,
       recordCreated: true,
       referenceId: expect.stringMatching(/^CON-/),
@@ -186,7 +181,6 @@ describe("processLead observability contracts", () => {
     mockProcessNewsletterLead.mockResolvedValue({ emailResult, crmResult });
     mockRecordPipelineObservability.mockReturnValue({
       success: false,
-      partialSuccess: false,
     });
 
     const result = await processLead(VALID_NEWSLETTER_LEAD, {
@@ -194,7 +188,7 @@ describe("processLead observability contracts", () => {
     });
 
     expect(result.success).toBe(false);
-    expect(result.partialSuccess).toBe(false);
+    expect(result).not.toHaveProperty("partialSuccess");
     expect(mockRecordPipelineObservability).toHaveBeenCalledWith(
       expect.objectContaining({
         lead: expect.objectContaining({ type: LEAD_TYPES.NEWSLETTER }),

@@ -35,7 +35,6 @@ afterEach(() => {
   vi.stubEnv("NEXT_PHASE", "");
   vi.stubEnv("DEPLOYMENT_PLATFORM", "");
   vi.stubEnv("NEXT_PUBLIC_DEPLOYMENT_PLATFORM", "vercel");
-  vi.stubEnv("PORT", "");
   vi.stubEnv("TURNSTILE_BYPASS", "false");
 });
 
@@ -201,11 +200,15 @@ describe("runtime env helpers", () => {
   });
 
   it("parses numeric runtime env values and ignores invalid numbers", () => {
-    vi.stubEnv("PORT", "3001");
-    expect(getRuntimeEnvNumber("PORT")).toBe(3001);
+    vi.stubEnv("NEXT_PUBLIC_CONTACT_FORM_COOLDOWN_MS", "3001");
+    expect(getRuntimeEnvNumber("NEXT_PUBLIC_CONTACT_FORM_COOLDOWN_MS")).toBe(
+      3001,
+    );
 
-    vi.stubEnv("PORT", "not-a-number");
-    expect(getRuntimeEnvNumber("PORT")).toBeUndefined();
+    vi.stubEnv("NEXT_PUBLIC_CONTACT_FORM_COOLDOWN_MS", "not-a-number");
+    expect(
+      getRuntimeEnvNumber("NEXT_PUBLIC_CONTACT_FORM_COOLDOWN_MS"),
+    ).toBeUndefined();
   });
 
   it("recognizes secure app envs and production build phase", () => {

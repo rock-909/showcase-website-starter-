@@ -40,7 +40,6 @@ describe("processFormSubmission subject mapping", () => {
   it("maps plain custom project wording to the custom project lead subject", async () => {
     mockProcessLead.mockResolvedValueOnce({
       success: true,
-      partialSuccess: false,
       emailSent: true,
       recordCreated: true,
       referenceId: "ref-custom",
@@ -61,7 +60,6 @@ describe("processFormSubmission subject mapping", () => {
 
     mockProcessLead.mockResolvedValueOnce({
       success: true,
-      partialSuccess: false,
       emailSent: true,
       recordCreated: true,
       referenceId: "ref-other",
@@ -82,7 +80,6 @@ describe("processFormSubmission subject mapping", () => {
   it("splits fullName only at the downstream lead boundary", async () => {
     mockProcessLead.mockResolvedValueOnce({
       success: true,
-      partialSuccess: false,
       emailSent: true,
       recordCreated: true,
       referenceId: "ref-name",

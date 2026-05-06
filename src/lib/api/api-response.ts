@@ -80,11 +80,3 @@ export function createApiSuccessResponse<T>(
 ): NextResponse<ApiSuccessResponse<T>> {
   return NextResponse.json({ success: true, data }, { status });
 }
-
-export function createApiPartialSuccessResponse<T>(
-  errorCode: ApiErrorCode,
-  data: T,
-  status: number = HTTP_OK,
-): NextResponse<ApiPartialSuccessResponse<T>> {
-  return NextResponse.json({ success: false, errorCode, data }, { status });
-}

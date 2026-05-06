@@ -16,10 +16,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { API_ERROR_CODES } from "@/constants/api-error-codes";
 import { resetIdempotencyState } from "@/lib/idempotency";
 import { checkDistributedRateLimit } from "@/lib/security/distributed-rate-limit";
-import { INTERNAL_TRUSTED_CLIENT_IP_HEADER } from "@/lib/security/client-ip-headers";
 import { verifyTurnstile, verifyTurnstileDetailed } from "@/lib/turnstile";
 import { processFormSubmission } from "@/lib/contact-form-processing";
-import { contactFormAction } from "../actions";
+import { contactFormAction } from "@/lib/actions/contact";
 
 // ── External service mocks ──────────────────────────────────────────
 
@@ -168,13 +167,10 @@ describe("Contact form — integration (happy path chain)", () => {
       expect(processFormSubmission).toHaveBeenCalledTimes(1);
     });
 
-    it("uses the middleware-derived client identity on Cloudflare", async () => {
+    it("falls back closed for contact Server Action identity on Cloudflare", async () => {
       vi.stubEnv("VERCEL", undefined);
       vi.stubEnv("CF_PAGES", "1");
       mockHeadersGet.mockImplementation((key: string) => {
-        if (key === INTERNAL_TRUSTED_CLIENT_IP_HEADER) {
-          return "198.51.100.77";
-        }
         if (key === "cf-connecting-ip") return "192.0.2.100";
         return null;
       });
@@ -185,7 +181,7 @@ describe("Contact form — integration (happy path chain)", () => {
       expect(result.success).toBe(true);
       expect(verifyTurnstileDetailed).toHaveBeenCalledWith(
         "valid-turnstile-token",
-        "198.51.100.77",
+        "0.0.0.0",
         { expectedAction: "contact_form" },
       );
     });

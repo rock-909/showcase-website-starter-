@@ -55,7 +55,6 @@ vi.mock("@/lib/lead-pipeline", () => ({
   processLead: vi.fn(() =>
     Promise.resolve({
       success: true,
-      partialSuccess: false,
       emailSent: true,
       recordCreated: true,
       referenceId: "ref-integration-001",
@@ -228,7 +227,6 @@ describe("/api/inquiry — integration (protection chain)", () => {
     it("processLead failure returns 500 with INQUIRY_PROCESSING_ERROR", async () => {
       vi.mocked(processLead).mockResolvedValueOnce({
         success: false,
-        partialSuccess: false,
         error: "PROCESSING_ERROR",
         emailSent: false,
         recordCreated: false,

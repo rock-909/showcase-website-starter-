@@ -9,7 +9,7 @@ const OUTPUT_PATH = path.join(
   "deploy",
   "cloudflare-preview-proof.json",
 );
-const DEPLOY_COMMAND = ["deploy:cf:phase6:preview"];
+const DEPLOY_COMMAND = ["deploy:cf:preview"];
 const URL_PATTERN = new RegExp("https://[^\\s\\\"']+\\.workers\\.dev", "gi");
 const DEPLOY_URL_PATTERN = new RegExp(
   "^\\[phase6\\] deployed-url (?<worker>\\S+) (?<url>https://[^\\s]+)$",

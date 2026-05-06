@@ -133,16 +133,16 @@ jobs:
         id: deploy_production
         run: |
           set -euo pipefail
-          DEPLOY_OUTPUT=$(pnpm deploy:cf:phase6:production 2>&1) || {
+          DEPLOY_OUTPUT=$(pnpm deploy:cf 2>&1) || {
             echo "❌ 部署失败"
             echo "$DEPLOY_OUTPUT"
             exit 1
           }
           echo "$DEPLOY_OUTPUT"
-          DEPLOY_URL=$(printf '%s\n' "$DEPLOY_OUTPUT" | grep -oP '(?<=\[phase6\] deployed-url gateway )https://[^\s]+' | tail -1 || true)
+          DEPLOY_URL=$(printf '%s\n' "$DEPLOY_OUTPUT" | grep -Eo '\[phase6\] deployed-url gateway https://[^[:space:]]+' | awk '{print $4}' | tail -1 || true)
           if [ -z "$DEPLOY_URL" ]; then
-            DEPLOY_URL="https://example.com"
-            echo "⚠️ 未从 phase6 输出中提取到 gateway URL，回退到 production 域名: $DEPLOY_URL"
+            echo "❌ 未从部署输出中提取到 gateway URL"
+            exit 1
           fi
           echo "production-url=${DEPLOY_URL}" >> "$GITHUB_OUTPUT"
           echo "✅ 部署成功"

@@ -271,6 +271,42 @@ describe("processContactLead — confirmation email retry", () => {
   });
 
   describe("main pipeline contracts", () => {
+    it("stores the lead before sending email and skips email when CRM fails", async () => {
+      mockSettleService.mockImplementation(
+        async (
+          promise: Promise<unknown>,
+          options: {
+            operationName: string;
+            mapId?: (result: unknown) => string | undefined;
+          },
+        ): Promise<ServiceResult> => {
+          try {
+            const value = await promise;
+            return {
+              success: true,
+              id: options.mapId?.(value),
+              latencyMs: 100,
+            };
+          } catch (error) {
+            return {
+              success: false,
+              error: error instanceof Error ? error : new Error(String(error)),
+              latencyMs: 100,
+            };
+          }
+        },
+      );
+      mockCreateLead.mockRejectedValue(new Error("CRM failed"));
+
+      const { processContactLead } =
+        await import("@/lib/lead-pipeline/processors/contact");
+
+      await processContactLead(VALID_CONTACT_LEAD, REFERENCE_ID);
+
+      expect(mockCreateLead).toHaveBeenCalledTimes(1);
+      expect(mockSendContactFormEmail).not.toHaveBeenCalled();
+    });
+
     it("builds email and CRM payloads with split names and optional company omitted", async () => {
       mockSendConfirmationEmail.mockResolvedValue("confirmation-id-001");
 
@@ -331,8 +367,8 @@ describe("processContactLead — confirmation email retry", () => {
       const settleCalls = vi.mocked(settleService).mock.calls;
       expect(settleCalls).toHaveLength(2);
 
-      const [, emailOptions] = settleCalls[0]!;
-      const [, crmOptions] = settleCalls[1]!;
+      const [, crmOptions] = settleCalls[0]!;
+      const [, emailOptions] = settleCalls[1]!;
 
       expect(emailOptions).toEqual(
         expect.objectContaining({

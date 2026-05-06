@@ -61,10 +61,6 @@ const contactCopy = {
   },
 };
 
-vi.mock("@/components/contact/contact-form", () => ({
-  ContactForm: () => <div data-testid="contact-form">Contact Form</div>,
-}));
-
 vi.mock("@/components/contact/contact-form-island", () => ({
   ContactFormIsland: ({ fallback }: { fallback: React.ReactNode }) => (
     <section data-testid="contact-form-island">

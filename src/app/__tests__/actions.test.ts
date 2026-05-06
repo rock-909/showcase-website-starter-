@@ -2,9 +2,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { API_ERROR_CODES } from "@/constants/api-error-codes";
 import { resetIdempotencyState } from "@/lib/idempotency";
 import { checkDistributedRateLimit } from "@/lib/security/distributed-rate-limit";
-import { INTERNAL_TRUSTED_CLIENT_IP_HEADER } from "@/lib/security/client-ip-headers";
 import { verifyTurnstile, verifyTurnstileDetailed } from "@/lib/turnstile";
-import { contactFormAction } from "../actions";
+import { contactFormAction } from "@/lib/actions/contact";
 
 // Mock dependencies before imports
 vi.mock("@/lib/logger", () => ({
@@ -265,28 +264,25 @@ describe("actions.ts", () => {
       expect(typeof result.success).toBe("boolean");
     });
 
-    it("should surface partial success without pretending the contact flow fully failed", async () => {
+    it("should surface record-created email failures as user-visible success", async () => {
       const processing = await import("@/lib/contact-form-processing");
       vi.mocked(processing.processFormSubmission).mockResolvedValueOnce({
-        success: false,
-        partialSuccess: true,
-        emailSent: true,
-        recordCreated: false,
-        referenceId: "ref-partial-123",
-        errorCode: API_ERROR_CODES.CONTACT_PARTIAL_SUCCESS,
+        success: true,
+        emailSent: false,
+        recordCreated: true,
+        referenceId: "ref-record-123",
       });
       const formData = createFormData(createValidFormData());
 
       const result = await contactFormAction(null, formData);
 
-      expect(result.success).toBe(false);
-      expect(result.errorCode).toBe(API_ERROR_CODES.CONTACT_PARTIAL_SUCCESS);
+      expect(result.success).toBe(true);
+      expect(result.errorCode).toBeUndefined();
       expect(result.error).toBeUndefined();
       expect(result.data).toEqual({
-        emailSent: true,
-        recordCreated: false,
-        referenceId: "ref-partial-123",
-        partialSuccess: true,
+        emailSent: false,
+        recordCreated: true,
+        referenceId: "ref-record-123",
       });
     });
 
@@ -432,13 +428,10 @@ describe("actions.ts", () => {
         );
       });
 
-      it("should use middleware-derived client IP on Cloudflare", async () => {
+      it("should fail closed for raw Cloudflare headers in Server Action compatibility path", async () => {
         vi.stubEnv("VERCEL", undefined);
         vi.stubEnv("CF_PAGES", "1");
         mockHeadersGet.mockImplementation((key: string) => {
-          if (key === INTERNAL_TRUSTED_CLIENT_IP_HEADER) {
-            return "198.51.100.77";
-          }
           if (key === "cf-connecting-ip") return "192.0.2.100";
           return null;
         });
@@ -448,7 +441,7 @@ describe("actions.ts", () => {
 
         expect(verifyTurnstileDetailed).toHaveBeenCalledWith(
           "valid-token",
-          "198.51.100.77",
+          "0.0.0.0",
           { expectedAction: "contact_form" },
         );
       });

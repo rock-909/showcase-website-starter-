@@ -1,57 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createObservedCacheHealthResponse } from "@/lib/api/cache-health-response";
 import createMiddleware from "next-intl/middleware";
 import { generateNonce, getSecurityHeaders } from "@/config/security";
 import { routing, type Locale } from "@/i18n/routing-config";
 import { isSecureAppEnv } from "@/lib/env";
-import { INTERNAL_TRUSTED_CLIENT_IP_HEADER } from "@/lib/security/client-ip-headers";
-import { getTrustedClientIPForInternalHeader } from "@/lib/security/client-ip";
-import { REQUEST_ID_HEADER } from "@/lib/api/request-observability";
 
 const intlMiddleware = createMiddleware(routing);
 const SUPPORTED_LOCALES = new Set<string>(routing.locales);
 const NONCE_REQUEST_HEADER_KEY = "x-nonce";
 const LOCALE_FALLBACK_QUERY_PARAM = "fromLocaleFallback";
-function getRequestIdForHealth(request: NextRequest): string {
-  const fromRequest =
-    request.headers.get(REQUEST_ID_HEADER)?.trim() ||
-    request.headers.get("x-correlation-id")?.trim();
-
-  if (fromRequest) {
-    return fromRequest;
-  }
-
-  return globalThis.crypto?.randomUUID?.() ?? `health-${Date.now()}`;
-}
-
-function tryHandleHealthRoute(request: NextRequest): NextResponse | null {
-  if (request.nextUrl.pathname !== "/api/health") {
-    return null;
-  }
-
-  if (request.method !== "GET" && request.method !== "HEAD") {
-    return null;
-  }
-
-  return createObservedCacheHealthResponse(request, {
-    requestId: getRequestIdForHealth(request),
-  });
-}
 
 function applyCommonMiddlewareHeaders(
   response: NextResponse,
   nonce: string,
-  trustedClientIP: string | null,
 ): void {
   removeLeakedMiddlewareCookieHeader(response);
   applyRequestHeaderOverride(response, NONCE_REQUEST_HEADER_KEY, nonce);
-  if (trustedClientIP) {
-    applyRequestHeaderOverride(
-      response,
-      INTERNAL_TRUSTED_CLIENT_IP_HEADER,
-      trustedClientIP,
-    );
-  }
   addSecurityHeaders(response, nonce);
 }
 
@@ -349,21 +312,11 @@ function tryHandlePreIntlRedirect(
 }
 
 export default function middleware(request: NextRequest) {
-  const healthHandled = tryHandleHealthRoute(request);
-  if (healthHandled) {
-    return healthHandled;
-  }
-
   const nonce = generateNonce();
-  const trustedClientIP = getTrustedClientIPForInternalHeader(request);
 
   const preIntlRedirectHandled = tryHandlePreIntlRedirect(request, nonce);
   if (preIntlRedirectHandled) {
-    applyCommonMiddlewareHeaders(
-      preIntlRedirectHandled,
-      nonce,
-      trustedClientIP,
-    );
+    applyCommonMiddlewareHeaders(preIntlRedirectHandled, nonce);
     return preIntlRedirectHandled;
   }
 
@@ -376,11 +329,11 @@ export default function middleware(request: NextRequest) {
     setLocaleCookie(response, locale);
   }
   if (response) {
-    applyCommonMiddlewareHeaders(response, nonce, trustedClientIP);
+    applyCommonMiddlewareHeaders(response, nonce);
   }
   return response;
 }
 
 export const config = {
-  matcher: ["/api/health", "/", "/((?!api|_next|_vercel|admin|ops|.*\\..*).*)"],
+  matcher: ["/", "/((?!api|_next|_vercel|admin|ops|.*\\..*).*)"],
 };

@@ -1,15 +1,19 @@
 import { act, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { ContactFormContainer } from "@/components/forms/contact-form-container";
+import type { UseContactFormResult } from "@/components/forms/use-contact-form";
 
-const mockUseActionState = vi.hoisted(() => vi.fn());
+const mockUseContactForm = vi.hoisted(() => vi.fn());
 const mockUseRateLimit = vi.hoisted(() => vi.fn());
 
-vi.mock("react", async () => {
-  const actual = await vi.importActual("react");
+vi.mock("@/components/forms/use-contact-form", async () => {
+  const actual = await vi.importActual<
+    typeof import("@/components/forms/use-contact-form")
+  >("@/components/forms/use-contact-form");
+
   return {
     ...actual,
-    useActionState: mockUseActionState,
+    useContactForm: mockUseContactForm,
   };
 });
 
@@ -56,9 +60,24 @@ vi.mock("@marsidev/react-turnstile", () => ({
   ),
 }));
 
+function createContactFormHook(
+  overrides: Partial<UseContactFormResult> = {},
+): UseContactFormResult {
+  return {
+    state: null,
+    formAction: vi.fn(async () => {}),
+    isPending: false,
+    submitStatus: "idle",
+    turnstileToken: "",
+    setTurnstileToken: vi.fn(),
+    isRateLimited: false,
+    ...overrides,
+  };
+}
+
 describe("ContactFormContainer accessibility", () => {
   beforeEach(() => {
-    mockUseActionState.mockReturnValue([null, vi.fn(), false]);
+    mockUseContactForm.mockReturnValue(createContactFormHook());
     mockUseRateLimit.mockReturnValue({
       isRateLimited: false,
       lastSubmissionTime: null,
@@ -135,20 +154,22 @@ describe("ContactFormContainer accessibility", () => {
   });
 
   it("focuses the error summary when the server returns a submission error", async () => {
-    mockUseActionState.mockReturnValue([
-      {
-        success: false,
-        errorCode: "CONTACT_SUBMISSION_EXPIRED",
-      },
-      vi.fn(),
-      false,
-    ]);
+    mockUseContactForm.mockReturnValue(
+      createContactFormHook({
+        state: {
+          success: false,
+          errorCode: "CONTACT_SUBMISSION_EXPIRED",
+          timestamp: "2026-05-05T00:00:00.000Z",
+        },
+        submitStatus: "error",
+      }),
+    );
 
     await act(async () => {
       render(<ContactFormContainer />);
     });
 
-    const alert = screen.getByRole("alert");
+    const alert = screen.getByTestId("contact-form-error-display");
     expect(alert).toHaveFocus();
   });
 });

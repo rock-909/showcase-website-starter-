@@ -23,7 +23,6 @@ vi.mock("@/lib/lead-pipeline", () => ({
   processLead: vi.fn(async () => ({
     success: true,
     outcome: "success",
-    partialSuccess: false,
     referenceId: "ref-123",
     recordCreated: true,
     emailSent: false,
@@ -209,12 +208,11 @@ describe("api/subscribe", () => {
     expect(json.errorCode).toBe(API_ERROR_CODES.SERVICE_UNAVAILABLE);
   });
 
-  it("returns partial-success contract when only part of the lead pipeline succeeds", async () => {
+  it("returns success when the newsletter record is created", async () => {
     const leadPipeline = await import("@/lib/lead-pipeline");
     vi.mocked(leadPipeline.processLead).mockResolvedValueOnce({
-      success: false,
-      partialSuccess: true,
-      referenceId: "ref-partial-123",
+      success: true,
+      referenceId: "ref-record-123",
       recordCreated: true,
       emailSent: false,
     });
@@ -225,14 +223,14 @@ describe("api/subscribe", () => {
 
     expect(res.status).toBe(200);
     const json = await res.json();
-    expect(json.success).toBe(false);
-    expect(json.errorCode).toBe(API_ERROR_CODES.SUBSCRIBE_PARTIAL_SUCCESS);
-    expect(json.data).toEqual({
-      partialSuccess: true,
-      referenceId: "ref-partial-123",
-      emailSent: false,
-      recordCreated: true,
+    expect(json).toEqual({
+      success: true,
+      data: {
+        referenceId: "ref-record-123",
+      },
     });
+    expect(json.errorCode).toBeUndefined();
+    expect(json.data).not.toHaveProperty("partialSuccess");
   });
 
   it("returns 429 when rate limited", async () => {

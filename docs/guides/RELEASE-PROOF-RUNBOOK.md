@@ -70,9 +70,9 @@ These commands prove content residue and source client-boundary budget only. The
   - `pnpm truth:check`
   - `pnpm review:translation-quartet`
   - `pnpm review:translate-compat`
-- Contact 页面 proof 现在要理解成 **Contact page Server Action**，不是旧的 `/api/contact`
+- Contact 页面 proof 现在要理解成 **Browser contact route handler**：浏览器联系表单走 `/api/contact`，`src/lib/actions/contact.ts` 只是兼容入口
 - preview deploy 当前统一入口是 `pnpm proof:cf:preview-deployed`
-- production deploy 当前统一走 `pnpm deploy:cf:phase6:production`
+- production deploy 当前统一走 `pnpm deploy:cf`
 
 ## Dirty Worktree vs Clean Branch Rule
 

@@ -13,9 +13,9 @@ describe("client message scoping", () => {
       language: { selectLanguage: "Select Language" },
       navigation: { home: "Home" },
       cookie: { title: "Cookies" },
-      common: { close: "Close" },
       contact: { form: { title: "Contact" } },
       apiErrors: { UNKNOWN_ERROR: "Unknown" },
+      errors: { contact: { title: "Unavailable" } },
     });
 
     expect(scoped).toEqual({
@@ -24,7 +24,7 @@ describe("client message scoping", () => {
       navigation: { home: "Home" },
       contact: { form: { title: "Contact" } },
       cookie: { title: "Cookies" },
-      common: { close: "Close" },
+      errors: { contact: { title: "Unavailable" } },
     });
   });
 
@@ -32,13 +32,11 @@ describe("client message scoping", () => {
     expect(getClientMessageNamespaces()).toEqual([
       "accessibility",
       "apiErrors",
-      "common",
       "contact",
       "cookie",
       "errors",
       "language",
       "navigation",
-      "seo",
     ]);
   });
 

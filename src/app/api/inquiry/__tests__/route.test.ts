@@ -34,7 +34,6 @@ vi.mock("@/lib/lead-pipeline", () => ({
   processLead: vi.fn(() =>
     Promise.resolve({
       success: true,
-      partialSuccess: false,
       emailSent: true,
       recordCreated: true,
       referenceId: "ref-123",
@@ -326,7 +325,6 @@ describe("/api/inquiry route", () => {
     it("should handle processLead failure", async () => {
       vi.mocked(processLead).mockResolvedValueOnce({
         success: false,
-        partialSuccess: false,
         error: "PROCESSING_ERROR",
         emailSent: false,
         recordCreated: false,
@@ -342,13 +340,12 @@ describe("/api/inquiry route", () => {
       expect(data.errorCode).toBe(API_ERROR_CODES.INQUIRY_PROCESSING_ERROR);
     });
 
-    it("should return partial-success contract when only part of the pipeline succeeds", async () => {
+    it("should return success when the record is created but email fails", async () => {
       vi.mocked(processLead).mockResolvedValueOnce({
-        success: false,
-        partialSuccess: true,
-        emailSent: true,
-        recordCreated: false,
-        referenceId: "ref-partial-123",
+        success: true,
+        emailSent: false,
+        recordCreated: true,
+        referenceId: "ref-record-123",
       });
 
       const request = createInquiryRequest(JSON.stringify(validInquiryData));
@@ -357,20 +354,38 @@ describe("/api/inquiry route", () => {
       const data = await response.json();
 
       expect(response.status).toBe(200);
-      expect(data.success).toBe(false);
-      expect(data.errorCode).toBe(API_ERROR_CODES.INQUIRY_PARTIAL_SUCCESS);
-      expect(data.data).toEqual({
-        partialSuccess: true,
-        referenceId: "ref-partial-123",
-        emailSent: true,
-        recordCreated: false,
+      expect(data).toEqual({
+        success: true,
+        data: {
+          referenceId: "ref-record-123",
+        },
       });
+      expect(data.errorCode).toBeUndefined();
+      expect(data.data).not.toHaveProperty("partialSuccess");
+    });
+
+    it("should return processing error when the record is not created", async () => {
+      vi.mocked(processLead).mockResolvedValueOnce({
+        success: false,
+        emailSent: false,
+        recordCreated: false,
+        error: "PROCESSING_FAILED",
+      });
+
+      const request = createInquiryRequest(JSON.stringify(validInquiryData));
+
+      const response = await POST(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(500);
+      expect(data.success).toBe(false);
+      expect(data.errorCode).toBe(API_ERROR_CODES.INQUIRY_PROCESSING_ERROR);
+      expect(data.data).toBeUndefined();
     });
 
     it("should handle validation error from processLead", async () => {
       vi.mocked(processLead).mockResolvedValueOnce({
         success: false,
-        partialSuccess: false,
         error: "VALIDATION_ERROR",
         emailSent: false,
         recordCreated: false,

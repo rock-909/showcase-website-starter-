@@ -80,7 +80,7 @@
 | Bucket | 最先有价值的强证据 |
 |---|---|
 | Platform entry / local runtime issue | `pnpm preview:cf` 加本地诊断 |
-| Generated artifact compatibility issue | `pnpm build:cf`、`pnpm smoke:cf:preview`，必要时再加 `pnpm build:cf:turbo` |
+| Generated artifact compatibility issue | `pnpm build:cf`、`pnpm smoke:cf:preview`，必要时再加 `pnpm deploy:cf:dry-run` |
 | Current site runtime regression | 页面级测试、`pnpm build`、`pnpm build:cf`、`pnpm smoke:cf:preview` |
 | Final deployed behavior issue | `pnpm smoke:cf:deploy -- --base-url <url>` |
 

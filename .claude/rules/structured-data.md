@@ -8,26 +8,26 @@ paths:
   - "content/pages/**/*.mdx"
 ---
 
-# Structured Data / JSON-LD
+# Structured Data / JSON-LD Rules
 
-## Canonical builder rule
+All schema objects are built through `src/lib/structured-data-generators.ts`.
 
-All schema objects are built in `src/lib/structured-data-generators.ts`.
-
-Pages and component shells may render `<JsonLdScript>`, but they must not hand-roll objects with `"@context": "https://schema.org"` inline. This keeps escaping, schema shape, and ownership reviewable in one place.
+Pages and component shells may render `<JsonLdScript>`, but they must not
+hand-roll schema objects inline.
 
 ## Injection points
 
-- Layout level (`src/app/[locale]/layout.tsx`): site-wide identity only, currently Organization and WebSite.
-- Page level: page-specific schemas such as FAQPage, Article, ProductGroup, AboutPage, WebPage, ItemList, and BreadcrumbList.
-- Component shell level: allowed only when the shell is the page-level rendering owner, and the schema still comes from `structured-data-generators.ts`.
+- Layout: site-wide Organization and WebSite only.
+- Page: page-specific schemas such as FAQPage, Article, ProductGroup,
+  AboutPage, WebPage, ItemList, and BreadcrumbList.
+- Component shell: only when the shell owns page-level rendering, and the
+  schema still comes from the shared generators.
 
 ## FAQ schema
 
-FAQ content comes from page-owned MDX frontmatter whenever the page has an MDX source. Convert FAQ items to JSON-LD with `generateFaqSchemaFromItems()` from `src/lib/content/mdx-faq.ts`.
+FAQ content comes from page-owned MDX frontmatter whenever the page has an MDX
+source.
 
-Do not add a second FAQ schema helper for the same item shape.
+Use `generateFaqSchemaFromItems()` from `src/lib/content/mdx-faq.ts`.
 
-## Legacy API cleanup
-
-Do not reintroduce `generateFAQSchema()` or `generateBreadcrumbSchema()` from `src/lib/structured-data.ts`. FAQ uses `generateFaqSchemaFromItems()`, and breadcrumbs use `buildBreadcrumbListSchema()`.
+Do not add another FAQ helper for the same item shape.

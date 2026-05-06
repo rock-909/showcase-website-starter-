@@ -411,7 +411,7 @@ describe("pipeline-observability", () => {
         requestId: "req-success",
       });
 
-      expect(outcome).toEqual({ success: true, partialSuccess: false });
+      expect(outcome).toEqual({ success: true });
       expect(leadPipelineMetrics.recordSuccess).toHaveBeenCalledWith(
         "resend",
         100,
@@ -426,10 +426,6 @@ describe("pipeline-observability", () => {
         "Lead email send failed",
         expect.anything(),
       );
-      expect(mockLoggerWarn).not.toHaveBeenCalledWith(
-        "Lead processed partially",
-        expect.anything(),
-      );
       expect(mockLoggerInfo).toHaveBeenCalledWith(
         "Lead processed successfully",
         expect.objectContaining({
@@ -439,7 +435,7 @@ describe("pipeline-observability", () => {
       );
     });
 
-    it("returns partial success and avoids CRM failure logging when only email succeeds", async () => {
+    it("returns failure when CRM fails even if email was successful", async () => {
       const { recordPipelineObservability } =
         await import("../pipeline-observability");
 
@@ -465,32 +461,31 @@ describe("pipeline-observability", () => {
         },
         hasEmailOperation: true,
         totalLatencyMs: 250,
-        requestId: "req-partial",
+        requestId: "req-crm-failed",
       });
 
-      expect(outcome).toEqual({ success: false, partialSuccess: true });
+      expect(outcome).toEqual({ success: false });
       expect(mockLoggerError).toHaveBeenCalledWith(
         "Lead CRM record failed",
         expect.objectContaining({
           referenceId: "CON-456",
-          requestId: "req-partial",
+          requestId: "req-crm-failed",
         }),
       );
       expect(mockLoggerError).not.toHaveBeenCalledWith(
         "Lead email send failed",
         expect.anything(),
       );
-      expect(mockLoggerWarn).toHaveBeenCalledWith(
-        "Lead processed partially",
+      expect(mockLoggerError).toHaveBeenCalledWith(
+        "Lead processing failed completely",
         expect.objectContaining({
-          emailSent: true,
-          recordCreated: false,
-          requestId: "req-partial",
+          crmError: "CRM failed",
+          requestId: "req-crm-failed",
         }),
       );
     });
 
-    it("returns partial success and logs the email failure when only CRM succeeds", async () => {
+    it("returns success and logs the email failure when CRM succeeds", async () => {
       const { recordPipelineObservability } =
         await import("../pipeline-observability");
 
@@ -519,7 +514,7 @@ describe("pipeline-observability", () => {
         requestId: "req-email-failed",
       });
 
-      expect(outcome).toEqual({ success: false, partialSuccess: true });
+      expect(outcome).toEqual({ success: true });
       expect(mockLoggerError).toHaveBeenCalledWith(
         "Lead email send failed",
         expect.objectContaining({
@@ -537,9 +532,8 @@ describe("pipeline-observability", () => {
         "Lead processing failed completely",
         expect.anything(),
       );
-      expect(mockLoggerWarn).toHaveBeenCalledTimes(1);
-      expect(mockLoggerWarn).toHaveBeenCalledWith(
-        "Lead processed partially",
+      expect(mockLoggerInfo).toHaveBeenCalledWith(
+        "Lead processed successfully",
         expect.objectContaining({
           emailSent: false,
           recordCreated: true,
@@ -578,11 +572,7 @@ describe("pipeline-observability", () => {
         requestId: "req-total-failure",
       });
 
-      expect(outcome).toEqual({ success: false, partialSuccess: false });
-      expect(mockLoggerWarn).not.toHaveBeenCalledWith(
-        "Lead processed partially",
-        expect.anything(),
-      );
+      expect(outcome).toEqual({ success: false });
       expect(mockLoggerInfo).not.toHaveBeenCalledWith(
         "Lead processed successfully",
         expect.anything(),
@@ -655,7 +645,7 @@ describe("pipeline-observability", () => {
       );
     });
 
-    it("does not report partial success when the email branch is skipped", async () => {
+    it("reports newsletter CRM failure as a normal failure when the email branch is skipped", async () => {
       const { recordPipelineObservability } =
         await import("../pipeline-observability");
 
@@ -679,10 +669,14 @@ describe("pipeline-observability", () => {
         requestId: "req-newsletter-no-email",
       });
 
-      expect(outcome).toEqual({ success: false, partialSuccess: false });
-      expect(mockLoggerWarn).not.toHaveBeenCalledWith(
-        "Lead processed partially",
-        expect.anything(),
+      expect(outcome).toEqual({ success: false });
+      expect(mockLoggerError).toHaveBeenCalledWith(
+        "Lead processing failed completely",
+        expect.objectContaining({
+          referenceId: "NEW-456",
+          crmError: "CRM failed",
+          requestId: "req-newsletter-no-email",
+        }),
       );
     });
   });

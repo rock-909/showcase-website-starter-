@@ -159,7 +159,7 @@ async function ensureConfigs() {
       console.error(
         `[phase6] missing config: ${path.relative(ROOT_DIR, fullPath)}`,
       );
-      console.error("[phase6] run `pnpm build:cf:phase6` first.");
+      console.error("[phase6] run `pnpm deploy:cf:dry-run` or the stable deploy wrapper first.");
       process.exit(1);
     }
   }
@@ -305,7 +305,7 @@ if (!args.dryRun) {
     "--env",
     targetEnv,
     "--scope",
-    "phase6",
+    "split",
   ];
   if (args.envFile) {
     syncArgs.push("--env-file", args.envFile);

@@ -33,28 +33,41 @@ export async function processContactLead(
     marketingConsent: lead.marketingConsent,
   };
 
-  const [emailResult, crmResult] = await Promise.all([
-    settleService(resendService.sendContactFormEmail(emailData), {
+  const crmResult = await settleService(
+    airtableService.createLead(LEAD_TYPES.CONTACT, {
+      firstName,
+      lastName,
+      email: lead.email,
+      company: lead.company,
+      subject: lead.subject,
+      message: lead.message,
+      marketingConsent: lead.marketingConsent,
+      referenceId,
+    }),
+    {
+      operationName: "CRM record",
+      mapId: (record) => record?.id,
+    },
+  );
+
+  if (!crmResult.success) {
+    return {
+      emailResult: {
+        success: false,
+        error: new Error("Email skipped because CRM record failed"),
+        latencyMs: 0,
+      },
+      crmResult,
+    };
+  }
+
+  const emailResult = await settleService(
+    resendService.sendContactFormEmail(emailData),
+    {
       operationName: "Email send",
       mapId: (id) => id,
-    }),
-    settleService(
-      airtableService.createLead(LEAD_TYPES.CONTACT, {
-        firstName,
-        lastName,
-        email: lead.email,
-        company: lead.company,
-        subject: lead.subject,
-        message: lead.message,
-        marketingConsent: lead.marketingConsent,
-        referenceId,
-      }),
-      {
-        operationName: "CRM record",
-        mapId: (record) => record?.id,
-      },
-    ),
-  ]);
+    },
+  );
 
   // Send confirmation email if enabled (fire-and-forget with retry, non-blocking)
   if (CONTACT_FORM_CONFIG.features.sendConfirmationEmail) {

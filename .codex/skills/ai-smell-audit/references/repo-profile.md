@@ -10,11 +10,12 @@ These surfaces deserve first-pass attention because they are closest to business
 
 1. **Lead / inquiry / contact path**
    - `src/app/[locale]/contact/**`
-   - `src/app/actions.ts`
+   - `src/app/api/contact/**`
    - `src/app/api/inquiry/route.ts`
    - `src/app/api/subscribe/route.ts`
    - `src/app/api/verify-turnstile/route.ts`
    - `src/components/forms/**`
+   - `src/lib/actions/contact.ts`
    - `src/lib/lead-pipeline/**`
 
 2. **Idempotency / anti-abuse / trust boundary**
