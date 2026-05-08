@@ -5,6 +5,12 @@ const heldDependencyUpdates = [
     rationale:
       "The project engine is >=24 <25, so Node 25 types would describe APIs outside the supported runtime range.",
   },
+  {
+    name: "vite",
+    status: "major-lane-held",
+    rationale:
+      "Vite 8 is a major upgrade and should be validated in a separate Storybook/Vitest tooling lane.",
+  },
 ];
 
 export const HELD_DEPENDENCY_UPDATES = heldDependencyUpdates;
