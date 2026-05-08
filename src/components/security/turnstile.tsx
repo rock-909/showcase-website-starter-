@@ -55,6 +55,7 @@ export function TurnstileWidget({
     if (!isBypassMode || bypassTriggeredRef.current) return;
     bypassTriggeredRef.current = true;
     logger.warn("[DEV] Turnstile bypass mode enabled");
+    // eslint-disable-next-line react-you-might-not-need-an-effect/no-event-handler -- Turnstile dev bypass is an external widget adapter state, not a user event.
     if (onSuccess) {
       onSuccess("TURNSTILE_BYPASS_TOKEN");
     }
@@ -65,6 +66,7 @@ export function TurnstileWidget({
       logger.warn(
         "Turnstile site key not configured. Bot protection is disabled.",
       );
+      // eslint-disable-next-line react-you-might-not-need-an-effect/no-event-handler -- Missing site key is external widget availability sync; no user event can own this callback.
       if (onError) {
         onError("Turnstile site key not configured");
       }

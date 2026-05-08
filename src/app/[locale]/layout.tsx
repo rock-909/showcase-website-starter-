@@ -172,18 +172,18 @@ export default async function LocaleLayout({
           <>
             {!disableReactScan && (
               <DevScript
-                src="https://unpkg.com/react-scan@0.5.3/dist/auto.global.js"
+                src="https://unpkg.com/react-scan@0.5.6/dist/auto.global.js"
                 crossOrigin="anonymous"
               />
             )}
             {!disableDevTools && (
               <>
                 <DevScript
-                  src="https://unpkg.com/react-grab@0.1.32/dist/index.global.js"
+                  src="https://unpkg.com/react-grab@0.1.33/dist/index.global.js"
                   crossOrigin="anonymous"
                 />
                 {/* Keep the browser bridge aligned with the local react-grab MCP helper. */}
-                <DevScript src="https://unpkg.com/@react-grab/mcp@0.1.32/dist/client.global.js" />
+                <DevScript src="https://unpkg.com/@react-grab/mcp@0.1.33/dist/client.global.js" />
               </>
             )}
           </>

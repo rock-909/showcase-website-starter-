@@ -1,5 +1,7 @@
 # Component Governance Foundation Implementation Plan
 
+> Historical snapshot: this plan keeps the dependency versions that were true when it was written. For current versions, use `docs/technical/tech-stack.md` and `package.json`.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build the first-stage governance foundation for the Starter redesign work so AI agents must reuse components, respect design tokens, expose reviewable Storybook states, and use one checklist before redesigning sections.

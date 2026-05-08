@@ -8,8 +8,6 @@ import {
   cloneElement,
   isValidElement,
   useCallback,
-  useEffect,
-  useRef,
   useState,
   type ComponentProps,
   type ReactNode,
@@ -52,6 +50,12 @@ interface MobileMenuButtonProps extends ComponentProps<"button"> {
   openMenuLabel?: string | undefined;
 }
 
+interface MobileMenuState {
+  isLanguageExpanded: boolean;
+  isOpen: boolean;
+  pathname: string;
+}
+
 export function MobileMenuButton({
   isOpen,
   className,
@@ -85,22 +89,6 @@ export function MobileMenuButton({
       </span>
     </Button>
   );
-}
-
-function useCloseMenuOnPathChange(
-  pathname: string,
-  isOpen: boolean,
-  onClose: () => void,
-) {
-  const previousPathnameRef = useRef(pathname);
-
-  useEffect(() => {
-    if (previousPathnameRef.current !== pathname && isOpen) {
-      queueMicrotask(onClose);
-    }
-
-    previousPathnameRef.current = pathname;
-  }, [isOpen, onClose, pathname]);
 }
 
 function MobileNavigationHeader({
@@ -238,20 +226,38 @@ export function MobileNavigationInteractive({
 }: MobileNavigationInteractiveProps) {
   const t = useTranslations();
   const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(initialOpen);
-  const [isLanguageExpanded, setIsLanguageExpanded] = useState(false);
+  const [menuState, setMenuState] = useState<MobileMenuState>(() => ({
+    isLanguageExpanded: false,
+    isOpen: initialOpen,
+    pathname,
+  }));
+  const isOpen = menuState.pathname === pathname && menuState.isOpen;
+  const isLanguageExpanded = isOpen && menuState.isLanguageExpanded;
   const resolvedSiteName = siteName ?? t("navigation.siteName");
   const resolvedSiteDescription =
     siteDescription ?? t("navigation.siteDescription");
 
-  const handleOpenChange = useCallback((open: boolean) => {
-    setIsOpen(open);
-    if (!open) {
-      setIsLanguageExpanded(false);
-    }
-  }, []);
+  const handleOpenChange = useCallback(
+    (open: boolean) => {
+      setMenuState((currentState) => ({
+        isLanguageExpanded: open ? currentState.isLanguageExpanded : false,
+        isOpen: open,
+        pathname,
+      }));
+    },
+    [pathname],
+  );
 
-  useCloseMenuOnPathChange(pathname, isOpen, () => handleOpenChange(false));
+  const handleLanguageExpandedChange = useCallback(
+    (expanded: boolean) => {
+      setMenuState((currentState) => ({
+        ...currentState,
+        isLanguageExpanded: expanded,
+        pathname,
+      }));
+    },
+    [pathname],
+  );
 
   const navigationContent = children ? (
     withInteractiveNavigationProps(children, {
@@ -295,7 +301,7 @@ export function MobileNavigationInteractive({
           <MobileLanguageSwitcher
             isExpanded={isLanguageExpanded}
             languageLabel={languageLabel}
-            onExpandedChange={setIsLanguageExpanded}
+            onExpandedChange={handleLanguageExpandedChange}
             pathname={pathname}
             onNavigate={() => handleOpenChange(false)}
           />

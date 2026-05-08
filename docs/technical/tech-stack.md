@@ -9,8 +9,8 @@
 
 ### 前端框架
 
-- **Next.js 16.2.4**：主框架，使用 App Router
-- **React 19.2.5**：UI 运行时
+- **Next.js 16.2.6**：主框架，使用 App Router
+- **React 19.2.6**：UI 运行时
 - **TypeScript 6.0.3**：类型系统
 - **Tailwind CSS 4.2.4**：样式系统
 
@@ -34,7 +34,7 @@
 
 ### 内容管理
 
-- **@next/mdx 16.2.4**
+- **@next/mdx 16.2.6**
 - **@mdx-js/loader 3.1.1**
 - **@mdx-js/react 3.1.1**
 - **gray-matter 4.0.3**
@@ -43,7 +43,7 @@
 ### 环境与配置
 
 - **@t3-oss/env-nextjs 0.13.11**：环境变量校验
-- **Zod 4.3.6**：输入和配置校验
+- **Zod 4.4.3**：输入和配置校验
 - 站点配置以 `src/config/**` 为主真相源
 
 ## 3. UI 与交互层
@@ -56,9 +56,7 @@
   - `@radix-ui/react-dialog 1.1.15`
   - `@radix-ui/react-dropdown-menu 2.1.16`
   - `@radix-ui/react-label 2.1.8`
-  - `@radix-ui/react-navigation-menu 1.2.14`
   - `@radix-ui/react-slot 1.2.4`
-  - `@radix-ui/react-tabs 1.1.13`
 
 ### 样式与体验辅助
 
@@ -66,8 +64,7 @@
 - **clsx 2.1.1**
 - **tailwind-merge 3.5.0**
 - **next-themes 0.4.6**：主题切换
-- **lucide-react 1.12.0**：图标
-- **nextjs-toploader 3.9.17**：页面切换进度条
+- **lucide-react 1.14.0**：图标
 - **tailwindcss-animate 1.0.7**：动画扩展
 - **@tailwindcss/typography 0.5.19**：排版增强
 
@@ -76,14 +73,14 @@
 ### 线索与消息
 
 - **Airtable 0.12.2**：线索数据落地
-- **Resend 6.12.2**：邮件发送
-- **react-email 6.0.5**：邮件组件、模板 render 与本地预览 CLI
+- **Resend 6.12.3**：邮件发送
+- **react-email 6.1.1**：邮件组件、模板 render 与本地预览 CLI
 - **@react-email/render 2.0.8**：Resend peer dependency 显式依赖
-- **@react-email/ui 6.0.5**：本地邮件预览 UI
+- **@react-email/ui 6.1.1**：本地邮件预览 UI
 
 ### 安全与防刷
 
-- **@marsidev/react-turnstile 1.5.1**：Cloudflare Turnstile
+- **@marsidev/react-turnstile 1.5.2**：Cloudflare Turnstile
 - 公开表单提交以 **Route Handler + Zod + Turnstile** 为主组合；Server Action 仅作为兼容路径保留
 
 ## 5. 测试与质量门禁
@@ -97,34 +94,34 @@
   - `@testing-library/dom 10.4.1`
   - `@testing-library/jest-dom 6.9.1`
   - `@testing-library/user-event 14.6.1`
-- **jsdom 29.1.0**
-- **happy-dom 20.3.7**
+- **jsdom 29.1.1**
+- **happy-dom 20.9.0**：通过 override 修复 Vitest peer 环境里的已知漏洞；默认测试环境仍是 jsdom
 - **fast-check 4.7.0**
 
 ### E2E / 可访问性 / 性能
 
 - **Playwright 1.59.1**
-- **@axe-core/playwright 4.11.2**
-- **axe-core 4.11.3**
+- **@axe-core/playwright 4.11.3**
+- **axe-core 4.11.4**
 - **Lighthouse CI**
   - `@lhci/cli 0.15.1`
   - `lighthouse 12.8.2`
 
 ### 静态质量工具
 
-- **ESLint 10.2.1**
+- **ESLint 10.3.0**
 - **@eslint/js 10.0.1**
 - **@eslint/compat 2.0.5**：兼容部分尚未正式声明 ESLint 10 支持的 Next/React ESLint 规则
-- **typescript-eslint 8.59.1**
+- **typescript-eslint 8.59.2**
 - **eslint-plugin-security 4.0.0**
-- **eslint-plugin-react-you-might-not-need-an-effect 0.9.3**
+- **eslint-plugin-react-you-might-not-need-an-effect 0.10.1**：约束 effect 内事件回调，减少把事件处理写成副作用的模式
 - **Prettier 3.8.3**
 - **prettier-plugin-tailwindcss 0.8.0**
 - **@ianvs/prettier-plugin-sort-imports 4.7.1**
-- **dependency-cruiser 17.3.10**：依赖边界检查
-- **knip 6.7.0**：未使用代码扫描
+- **dependency-cruiser 17.4.0**：依赖边界检查
+- **knip 6.12.1**：未使用代码扫描
 - **Stryker 9.6.1**：变异测试工具，主要覆盖 lead/security/form-schema 高风险逻辑
-- **commitlint 20.5.2**
+- **commitlint 20.5.3**
 - **lefthook 2.1.6**
 
 ## 6. 构建、部署与运行环境
@@ -133,13 +130,14 @@
 
 - **pnpm 10.13.1**
 - **Node.js 支持范围**：`>=24 <25`
-- 当前仓库的**proof baseline** 按 **Node 24.15.x LTS** 看
+- 当前仓库的**proof baseline** 按 **Node 24.15.0 LTS** 看
 - **@types/node 24.12.2**：跟当前 Node 24 LTS 运行边界对齐，不跟随 Node 25 类型面
 
 ### Cloudflare 构建链
 
-- **@opennextjs/cloudflare 1.19.6**
-- **wrangler 4.87.0**
+- **@opennextjs/cloudflare 1.19.8**
+- **wrangler 4.90.0**
+- **workerd 1.20260507.1**：由 Wrangler / Miniflare 间接带入，不是项目直接依赖
 - `pnpm build`：标准 Next.js 构建
 - `pnpm website:build:cf`：Cloudflare 构建
 - `pnpm exec opennextjs-cloudflare preview --env preview`：本地 stock preview，仅用于页面级初筛
@@ -149,15 +147,15 @@
 
 ### 额外构建与诊断工具
 
-- **@next/bundle-analyzer 16.2.4**
+- **@next/bundle-analyzer 16.2.6**
 - **dotenv 17.4.2**
 - **glob 13.0.6**
-- **postcss 8.5.12**
+- **postcss 8.5.14**
 - **@tailwindcss/postcss 4.2.4**
 - **tsx 4.21.0**
-- **react-grab 0.1.32 + @react-grab/mcp 0.1.32**：仅开发环境加载的页面上下文选取辅助
+- **react-grab 0.1.33 + @react-grab/mcp 0.1.33**：仅开发环境加载的页面上下文选取辅助
 - **Babel AST 工具链**
-  - `@babel/parser 7.29.2`
+  - `@babel/parser 7.29.3`
   - `@babel/traverse 7.29.0`
   - `@babel/generator 7.29.1`
 
