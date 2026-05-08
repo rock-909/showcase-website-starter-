@@ -5,9 +5,9 @@ import * as path from "path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 /**
- * MDX Slug Sync Core Logic Tests
+ * Content Slug Sync Core Logic Tests
  *
- * Tests for the core validation logic in scripts/mdx-slug-sync.js
+ * Tests for the core validation logic in scripts/starter-checks.js content-slugs
  * Uses temporary directories to avoid dependency on real content files.
  *
  * Coverage:
@@ -23,7 +23,7 @@ const {
   buildKey,
   parseFrontmatter,
   validateCollectionPair,
-} = require("../../../scripts/mdx-slug-sync");
+} = require("../../../scripts/starter-checks.js");
 
 interface SlugSyncIssue {
   type: "missing_pair" | "slug_mismatch" | "parse_error";
@@ -52,7 +52,7 @@ interface SlugSyncResult {
   };
 }
 
-describe("mdx-slug-sync", () => {
+describe("content-slug-sync core", () => {
   let tmpDir: string;
   const tempTrashRoot = path.join(
     os.tmpdir(),

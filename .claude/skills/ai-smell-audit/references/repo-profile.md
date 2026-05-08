@@ -11,16 +11,17 @@ These surfaces deserve first-pass attention because they are closest to business
 1. **Lead / inquiry / contact path**
    - `src/app/[locale]/contact/**`
    - `src/app/api/contact/**`
+   - `src/app/api/inquiry/route.ts`
+   - `src/app/api/subscribe/route.ts`
    - `src/lib/actions/contact.ts`
    - `src/app/api/verify-turnstile/**`
    - `src/components/forms/**`
-   - `src/components/products/product-inquiry-form*`
 
 2. **Idempotency / anti-abuse / trust boundary**
-   - `src/lib/idempotency/**`
    - `src/lib/security/**`
    - `src/lib/turnstile.ts`
-   - `src/lib/lead-pipeline/**`
+   - `src/lib/api/lead-route-response.ts`
+   - `src/lib/lead-pipeline/{lead-schema,process-lead,utils}.ts`
 
 3. **Locale / message / metadata truth**
    - `src/middleware.ts`
@@ -35,7 +36,22 @@ These surfaces deserve first-pass attention because they are closest to business
    - `wrangler.jsonc`
    - `scripts/cloudflare/**`
    - `scripts/deploy/**`
-   - `scripts/release-proof.sh`
+   - `scripts/starter-checks.js release-verify`
+
+5. **E2E / deployed proof boundary**
+   - `tests/e2e/contact-form-smoke.spec.ts`
+   - `tests/e2e/smoke/post-deploy-form.spec.ts`
+   - `playwright.config.ts`
+   - `docs/website/quality-proof.md`
+
+6. **Starter / catalog launch truth**
+   - `docs/website/新项目替换清单.md`
+   - `docs/website/quality-proof.md`
+   - `src/config/website/**`
+   - `src/config/single-site.ts`
+   - `src/config/single-site-product-catalog.ts`
+   - `src/constants/product-specs/**`
+   - `scripts/starter-checks.js`
 
 ## 2. Known noise (classify before judging repo health)
 
@@ -90,19 +106,18 @@ This repo has multiple proof layers. Keep them separate:
 
 ### Build truth
 - `pnpm build`
-- `pnpm build:cf`
+- `pnpm website:build:cf`
 
 ### Local preview truth
-- `pnpm preview:cf`
-- `pnpm smoke:cf:preview`
-- `pnpm smoke:cf:preview:strict`
+- `pnpm exec opennextjs-cloudflare preview --env preview`
+- `node scripts/starter-checks.js cf-preview-smoke`
 
 ### Deployed truth
-- `pnpm smoke:cf:deploy -- --base-url <url>`
-- `pnpm proof:cf:preview-deployed`
+- `node scripts/starter-checks.js deployed-smoke --base-url <url>`
+- `node scripts/starter-checks.js cf-preview-deployed`
 
 ### Review truth
-- `pnpm truth:check`
+- `node scripts/starter-checks.js truth-docs`
 - targeted `vitest` suites
 - behavior-contract review
 

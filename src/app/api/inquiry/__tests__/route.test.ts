@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { API_ERROR_CODES } from "@/constants/api-error-codes";
-import { processLead } from "@/lib/lead-pipeline";
+import { processLead } from "@/lib/lead-pipeline/process-lead";
 import { verifyTurnstile, verifyTurnstileDetailed } from "@/lib/turnstile";
 import { OPTIONS, POST } from "../route";
 
@@ -30,7 +30,7 @@ vi.mock("@/lib/security/distributed-rate-limit", () => ({
   createRateLimitHeaders: vi.fn(() => new Headers()),
 }));
 
-vi.mock("@/lib/lead-pipeline", () => ({
+vi.mock("@/lib/lead-pipeline/process-lead", () => ({
   processLead: vi.fn(() =>
     Promise.resolve({
       success: true,
@@ -39,10 +39,6 @@ vi.mock("@/lib/lead-pipeline", () => ({
       referenceId: "ref-123",
     }),
   ),
-  LEAD_TYPES: {
-    PRODUCT: "product",
-    CONTACT: "contact",
-  },
 }));
 
 vi.mock("@/lib/turnstile", () => ({
@@ -129,10 +125,9 @@ describe("/api/inquiry route", () => {
           productSlug: "example-product",
           productName: "Example Product",
         }),
-        expect.objectContaining({
-          requestId: expect.any(String),
-        }),
       );
+      expect(response.headers.get("x-request-id")).toBeNull();
+      expect(response.headers.get("x-observability-surface")).toBeNull();
     });
 
     it("binds Turnstile verification to the product_inquiry action", async () => {
@@ -415,9 +410,6 @@ describe("/api/inquiry route", () => {
         expect.objectContaining({
           type: "product",
         }),
-        expect.objectContaining({
-          requestId: expect.any(String),
-        }),
       );
     });
 
@@ -434,9 +426,6 @@ describe("/api/inquiry route", () => {
       expect(processLead).toHaveBeenCalledWith(
         expect.objectContaining({
           type: "product",
-        }),
-        expect.objectContaining({
-          requestId: expect.any(String),
         }),
       );
     });

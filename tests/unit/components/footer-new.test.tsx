@@ -19,7 +19,7 @@ vi.mock("next/link", () => ({
   ),
 }));
 
-describe("Footer (Vercel style)", () => {
+describe("Footer", () => {
   it("渲染默认四列导航并暴露可访问性元数据", () => {
     render(<Footer />);
 

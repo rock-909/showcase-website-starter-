@@ -81,7 +81,7 @@ describe("Airtable Tests - Index", () => {
     vi.resetModules();
 
     // Import the service fresh for each test
-    const AirtableModule = await import("../airtable");
+    const AirtableModule = await import("../airtable/service");
     AirtableServiceClass =
       AirtableModule.AirtableService as typeof AirtableServiceType;
   });
@@ -100,7 +100,8 @@ describe("Airtable Tests - Index", () => {
         },
       }));
 
-      const { AirtableService: ServiceClass } = await import("../airtable");
+      const { AirtableService: ServiceClass } =
+        await import("../airtable/service");
       const service = new ServiceClass();
 
       expect(service).toBeDefined();
@@ -115,7 +116,8 @@ describe("Airtable Tests - Index", () => {
         },
       }));
 
-      const { AirtableService: ServiceClass } = await import("../airtable");
+      const { AirtableService: ServiceClass } =
+        await import("../airtable/service");
       const service = new ServiceClass();
 
       expect(service).toBeDefined();

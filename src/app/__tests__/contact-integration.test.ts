@@ -15,8 +15,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { API_ERROR_CODES } from "@/constants/api-error-codes";
 import { checkDistributedRateLimit } from "@/lib/security/distributed-rate-limit";
-import { verifyTurnstile, verifyTurnstileDetailed } from "@/lib/turnstile";
-import { processFormSubmission } from "@/lib/contact-form-processing";
+import { submitCanonicalContactSubmission } from "@/lib/contact/submit-canonical-contact";
 import { contactFormAction } from "@/lib/actions/contact";
 
 // ── External service mocks ──────────────────────────────────────────
@@ -57,24 +56,26 @@ vi.mock("@/lib/security/distributed-rate-limit", () => ({
   ),
 }));
 
-// Turnstile — external Cloudflare API
-vi.mock("@/lib/turnstile", () => ({
-  verifyTurnstile: vi.fn(() => Promise.resolve(true)),
-  verifyTurnstileDetailed: vi.fn(() => Promise.resolve({ success: true })),
-}));
-
 // Lead pipeline — external services (Resend + Airtable)
-vi.mock("@/lib/contact-form-processing", async (importOriginal) => {
+vi.mock("@/lib/contact/submit-canonical-contact", async (importOriginal) => {
   const original =
-    await importOriginal<typeof import("@/lib/contact-form-processing")>();
+    await importOriginal<
+      typeof import("@/lib/contact/submit-canonical-contact")
+    >();
 
   return {
     ...original,
-    processFormSubmission: vi.fn(() =>
+    submitCanonicalContactSubmission: vi.fn(() =>
       Promise.resolve({
-        emailSent: true,
-        recordCreated: true,
-        referenceId: "ref-integration-001",
+        success: true,
+        error: null,
+        details: null,
+        data: {},
+        submissionResult: {
+          emailSent: true,
+          recordCreated: true,
+          referenceId: "ref-integration-001",
+        },
       }),
     ),
   };
@@ -112,7 +113,7 @@ describe("Contact form — integration (happy path chain)", () => {
     vi.clearAllMocks();
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-03-03T12:00:00Z"));
-    vi.stubEnv("VERCEL", "1");
+    vi.stubEnv("NODE_ENV", "development");
     mockHeadersGet.mockImplementation((key: string) => {
       if (key === "x-forwarded-for") return "203.0.113.50";
       return null;
@@ -136,12 +137,11 @@ describe("Contact form — integration (happy path chain)", () => {
 
       // Protection chain was invoked in order
       expect(checkDistributedRateLimit).toHaveBeenCalledTimes(1);
-      expect(verifyTurnstileDetailed).toHaveBeenCalledWith(
-        "valid-turnstile-token",
-        expect.any(String),
-        { expectedAction: "contact_form" },
+      expect(submitCanonicalContactSubmission).toHaveBeenCalledWith(
+        expect.objectContaining({ turnstileToken: "valid-turnstile-token" }),
+        { clientIP: expect.any(String) },
       );
-      expect(processFormSubmission).toHaveBeenCalledTimes(1);
+      expect(submitCanonicalContactSubmission).toHaveBeenCalledTimes(1);
     });
 
     it("processes repeated successful submissions independently", async () => {
@@ -153,11 +153,11 @@ describe("Contact form — integration (happy path chain)", () => {
 
       expect(firstResult.success).toBe(true);
       expect(secondResult.success).toBe(true);
-      expect(processFormSubmission).toHaveBeenCalledTimes(2);
+      expect(submitCanonicalContactSubmission).toHaveBeenCalledTimes(2);
     });
 
     it("falls back closed for contact Server Action identity on Cloudflare", async () => {
-      vi.stubEnv("VERCEL", undefined);
+      vi.stubEnv("NODE_ENV", "test");
       vi.stubEnv("CF_PAGES", "1");
       mockHeadersGet.mockImplementation((key: string) => {
         if (key === "cf-connecting-ip") return "192.0.2.100";
@@ -168,10 +168,9 @@ describe("Contact form — integration (happy path chain)", () => {
       const result = await contactFormAction(null, formData);
 
       expect(result.success).toBe(true);
-      expect(verifyTurnstileDetailed).toHaveBeenCalledWith(
-        "valid-turnstile-token",
-        "0.0.0.0",
-        { expectedAction: "contact_form" },
+      expect(submitCanonicalContactSubmission).toHaveBeenCalledWith(
+        expect.objectContaining({ turnstileToken: "valid-turnstile-token" }),
+        { clientIP: "0.0.0.0" },
       );
     });
   });
@@ -190,9 +189,7 @@ describe("Contact form — integration (happy path chain)", () => {
 
       expect(result.success).toBe(false);
       expect(result.errorCode).toBe(API_ERROR_CODES.RATE_LIMIT_EXCEEDED);
-      // Turnstile and processLead should NOT be called
-      expect(verifyTurnstileDetailed).not.toHaveBeenCalled();
-      expect(processFormSubmission).not.toHaveBeenCalled();
+      expect(submitCanonicalContactSubmission).not.toHaveBeenCalled();
     });
 
     it("honeypot gate silently accepts but does not process", async () => {
@@ -206,9 +203,7 @@ describe("Contact form — integration (happy path chain)", () => {
       expect(result.success).toBe(true);
       expect(result.data?.emailSent).toBe(false);
       expect(result.data?.recordCreated).toBe(false);
-      // Turnstile should NOT be called (blocked before validation)
-      expect(verifyTurnstileDetailed).not.toHaveBeenCalled();
-      expect(processFormSubmission).not.toHaveBeenCalled();
+      expect(submitCanonicalContactSubmission).not.toHaveBeenCalled();
     });
 
     it("missing turnstile token blocks before Turnstile API call", async () => {
@@ -220,11 +215,17 @@ describe("Contact form — integration (happy path chain)", () => {
 
       expect(result.success).toBe(false);
       expect(result.errorCode).toBe(API_ERROR_CODES.TURNSTILE_MISSING_TOKEN);
-      expect(verifyTurnstileDetailed).not.toHaveBeenCalled();
-      expect(processFormSubmission).not.toHaveBeenCalled();
+      expect(submitCanonicalContactSubmission).not.toHaveBeenCalled();
     });
 
     it("future submittedAt blocks before turnstile verification", async () => {
+      vi.mocked(submitCanonicalContactSubmission).mockResolvedValueOnce({
+        success: false,
+        errorCode: API_ERROR_CODES.CONTACT_SUBMISSION_EXPIRED,
+        error: "Form submission expired or invalid",
+        details: null,
+        data: null,
+      });
       const fields = validContactFields();
       // 5 minutes in the future — fails time window check (timeDiff < 0)
       fields.submittedAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
@@ -236,12 +237,17 @@ describe("Contact form — integration (happy path chain)", () => {
       expect(result.errorCode).toBe(API_ERROR_CODES.CONTACT_SUBMISSION_EXPIRED);
       // Rate limit was checked (first gate)
       expect(checkDistributedRateLimit).toHaveBeenCalledTimes(1);
-      // Turnstile NOT called (time check failed first)
-      expect(verifyTurnstileDetailed).not.toHaveBeenCalled();
-      expect(processFormSubmission).not.toHaveBeenCalled();
+      expect(submitCanonicalContactSubmission).toHaveBeenCalledTimes(1);
     });
 
     it("expired submittedAt blocks before turnstile verification", async () => {
+      vi.mocked(submitCanonicalContactSubmission).mockResolvedValueOnce({
+        success: false,
+        errorCode: API_ERROR_CODES.CONTACT_SUBMISSION_EXPIRED,
+        error: "Form submission expired or invalid",
+        details: null,
+        data: null,
+      });
       const fields = validContactFields();
       // 15 minutes ago — exceeds 10-minute window
       fields.submittedAt = new Date(Date.now() - 15 * 60 * 1000).toISOString();
@@ -251,15 +257,16 @@ describe("Contact form — integration (happy path chain)", () => {
 
       expect(result.success).toBe(false);
       expect(result.errorCode).toBe(API_ERROR_CODES.CONTACT_SUBMISSION_EXPIRED);
-      // Turnstile should NOT be called (time check failed first)
-      expect(verifyTurnstileDetailed).not.toHaveBeenCalled();
-      expect(processFormSubmission).not.toHaveBeenCalled();
+      expect(submitCanonicalContactSubmission).toHaveBeenCalledTimes(1);
     });
 
     it("turnstile verification failure blocks before lead processing", async () => {
-      vi.mocked(verifyTurnstile).mockResolvedValueOnce(false);
-      vi.mocked(verifyTurnstileDetailed).mockResolvedValueOnce({
+      vi.mocked(submitCanonicalContactSubmission).mockResolvedValueOnce({
         success: false,
+        errorCode: API_ERROR_CODES.TURNSTILE_VERIFICATION_FAILED,
+        error: "Security verification failed",
+        details: null,
+        data: null,
       });
 
       const formData = createFormData(validContactFields());
@@ -271,10 +278,7 @@ describe("Contact form — integration (happy path chain)", () => {
       );
       // Rate limit was checked
       expect(checkDistributedRateLimit).toHaveBeenCalledTimes(1);
-      // Turnstile was called (failed)
-      expect(verifyTurnstileDetailed).toHaveBeenCalledTimes(1);
-      // processLead NOT called
-      expect(processFormSubmission).not.toHaveBeenCalled();
+      expect(submitCanonicalContactSubmission).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -296,7 +300,7 @@ describe("Contact form — integration (happy path chain)", () => {
 
       expect(result.success).toBe(false);
       expect(result.errorCode).toBe(API_ERROR_CODES.RATE_LIMIT_EXCEEDED);
-      expect(verifyTurnstileDetailed).not.toHaveBeenCalled();
+      expect(submitCanonicalContactSubmission).not.toHaveBeenCalled();
     });
   });
 });

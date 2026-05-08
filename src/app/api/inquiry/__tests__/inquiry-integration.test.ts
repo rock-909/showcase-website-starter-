@@ -14,7 +14,7 @@
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { API_ERROR_CODES } from "@/constants/api-error-codes";
-import { processLead } from "@/lib/lead-pipeline";
+import { processLead } from "@/lib/lead-pipeline/process-lead";
 import { verifyTurnstile, verifyTurnstileDetailed } from "@/lib/turnstile";
 import { POST } from "../route";
 
@@ -52,7 +52,7 @@ vi.mock("@/lib/turnstile", () => ({
 }));
 
 // Lead pipeline — external services (Resend + Airtable)
-vi.mock("@/lib/lead-pipeline", () => ({
+vi.mock("@/lib/lead-pipeline/process-lead", () => ({
   processLead: vi.fn(() =>
     Promise.resolve({
       success: true,
@@ -61,10 +61,6 @@ vi.mock("@/lib/lead-pipeline", () => ({
       referenceId: "ref-integration-001",
     }),
   ),
-  LEAD_TYPES: {
-    PRODUCT: "product",
-    CONTACT: "contact",
-  },
 }));
 
 // CORS utilities
@@ -114,7 +110,7 @@ function createRequest(
 describe("/api/inquiry — integration (protection chain)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.stubEnv("VERCEL", "1");
+    vi.stubEnv("NODE_ENV", "development");
   });
 
   describe("Happy path — full chain succeeds", () => {
@@ -142,10 +138,9 @@ describe("/api/inquiry — integration (protection chain)", () => {
           type: "product",
           email: "bob@example.com",
         }),
-        expect.objectContaining({
-          requestId: expect.any(String),
-        }),
       );
+      expect(response.headers.get("x-request-id")).toBeNull();
+      expect(response.headers.get("x-observability-surface")).toBeNull();
     });
 
     it("should exclude turnstileToken from lead data passed to processLead", async () => {

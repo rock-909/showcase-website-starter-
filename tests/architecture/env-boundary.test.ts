@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { extname, join, relative, sep } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -41,72 +41,67 @@ describe("env module boundaries", () => {
     const source = read(ENV_FACADE);
 
     expect(source).toContain('import { createEnv } from "@t3-oss/env-nextjs"');
-    expect(source).toContain('from "./env-schemas"');
-    expect(source).toContain('from "./env-runtime"');
     expect(source).toContain("export const env = createEnv");
+    expect(source).toContain("export const serverEnvSchema");
+    expect(source).toContain("export const clientEnvSchema");
+    expect(source).toContain("export const runtimeEnv");
     expect(source).toContain("export function getRuntimeEnvString");
+    expect(source).toContain("export function getPublicRuntimeEnvString");
     expect(source).toContain("export function requireEnvVar");
   });
 
-  it("keeps schemas and raw runtime reads out of the facade", () => {
-    const facade = read(ENV_FACADE);
-    const schemas = read(ENV_SCHEMAS);
-    const runtime = read(ENV_RUNTIME);
-
-    expect(facade).not.toContain("process.env.");
-    expect(facade).not.toContain("process.env[");
-    expect(facade).not.toContain('from "zod"');
-    expect(schemas).toContain("export const serverEnvSchema");
-    expect(schemas).toContain("export const clientEnvSchema");
-    expect(runtime).toContain("export const runtimeEnv");
-    expect(runtime).toContain("export function readRawEnvValue");
-    expect(runtime).toContain("export function shouldSkipEnvValidation");
-    expect(runtime).toContain("process.env.");
+  it("removes split env/logger facades after consolidation", () => {
+    expect(existsSync(ENV_SCHEMAS), ENV_SCHEMAS).toBe(false);
+    expect(existsSync(ENV_RUNTIME), ENV_RUNTIME).toBe(false);
+    expect(existsSync(PUBLIC_ENV), PUBLIC_ENV).toBe(false);
+    expect(existsSync(LOGGER_CORE), LOGGER_CORE).toBe(false);
   });
 
-  it("keeps app code on the public env import instead of internal modules", () => {
+  it("keeps app code off retired env and logger modules", () => {
+    const forbiddenImports = [
+      "@/lib/env-runtime",
+      "@/lib/env-schemas",
+      "@/lib/public-env",
+      "@/lib/logger-core",
+      "./env-runtime",
+      "./env-schemas",
+    ];
     const offenders = walkSourceFiles("src").filter((repoPath) => {
-      if (
-        [ENV_FACADE, ENV_SCHEMAS, ENV_RUNTIME, PUBLIC_ENV].includes(repoPath)
-      ) {
-        return false;
-      }
-
       const source = read(repoPath);
-      return (
-        source.includes("@/lib/env-runtime") ||
-        source.includes("@/lib/env-schemas") ||
-        source.includes("./env-runtime") ||
-        source.includes("./env-schemas")
-      );
+      return forbiddenImports.some((importPath) => source.includes(importPath));
     });
 
     expect(offenders).toEqual([]);
   });
 
-  it("keeps browser env helpers free of server-only env names and dynamic process.env reads", () => {
-    const source = read(PUBLIC_ENV);
+  it("keeps public env helpers exported from the consolidated env facade", () => {
+    const source = read(ENV_FACADE);
 
     expect(source).toContain("process.env.NEXT_PUBLIC_");
     expect(source).toContain("process.env.NODE_ENV");
-    expect(source).not.toContain("process.env[");
-    expect(source).not.toContain("DATABASE_URL");
-    expect(source).not.toContain("NEXTAUTH_SECRET");
-    expect(source).not.toContain("ADMIN_API_TOKEN");
-    expect(source).not.toContain("TURNSTILE_SECRET_KEY");
-    expect(source).not.toContain("CLOUDFLARE_ANALYTICS_API_TOKEN");
-    expect(source).not.toContain("OPS_DASHBOARD_ACCESS_KEY");
-    expect(source).not.toContain("CLOUDFLARE_ZONE_ID");
-    expect(source).not.toContain("CLOUDFLARE_ACCOUNT_ID");
+    expect(source).toContain("export function getPublicRuntimeEnvString");
+    expect(source).toContain("export function isPublicRuntimeProduction");
+    expect(source).not.toContain('import "server-only"');
   });
 
   it("keeps CSP nonce out of public env contracts", () => {
-    for (const repoPath of [PUBLIC_ENV, ENV_SCHEMAS, ENV_RUNTIME]) {
-      expect(read(repoPath), repoPath).not.toContain("NEXT_PUBLIC_CSP_NONCE");
-    }
+    expect(read(ENV_FACADE)).not.toContain("NEXT_PUBLIC_CSP_NONCE");
   });
 
-  it("keeps Client Components off the server env facade", () => {
+  it("keeps the consolidated logger browser-safe while retaining sanitizers", () => {
+    const loggerSource = read(LOGGER);
+
+    expect(loggerSource).not.toContain('import "server-only"');
+    expect(loggerSource).not.toContain("@/lib/env");
+    expect(loggerSource).not.toContain("./env");
+    expect(loggerSource).not.toContain("env-schemas");
+    expect(loggerSource).not.toContain("env-runtime");
+    expect(loggerSource).toContain("sanitizeEmail");
+    expect(loggerSource).toContain("sanitizeIP");
+    expect(loggerSource).toContain("sanitizeLogContext");
+  });
+
+  it("keeps Client Components off PII logger helpers", () => {
     const offenders = walkSourceFiles("src").filter((repoPath) => {
       const source = read(repoPath);
       const isClientComponent =
@@ -114,42 +109,7 @@ describe("env module boundaries", () => {
 
       return (
         isClientComponent &&
-        (source.includes('from "@/lib/env"') ||
-          source.includes("from '@/lib/env'"))
-      );
-    });
-
-    expect(offenders).toEqual([]);
-  });
-
-  it("keeps the client logger core free of server env and PII helpers", () => {
-    const core = read(LOGGER_CORE);
-    const serverLogger = read(LOGGER);
-
-    expect(core).not.toContain("@/lib/env");
-    expect(core).not.toContain("./env");
-    expect(core).not.toContain("env-schemas");
-    expect(core).not.toContain("env-runtime");
-    expect(core).not.toContain("sanitizeEmail");
-    expect(core).not.toContain("sanitizeIP");
-    expect(core).not.toContain("sanitizeLogContext");
-
-    expect(serverLogger).toContain("@/lib/env");
-    expect(serverLogger).toContain("sanitizeEmail");
-    expect(serverLogger).toContain("sanitizeIP");
-  });
-
-  it("keeps Client Components off the server logger facade and PII helpers", () => {
-    const offenders = walkSourceFiles("src").filter((repoPath) => {
-      const source = read(repoPath);
-      const isClientComponent =
-        source.includes('"use client"') || source.includes("'use client'");
-
-      return (
-        isClientComponent &&
-        (source.includes('from "@/lib/logger"') ||
-          source.includes("from '@/lib/logger'") ||
-          source.includes("sanitizeEmail") ||
+        (source.includes("sanitizeEmail") ||
           source.includes("sanitizeIP") ||
           source.includes("sanitizeLogContext"))
       );

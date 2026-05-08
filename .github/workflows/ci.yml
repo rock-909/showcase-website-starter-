@@ -52,7 +52,7 @@ jobs:
         run: pnpm content:check
 
       - name: Client boundary 检查
-        run: pnpm website:review:client-boundary
+        run: node scripts/starter-checks.js client-boundary
 
   tests:
     name: 单元与集成测试
@@ -85,8 +85,8 @@ jobs:
       - name: 运行测试
         run: pnpm test
 
-      - name: Lead API Family Layered Proof Review
-        run: pnpm review:lead-family
+      - name: Lead API family proof
+        run: pnpm exec vitest run tests/integration/api/lead-family-contract.test.ts tests/integration/api/lead-family-protection.test.ts src/app/api/inquiry/__tests__/route.test.ts tests/integration/api/subscribe.test.ts
 
   e2e:
     name: 浏览器冒烟
@@ -129,7 +129,7 @@ jobs:
           NEXT_PUBLIC_SITE_URL: http://localhost:3000
 
       - name: 运行 E2E
-        run: pnpm test:e2e
+        run: pnpm exec playwright test
 
   cloudflare-build:
     name: Cloudflare 构建证明

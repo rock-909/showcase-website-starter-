@@ -79,10 +79,10 @@
 
 | Bucket | 最先有价值的强证据 |
 |---|---|
-| Platform entry / local runtime issue | `pnpm preview:cf` 加本地诊断 |
-| Generated artifact compatibility issue | `pnpm build:cf`、`pnpm smoke:cf:preview`，必要时再加 `pnpm deploy:cf:dry-run` |
-| Current site runtime regression | 页面级测试、`pnpm build`、`pnpm build:cf`、`pnpm smoke:cf:preview` |
-| Final deployed behavior issue | `pnpm smoke:cf:deploy -- --base-url <url>` |
+| Platform entry / local runtime issue | `pnpm website:build:cf && pnpm exec opennextjs-cloudflare preview --env preview` 加本地诊断 |
+| Generated artifact compatibility issue | `pnpm website:build:cf`、`node scripts/starter-checks.js cf-preview-smoke`，必要时再加 `pnpm exec wrangler deploy --dry-run --env preview` |
+| Current site runtime regression | 页面级测试、`pnpm build`、`pnpm website:build:cf`、`node scripts/starter-checks.js cf-preview-smoke` |
+| Final deployed behavior issue | `node scripts/starter-checks.js deployed-smoke --base-url <url>` |
 
 ## 写法规则
 

@@ -58,7 +58,7 @@ export const FOOTER_STYLE_TOKENS = {
   },
   hover: {
     description:
-      "提升文字亮度或轻度下划线，匹配 Vercel 90-100ms color/background 过渡。",
+      "提升文字亮度或轻度下划线，使用 90-100ms color/background 过渡。",
     transition: "transition-colors duration-100 ease",
     light: {
       text: "foreground",

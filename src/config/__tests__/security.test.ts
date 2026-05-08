@@ -1,10 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   generateCSP,
-  generateNonce,
   getSecurityConfig,
   getSecurityHeaders,
-  isValidNonce,
   SECURITY_MODES,
 } from "../security";
 
@@ -34,29 +32,34 @@ describe("Security Configuration", () => {
       expect(csp).toMatch(/style-src-elem[^;]*'unsafe-inline'/);
       // script-src should NOT contain unsafe-inline in production
       expect(csp).not.toMatch(/script-src(?!-elem)[^;]*'unsafe-inline'/);
-      // script-src-elem is explicitly relaxed for prerendered App Router output
+      // Static App Router/RSC emits inline bootstrap script elements. Without
+      // nonce/proxy dynamic rendering, production must allow those elements.
       expect(csp).toMatch(/script-src-elem[^;]*'unsafe-inline'/);
+      // Keep inline event handlers blocked even though inline script elements
+      // are allowed for Next's static bootstrap payload.
+      expect(csp).toContain("script-src-attr 'none'");
       // App Router/RSC inline script content changes whenever streamed payloads
-      // change. We rely on script-src-elem instead of content hashes.
+      // change. This static CSP mode does not rely on content hashes.
       expect(csp).not.toContain("'sha256-");
       expect(csp).not.toContain("'unsafe-eval'");
       expect(csp).toContain("upgrade-insecure-requests");
     });
 
-    it("should include nonce when provided", () => {
+    it("should generate static CSP without nonce directives", () => {
       vi.stubEnv("NODE_ENV", "production");
 
-      const nonce = "test-nonce-123";
-      const csp = generateCSP(nonce);
-      expect(csp).toContain(`'nonce-${nonce}'`);
+      const csp = generateCSP();
+      expect(csp).not.toContain("'nonce-");
+      expect(csp).toMatch(/script-src(?!-elem)[^;]*'self'/);
     });
 
     it("should include required external domains", () => {
       const csp = generateCSP();
-      expect(csp).toContain("https://va.vercel-scripts.com");
       expect(csp).toContain("https://challenges.cloudflare.com");
       expect(csp).toContain("https://fonts.googleapis.com");
       expect(csp).toContain("https://fonts.gstatic.com");
+      expect(csp).toContain("https://www.googletagmanager.com");
+      expect(csp).toContain("https://www.google-analytics.com");
     });
 
     it("should set frame-ancestors to none", () => {
@@ -69,7 +72,7 @@ describe("Security Configuration", () => {
     it("should return security headers when enabled", () => {
       vi.stubEnv("SECURITY_HEADERS_ENABLED", "true");
 
-      const headers = getSecurityHeaders(undefined, true);
+      const headers = getSecurityHeaders(true);
       expect(headers).toHaveLength(9);
 
       const headerKeys = headers.map((h) => h.key);
@@ -84,26 +87,25 @@ describe("Security Configuration", () => {
     it("should return empty array when disabled", () => {
       vi.stubEnv("SECURITY_HEADERS_ENABLED", "false");
 
-      const headers = getSecurityHeaders(undefined, true);
+      const headers = getSecurityHeaders(true);
       expect(headers).toHaveLength(0);
     });
 
-    it("should include nonce in CSP header", () => {
+    it("should emit static CSP without nonce directives", () => {
       vi.stubEnv("SECURITY_HEADERS_ENABLED", "true");
 
-      const nonce = "test-nonce-456";
-      const headers = getSecurityHeaders(nonce, true);
+      const headers = getSecurityHeaders(true);
 
       const cspHeader = headers.find(
         (h) => h.key === "Content-Security-Policy",
       );
-      expect(cspHeader?.value).toContain(`'nonce-${nonce}'`);
+      expect(cspHeader?.value).not.toContain("'nonce-");
     });
 
     it("should set correct X-Frame-Options", () => {
       vi.stubEnv("SECURITY_HEADERS_ENABLED", "true");
 
-      const headers = getSecurityHeaders(undefined, true);
+      const headers = getSecurityHeaders(true);
       const frameHeader = headers.find((h) => h.key === "X-Frame-Options");
       expect(frameHeader?.value).toBe("DENY");
     });
@@ -111,7 +113,7 @@ describe("Security Configuration", () => {
     it("should set correct HSTS header", () => {
       vi.stubEnv("SECURITY_HEADERS_ENABLED", "true");
 
-      const headers = getSecurityHeaders(undefined, true);
+      const headers = getSecurityHeaders(true);
       const hstsHeader = headers.find(
         (h) => h.key === "Strict-Transport-Security",
       );
@@ -124,7 +126,7 @@ describe("Security Configuration", () => {
       vi.stubEnv("SECURITY_HEADERS_ENABLED", "true");
       vi.stubEnv("NEXT_PUBLIC_SECURITY_MODE", "strict");
 
-      const headers = getSecurityHeaders(undefined, true);
+      const headers = getSecurityHeaders(true);
       const headerKeys = headers.map((h) => h.key);
 
       expect(headerKeys).toContain("Content-Security-Policy");
@@ -135,7 +137,7 @@ describe("Security Configuration", () => {
       vi.stubEnv("SECURITY_HEADERS_ENABLED", "true");
       vi.stubEnv("NEXT_PUBLIC_SECURITY_MODE", "relaxed");
 
-      const headers = getSecurityHeaders(undefined, true);
+      const headers = getSecurityHeaders(true);
       const headerKeys = headers.map((h) => h.key);
 
       expect(headerKeys).toContain("Content-Security-Policy-Report-Only");
@@ -146,7 +148,7 @@ describe("Security Configuration", () => {
       vi.stubEnv("SECURITY_HEADERS_ENABLED", "true");
       vi.stubEnv("NEXT_PUBLIC_SECURITY_MODE", "moderate");
 
-      const headers = getSecurityHeaders(undefined, true);
+      const headers = getSecurityHeaders(true);
       const headerKeys = headers.map((h) => h.key);
 
       expect(headerKeys).toContain("Content-Security-Policy");
@@ -157,7 +159,7 @@ describe("Security Configuration", () => {
       vi.stubEnv("SECURITY_HEADERS_ENABLED", "true");
       vi.stubEnv("CSP_REPORT_URI", "");
 
-      const headers = getSecurityHeaders(undefined, true);
+      const headers = getSecurityHeaders(true);
       const cspHeader = headers.find(
         (h) =>
           h.key === "Content-Security-Policy" ||
@@ -171,7 +173,7 @@ describe("Security Configuration", () => {
       vi.stubEnv("SECURITY_HEADERS_ENABLED", "true");
       vi.stubEnv("CSP_REPORT_URI", "https://example.com/csp-report");
 
-      const headers = getSecurityHeaders(undefined, true);
+      const headers = getSecurityHeaders(true);
       const cspHeader = headers.find(
         (h) =>
           h.key === "Content-Security-Policy" ||
@@ -181,44 +183,6 @@ describe("Security Configuration", () => {
       expect(cspHeader?.value).toContain(
         "report-uri https://example.com/csp-report",
       );
-    });
-  });
-
-  describe("generateNonce", () => {
-    it("should generate a nonce", () => {
-      const nonce = generateNonce();
-      expect(nonce).toBeTruthy();
-      expect(typeof nonce).toBe("string");
-      expect(nonce.length).toBeGreaterThan(0);
-    });
-
-    it("should generate different nonces", () => {
-      const nonce1 = generateNonce();
-      const nonce2 = generateNonce();
-      expect(nonce1).not.toBe(nonce2);
-    });
-
-    it("should generate alphanumeric nonces", () => {
-      const nonce = generateNonce();
-      expect(nonce).toMatch(/^[a-zA-Z0-9]+$/);
-    });
-  });
-
-  describe("isValidNonce", () => {
-    it("should validate correct nonces (32+ chars for 128-bit entropy)", () => {
-      expect(isValidNonce("1234567890abcdef1234567890abcdef")).toBe(true);
-      expect(isValidNonce("abcdef1234567890abcdef1234567890extra")).toBe(true);
-    });
-
-    it("should reject nonces shorter than 32 characters", () => {
-      expect(isValidNonce("abcdef1234567890")).toBe(false); // 16 chars - too short
-      expect(isValidNonce("short")).toBe(false);
-    });
-
-    it("should reject invalid nonces", () => {
-      expect(isValidNonce("contains-special-chars!1234567890")).toBe(false);
-      expect(isValidNonce("contains spaces 1234567890abcdef")).toBe(false);
-      expect(isValidNonce("")).toBe(false);
     });
   });
 

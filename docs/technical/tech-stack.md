@@ -21,7 +21,7 @@
 - **Route Handlers**：浏览器公开写入主通道，联系表单当前走 `/api/contact`
 - **Server Actions**：保留为兼容入口，不作为浏览器联系表单主路径
 - **Turbopack**：默认本地开发构建器（`pnpm dev`）
-- **Webpack**：当前 Cloudflare 构建链主执行面（`pnpm build:cf`）
+- **Webpack**：当前 Cloudflare 构建链主执行面（`pnpm website:build:cf`）
 
 ## 2. 内容、国际化与配置层
 
@@ -139,10 +139,11 @@
 - **wrangler 4.90.0**
 - **workerd 1.20260507.1**：由 Wrangler / Miniflare 间接带入，不是项目直接依赖
 - `pnpm build`：标准 Next.js 构建
-- `pnpm build:cf`：Cloudflare 构建
-- `pnpm preview:cf`：本地 stock preview，仅用于页面级初筛
-- `pnpm deploy:cf` / `pnpm deploy:cf:preview`：Cloudflare worker 拓扑部署入口
-- `pnpm deploy:cf:dry-run`：不改远端状态的 Cloudflare 部署证明
+- `pnpm website:build:cf`：Cloudflare 构建
+- `pnpm exec opennextjs-cloudflare preview --env preview`：本地 stock preview，仅用于页面级初筛
+- `pnpm exec wrangler deploy --dry-run --env preview`：不改远端状态的 Cloudflare deploy-artifact 证明
+- `pnpm exec opennextjs-cloudflare deploy --env preview` / `pnpm exec opennextjs-cloudflare deploy --env production`：官方 Cloudflare worker 部署入口
+- `node scripts/starter-checks.js cf-preview-deployed`：真实 preview deploy + deployed smoke 的封装证明入口
 
 ### 额外构建与诊断工具
 
@@ -160,8 +161,6 @@
 
 ## 7. 监控与分析
 
-- **@vercel/analytics 2.0.1**
-- **@vercel/speed-insights 2.0.0**
 - **Google Analytics 4**：通过环境变量接入
 - 仓库内另有质量、架构、边界泄漏、文档真相检查脚本，作为治理门禁的一部分
 

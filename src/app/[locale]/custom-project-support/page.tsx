@@ -7,7 +7,7 @@ import { JsonLdGraphScript } from "@/components/seo";
 import { FaqSection } from "@/components/sections/faq-section";
 import { Link } from "@/i18n/routing";
 import { generateLocaleStaticParams } from "@/app/[locale]/generate-static-params";
-import { getPageBySlug } from "@/lib/content";
+import { getPageBySlug } from "@/lib/content-query/queries";
 import {
   LAYER1_FACTS,
   extractFaqFromMetadata,

@@ -124,7 +124,7 @@ vi.mock("@marsidev/react-turnstile", () => ({
 global.fetch = vi.fn();
 
 // Mock logger
-vi.mock("@/lib/logger-core", () => ({
+vi.mock("@/lib/logger", () => ({
   logger: {
     info: vi.fn(),
     warn: vi.fn(),

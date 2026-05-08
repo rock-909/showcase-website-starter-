@@ -1,22 +1,14 @@
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { API_ERROR_CODES } from "@/constants/api-error-codes";
-import {
-  OBSERVABILITY_SURFACE_HEADER,
-  REQUEST_ID_HEADER,
-} from "@/lib/api/request-observability";
-import {
-  getSystemObservabilitySnapshot,
-  resetSystemObservability,
-} from "@/lib/observability/system-observability";
 import * as inquiryRoute from "@/app/api/inquiry/route";
 import * as subscribeRoute from "@/app/api/subscribe/route";
 
 /**
- * Auxiliary response and observability checks only.
+ * Auxiliary response contract checks only.
  *
  * This suite intentionally mocks the core protection and submission pipeline so
- * it can verify response shape and observability headers. It is not full lead-chain protection proof.
+ * it can verify response shape. It is not full lead-chain protection proof.
  * Route/action protection suites and deployed canaries own that proof boundary.
  */
 vi.mock("@/lib/security/distributed-rate-limit", () => ({
@@ -34,18 +26,13 @@ vi.mock("@/lib/turnstile", () => ({
   verifyTurnstileDetailed: vi.fn(async () => ({ success: true })),
 }));
 
-vi.mock("@/lib/lead-pipeline", () => ({
+vi.mock("@/lib/lead-pipeline/process-lead", () => ({
   processLead: vi.fn(async () => ({
     success: true,
     emailSent: true,
     recordCreated: true,
     referenceId: "lead-ref-001",
   })),
-  LEAD_TYPES: {
-    PRODUCT: "product",
-    CONTACT: "contact",
-    NEWSLETTER: "newsletter",
-  },
 }));
 
 vi.mock("@/lib/lead-pipeline/lead-schema", () => ({
@@ -91,46 +78,30 @@ function makeRequest(
   );
 }
 
-function expectLeadObservabilityHeaders(
-  response: Response,
-  expectedRequestId?: string,
-) {
-  expect(response.headers.get(OBSERVABILITY_SURFACE_HEADER)).toBe(
-    "lead-family",
-  );
-  if (expectedRequestId) {
-    expect(response.headers.get(REQUEST_ID_HEADER)).toBe(expectedRequestId);
-    return;
-  }
-  expect(response.headers.get(REQUEST_ID_HEADER)).toBeTruthy();
+function expectNoLeadObservabilityHeaders(response: Response) {
+  expect(response.headers.get("x-request-id")).toBeNull();
+  expect(response.headers.get("x-observability-surface")).toBeNull();
 }
 
 describe("lead API family response contract (auxiliary)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    resetSystemObservability();
   });
 
   it("inquiry success uses the family success contract", async () => {
     const response = await inquiryRoute.POST(
-      makeRequest(
-        "/api/inquiry",
-        {
-          turnstileToken: "valid-token",
-          email: "buyer@example.com",
-          fullName: "Buyer",
-          company: "Buyer Co",
-          productSlug: "north-america",
-          productName: "North America",
-        },
-        {
-          [REQUEST_ID_HEADER]: "lead-inquiry-request",
-        },
-      ),
+      makeRequest("/api/inquiry", {
+        turnstileToken: "valid-token",
+        email: "buyer@example.com",
+        fullName: "Buyer",
+        company: "Buyer Co",
+        productSlug: "north-america",
+        productName: "North America",
+      }),
     );
 
     expect(response.status).toBe(200);
-    expectLeadObservabilityHeaders(response, "lead-inquiry-request");
+    expectNoLeadObservabilityHeaders(response);
     const body = await response.json();
     expect(body).toEqual({
       success: true,
@@ -138,35 +109,18 @@ describe("lead API family response contract (auxiliary)", () => {
         referenceId: "lead-ref-001",
       },
     });
-    expect(getSystemObservabilitySnapshot().aggregates).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          surface: "lead-family",
-          kind: "api_request",
-          name: "inquiry.post",
-          success: 1,
-          lastRequestId: "lead-inquiry-request",
-        }),
-      ]),
-    );
   });
 
   it("subscribe success uses the family success contract", async () => {
     const response = await subscribeRoute.POST(
-      makeRequest(
-        "/api/subscribe",
-        {
-          email: "newsletter@example.com",
-          turnstileToken: "valid-token",
-        },
-        {
-          [REQUEST_ID_HEADER]: "lead-subscribe-request",
-        },
-      ),
+      makeRequest("/api/subscribe", {
+        email: "newsletter@example.com",
+        turnstileToken: "valid-token",
+      }),
     );
 
     expect(response.status).toBe(200);
-    expectLeadObservabilityHeaders(response, "lead-subscribe-request");
+    expectNoLeadObservabilityHeaders(response);
     const body = await response.json();
     expect(body).toEqual({
       success: true,
@@ -174,17 +128,6 @@ describe("lead API family response contract (auxiliary)", () => {
         referenceId: "lead-ref-001",
       },
     });
-    expect(getSystemObservabilitySnapshot().aggregates).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          surface: "lead-family",
-          kind: "api_request",
-          name: "subscribe.post",
-          success: 1,
-          lastRequestId: "lead-subscribe-request",
-        }),
-      ]),
-    );
   });
 
   it("inquiry missing turnstile uses the family error contract", async () => {
@@ -199,7 +142,7 @@ describe("lead API family response contract (auxiliary)", () => {
     );
 
     expect(response.status).toBe(400);
-    expectLeadObservabilityHeaders(response);
+    expectNoLeadObservabilityHeaders(response);
     const body = await response.json();
     expect(body).toEqual({
       success: false,
@@ -215,7 +158,7 @@ describe("lead API family response contract (auxiliary)", () => {
     );
 
     expect(response.status).toBe(400);
-    expectLeadObservabilityHeaders(response);
+    expectNoLeadObservabilityHeaders(response);
     const body = await response.json();
     expect(body).toEqual({
       success: false,
@@ -237,7 +180,7 @@ describe("lead API family response contract (auxiliary)", () => {
     );
 
     expect(response.status).toBe(400);
-    expectLeadObservabilityHeaders(response);
+    expectNoLeadObservabilityHeaders(response);
     const body = await response.json();
     expect(body).toEqual({
       success: false,

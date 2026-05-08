@@ -433,7 +433,7 @@ For each: compare against the specification (CLAUDE.md, rule files, or inferred 
 **Why AI produces it**: AI doesn't re-read dependency rules every session.
 
 **Detection**:
-- Run `pnpm dep:check --output-type err` and collect violations
+- Run `pnpm exec dependency-cruiser src --config .dependency-cruiser.js -T err` and collect violations
 - For each violation, find root cause: which import created it
 - Verify the import is actually needed
 
@@ -683,7 +683,7 @@ Questions:
 - Grep for env var names indicating bypass / relaxation:
   `SKIP_`, `ALLOW_MEMORY_`, `VALIDATE_.*_SKIP`, `.*_BYPASS`, `WARN_ONLY`, `TEST_MODE`, `PLAYWRIGHT_TEST`, `NEXT_PUBLIC_TEST_MODE`
 - For each hit, trace the code path it enables.
-- Cross-reference against release-proof scripts (e.g., `scripts/release-proof.sh`): does release proof run with any of these set?
+- Cross-reference against release proof entrypoint (e.g., `node scripts/starter-checks.js release-verify`): does release proof run with any of these set?
 - Check CI workflows for silent env-var defaults that weaken gates.
 
 **Evidence required**:
@@ -978,7 +978,7 @@ Use these lenses when the user asks for whole-repo code quality, long-term maint
 - Error responses or logs exposing PII, tokens, internal details, or owner identity.
 - CSP/security header drift and unsafe defaults.
 
-**Evidence**: input source, boundary crossing, validation/proof, failure path, and matching repo script if available (`security:semgrep`, `security:audit`, `security:csp:check`, `lint:pii`, `review:*env-boundaries`).
+**Evidence**: input source, boundary crossing, validation/proof, failure path, and matching repo script if available (direct semgrep, pnpm audit, CSP proof, PII scan, and targeted env-boundary review).
 
 ---
 

@@ -36,10 +36,6 @@ function deriveFallbackHosts(): string[] {
     }
   }
 
-  if (env.VERCEL_URL) {
-    hosts.add(env.VERCEL_URL.toLowerCase());
-  }
-
   hosts.add("localhost");
 
   return Array.from(hosts);

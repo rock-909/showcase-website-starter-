@@ -20,16 +20,14 @@ Exception comments must use this shape:
 // eslint-disable-next-line max-statements -- guardrail-exception GSE-YYYYMMDD-short-slug: real boundary and why splitting harms it
 ```
 
-Each ID must be registered below. `pnpm eslint:disable:check`, `pnpm lint:check`, and `pnpm quality:gate` enforce the registry.
+Each ID must be registered below. `node scripts/starter-checks.js eslint-disable` and `pnpm lint:check` enforce the registry.
 
 ## Active production structural exceptions
 
 | ID | File | Rule(s) | Real boundary preserved | Why exception is better than split | Verification |
 |----|------|---------|-------------------------|------------------------------------|--------------|
-| GSE-20260428-products-metadata-validation | `src/lib/content-validation.ts` | `complexity`, `max-statements` | product metadata input validation | Required-field checks stay in one validator, so errors and warnings are reviewed in the same input boundary instead of helper piles. | `src/lib/__tests__/content-validation*.test.ts` plus `pnpm eslint:disable:check` |
-| GSE-20260428-turnstile-security-gates | `src/app/api/verify-turnstile/route.ts` | `max-statements` | Turnstile API security gate order | Config, rate limit, parse, validate, verify, and response mapping stay in request order; splitting would hide fail-closed flow. | `src/app/api/verify-turnstile/__tests__/route*.test.ts`, `tests/integration/api/verify-turnstile.test.ts`, plus `pnpm eslint:disable:check` |
-| GSE-20260428-lead-failure-metric | `src/lib/lead-pipeline/metrics.ts` | `max-params` | lead failure metric correlation envelope | `requestId` is part of failure correlation; hiding it inside a bag would weaken call-site clarity. | `src/lib/lead-pipeline/__tests__/metrics.test.ts` plus `pnpm eslint:disable:check` |
-| GSE-20260428-pipeline-service-metrics | `src/lib/lead-pipeline/pipeline-observability.ts` | `max-params` | route-to-pipeline metric correlation | `requestId` ties route-level and service-level signals; keeping it explicit preserves observability call order. | `src/lib/lead-pipeline/__tests__/pipeline-observability.test.ts` plus `pnpm eslint:disable:check` |
+| GSE-20260428-products-metadata-validation | `src/lib/content-validation.ts` | `complexity`, `max-statements` | product metadata input validation | Required-field checks stay in one validator, so errors and warnings are reviewed in the same input boundary instead of helper piles. | `src/lib/__tests__/content-validation*.test.ts` plus `node scripts/starter-checks.js eslint-disable` |
+| GSE-20260428-turnstile-security-gates | `src/app/api/verify-turnstile/route.ts` | `max-statements` | Turnstile API security gate order | Config, rate limit, parse, validate, verify, and response mapping stay in request order; splitting would hide fail-closed flow. | `src/app/api/verify-turnstile/__tests__/route*.test.ts`, `tests/integration/api/verify-turnstile.test.ts`, plus `node scripts/starter-checks.js eslint-disable` |
 
 ## Confirmed side effects
 
@@ -37,7 +35,7 @@ Each ID must be registered below. `pnpm eslint:disable:check`, `pnpm lint:check`
 |------|-----------------|----------|---------------|-----------|
 | Market product page | max-lines-per-function / file size / cache source contract / translation markers | `src/app/[locale]/products/[market]/page.tsx` contained helper pile and `keep MarketPage under 120 lines`; it also read `product-market` FAQ and wrapped the whole page in `notranslate` | Template-like route file, mixed FAQ/cache/JSON-LD/render concerns, no family-level conversion CTA | Repaired in WS1 |
 | Contact page | static content/cache source contract | `src/app/[locale]/contact/page.tsx` imported generated manifest and had a hand-written fallback form | Adapter concern was embedded in page | Repaired in WS2: data, sections, and fallback adapter are separate |
-| Translation protection | translate-compat marker scan | `scripts/check-translate-compat.js` required broad page/container markers | Encouraged broad `notranslate` wrappers instead of targeted protection | Repaired in WS1 + WS3: leaf-level `translate="no"` contracts |
+| Translation protection | translate-compat marker scan | old translate-compat scanner required broad page/container markers | Encouraged broad `notranslate` wrappers instead of targeted protection | Repaired in WS1 + WS3: leaf-level `translate="no"` contracts |
 | Env contract | file-size pressure and public import stability | `src/lib/env.ts` exceeded 500 lines while `@/lib/env` external contract remained valuable | Internal implementation stayed over-concentrated | Repaired in WS4: public facade with internal schema/runtime modules |
 | Semgrep dynamic property scan | broad object-injection pattern | `src/lib/security/object-guards.ts` wrappers existed mainly to satisfy scanner shape | Security-looking wrappers can outlive real production value | Repaired in WS5: broad scan is warning; untrusted key writes are the blocking rule |
 | Magic numbers | broad no-magic-numbers interpretation | generic constants such as `ZERO`, `ONE`, `COUNT_TWO` appeared in production UI/control-flow code | Reads worse than direct literals for language/UI idioms | Repaired in WS5 for scoped files; architecture test prevents regression |

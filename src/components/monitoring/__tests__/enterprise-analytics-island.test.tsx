@@ -38,14 +38,6 @@ vi.mock("web-vitals", () => ({
   onINP: vi.fn(),
 }));
 
-vi.mock("@vercel/analytics/next", () => ({
-  Analytics: () => <div data-testid="analytics" />,
-}));
-
-vi.mock("@vercel/speed-insights/next", () => ({
-  SpeedInsights: () => <div data-testid="speed-insights" />,
-}));
-
 vi.mock("next/script", () => ({
   default: () => null,
 }));
@@ -96,17 +88,17 @@ describe("EnterpriseAnalyticsIsland", () => {
     expect(screen.queryByTestId("analytics")).not.toBeInTheDocument();
   });
 
-  it("renders analytics components when no consent system exists (prod)", async () => {
+  it("does not import platform-specific analytics packages in production", async () => {
     mockUseCookieConsentOptional.mockReturnValue(null);
     vi.stubEnv("NODE_ENV", "production");
-    vi.stubEnv("NEXT_PUBLIC_DEPLOYMENT_PLATFORM", "vercel");
 
     const { EnterpriseAnalyticsIsland } =
       await import("../enterprise-analytics-island");
-    render(<EnterpriseAnalyticsIsland />);
+    const { container } = render(<EnterpriseAnalyticsIsland />);
 
-    expect(await screen.findByTestId("analytics")).toBeInTheDocument();
-    expect(await screen.findByTestId("speed-insights")).toBeInTheDocument();
+    expect(container).toBeEmptyDOMElement();
+    expect(screen.queryByTestId("analytics")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("speed-insights")).not.toBeInTheDocument();
   });
 
   it("initializes GA4 dataLayer and gtag when enabled in production", async () => {

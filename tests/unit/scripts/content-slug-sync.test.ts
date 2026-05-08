@@ -5,20 +5,17 @@ import { describe, expect, it } from "vitest";
 /**
  * Content Slug Sync CLI Integration Tests
  *
- * Tests for the CLI wrapper in scripts/content-slug-sync.js
+ * Tests for the CLI wrapper in scripts/starter-checks.js content-slugs
  * Focuses on CLI behavior that doesn't require content files:
  * - Help flag behavior
  * - Argument validation errors
  *
  * Note: Exit code and content validation tests are covered by the
- * core module tests in mdx-slug-sync.test.ts. This file focuses on
+ * core exports in starter-checks.js. This file focuses on
  * CLI-specific behavior that can be tested without setting up content.
  */
 
-const CLI_PATH = path.resolve(
-  __dirname,
-  "../../../scripts/content-slug-sync.js",
-);
+const CLI_PATH = path.resolve(__dirname, "../../../scripts/starter-checks.js");
 
 interface SpawnResult {
   code: number | null;
@@ -31,7 +28,7 @@ interface SpawnResult {
  */
 function runCLI(args: string[]): Promise<SpawnResult> {
   return new Promise((resolve) => {
-    const proc = spawn("node", [CLI_PATH, ...args], {
+    const proc = spawn("node", [CLI_PATH, "content-slugs", ...args], {
       env: { ...process.env },
     });
 
@@ -74,7 +71,9 @@ describe("content-slug-sync CLI", () => {
     it("should show usage examples", async () => {
       const result = await runCLI(["--help"]);
 
-      expect(result.stdout).toContain("pnpm content:slug-check");
+      expect(result.stdout).toContain(
+        "node scripts/starter-checks.js content-slugs",
+      );
       expect(result.stdout).toContain("--quiet");
     });
   });

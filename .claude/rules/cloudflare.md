@@ -3,7 +3,7 @@ paths:
   - "src/middleware.ts"
   - "open-next.config.ts"
   - "wrangler.jsonc"
-  - "scripts/cloudflare/**"
+  - "scripts/starter-checks.js"
   - "src/app/actions.ts"
   - "src/app/**/actions.ts"
   - "src/lib/actions/**"
@@ -24,28 +24,30 @@ The public story is Cloudflare/OpenNext through stable commands:
 
 ```bash
 pnpm build
-pnpm build:cf
-pnpm preview:cf
-pnpm smoke:cf:preview
-pnpm deploy:cf
-pnpm smoke:cf:deploy
+pnpm website:build:cf
+pnpm website:build:cf && pnpm exec opennextjs-cloudflare preview --env preview
+node scripts/starter-checks.js cf-preview-smoke
+pnpm exec wrangler deploy --dry-run --env preview
+pnpm exec opennextjs-cloudflare deploy --env production
+node scripts/starter-checks.js deployed-smoke --base-url "$DEPLOYED_BASE_URL"
 ```
 
-Do not introduce new owner-facing phase commands. If older phase scripts still
-exist internally, keep them behind the stable names above until Phase 5 removes
-or hides them.
+Do not introduce phase-named Cloudflare commands or private topology wrappers.
+This starter uses the native OpenNext Cloudflare CLI plus Wrangler dry-run for
+local deploy-artifact proof.
 
 ## Proof table
 
 | Change touches | Minimum proof |
 | --- | --- |
 | Standard Next.js runtime behavior | `pnpm build` |
-| Cloudflare/OpenNext build path | `pnpm build` then `pnpm build:cf` |
-| Local Cloudflare preview behavior | `pnpm preview:cf` + `pnpm smoke:cf:preview` |
-| Deployed Cloudflare behavior | `pnpm smoke:cf:deploy` |
-| Public submission routes or compatibility actions | related route/action/IP tests + `pnpm build` + `pnpm build:cf` |
+| Cloudflare/OpenNext build path | `pnpm build` then `pnpm website:build:cf` |
+| Local Cloudflare preview behavior | `pnpm exec opennextjs-cloudflare preview --env preview` + `node scripts/starter-checks.js cf-preview-smoke` |
+| Cloudflare deploy-artifact proof | `pnpm exec wrangler deploy --dry-run --env preview` after `pnpm website:build:cf` |
+| Deployed Cloudflare behavior | `node scripts/starter-checks.js deployed-smoke --base-url <url>` |
+| Public submission routes or compatibility actions | related route/action/IP tests + `pnpm build` + `pnpm website:build:cf` |
 
-Never run `pnpm build` and `pnpm build:cf` in parallel. They both write to
+Never run `pnpm build` and `pnpm website:build:cf` in parallel. They both write to
 `.next`.
 
 ## Runtime entry
@@ -55,15 +57,15 @@ renamed Next.js `proxy.ts` convention works with this OpenNext setup:
 
 ```bash
 pnpm build
-pnpm build:cf
-pnpm smoke:cf:preview
-pnpm smoke:cf:preview:strict
+pnpm website:build:cf
+node scripts/starter-checks.js cf-preview-smoke
+
 ```
 
 If a deployed preview URL exists, also run:
 
 ```bash
-pnpm smoke:cf:deploy -- --base-url "$DEPLOYED_BASE_URL"
+node scripts/starter-checks.js deployed-smoke --base-url "$DEPLOYED_BASE_URL"
 ```
 
 The matcher must remain static string literals.

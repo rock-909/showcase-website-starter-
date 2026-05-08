@@ -1,82 +1,97 @@
 import "server-only";
 
-import { NextRequest, NextResponse } from "next/server";
-import { createApiErrorResponse } from "@/lib/api/api-response";
+import { NextRequest, type NextResponse } from "next/server";
+import {
+  createApiErrorResponse,
+  createApiSuccessResponse,
+} from "@/lib/api/api-response";
 import {
   applyCorsHeaders,
   createCorsPreflightResponse,
 } from "@/lib/api/cors-utils";
-import {
-  createLeadFailureResponse,
-  createLeadSuccessPayload,
-  requireLeadReferenceId,
-  validateLeadTurnstileToken,
-} from "@/lib/api/lead-route-response";
-import {
-  applyRequestObservability,
-  getRequestObservability,
-  withObservabilityContext,
-} from "@/lib/api/request-observability";
 import { isRuntimeProduction } from "@/lib/env";
-import { recordApiResponseSignal } from "@/lib/observability/api-signals";
 import { safeParseJson } from "@/lib/api/safe-parse-json";
 import {
   withRateLimit,
   type RateLimitContext,
 } from "@/lib/api/with-rate-limit";
-import { processLead, type LeadResult } from "@/lib/lead-pipeline";
+import { processLead, type LeadResult } from "@/lib/lead-pipeline/process-lead";
 import {
   LEAD_TYPES,
   newsletterLeadSchema,
 } from "@/lib/lead-pipeline/lead-schema";
-import { logger, sanitizeEmail } from "@/lib/logger";
-import { HTTP_BAD_REQUEST } from "@/constants";
+import { logger, sanitizeEmail, sanitizeIP } from "@/lib/logger";
+import {
+  HTTP_BAD_REQUEST,
+  HTTP_INTERNAL_ERROR,
+  HTTP_SERVICE_UNAVAILABLE,
+} from "@/constants";
 import { API_ERROR_CODES } from "@/constants/api-error-codes";
+import { verifyTurnstileDetailed } from "@/lib/turnstile";
 
-/**
- * Create success response for newsletter subscription
- */
-function createSuccessResponse(
+const TURNSTILE_SERVICE_FAILURE_CODES = new Set([
+  "not-configured",
+  "network-error",
+  "timeout",
+]);
+
+function getSuccessfulReferenceId(
   result: LeadResult,
-  email: string,
-  observability: ReturnType<typeof getRequestObservability>,
-) {
-  if (!isRuntimeProduction()) {
-    logger.info("Newsletter subscription successful", {
-      referenceId: result.referenceId,
-      email: sanitizeEmail(email),
-      ...withObservabilityContext(observability),
-    });
+  message = "referenceId missing on successful lead result",
+): string {
+  if (!result.referenceId) {
+    throw new Error(message);
   }
 
-  return NextResponse.json(
-    createLeadSuccessPayload(
-      requireLeadReferenceId(
-        result,
-        "referenceId missing on successful lead result",
-      ),
-    ),
-  );
+  return result.referenceId;
 }
 
-/**
- * Create error response for failed subscription
- */
-function createErrorResponse(
-  result: LeadResult,
-  observability: ReturnType<typeof getRequestObservability>,
-): NextResponse {
-  logger.warn("Newsletter subscription failed", {
-    error: result.error,
-    referenceId: result.referenceId,
-    ...withObservabilityContext(observability),
+async function validateNewsletterTurnstile(
+  token: string | undefined,
+  clientIP: string,
+): Promise<NextResponse | null> {
+  if (!token) {
+    logger.warn("Newsletter subscription missing Turnstile token", {
+      ip: sanitizeIP(clientIP),
+    });
+    return createApiErrorResponse(
+      API_ERROR_CODES.SUBSCRIBE_SECURITY_REQUIRED,
+      HTTP_BAD_REQUEST,
+    );
+  }
+
+  const verificationResult = await verifyTurnstileDetailed(token, clientIP, {
+    expectedAction: "newsletter_subscribe",
   });
 
-  return createLeadFailureResponse({
-    result,
-    validationErrorCode: API_ERROR_CODES.SUBSCRIBE_VALIDATION_EMAIL_INVALID,
-    processingErrorCode: API_ERROR_CODES.SUBSCRIBE_PROCESSING_ERROR,
+  if (verificationResult.success) {
+    return null;
+  }
+
+  const errorCodes = verificationResult.errorCodes ?? [];
+  const isServiceFailure = errorCodes.some((code) =>
+    TURNSTILE_SERVICE_FAILURE_CODES.has(code),
+  );
+
+  if (isServiceFailure) {
+    logger.error("Lead Turnstile verification unavailable", {
+      ip: sanitizeIP(clientIP),
+      errorCodes,
+    });
+    return createApiErrorResponse(
+      API_ERROR_CODES.SERVICE_UNAVAILABLE,
+      HTTP_SERVICE_UNAVAILABLE,
+    );
+  }
+
+  logger.warn("Newsletter Turnstile verification failed", {
+    ip: sanitizeIP(clientIP),
+    errorCodes,
   });
+  return createApiErrorResponse(
+    API_ERROR_CODES.SUBSCRIBE_SECURITY_FAILED,
+    HTTP_BAD_REQUEST,
+  );
 }
 
 /**
@@ -87,7 +102,6 @@ function handlePost(
   { clientIP }: RateLimitContext,
 ): Promise<NextResponse> {
   return (async () => {
-    const observability = getRequestObservability(request, "lead-family");
     const parsedBody = await safeParseJson<{
       email?: unknown;
       pageType?: string;
@@ -122,46 +136,51 @@ function handlePost(
       );
     }
 
-    const turnstileError = await validateLeadTurnstileToken({
-      token: turnstileToken,
+    const turnstileError = await validateNewsletterTurnstile(
+      turnstileToken,
       clientIP,
-      expectedAction: "newsletter_subscribe",
-      missingTokenErrorCode: API_ERROR_CODES.SUBSCRIBE_SECURITY_REQUIRED,
-      invalidTokenErrorCode: API_ERROR_CODES.SUBSCRIBE_SECURITY_FAILED,
-      missingTokenLogMessage: "Newsletter subscription missing Turnstile token",
-      invalidTokenLogMessage: "Newsletter Turnstile verification failed",
-    });
+    );
     if (turnstileError) return turnstileError;
 
     // Process via unified Lead Pipeline
-    const result = await processLead(leadValidation.data, {
-      requestId: observability.requestId,
+    const result = await processLead(leadValidation.data);
+
+    if (result.success) {
+      if (!isRuntimeProduction()) {
+        logger.info("Newsletter subscription successful", {
+          referenceId: result.referenceId,
+          email: sanitizeEmail(leadValidation.data.email),
+        });
+      }
+
+      return createApiSuccessResponse({
+        referenceId: getSuccessfulReferenceId(
+          result,
+          "referenceId missing on successful lead result",
+        ),
+      });
+    }
+
+    logger.warn("Newsletter subscription failed", {
+      error: result.error,
+      referenceId: result.referenceId,
     });
 
-    return result.success
-      ? createSuccessResponse(result, leadValidation.data.email, observability)
-      : createErrorResponse(result, observability);
+    const isValidationError = result.error === "VALIDATION_ERROR";
+    return createApiErrorResponse(
+      isValidationError
+        ? API_ERROR_CODES.SUBSCRIBE_VALIDATION_EMAIL_INVALID
+        : API_ERROR_CODES.SUBSCRIBE_PROCESSING_ERROR,
+      isValidationError ? HTTP_BAD_REQUEST : HTTP_INTERNAL_ERROR,
+    );
   })();
 }
 
 const POST_RATE_LIMITED = withRateLimit("subscribe", handlePost);
 
 export async function POST(request: NextRequest) {
-  const startTime = Date.now();
-  const observability = getRequestObservability(request, "lead-family");
   const response = await POST_RATE_LIMITED(request);
-  const enrichedResponse = applyRequestObservability(
-    applyCorsHeaders({ request, response }),
-    observability,
-  );
-  await recordApiResponseSignal({
-    context: observability,
-    response: enrichedResponse,
-    name: "subscribe.post",
-    route: "/api/subscribe",
-    latencyMs: Date.now() - startTime,
-  });
-  return enrichedResponse;
+  return applyCorsHeaders({ request, response });
 }
 
 // 处理 OPTIONS 请求 (CORS)

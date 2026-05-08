@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { API_ERROR_CODES } from "@/constants/api-error-codes";
 import { submitCanonicalContactSubmission } from "@/lib/contact/submit-canonical-contact";
-import { POST } from "../route";
+import { OPTIONS, POST } from "../route";
 
 vi.unmock("zod");
 
@@ -41,20 +41,28 @@ vi.mock("@/lib/security/rate-limit-key-strategies", () => ({
   getIPKey: vi.fn(() => "ip:test-contact"),
 }));
 
-vi.mock("@/lib/contact/submit-canonical-contact", () => ({
-  submitCanonicalContactSubmission: vi.fn(async () => ({
-    success: true,
-    error: null,
-    details: null,
-    data: {},
-    submissionResult: {
+vi.mock("@/lib/contact/submit-canonical-contact", async (importOriginal) => {
+  const original =
+    await importOriginal<
+      typeof import("@/lib/contact/submit-canonical-contact")
+    >();
+
+  return {
+    ...original,
+    submitCanonicalContactSubmission: vi.fn(async () => ({
       success: true,
-      emailSent: true,
-      recordCreated: true,
-      referenceId: "contact-ref-001",
-    },
-  })),
-}));
+      error: null,
+      details: null,
+      data: {},
+      submissionResult: {
+        success: true,
+        emailSent: true,
+        recordCreated: true,
+        referenceId: "contact-ref-001",
+      },
+    })),
+  };
+});
 
 function createValidContactBody() {
   return {
@@ -183,6 +191,53 @@ describe("/api/contact route", () => {
       {
         clientIP: "203.0.113.10",
       },
+    );
+    expect(response.headers.get("x-request-id")).toBeNull();
+    expect(response.headers.get("x-observability-surface")).toBeNull();
+  });
+
+  it("applies CORS headers on POST response when Origin is present", async () => {
+    const response = await POST(
+      new NextRequest("http://localhost:3000/api/contact", {
+        method: "POST",
+        body: JSON.stringify(createValidContactBody()),
+        headers: {
+          "Content-Type": "application/json",
+          origin: "http://localhost:3000",
+          host: "localhost:3000",
+        },
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("Access-Control-Allow-Origin")).toBe(
+      "http://localhost:3000",
+    );
+    expect(response.headers.get("Access-Control-Allow-Methods")).toContain(
+      "POST",
+    );
+  });
+
+  it("returns CORS preflight methods for OPTIONS", () => {
+    const response = OPTIONS(
+      new NextRequest("http://localhost:3000/api/contact", {
+        method: "OPTIONS",
+        headers: {
+          origin: "http://localhost:3000",
+          host: "localhost:3000",
+        },
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("Access-Control-Allow-Origin")).toBe(
+      "http://localhost:3000",
+    );
+    expect(response.headers.get("Access-Control-Allow-Methods")).toContain(
+      "POST",
+    );
+    expect(response.headers.get("Access-Control-Allow-Methods")).toContain(
+      "OPTIONS",
     );
   });
 });

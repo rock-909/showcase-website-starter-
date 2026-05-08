@@ -24,7 +24,7 @@ commands, or behavior proof.
 
 ```bash
 pnpm test
-pnpm test:e2e
+pnpm exec playwright test
 ```
 
 Use narrower Vitest/Playwright commands while developing, then run the command

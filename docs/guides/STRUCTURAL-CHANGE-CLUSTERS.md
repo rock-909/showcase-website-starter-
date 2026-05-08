@@ -5,11 +5,9 @@
 这份文档记录仓库里那些**经常一起变、应该一起审**的文件簇。  
 目的是防止只盯着一个文件改，结果把整条结构链改歪了。
 
-来源：
+这份文档现在是人工审查清单；不再保留单独 cluster runner 脚本。
 
-- `reports/architecture/structural-hotspots-latest.md`
-
-## Cluster 1：翻译运行时与兼容副本
+## Cluster 1：翻译运行时
 
 ### Files
 
@@ -17,33 +15,31 @@
 - `messages/en/deferred.json`
 - `messages/zh/critical.json`
 - `messages/zh/deferred.json`
-- `messages/en.json`
-- `messages/zh.json`
 
 ### 为什么重要
 
-- `critical.json` / `deferred.json` 是 runtime 翻译真相
-- flat `messages/en.json` / `messages/zh.json` 是测试、脚本和兼容视图使用的派生副本
+- `critical.json` / `deferred.json` 是 runtime 和 tooling 的翻译真相
+- 根目录 flat locale 文件不再保留
 - 这组文件不只是存内容，还直接影响 runtime 用户可见语义
 
 ### Review rule
 
-- runtime split source 只要改了一个，对应 locale 的 split + flat 兼容副本都要一起看
+- runtime split source 只要改了一个，对应 locale 的 critical/deferred 和 public copy 都要一起看
 - 如果影响 runtime-facing copy 或 error semantics，至少走 `local-full proof`
 - 执行命令：
 
 ```bash
-pnpm review:translation-quartet
+node scripts/starter-checks.js translations
 ```
 
 ## Cluster 2：线索提交通道
 
 ### Files
 
+- `src/app/api/contact/route.ts`
 - `src/lib/actions/contact.ts`
 - `src/app/api/inquiry/route.ts`
 - `src/app/api/subscribe/route.ts`
-- `src/lib/api/lead-route-response.ts`
 
 ### 为什么重要
 
@@ -54,12 +50,12 @@ pnpm review:translation-quartet
 
 - 一个 submission surface 发生实质变化时，其他 family member 也要一起看，防 contract drift
 - 涉及 validation、rate limit、abuse logic，就要走 security-aware review
-- 当前 lead-family proof 分两层看：`lead-family-contract.test.ts` 是 auxiliary contract proof，只看响应外壳和 observability；`lead-family-protection.test.ts`、route tests 和 subscribe tests 是 route-level protection proof。
-- 当前 live contract surface 就是这些文件本身 + `pnpm review:lead-family`
+- 当前 lead-family proof 分两层看：`lead-family-contract.test.ts` 是 auxiliary contract proof，只看响应外壳；`lead-family-protection.test.ts`、route tests 和 subscribe tests 是 route-level protection proof。
+- 当前 live contract surface 就是这些文件本身 + `pnpm exec vitest run tests/integration/api/lead-family-contract.test.ts tests/integration/api/lead-family-protection.test.ts src/app/api/inquiry/__tests__/route.test.ts tests/integration/api/subscribe.test.ts`
 - 执行命令：
 
 ```bash
-pnpm review:lead-family
+pnpm exec vitest run tests/integration/api/lead-family-contract.test.ts tests/integration/api/lead-family-protection.test.ts src/app/api/inquiry/__tests__/route.test.ts tests/integration/api/subscribe.test.ts
 ```
 
 ## Cluster 3：首页分区簇
@@ -81,11 +77,11 @@ pnpm review:lead-family
 ### Review rule
 
 - 只要改到首页 section，默认把它当一组来审
-- 当前 live contract surface 是这些 section 文件 + `pnpm review:homepage-sections`
+- 当前 live contract surface 是这些 section 文件 + focused homepage section Vitest suite
 - 执行命令：
 
 ```bash
-pnpm review:homepage-sections
+pnpm exec vitest run src/components/sections/__tests__/hero-section.test.tsx src/components/sections/__tests__/products-section.test.tsx src/components/sections/__tests__/final-cta.test.tsx src/components/sections/__tests__/sample-cta.test.tsx src/components/sections/__tests__/resources-section.test.tsx src/components/sections/__tests__/scenarios-section.test.tsx src/components/sections/__tests__/homepage-cluster-contract.test.tsx
 ```
 
 ## Cluster 4：Locale Runtime Surface
@@ -109,46 +105,45 @@ pnpm review:homepage-sections
 - 执行命令：
 
 ```bash
-pnpm review:locale-runtime
+pnpm exec vitest run tests/unit/middleware.test.ts src/__tests__/middleware-locale-cookie.test.ts src/i18n/__tests__/request.test.ts src/lib/__tests__/load-messages.fallback.test.ts
 ```
 
-## Cluster 5：健康信号 + 缓存标签工具
+## Cluster 5：健康接口 + 缓存标签工具
 
 ### Files
 
 - `src/lib/cache/cache-tags.ts`
 - `src/app/api/health/route.ts`
-- `src/lib/api/cache-health-response.ts`
 - `tests/integration/api/health.test.ts`
 - `src/__tests__/middleware-locale-cookie.test.ts`
 
 ### Review rule
 
-- 当前 live contract surface 是 health route、health response helper、cache tag utilities + `pnpm review:health`
+- 当前 live contract surface 是最小 health route、cache tag utilities + `pnpm exec vitest run tests/integration/api/health.test.ts src/__tests__/middleware-locale-cookie.test.ts`
 - 执行命令：
 
 ```bash
-pnpm review:health
+pnpm exec vitest run tests/integration/api/health.test.ts src/__tests__/middleware-locale-cookie.test.ts
 ```
 
 ## 使用方式
 
-- staged diff 碰到 Tier A 路径时，先跑：
+- staged diff 碰到 Tier A 路径时，先对 staged 文件做 Tier A 扫描：
 
 ```bash
-pnpm review:tier-a:staged
+git diff --name-only origin/main...
 ```
 
 - 默认的 staged 结构审查入口是：
 
 ```bash
-pnpm review:clusters:staged
+pnpm exec vitest run tests/unit/middleware.test.ts tests/integration/api/lead-family-contract.test.ts tests/integration/api/health.test.ts --passWithNoTests
 ```
 
-- 如果你已经很清楚只碰到一个簇，就跑：
+- 如果你已经很清楚只碰到一个簇，可以把变更文件传给同一个脚本：
 
 ```bash
-pnpm review:cluster <name> --staged
+pnpm exec vitest run <matching-focused-suite>
 ```
 
 ## 配套文档

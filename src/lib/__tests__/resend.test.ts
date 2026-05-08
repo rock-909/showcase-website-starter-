@@ -73,7 +73,7 @@ const setupResendTest = async (): Promise<ResendServiceConstructor> => {
   // 构造器已固定返回 mockResendInstance，无需在此返回
 
   // Dynamic import to ensure mocks are applied
-  const module = await import("../resend");
+  const module = await import("../resend-core");
   const typedModule = module as DynamicImportModule;
   const ResendService = typedModule.ResendService ?? typedModule.default;
   if (typeof ResendService !== "function") {

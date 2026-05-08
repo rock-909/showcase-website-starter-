@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   analyzeSource,
   collectRegisteredGuardrailExceptionIds,
-} from "../../../scripts/check-eslint-disable-usage.js";
+} from "../../../scripts/starter-checks.js";
 
 const REGISTER_WITH_CONTACT_EXCEPTION = `
 # Guardrail Side Effects Register

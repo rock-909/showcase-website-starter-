@@ -9,6 +9,7 @@ export type SafeJsonParseFailure = {
   ok: false;
   errorCode:
     | typeof API_ERROR_CODES.INVALID_JSON_BODY
+    | typeof API_ERROR_CODES.INVALID_REQUEST
     | typeof API_ERROR_CODES.PAYLOAD_TOO_LARGE;
   statusCode: typeof HTTP_BAD_REQUEST | typeof HTTP_PAYLOAD_TOO_LARGE;
 };
@@ -17,6 +18,10 @@ export type SafeJsonParseResult<T> =
   | SafeJsonParseFailure;
 
 const DEFAULT_MAX_JSON_BODY_BYTES = 64 * 1024;
+
+type EmptyBodyErrorCode =
+  | typeof API_ERROR_CODES.INVALID_JSON_BODY
+  | typeof API_ERROR_CODES.INVALID_REQUEST;
 
 function createPayloadTooLargeFailure(): SafeJsonParseFailure {
   return {
@@ -30,6 +35,16 @@ function createInvalidJsonFailure(): SafeJsonParseFailure {
   return {
     ok: false,
     errorCode: API_ERROR_CODES.INVALID_JSON_BODY,
+    statusCode: HTTP_BAD_REQUEST,
+  };
+}
+
+function createJsonFailure(
+  errorCode: EmptyBodyErrorCode,
+): SafeJsonParseFailure {
+  return {
+    ok: false,
+    errorCode,
     statusCode: HTTP_BAD_REQUEST,
   };
 }
@@ -95,6 +110,8 @@ export async function safeParseJson<T>(
     route?: string;
     /** 请求体大小上限，默认 64KB */
     maxBytes?: number;
+    /** 空请求体错误码；默认保持 INVALID_JSON_BODY */
+    emptyBodyErrorCode?: EmptyBodyErrorCode;
   },
 ): Promise<SafeJsonParseResult<T>> {
   const maxBytes = resolveMaxBytes(options);
@@ -117,6 +134,12 @@ export async function safeParseJson<T>(
     const rawText = await readBodyWithinLimit(req, route, maxBytes);
     if (typeof rawText !== "string") {
       return rawText;
+    }
+
+    if (!rawText.trim()) {
+      return createJsonFailure(
+        options?.emptyBodyErrorCode ?? API_ERROR_CODES.INVALID_JSON_BODY,
+      );
     }
 
     const raw = JSON.parse(rawText) as unknown;

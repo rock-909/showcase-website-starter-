@@ -1,8 +1,8 @@
 /**
- * Footer 数据与样式基线（Vercel 抓取参考）
+ * Footer 数据与样式基线。
  *
  * 目标：为后续 Footer 组件提供可复用的数据结构、主题配色/间距/字体 token 与 hover 方案。
- * 采样来源：docs/vercel-style-capture.md（视口 1512px，dark/light 双主题）。
+ * 采样来源：展示型网站页脚基线（视口 1512px，dark/light 双主题）。
  */
 import { FOOTER_STYLE_TOKENS } from "@/config/footer-style-tokens";
 import {
@@ -17,7 +17,7 @@ export type FooterLinkItem = SiteFooterLinkItem;
 export type FooterColumnConfig = SiteFooterColumnConfig;
 
 export interface FooterLayoutTokens {
-  /** 容器最大宽度（接近 Vercel 抓取的 1080px） */
+  /** 容器最大宽度 */
   maxWidthPx: number;
   /** 左右留白：clamp(24px, 12vw, 184px) 对齐抓取数据 */
   marginXClamp: string;

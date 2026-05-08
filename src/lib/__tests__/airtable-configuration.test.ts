@@ -12,7 +12,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type {
   AirtableBaseLike,
   AirtableServicePrivate,
-  DynamicImportModule,
 } from "@/test/test-types";
 import {
   configureServiceForTesting,
@@ -80,7 +79,7 @@ describe("Airtable Service - Configuration Tests", () => {
     mockConfigure.mockClear();
 
     // Dynamically import the module to ensure fresh instance
-    const module = (await import("../airtable")) as DynamicImportModule;
+    const module = await import("../airtable/service");
     AirtableServiceClass = module.AirtableService as typeof AirtableServiceType;
   });
 
@@ -98,7 +97,8 @@ describe("Airtable Service - Configuration Tests", () => {
         },
       }));
 
-      const { AirtableService: ServiceClass } = await import("../airtable");
+      const { AirtableService: ServiceClass } =
+        await import("../airtable/service");
       const service = new ServiceClass();
 
       expect(service).toBeDefined();
@@ -113,7 +113,8 @@ describe("Airtable Service - Configuration Tests", () => {
         },
       }));
 
-      const { AirtableService: ServiceClass } = await import("../airtable");
+      const { AirtableService: ServiceClass } =
+        await import("../airtable/service");
       const service = new ServiceClass();
 
       expect(service).toBeDefined();
@@ -128,7 +129,8 @@ describe("Airtable Service - Configuration Tests", () => {
         },
       }));
 
-      const { AirtableService: ServiceClass } = await import("../airtable");
+      const { AirtableService: ServiceClass } =
+        await import("../airtable/service");
       const service = new ServiceClass();
 
       expect(service.isReady()).toBe(false);
@@ -143,7 +145,8 @@ describe("Airtable Service - Configuration Tests", () => {
         },
       }));
 
-      const { AirtableService: ServiceClass } = await import("../airtable");
+      const { AirtableService: ServiceClass } =
+        await import("../airtable/service");
       const service = new ServiceClass();
 
       expect(service.isReady()).toBe(false);
@@ -158,7 +161,8 @@ describe("Airtable Service - Configuration Tests", () => {
         },
       }));
 
-      const { AirtableService: ServiceClass } = await import("../airtable");
+      const { AirtableService: ServiceClass } =
+        await import("../airtable/service");
       const service = new ServiceClass();
 
       expect(service.isReady()).toBe(false);
@@ -175,7 +179,8 @@ describe("Airtable Service - Configuration Tests", () => {
         },
       }));
 
-      const { AirtableService: ServiceClass } = await import("../airtable");
+      const { AirtableService: ServiceClass } =
+        await import("../airtable/service");
       const service = new ServiceClass();
 
       expect(service).toBeInstanceOf(ServiceClass);
@@ -192,7 +197,8 @@ describe("Airtable Service - Configuration Tests", () => {
         },
       }));
 
-      const { AirtableService: ServiceClass } = await import("../airtable");
+      const { AirtableService: ServiceClass } =
+        await import("../airtable/service");
       const service = new ServiceClass();
 
       // Access private property for testing
@@ -215,7 +221,8 @@ describe("Airtable Service - Configuration Tests", () => {
       }));
 
       expect(async () => {
-        const { AirtableService: ServiceClass } = await import("../airtable");
+        const { AirtableService: ServiceClass } =
+          await import("../airtable/service");
         new ServiceClass();
       }).not.toThrow();
     });
@@ -269,7 +276,8 @@ describe("Airtable Service - Configuration Tests", () => {
         },
       }));
 
-      const { AirtableService: ServiceClass } = await import("../airtable");
+      const { AirtableService: ServiceClass } =
+        await import("../airtable/service");
       const service = new ServiceClass();
 
       expect(service).toBeDefined();
@@ -285,7 +293,8 @@ describe("Airtable Service - Configuration Tests", () => {
         },
       }));
 
-      const { AirtableService: ServiceClass } = await import("../airtable");
+      const { AirtableService: ServiceClass } =
+        await import("../airtable/service");
       const service = new ServiceClass();
 
       expect(service.isReady()).toBe(false);
@@ -300,7 +309,8 @@ describe("Airtable Service - Configuration Tests", () => {
         },
       }));
 
-      const { AirtableService: ServiceClass } = await import("../airtable");
+      const { AirtableService: ServiceClass } =
+        await import("../airtable/service");
       const service = new ServiceClass();
 
       expect(service.isReady()).toBe(false);

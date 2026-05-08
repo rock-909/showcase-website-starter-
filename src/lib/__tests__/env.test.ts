@@ -34,7 +34,7 @@ afterEach(() => {
   vi.stubEnv("PLAYWRIGHT_TEST", "false");
   vi.stubEnv("NEXT_PHASE", "");
   vi.stubEnv("DEPLOYMENT_PLATFORM", "");
-  vi.stubEnv("NEXT_PUBLIC_DEPLOYMENT_PLATFORM", "vercel");
+  vi.stubEnv("NEXT_PUBLIC_DEPLOYMENT_PLATFORM", "self-hosted");
   vi.stubEnv("TURNSTILE_BYPASS", "false");
 });
 
@@ -227,7 +227,7 @@ describe("runtime env helpers", () => {
     vi.stubEnv("NEXT_PUBLIC_DEPLOYMENT_PLATFORM", "cloudflare");
     expect(isRuntimeCloudflare()).toBe(true);
 
-    vi.stubEnv("NEXT_PUBLIC_DEPLOYMENT_PLATFORM", "vercel");
+    vi.stubEnv("NEXT_PUBLIC_DEPLOYMENT_PLATFORM", "self-hosted");
     expect(isRuntimeCloudflare()).toBe(false);
   });
 

@@ -6,6 +6,8 @@ import { describe, expect, it } from "vitest";
 const SOURCE_ROOT = "src";
 const COMPONENT_GOVERNANCE_REGISTRY_PATH =
   "src/components/component-governance.registry.json";
+const PACKAGE_MANIFEST_PATH = "package.json";
+const STORYBOOK_CONFIG_PATH = ".storybook/main.ts";
 const STORY_EXPLORATION_ROOT = "src/stories";
 const UI_WRAPPER_ROOT = "src/components/ui";
 const STORY_OR_TEST_FILE_PATTERN =
@@ -15,6 +17,12 @@ const STORY_FILE_PATTERN = /\.(?:stories)\.(?:ts|tsx|js|jsx|mdx)$/;
 const TSX_FILE_PATTERN = /\.tsx$/;
 const RADIX_IMPORT_PATTERN = /from\s+["']@radix-ui\//;
 const REQUIRED_STORY_VALUE = "required";
+const STORYBOOK_MCP_ADDON = "@storybook/addon-mcp";
+
+interface PackageManifest {
+  dependencies?: Record<string, string>;
+  devDependencies?: Record<string, string>;
+}
 
 interface ComponentGovernanceRegistry {
   version: number;
@@ -48,6 +56,12 @@ function readComponentGovernanceRegistry(): ComponentGovernanceRegistry {
   return JSON.parse(
     readFileSync(COMPONENT_GOVERNANCE_REGISTRY_PATH, "utf8"),
   ) as ComponentGovernanceRegistry;
+}
+
+function readPackageManifest(): PackageManifest {
+  return JSON.parse(
+    readFileSync(PACKAGE_MANIFEST_PATH, "utf8"),
+  ) as PackageManifest;
 }
 
 function getUiPrimitiveNames(): string[] {
@@ -173,6 +187,17 @@ describe("component governance", () => {
       });
 
     expect(violations).toEqual([]);
+  });
+
+  it("keeps Storybook MCP out of project-local Storybook wiring", () => {
+    const manifest = readPackageManifest();
+    const storybookConfig = readFileSync(STORYBOOK_CONFIG_PATH, "utf8");
+
+    expect(storybookConfig).not.toContain(STORYBOOK_MCP_ADDON);
+    expect(manifest.dependencies ?? {}).not.toHaveProperty(STORYBOOK_MCP_ADDON);
+    expect(manifest.devDependencies ?? {}).not.toHaveProperty(
+      STORYBOOK_MCP_ADDON,
+    );
   });
 
   it("detects Storybook exploration imports without matching similarly named modules", () => {

@@ -5,25 +5,31 @@ import { processLead } from "../process-lead";
 
 vi.unmock("zod");
 
-const mockProcessContactLead = vi.hoisted(() => vi.fn());
-const mockProcessProductLead = vi.hoisted(() => vi.fn());
-const mockProcessNewsletterLead = vi.hoisted(() => vi.fn());
+const mockCreateLead = vi.hoisted(() => vi.fn());
+const mockSendContactFormEmail = vi.hoisted(() => vi.fn());
+const mockSendConfirmationEmail = vi.hoisted(() => vi.fn());
+const mockSendProductInquiryEmail = vi.hoisted(() => vi.fn());
+const mockAfter = vi.hoisted(() => vi.fn());
 const mockLoggerInfo = vi.hoisted(() => vi.fn());
 const mockLoggerWarn = vi.hoisted(() => vi.fn());
 const mockLoggerError = vi.hoisted(() => vi.fn());
-const mockRecordPipelineObservability = vi.hoisted(() => vi.fn());
-const mockTimerStop = vi.hoisted(() => vi.fn(() => 321));
 
-vi.mock("@/lib/lead-pipeline/processors/contact", () => ({
-  processContactLead: mockProcessContactLead,
+vi.mock("next/server", () => ({
+  after: mockAfter,
 }));
 
-vi.mock("@/lib/lead-pipeline/processors/product", () => ({
-  processProductLead: mockProcessProductLead,
+vi.mock("@/lib/airtable/instance", () => ({
+  airtableService: {
+    createLead: mockCreateLead,
+  },
 }));
 
-vi.mock("@/lib/lead-pipeline/processors/newsletter", () => ({
-  processNewsletterLead: mockProcessNewsletterLead,
+vi.mock("@/lib/resend-instance", () => ({
+  resendService: {
+    sendContactFormEmail: mockSendContactFormEmail,
+    sendConfirmationEmail: mockSendConfirmationEmail,
+    sendProductInquiryEmail: mockSendProductInquiryEmail,
+  },
 }));
 
 vi.mock("@/lib/logger", () => ({
@@ -36,14 +42,12 @@ vi.mock("@/lib/logger", () => ({
     email ? "[REDACTED_EMAIL]" : "[NO_EMAIL]",
 }));
 
-vi.mock("@/lib/lead-pipeline/pipeline-observability", () => ({
-  recordPipelineObservability: mockRecordPipelineObservability,
-}));
-
-vi.mock("@/lib/lead-pipeline/metrics", () => ({
-  createLatencyTimer: () => ({
-    stop: mockTimerStop,
-  }),
+vi.mock("@/config/contact-form-config", () => ({
+  CONTACT_FORM_CONFIG: {
+    features: {
+      sendConfirmationEmail: true,
+    },
+  },
 }));
 
 const VALID_CONTACT_LEAD = {
@@ -65,10 +69,6 @@ const VALID_NEWSLETTER_LEAD = {
 describe("processLead observability contracts", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockTimerStop.mockReturnValue(321);
-    mockRecordPipelineObservability.mockReturnValue({
-      success: true,
-    });
   });
 
   it("logs validation failures with requestId context", async () => {
@@ -87,24 +87,11 @@ describe("processLead observability contracts", () => {
         requestId: "req-validation",
       }),
     );
-    expect(mockRecordPipelineObservability).not.toHaveBeenCalled();
   });
 
-  it("forwards success flow inputs into the consolidated observability helper", async () => {
-    const emailResult = {
-      success: true as const,
-      id: "email-123",
-      latencyMs: 10,
-    };
-    const crmResult = {
-      success: true as const,
-      id: "record-123",
-      latencyMs: 20,
-    };
-    mockProcessContactLead.mockResolvedValue({ emailResult, crmResult });
-    mockRecordPipelineObservability.mockReturnValue({
-      success: true,
-    });
+  it("logs accepted contact lead with requestId before direct transaction work", async () => {
+    mockCreateLead.mockResolvedValue({ id: "record-123" });
+    mockSendContactFormEmail.mockResolvedValue("email-123");
 
     const result = await processLead(VALID_CONTACT_LEAD, {
       requestId: "req-success",
@@ -120,36 +107,41 @@ describe("processLead observability contracts", () => {
         requestId: "req-success",
       }),
     );
-    expect(mockRecordPipelineObservability).toHaveBeenCalledWith(
-      expect.objectContaining({
-        lead: expect.objectContaining({ type: LEAD_TYPES.CONTACT }),
-        emailResult,
-        crmResult,
-        hasEmailOperation: true,
-        totalLatencyMs: 321,
-        requestId: "req-success",
-      }),
-    );
   });
 
-  it("treats record-created email failures as successful user-facing submissions", async () => {
-    const emailResult = {
-      success: false as const,
-      error: new Error("Email failed"),
-      latencyMs: 10,
-    };
-    const crmResult = {
-      success: true as const,
-      id: "record-123",
-      latencyMs: 20,
-    };
-    mockProcessContactLead.mockResolvedValue({ emailResult, crmResult });
-    mockRecordPipelineObservability.mockReturnValue({
-      success: true,
-    });
+  it("logs contact Airtable failures without sending owner or confirmation emails", async () => {
+    mockCreateLead.mockRejectedValue(new Error("CRM failed"));
 
     const result = await processLead(VALID_CONTACT_LEAD, {
-      requestId: "req-partial",
+      requestId: "req-crm-failed",
+    });
+
+    expect(result).toEqual({
+      success: false,
+      emailSent: false,
+      recordCreated: false,
+      referenceId: expect.stringMatching(/^CON-/),
+      error: "PROCESSING_FAILED",
+    });
+    expect(mockLoggerError).toHaveBeenCalledWith(
+      "Contact Airtable createLead failed",
+      expect.objectContaining({
+        error: "CRM failed",
+        email: "[REDACTED_EMAIL]",
+        referenceId: expect.stringMatching(/^CON-/),
+        requestId: "req-crm-failed",
+      }),
+    );
+    expect(mockSendContactFormEmail).not.toHaveBeenCalled();
+    expect(mockSendConfirmationEmail).not.toHaveBeenCalled();
+  });
+
+  it("logs contact owner email failure while keeping the user-facing submission successful", async () => {
+    mockCreateLead.mockResolvedValue({ id: "record-123" });
+    mockSendContactFormEmail.mockRejectedValue(new Error("Email failed"));
+
+    const result = await processLead(VALID_CONTACT_LEAD, {
+      requestId: "req-email-failed",
     });
 
     expect(result).toEqual({
@@ -157,64 +149,91 @@ describe("processLead observability contracts", () => {
       emailSent: false,
       recordCreated: true,
       referenceId: expect.stringMatching(/^CON-/),
-      error: undefined,
     });
-    expect(mockRecordPipelineObservability).toHaveBeenCalledWith(
+    expect(mockLoggerError).toHaveBeenCalledWith(
+      "Contact owner email failed",
       expect.objectContaining({
-        hasEmailOperation: true,
-        requestId: "req-partial",
+        error: "Email failed",
+        email: "[REDACTED_EMAIL]",
+        referenceId: expect.stringMatching(/^CON-/),
+        requestId: "req-email-failed",
       }),
     );
-  });
-
-  it("treats newsletter leads as no-email-operation in the consolidated helper", async () => {
-    const emailResult = {
-      success: false as const,
-      error: new Error("Not applicable"),
-      latencyMs: 0,
-    };
-    const crmResult = {
-      success: false as const,
-      error: new Error("CRM failed"),
-      latencyMs: 15,
-    };
-    mockProcessNewsletterLead.mockResolvedValue({ emailResult, crmResult });
-    mockRecordPipelineObservability.mockReturnValue({
-      success: false,
-    });
-
-    const result = await processLead(VALID_NEWSLETTER_LEAD, {
-      requestId: "req-newsletter",
-    });
-
-    expect(result.success).toBe(false);
     expect(result).not.toHaveProperty("partialSuccess");
-    expect(mockRecordPipelineObservability).toHaveBeenCalledWith(
-      expect.objectContaining({
-        lead: expect.objectContaining({ type: LEAD_TYPES.NEWSLETTER }),
-        hasEmailOperation: false,
-        requestId: "req-newsletter",
-      }),
-    );
   });
 
-  it("logs unexpected non-Error rejections as Unknown error with latency and requestId", async () => {
-    mockProcessContactLead.mockRejectedValue("boom");
+  it("logs confirmation scheduling failures without blocking user success", async () => {
+    mockCreateLead.mockResolvedValue({ id: "record-123" });
+    mockSendContactFormEmail.mockResolvedValue("email-123");
+    mockAfter.mockImplementation(() => {
+      throw new Error("after unavailable");
+    });
 
     const result = await processLead(VALID_CONTACT_LEAD, {
       requestId: "req-unexpected",
     });
 
-    expect(result.error).toBe("PROCESSING_FAILED");
+    expect(result).toEqual({
+      success: true,
+      emailSent: true,
+      recordCreated: true,
+      referenceId: expect.stringMatching(/^CON-/),
+    });
+    expect(mockLoggerError).toHaveBeenCalledWith(
+      "Confirmation email scheduling failed (non-blocking)",
+      expect.objectContaining({
+        error: "after unavailable",
+        email: "[REDACTED_EMAIL]",
+        referenceId: expect.stringMatching(/^CON-/),
+        requestId: "req-unexpected",
+      }),
+    );
+  });
+
+  it("returns a controlled failure when top-level processing throws", async () => {
+    mockLoggerInfo.mockImplementationOnce(() => {
+      throw new Error("logger unavailable");
+    });
+
+    const result = await processLead(VALID_CONTACT_LEAD, {
+      requestId: "req-top-level",
+    });
+
+    expect(result).toEqual({
+      success: false,
+      emailSent: false,
+      recordCreated: false,
+      referenceId: expect.stringMatching(/^CON-/),
+      error: "PROCESSING_FAILED",
+    });
+    expect(mockCreateLead).not.toHaveBeenCalled();
+    expect(mockSendContactFormEmail).not.toHaveBeenCalled();
     expect(mockLoggerError).toHaveBeenCalledWith(
       "Lead processing unexpected error",
       expect.objectContaining({
         type: LEAD_TYPES.CONTACT,
-        error: "Unknown error",
-        totalLatencyMs: 321,
-        requestId: "req-unexpected",
+        error: "logger unavailable",
+        referenceId: expect.stringMatching(/^CON-/),
+        requestId: "req-top-level",
       }),
     );
-    expect(mockRecordPipelineObservability).not.toHaveBeenCalled();
+  });
+
+  it("keeps newsletter leads as no-email direct transactions", async () => {
+    mockCreateLead.mockResolvedValue({ id: "record-789" });
+
+    const result = await processLead(VALID_NEWSLETTER_LEAD, {
+      requestId: "req-newsletter",
+    });
+
+    expect(result).toEqual({
+      success: true,
+      emailSent: false,
+      recordCreated: true,
+      referenceId: expect.stringMatching(/^NEW-/),
+    });
+    expect(mockSendContactFormEmail).not.toHaveBeenCalled();
+    expect(mockSendConfirmationEmail).not.toHaveBeenCalled();
+    expect(mockSendProductInquiryEmail).not.toHaveBeenCalled();
   });
 });

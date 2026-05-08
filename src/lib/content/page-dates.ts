@@ -2,7 +2,7 @@ import type { PageType } from "@/config/paths/types";
 import { getCanonicalPath } from "@/config/paths/utils";
 import type { Locale } from "@/types/content.types";
 import { routing } from "@/i18n/routing";
-import { getPageBySlug } from "@/lib/content";
+import { getPageBySlug } from "@/lib/content-query/queries";
 import { logger } from "@/lib/logger";
 
 const MDX_PAGE_SLUGS_BY_ROUTE = {

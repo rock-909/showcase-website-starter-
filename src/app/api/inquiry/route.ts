@@ -4,31 +4,22 @@
  */
 
 import "server-only";
-import { NextRequest, NextResponse } from "next/server";
-import { createApiErrorResponse } from "@/lib/api/api-response";
+import { NextRequest, type NextResponse } from "next/server";
+import {
+  createApiErrorResponse,
+  createApiSuccessResponse,
+} from "@/lib/api/api-response";
 import {
   applyCorsHeaders,
   createCorsPreflightResponse,
 } from "@/lib/api/cors-utils";
-import {
-  createLeadFailureResponse,
-  createLeadSuccessPayload,
-  requireLeadReferenceId,
-  validateLeadTurnstileToken,
-} from "@/lib/api/lead-route-response";
-import {
-  applyRequestObservability,
-  getRequestObservability,
-  withObservabilityContext,
-} from "@/lib/api/request-observability";
-import { recordApiResponseSignal } from "@/lib/observability/api-signals";
 import { safeParseJson } from "@/lib/api/safe-parse-json";
 import { isRuntimeProduction } from "@/lib/env";
 import {
   withRateLimit,
   type RateLimitContext,
 } from "@/lib/api/with-rate-limit";
-import { processLead, type LeadResult } from "@/lib/lead-pipeline";
+import { processLead, type LeadResult } from "@/lib/lead-pipeline/process-lead";
 import {
   LEAD_TYPES,
   productLeadSchema,
@@ -36,61 +27,76 @@ import {
 } from "@/lib/lead-pipeline/lead-schema";
 import { logger, sanitizeIP } from "@/lib/logger";
 import { API_ERROR_CODES } from "@/constants/api-error-codes";
-import { HTTP_BAD_REQUEST, HTTP_INTERNAL_ERROR } from "@/constants";
+import {
+  HTTP_BAD_REQUEST,
+  HTTP_INTERNAL_ERROR,
+  HTTP_SERVICE_UNAVAILABLE,
+} from "@/constants";
+import { verifyTurnstileDetailed } from "@/lib/turnstile";
 
-interface InquiryResponseContext {
-  clientIP: string;
-  processingTime: number;
-  observability: ReturnType<typeof getRequestObservability>;
-}
+const TURNSTILE_SERVICE_FAILURE_CODES = new Set([
+  "not-configured",
+  "network-error",
+  "timeout",
+]);
 
-function createSuccessPayload(
+function getSuccessfulReferenceId(
   result: LeadResult,
-  context: InquiryResponseContext,
-) {
-  const { clientIP, processingTime, observability } = context;
-  if (!isRuntimeProduction()) {
-    logger.info("Product inquiry submitted successfully", {
-      referenceId: result.referenceId,
-      ip: sanitizeIP(clientIP),
-      processingTime,
-      emailSent: result.emailSent,
-      recordCreated: result.recordCreated,
-      ...withObservabilityContext(observability),
-    });
+  message = "referenceId missing on successful lead result",
+): string {
+  if (!result.referenceId) {
+    throw new Error(message);
   }
 
-  return NextResponse.json(
-    createLeadSuccessPayload(
-      requireLeadReferenceId(
-        result,
-        "referenceId missing on successful lead result",
-      ),
-    ),
-  );
+  return result.referenceId;
 }
 
-/**
- * Create error response for failed inquiry
- */
-function createErrorResponse(
-  result: LeadResult,
-  context: InquiryResponseContext,
-): NextResponse {
-  const { clientIP, processingTime, observability } = context;
-  logger.warn("Product inquiry submission failed", {
-    error: result.error,
-    ip: sanitizeIP(clientIP),
-    processingTime,
-    referenceId: result.referenceId,
-    ...withObservabilityContext(observability),
+async function validateProductInquiryTurnstile(
+  token: string | undefined,
+  clientIP: string,
+): Promise<NextResponse | null> {
+  if (!token) {
+    logger.warn("Product inquiry missing Turnstile token", {
+      ip: sanitizeIP(clientIP),
+    });
+    return createApiErrorResponse(
+      API_ERROR_CODES.INQUIRY_SECURITY_REQUIRED,
+      HTTP_BAD_REQUEST,
+    );
+  }
+
+  const verificationResult = await verifyTurnstileDetailed(token, clientIP, {
+    expectedAction: "product_inquiry",
   });
 
-  return createLeadFailureResponse({
-    result,
-    validationErrorCode: API_ERROR_CODES.INQUIRY_VALIDATION_FAILED,
-    processingErrorCode: API_ERROR_CODES.INQUIRY_PROCESSING_ERROR,
+  if (verificationResult.success) {
+    return null;
+  }
+
+  const errorCodes = verificationResult.errorCodes ?? [];
+  const isServiceFailure = errorCodes.some((code) =>
+    TURNSTILE_SERVICE_FAILURE_CODES.has(code),
+  );
+
+  if (isServiceFailure) {
+    logger.error("Lead Turnstile verification unavailable", {
+      ip: sanitizeIP(clientIP),
+      errorCodes,
+    });
+    return createApiErrorResponse(
+      API_ERROR_CODES.SERVICE_UNAVAILABLE,
+      HTTP_SERVICE_UNAVAILABLE,
+    );
+  }
+
+  logger.warn("Product inquiry Turnstile verification failed", {
+    ip: sanitizeIP(clientIP),
+    errorCodes,
   });
+  return createApiErrorResponse(
+    API_ERROR_CODES.INQUIRY_SECURITY_FAILED,
+    HTTP_BAD_REQUEST,
+  );
 }
 
 function validateLeadData(
@@ -111,6 +117,50 @@ function validateLeadData(
   return parsed.success ? parsed.data : null;
 }
 
+function createProductInquirySuccessResponse(
+  result: LeadResult,
+  clientIP: string,
+  startTime: number,
+) {
+  if (!isRuntimeProduction()) {
+    logger.info("Product inquiry submitted successfully", {
+      referenceId: result.referenceId,
+      ip: sanitizeIP(clientIP),
+      processingTime: Date.now() - startTime,
+      emailSent: result.emailSent,
+      recordCreated: result.recordCreated,
+    });
+  }
+
+  return createApiSuccessResponse({
+    referenceId: getSuccessfulReferenceId(
+      result,
+      "referenceId missing on successful lead result",
+    ),
+  });
+}
+
+function createProductInquiryFailureResponse(
+  result: LeadResult,
+  clientIP: string,
+  startTime: number,
+) {
+  logger.warn("Product inquiry submission failed", {
+    error: result.error,
+    ip: sanitizeIP(clientIP),
+    processingTime: Date.now() - startTime,
+    referenceId: result.referenceId,
+  });
+
+  const isValidationError = result.error === "VALIDATION_ERROR";
+  return createApiErrorResponse(
+    isValidationError
+      ? API_ERROR_CODES.INQUIRY_VALIDATION_FAILED
+      : API_ERROR_CODES.INQUIRY_PROCESSING_ERROR,
+    isValidationError ? HTTP_BAD_REQUEST : HTTP_INTERNAL_ERROR,
+  );
+}
+
 /**
  * POST /api/inquiry
  * Handle product inquiry form submission
@@ -118,7 +168,6 @@ function validateLeadData(
 const POST_RATE_LIMITED = withRateLimit(
   "inquiry",
   async (request: NextRequest, { clientIP }: RateLimitContext) => {
-    const observability = getRequestObservability(request, "lead-family");
     const parsedBody = await safeParseJson<{
       turnstileToken?: string;
       [key: string]: unknown;
@@ -143,43 +192,29 @@ const POST_RATE_LIMITED = withRateLimit(
         );
       }
 
-      const turnstileError = await validateLeadTurnstileToken({
-        token:
-          typeof data.turnstileToken === "string"
-            ? data.turnstileToken
-            : undefined,
+      const turnstileError = await validateProductInquiryTurnstile(
+        typeof data.turnstileToken === "string"
+          ? data.turnstileToken
+          : undefined,
         clientIP,
-        expectedAction: "product_inquiry",
-        missingTokenErrorCode: API_ERROR_CODES.INQUIRY_SECURITY_REQUIRED,
-        invalidTokenErrorCode: API_ERROR_CODES.INQUIRY_SECURITY_FAILED,
-        missingTokenLogMessage: "Product inquiry missing Turnstile token",
-        invalidTokenLogMessage: "Product inquiry Turnstile verification failed",
-      });
+      );
       if (turnstileError) return turnstileError;
 
-      const result = await processLead(
-        {
-          ...leadData,
-        },
-        { requestId: observability.requestId },
-      );
-      const processingTime = Date.now() - startTime;
-      const responseContext = {
-        clientIP,
-        processingTime,
-        observability,
-      };
+      const result = await processLead({
+        ...leadData,
+      });
 
-      return result.success
-        ? createSuccessPayload(result, responseContext)
-        : createErrorResponse(result, responseContext);
+      if (result.success) {
+        return createProductInquirySuccessResponse(result, clientIP, startTime);
+      }
+
+      return createProductInquiryFailureResponse(result, clientIP, startTime);
     } catch (error) {
       logger.error("Product inquiry submission failed unexpectedly", {
         error: error instanceof Error ? error.message : "Unknown error",
         stack: error instanceof Error ? error.stack : undefined,
         ip: sanitizeIP(clientIP),
         processingTime: Date.now() - startTime,
-        ...withObservabilityContext(observability),
       });
 
       return createApiErrorResponse(
@@ -191,21 +226,8 @@ const POST_RATE_LIMITED = withRateLimit(
 );
 
 export async function POST(request: NextRequest) {
-  const startTime = Date.now();
-  const observability = getRequestObservability(request, "lead-family");
   const response = await POST_RATE_LIMITED(request);
-  const enrichedResponse = applyRequestObservability(
-    applyCorsHeaders({ request, response }),
-    observability,
-  );
-  await recordApiResponseSignal({
-    context: observability,
-    response: enrichedResponse,
-    name: "inquiry.post",
-    route: "/api/inquiry",
-    latencyMs: Date.now() - startTime,
-  });
-  return enrichedResponse;
+  return applyCorsHeaders({ request, response });
 }
 
 /**

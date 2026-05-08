@@ -2,12 +2,12 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Turnstile } from "@marsidev/react-turnstile";
-import { logger } from "@/lib/logger-core";
+import { logger } from "@/lib/logger";
 import {
   getPublicRuntimeEnvBoolean,
   getPublicRuntimeEnvString,
   isPublicRuntimeDevelopment,
-} from "@/lib/public-env";
+} from "@/lib/env";
 
 /**
  * 使用全局 logger（开发环境输出，生产环境静默）

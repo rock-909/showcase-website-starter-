@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { API_ERROR_CODES } from "@/constants/api-error-codes";
 import { checkDistributedRateLimit } from "@/lib/security/distributed-rate-limit";
-import { verifyTurnstile, verifyTurnstileDetailed } from "@/lib/turnstile";
 import { contactFormAction } from "@/lib/actions/contact";
 
 // Mock dependencies before imports
@@ -38,22 +37,25 @@ vi.mock("@/lib/security/distributed-rate-limit", () => ({
   ),
 }));
 
-vi.mock("@/lib/turnstile", () => ({
-  verifyTurnstile: vi.fn(() => Promise.resolve(true)),
-  verifyTurnstileDetailed: vi.fn(() => Promise.resolve({ success: true })),
-}));
-
-vi.mock("@/lib/contact-form-processing", async (importOriginal) => {
+vi.mock("@/lib/contact/submit-canonical-contact", async (importOriginal) => {
   const original =
-    await importOriginal<typeof import("@/lib/contact-form-processing")>();
+    await importOriginal<
+      typeof import("@/lib/contact/submit-canonical-contact")
+    >();
 
   return {
     ...original,
-    processFormSubmission: vi.fn(() =>
+    submitCanonicalContactSubmission: vi.fn(() =>
       Promise.resolve({
-        emailSent: true,
-        recordCreated: true,
-        referenceId: "ref-123",
+        success: true,
+        error: null,
+        details: null,
+        data: {},
+        submissionResult: {
+          emailSent: true,
+          recordCreated: true,
+          referenceId: "ref-123",
+        },
       }),
     ),
   };
@@ -64,7 +66,7 @@ describe("actions.ts", () => {
     vi.clearAllMocks();
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2024-06-15T12:00:00Z"));
-    vi.stubEnv("VERCEL", "1");
+    vi.stubEnv("NODE_ENV", "development");
     // Reset mockHeadersGet to default behavior
     mockHeadersGet.mockImplementation((key: string) => {
       if (key === "x-forwarded-for") return "192.168.1.100";
@@ -128,9 +130,15 @@ describe("actions.ts", () => {
     });
 
     it("should return error when turnstile verification fails", async () => {
-      vi.mocked(verifyTurnstile).mockResolvedValueOnce(false);
-      vi.mocked(verifyTurnstileDetailed).mockResolvedValueOnce({
+      const canonical = await import("@/lib/contact/submit-canonical-contact");
+      vi.mocked(
+        canonical.submitCanonicalContactSubmission,
+      ).mockResolvedValueOnce({
         success: false,
+        errorCode: API_ERROR_CODES.TURNSTILE_VERIFICATION_FAILED,
+        error: "Security verification failed",
+        details: null,
+        data: null,
       });
       const formData = createFormData(createValidFormData());
 
@@ -143,6 +151,16 @@ describe("actions.ts", () => {
     });
 
     it("should return error when submittedAt is expired", async () => {
+      const canonical = await import("@/lib/contact/submit-canonical-contact");
+      vi.mocked(
+        canonical.submitCanonicalContactSubmission,
+      ).mockResolvedValueOnce({
+        success: false,
+        errorCode: API_ERROR_CODES.CONTACT_SUBMISSION_EXPIRED,
+        error: "Form submission expired or invalid",
+        details: null,
+        data: null,
+      });
       const expiredData = {
         ...createValidFormData(),
         submittedAt: new Date(Date.now() - 15 * 60 * 1000).toISOString(), // 15 minutes ago
@@ -181,8 +199,10 @@ describe("actions.ts", () => {
 
       expect(firstResult.success).toBe(true);
       expect(secondResult.success).toBe(true);
-      const processing = await import("@/lib/contact-form-processing");
-      expect(processing.processFormSubmission).toHaveBeenCalledTimes(2);
+      const processing = await import("@/lib/contact/submit-canonical-contact");
+      expect(processing.submitCanonicalContactSubmission).toHaveBeenCalledTimes(
+        2,
+      );
     });
 
     it("rate limits repeated submissions independently", async () => {
@@ -221,6 +241,16 @@ describe("actions.ts", () => {
     });
 
     it("should return error when submittedAt is not provided", async () => {
+      const canonical = await import("@/lib/contact/submit-canonical-contact");
+      vi.mocked(
+        canonical.submitCanonicalContactSubmission,
+      ).mockResolvedValueOnce({
+        success: false,
+        errorCode: API_ERROR_CODES.CONTACT_SUBMISSION_EXPIRED,
+        error: "Form submission expired or invalid",
+        details: null,
+        data: null,
+      });
       const dataWithoutSubmittedAt = { ...createValidFormData() };
       delete (dataWithoutSubmittedAt as { submittedAt?: string }).submittedAt;
       const formData = createFormData(dataWithoutSubmittedAt);
@@ -233,6 +263,16 @@ describe("actions.ts", () => {
     });
 
     it("should return error when submittedAt is not-a-date", async () => {
+      const canonical = await import("@/lib/contact/submit-canonical-contact");
+      vi.mocked(
+        canonical.submitCanonicalContactSubmission,
+      ).mockResolvedValueOnce({
+        success: false,
+        errorCode: API_ERROR_CODES.CONTACT_SUBMISSION_EXPIRED,
+        error: "Form submission expired or invalid",
+        details: null,
+        data: null,
+      });
       const invalidDateData = {
         ...createValidFormData(),
         submittedAt: "not-a-date",
@@ -256,12 +296,19 @@ describe("actions.ts", () => {
     });
 
     it("should surface record-created email failures as user-visible success", async () => {
-      const processing = await import("@/lib/contact-form-processing");
-      vi.mocked(processing.processFormSubmission).mockResolvedValueOnce({
+      const processing = await import("@/lib/contact/submit-canonical-contact");
+      vi.mocked(
+        processing.submitCanonicalContactSubmission,
+      ).mockResolvedValueOnce({
         success: true,
-        emailSent: false,
-        recordCreated: true,
-        referenceId: "ref-record-123",
+        error: null,
+        details: null,
+        data: {},
+        submissionResult: {
+          emailSent: false,
+          recordCreated: true,
+          referenceId: "ref-record-123",
+        },
       });
       const formData = createFormData(createValidFormData());
 
@@ -355,8 +402,11 @@ describe("actions.ts", () => {
         expect(result.success).toBe(true);
         expect(result.data?.emailSent).toBe(false);
         expect(result.data?.recordCreated).toBe(false);
-        // verifyTurnstileDetailed should NOT be called (blocked before validation)
-        expect(verifyTurnstileDetailed).not.toHaveBeenCalled();
+        const canonical =
+          await import("@/lib/contact/submit-canonical-contact");
+        expect(
+          canonical.submitCanonicalContactSubmission,
+        ).not.toHaveBeenCalled();
       });
 
       it("should process normally when honeypot field is empty", async () => {
@@ -368,8 +418,9 @@ describe("actions.ts", () => {
 
         await contactFormAction(null, formData);
 
-        // Should proceed to Turnstile verification
-        expect(verifyTurnstileDetailed).toHaveBeenCalled();
+        const canonical =
+          await import("@/lib/contact/submit-canonical-contact");
+        expect(canonical.submitCanonicalContactSubmission).toHaveBeenCalled();
       });
 
       it("should process normally when honeypot field is absent", async () => {
@@ -377,8 +428,9 @@ describe("actions.ts", () => {
 
         await contactFormAction(null, formData);
 
-        // Should proceed to Turnstile verification
-        expect(verifyTurnstileDetailed).toHaveBeenCalled();
+        const canonical =
+          await import("@/lib/contact/submit-canonical-contact");
+        expect(canonical.submitCanonicalContactSubmission).toHaveBeenCalled();
       });
     });
 
@@ -411,15 +463,16 @@ describe("actions.ts", () => {
         const formData = createFormData(getValidFormData());
         await contactFormAction(null, formData);
 
-        expect(verifyTurnstileDetailed).toHaveBeenCalledWith(
-          "valid-token",
-          "172.16.0.100",
-          { expectedAction: "contact_form" },
+        const canonical =
+          await import("@/lib/contact/submit-canonical-contact");
+        expect(canonical.submitCanonicalContactSubmission).toHaveBeenCalledWith(
+          expect.objectContaining({ turnstileToken: "valid-token" }),
+          { clientIP: "172.16.0.100" },
         );
       });
 
       it("should fail closed for raw Cloudflare headers in Server Action compatibility path", async () => {
-        vi.stubEnv("VERCEL", undefined);
+        vi.stubEnv("NODE_ENV", "test");
         vi.stubEnv("CF_PAGES", "1");
         mockHeadersGet.mockImplementation((key: string) => {
           if (key === "cf-connecting-ip") return "192.0.2.100";
@@ -429,10 +482,11 @@ describe("actions.ts", () => {
         const formData = createFormData(getValidFormData());
         await contactFormAction(null, formData);
 
-        expect(verifyTurnstileDetailed).toHaveBeenCalledWith(
-          "valid-token",
-          "0.0.0.0",
-          { expectedAction: "contact_form" },
+        const canonical =
+          await import("@/lib/contact/submit-canonical-contact");
+        expect(canonical.submitCanonicalContactSubmission).toHaveBeenCalledWith(
+          expect.objectContaining({ turnstileToken: "valid-token" }),
+          { clientIP: "0.0.0.0" },
         );
       });
     });

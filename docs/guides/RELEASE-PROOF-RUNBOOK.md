@@ -7,7 +7,7 @@
 适用范围：
 
 - `src/middleware.ts`
-- locale redirect / nonce / security headers
+- locale redirect / locale cookie / security headers
 - Cloudflare / OpenNext build chain
 - Tier A 翻译关键路径
 - `src/config/single-site*.ts` 及其兼容包装层
@@ -27,28 +27,34 @@
 
 ## Release-Proof Flow
 
-按这个顺序执行：
+Canonical 入口是：
 
 ```bash
-pnpm review:docs-truth
-pnpm review:tier-a:staged
-pnpm review:clusters:staged
-pnpm review:health
-pnpm validate:translations
-pnpm type-check:source
-pnpm clean:next-artifacts
+pnpm release:verify
+```
+
+它当前由 `node scripts/starter-checks.js release-verify` 内置顺序执行：
+
+```bash
+node scripts/starter-checks.js truth-docs
+node scripts/starter-checks.js cf-official-compare --source-only
+pnpm type-check
+pnpm lint:check
+pnpm exec vitest run tests/unit/middleware.test.ts src/__tests__/middleware-locale-cookie.test.ts src/i18n/__tests__/request.test.ts src/lib/__tests__/load-messages.fallback.test.ts
+pnpm exec vitest run tests/integration/api/lead-family-contract.test.ts tests/integration/api/lead-family-protection.test.ts src/app/api/inquiry/__tests__/route.test.ts tests/integration/api/subscribe.test.ts
+pnpm exec vitest run tests/integration/api/health.test.ts src/__tests__/middleware-locale-cookie.test.ts
+node scripts/starter-checks.js translations
 pnpm build
-CF_APPLY_GENERATED_PATCH=true pnpm build:cf
-pnpm smoke:cf:preview
-pnpm smoke:cf:preview:strict
-CI=1 pnpm test:e2e
+pnpm website:build:cf
+pnpm exec wrangler deploy --dry-run --env preview
+CI=1 pnpm exec playwright test tests/e2e/no-js-html-contract.spec.ts tests/e2e/navigation.spec.ts tests/e2e/contact-form-smoke.spec.ts --project=chromium
 ```
 
 For starter-derived website readiness, add:
 
 ```bash
-pnpm website:content:readiness
-pnpm website:review:client-boundary
+node scripts/starter-checks.js content-readiness
+node scripts/starter-checks.js client-boundary
 ```
 
 These commands prove content residue and source client-boundary budget only. They do not replace deployed preview proof, observability proof, form canary, or owner signoff.
@@ -56,23 +62,20 @@ These commands prove content residue and source client-boundary budget only. The
 ## 为什么要这个顺序
 
 - 先跑 docs-truth：先抓 stale 规则和假真相，别让后面的绿构建替它洗白
-- 再跑 Tier A scan：先确认是不是高风险面
-- 再跑 cluster scan：判断是不是共改簇
+- 高风险面不再靠额外脚本兜底，直接跑对应 focused suites
 - 先校验翻译，再进 build，失败更快
-- `type-check:source` 早于构建；它会先运行 `next typegen`，再用 source-only TypeScript 配置检查源码
+- `type-check` 早于构建；它会先运行 `next typegen`，再做 TypeScript 检查
 - `next-env.d.ts` 是 Next.js 生成文件：保留在 TypeScript `include` 里，但不入库；提交前只确认它没有作为未跟踪源码被带入
-- `clean:next-artifacts` 早于 `build`，避免脏 `.next` 误导
-- `build` 早于 `build:cf`，因为两条线仍共享构建产物族
-- `CF_APPLY_GENERATED_PATCH=true pnpm build:cf` 才是当前更强的本地 Cloudflare build proof
-- `smoke:cf:preview` 跟在 `build:cf` 后面，作为当前 canonical local preview proof
-- E2E 最后跑，因为最重
+- `build` 早于 `website:build:cf`，因为两条线仍共享构建产物族
+- `pnpm exec wrangler deploy --dry-run --env preview` 跟在 `website:build:cf` 后面，作为当前更强的本地 Cloudflare deploy-artifact proof
+- 最后跑 release smoke，因为它是 release bundle 的浏览器冒烟层
 - 如果改动重接了单站真相层或 cutover gate，发布前还要补：
-  - `pnpm truth:check`
-  - `pnpm review:translation-quartet`
-  - `pnpm review:translate-compat`
+  - `node scripts/starter-checks.js truth-docs`
+  - `node scripts/starter-checks.js translations`
+  - `pnpm exec vitest run tests/unit/i18n.test.ts src/i18n/__tests__/request.test.ts src/lib/__tests__/load-messages.fallback.test.ts`
 - Contact 页面 proof 现在要理解成 **Browser contact route handler**：浏览器联系表单走 `/api/contact`，`src/lib/actions/contact.ts` 只是兼容入口
-- preview deploy 当前统一入口是 `pnpm proof:cf:preview-deployed`
-- production deploy 当前统一走 `pnpm deploy:cf`
+- preview deploy 当前统一入口是 `node scripts/starter-checks.js cf-preview-deployed`，底层使用 `pnpm exec opennextjs-cloudflare deploy --env preview`
+- production deploy 当前统一走 `pnpm exec opennextjs-cloudflare deploy --env production`
 
 ## Dirty Worktree vs Clean Branch Rule
 
@@ -83,17 +86,16 @@ These commands prove content residue and source client-boundary budget only. The
 先证明你这次改到的 seam：
 
 ```bash
-pnpm review:docs-truth
-pnpm review:cf:official-compare:source
-pnpm review:derivative-readiness
+node scripts/starter-checks.js truth-docs
+node scripts/starter-checks.js cf-official-compare --source-only
 ```
 
 再按需补 change-scoped suites 和串行构建：
 
 ```bash
-pnpm clean:next-artifacts && pnpm build
-CF_APPLY_GENERATED_PATCH=true pnpm build:cf
-pnpm review:cf:official-compare:generated
+pnpm build
+pnpm website:build:cf
+pnpm exec wrangler deploy --dry-run --env preview
 ```
 
 这叫 **targeted proof**。
@@ -104,10 +106,13 @@ pnpm review:cf:official-compare:generated
 
 ### 2. clean branch full proof
 
-只有把无关改动隔离到 **clean branch** 或独立 worktree 后，才可以拿下面这条去做全仓结论：
+只有把无关改动隔离到 **clean branch** 或独立 worktree 后，才可以拿完整 proof bundle 做全仓结论：
 
 ```bash
-pnpm ci:local:quick
+pnpm type-check
+pnpm lint:check
+pnpm test
+pnpm build
 ```
 
 如果改动仍然是 release-facing，或者还碰到 Cloudflare / runtime-sensitive surface，再继续补完整 release-proof bundle。
@@ -124,18 +129,18 @@ pnpm ci:local:quick
 如果变更碰到 single-site truth 或 skeleton removal，直接跑 live baseline：
 
 ```bash
-APP_ENV=preview NEXT_PUBLIC_SITE_URL=https://preview.example.com NODE_ENV=production pnpm validate:config
-pnpm truth:check
-pnpm review:translation-quartet
-pnpm review:translate-compat
-pnpm clean:next-artifacts && pnpm build
+APP_ENV=preview NEXT_PUBLIC_SITE_URL=https://preview.example.com NODE_ENV=production node scripts/starter-checks.js validate-production-config
+node scripts/starter-checks.js truth-docs
+node scripts/starter-checks.js translations
+pnpm exec vitest run tests/unit/i18n.test.ts src/i18n/__tests__/request.test.ts src/lib/__tests__/load-messages.fallback.test.ts
+pnpm build
 ```
 
 最终 signoff 前，把下面三条视为单站真相面的基线证明：
 
-- `pnpm truth:check`
-- `pnpm review:translation-quartet`
-- `pnpm review:translate-compat`
+- `node scripts/starter-checks.js truth-docs`
+- `node scripts/starter-checks.js translations`
+- `pnpm exec vitest run tests/unit/i18n.test.ts src/i18n/__tests__/request.test.ts src/lib/__tests__/load-messages.fallback.test.ts`
 
 ## Preview Degraded-Mode Exception Contract
 
@@ -145,14 +150,14 @@ pnpm clean:next-artifacts && pnpm build
 
 ## 重要约束
 
-- `pnpm build` 和 `pnpm build:cf` 绝对不要并行跑
+- `pnpm build` 和 `pnpm website:build:cf` 绝对不要并行跑
 - fast local gate 不是 release proof
 - release proof 比 CI proof 更强，因为它考虑改动类型和平台边界
-- 如果这次改动本身就碰了 Cloudflare build chain，signoff 前额外再补一次 fresh `pnpm build:cf`
-- canonical final Cloudflare preview proof 是 `pnpm proof:cf:preview-deployed`
+- 如果这次改动本身就碰了 Cloudflare build chain，signoff 前额外再补一次 fresh `pnpm website:build:cf`
+- canonical final Cloudflare preview proof 是 `node scripts/starter-checks.js cf-preview-deployed`
 - preview proof 已经包含 deployed GET smoke，所以 preview workflow 不要再补第二套 GET smoke；但正式公开前仍要单独跑 deployed lead canary manual launch gate
 - 如果需要更底层的原语，再手动跑真实 preview 发布加：
-  - `pnpm smoke:cf:deploy -- --base-url <deployment-url>`
+  - `node scripts/starter-checks.js deployed-smoke --base-url <deployment-url>`
 - Cloudflare 相关步骤失败时，必须记清楚它属于：
   - platform-entry issue
   - generated-artifact issue
@@ -178,7 +183,7 @@ release-proof 只结束技术证据阶段。
 Before broad public launch, set `DEPLOYED_BASE_URL` to the deployed preview or production URL and run:
 
 ```bash
-POST_DEPLOY_TEST=1 PLAYWRIGHT_BASE_URL="$DEPLOYED_BASE_URL" pnpm test:e2e:post-deploy
+POST_DEPLOY_TEST=1 PLAYWRIGHT_BASE_URL="$DEPLOYED_BASE_URL" pnpm exec playwright test tests/e2e/smoke/
 ```
 
 Passing criteria:
@@ -192,6 +197,6 @@ This is a manual launch gate because it depends on deployed secrets and external
 
 ## Middleware to proxy migration lane
 
-The Next.js installed docs under `node_modules/next/dist/docs/` describe `proxy.ts` as the renamed convention for middleware. The current Cloudflare/OpenNext lane keeps `src/middleware.ts` until a separate migration branch proves `pnpm build`, `pnpm build:cf`, local preview smoke, strict preview smoke, and deployed smoke.
+The Next.js installed docs under `node_modules/next/dist/docs/` describe `proxy.ts` as the renamed convention for middleware. The current Cloudflare/OpenNext lane keeps `src/middleware.ts` until a separate migration branch proves `pnpm build`, `pnpm website:build:cf`, local preview smoke, strict preview smoke, and deployed smoke.
 
 This migration is not part of the launch trust asset repair wave.

@@ -58,8 +58,8 @@ import { logger } from "@/lib/logger";
 logger.warn("Rate limit approaching", { remaining });
 ```
 
-Client components use the client-safe logger boundary (`@/lib/logger-core`)
-unless Phase 4 proves a merged logger is browser-safe.
+Server and client production code import `logger` from `@/lib/logger`; PII
+sanitizers are server-use helpers and must not be called from Client Components.
 
 No bare `console.*` in production code unless the file is explicitly a logger,
 script, or test utility.

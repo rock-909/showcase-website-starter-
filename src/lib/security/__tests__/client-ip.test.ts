@@ -30,7 +30,6 @@ describe("client-ip", () => {
     // Reset environment
     process.env = { ...originalEnv };
     setEnv("DEPLOYMENT_PLATFORM", undefined);
-    setEnv("VERCEL", undefined);
     setEnv("CF_PAGES", undefined);
     setEnv("NODE_ENV", undefined);
   });
@@ -83,45 +82,6 @@ describe("client-ip", () => {
         const ip = getClientIP(request);
         // Should use request.ip, not x-forwarded-for
         expect(ip).toBe("10.0.0.50");
-      });
-    });
-
-    describe("Vercel platform", () => {
-      beforeEach(() => {
-        setEnv("VERCEL", "1");
-      });
-
-      it("should extract IP from x-real-ip header", () => {
-        const request = createMockRequest({
-          headers: { "x-real-ip": "203.0.113.50" },
-        });
-        const ip = getClientIP(request);
-        expect(ip).toBe("203.0.113.50");
-      });
-
-      it("should extract first IP from x-forwarded-for", () => {
-        const request = createMockRequest({
-          headers: { "x-forwarded-for": "203.0.113.50, 10.0.0.1, 172.16.0.1" },
-        });
-        const ip = getClientIP(request);
-        expect(ip).toBe("203.0.113.50");
-      });
-
-      it("should prefer x-real-ip over x-forwarded-for", () => {
-        const request = createMockRequest({
-          headers: {
-            "x-real-ip": "198.51.100.10",
-            "x-forwarded-for": "203.0.113.50",
-          },
-        });
-        const ip = getClientIP(request);
-        expect(ip).toBe("198.51.100.10");
-      });
-
-      it("should fallback to request.ip when no headers", () => {
-        const request = createMockRequest({ ip: "10.0.0.99" });
-        const ip = getClientIP(request);
-        expect(ip).toBe("10.0.0.99");
       });
     });
 
@@ -234,7 +194,6 @@ describe("client-ip", () => {
     describe("explicit DEPLOYMENT_PLATFORM", () => {
       it("should respect explicit platform over auto-detection", () => {
         setEnv("DEPLOYMENT_PLATFORM", "cloudflare");
-        setEnv("VERCEL", "1"); // Would normally trigger Vercel
 
         const request = createMockRequest({
           ip: "173.245.48.25",
@@ -244,18 +203,7 @@ describe("client-ip", () => {
           },
         });
         const ip = getClientIP(request);
-        // Should use Cloudflare config, not Vercel
         expect(ip).toBe("192.0.2.100");
-      });
-
-      it("should use explicit Vercel platform without auto-detection", () => {
-        setEnv("DEPLOYMENT_PLATFORM", "vercel");
-
-        const request = createMockRequest({
-          headers: { "x-real-ip": "198.51.100.10" },
-        });
-
-        expect(getClientIP(request)).toBe("198.51.100.10");
       });
 
       it("should use explicit development platform without relying on NODE_ENV", () => {
@@ -290,7 +238,7 @@ describe("client-ip", () => {
 
     describe("IP validation and normalization", () => {
       beforeEach(() => {
-        setEnv("VERCEL", "1");
+        setEnv("NODE_ENV", "development");
       });
 
       it("should reject invalid IP addresses", () => {
@@ -349,7 +297,7 @@ describe("client-ip", () => {
 
     describe("x-forwarded-for parsing", () => {
       beforeEach(() => {
-        setEnv("VERCEL", "1");
+        setEnv("NODE_ENV", "development");
       });
 
       it("should extract first IP from comma-separated list", () => {
@@ -405,19 +353,6 @@ describe("client-ip", () => {
       expect(getTrustedClientIPForInternalHeader(request)).toBeNull();
     });
 
-    it("should use Vercel headers when Vercel is explicitly configured", () => {
-      setEnv("DEPLOYMENT_PLATFORM", "vercel");
-
-      const request = createMockRequest({
-        headers: { "x-real-ip": "198.51.100.10" },
-        ip: "203.0.113.5",
-      });
-
-      expect(getTrustedClientIPForInternalHeader(request)).toBe(
-        "198.51.100.10",
-      );
-    });
-
     it("should return null when an unknown platform is explicitly configured", () => {
       setEnv("DEPLOYMENT_PLATFORM", "custom-edge");
 
@@ -436,22 +371,6 @@ describe("client-ip", () => {
         new Headers({ "x-real-ip": "1.2.3.4" }),
       );
       expect(ip).toBe("0.0.0.0");
-    });
-
-    it("should extract IP from x-real-ip on Vercel platform", () => {
-      setEnv("VERCEL", "1");
-      const ip = getClientIPFromHeaders(
-        new Headers({ "x-real-ip": "203.0.113.50" }),
-      );
-      expect(ip).toBe("203.0.113.50");
-    });
-
-    it("should extract first IP from x-forwarded-for on Vercel platform", () => {
-      setEnv("VERCEL", "1");
-      const ip = getClientIPFromHeaders(
-        new Headers({ "x-forwarded-for": "203.0.113.50, 10.0.0.1" }),
-      );
-      expect(ip).toBe("203.0.113.50");
     });
 
     it("should use middleware-derived internal header on Cloudflare", () => {
@@ -499,16 +418,6 @@ describe("client-ip", () => {
       expect(ip).toBe("127.0.0.1");
     });
 
-    it("should fail closed for invalid Vercel header values", () => {
-      setEnv("VERCEL", "1");
-
-      const ip = getClientIPFromHeaders(
-        new Headers({ "x-real-ip": "not-an-ip" }),
-      );
-
-      expect(ip).toBe("0.0.0.0");
-    });
-
     it("should fail closed for invalid middleware-derived Cloudflare header values", () => {
       setEnv("CF_PAGES", "1");
 
@@ -521,10 +430,6 @@ describe("client-ip", () => {
   });
 
   describe("getIPChain", () => {
-    beforeEach(() => {
-      setEnv("VERCEL", "1");
-    });
-
     it("should return empty array when no IPs", () => {
       const request = createMockRequest();
       const chain = getIPChain(request);
@@ -605,9 +510,9 @@ describe("client-ip", () => {
 
   describe("edge cases", () => {
     it("should handle empty string IP", () => {
-      setEnv("VERCEL", "1");
+      setEnv("NODE_ENV", "development");
       const request = createMockRequest({
-        headers: { "x-real-ip": "" },
+        headers: { "x-forwarded-for": "" },
         ip: "10.0.0.1",
       });
       const ip = getClientIP(request);
@@ -615,7 +520,7 @@ describe("client-ip", () => {
     });
 
     it("should handle whitespace-only IP", () => {
-      setEnv("VERCEL", "1");
+      setEnv("NODE_ENV", "development");
       const request = createMockRequest({
         headers: { "x-forwarded-for": "   " },
         ip: "10.0.0.1",
@@ -625,7 +530,7 @@ describe("client-ip", () => {
     });
 
     it("should handle empty x-forwarded-for list", () => {
-      setEnv("VERCEL", "1");
+      setEnv("NODE_ENV", "development");
       const request = createMockRequest({
         headers: { "x-forwarded-for": ",," },
         ip: "10.0.0.1",
@@ -635,9 +540,9 @@ describe("client-ip", () => {
     });
 
     it("should reject malformed IPv6 with triple colons", () => {
-      setEnv("VERCEL", "1");
+      setEnv("NODE_ENV", "development");
       const request = createMockRequest({
-        headers: { "x-real-ip": "2001:db8:::1" },
+        headers: { "x-forwarded-for": "2001:db8:::1" },
         ip: "10.0.0.1",
       });
       const ip = getClientIP(request);
@@ -645,9 +550,9 @@ describe("client-ip", () => {
     });
 
     it("should reject malformed IPv6 with trailing single colon", () => {
-      setEnv("VERCEL", "1");
+      setEnv("NODE_ENV", "development");
       const request = createMockRequest({
-        headers: { "x-real-ip": "2001:db8::1:" },
+        headers: { "x-forwarded-for": "2001:db8::1:" },
         ip: "10.0.0.1",
       });
       const ip = getClientIP(request);
@@ -655,9 +560,9 @@ describe("client-ip", () => {
     });
 
     it("should reject malformed IPv6 with leading single colon", () => {
-      setEnv("VERCEL", "1");
+      setEnv("NODE_ENV", "development");
       const request = createMockRequest({
-        headers: { "x-real-ip": ":1::2" },
+        headers: { "x-forwarded-for": ":1::2" },
         ip: "10.0.0.1",
       });
       const ip = getClientIP(request);
@@ -665,9 +570,9 @@ describe("client-ip", () => {
     });
 
     it("should reject IPv6 with redundant compression (zero missing segments)", () => {
-      setEnv("VERCEL", "1");
+      setEnv("NODE_ENV", "development");
       const request = createMockRequest({
-        headers: { "x-real-ip": "1:2:3:4:5:6:7::8" },
+        headers: { "x-forwarded-for": "1:2:3:4:5:6:7::8" },
         ip: "10.0.0.1",
       });
       const ip = getClientIP(request);
@@ -675,11 +580,11 @@ describe("client-ip", () => {
     });
 
     it("should accept valid compressed IPv6 forms", () => {
-      setEnv("VERCEL", "1");
+      setEnv("NODE_ENV", "development");
       const valid = ["::1", "::", "fe80::", "2001:db8::1", "::ffff:192.0.2.1"];
       for (const addr of valid) {
         const request = createMockRequest({
-          headers: { "x-real-ip": addr },
+          headers: { "x-forwarded-for": addr },
         });
         const ip = getClientIP(request);
         expect(ip).toBe(addr);

@@ -35,8 +35,8 @@
     "@ianvs/prettier-plugin-sort-imports",
     "@tailwindcss/typography",
     "@next/eslint-plugin-next",
-    // Explicit support deps kept for the Cloudflare phase6 / split-worker chain.
-    // They are intentionally present even though knip cannot trace the runtime linkage.
+    // Explicit support deps kept for the Cloudflare/OpenNext build chain.
+    // They are intentionally present even though knip cannot trace every runtime linkage.
     "eslint-plugin-react",
     "eslint-plugin-react-hooks",
     "prettier-plugin-tailwindcss",

@@ -511,7 +511,7 @@
         "lighthouse": "Web performance audit tool",
         "semgrep": "Static code security analysis tool",
         "embla-carousel": "Lightweight carousel component library",
-        "vercel": "Next.js application deployment platform",
+        "cloudflare": "Cloudflare Workers deployment platform",
         "sonarqube": "Code quality and security analysis platform",
         "storybook": "Component development and documentation tool",
         "swr": "Data fetching and caching library",
@@ -721,8 +721,8 @@
         "faqs": "FAQs",
         "docs": "Docs",
         "ambassadors": "Ambassadors",
-        "community": "Vercel Community",
-        "vercel": "Vercel"
+        "community": "Community",
+        "platform": "Platform"
       },
       "navigation": {
         "title": "Navigation",
@@ -744,7 +744,7 @@
         "terms": "Terms of Service"
       }
     },
-    "vercel": {
+    "platform": {
       "products": {
         "title": "Products",
         "ai": "AI",
@@ -772,7 +772,7 @@
         "solutionPartners": "Solution Partners",
         "startups": "Startups",
         "templates": "Templates",
-        "sdks": "SDKs by Vercel"
+        "sdks": "SDKs"
       },
       "company": {
         "title": "Company",

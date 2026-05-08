@@ -2,7 +2,7 @@
 
 import { lazy, Suspense } from "react";
 import { CookieConsentProvider } from "@/lib/cookie-consent";
-import { isPublicRuntimeProduction } from "@/lib/public-env";
+import { isPublicRuntimeProduction } from "@/lib/env";
 import { LazyCookieBanner } from "@/components/cookie/lazy-cookie-banner";
 import { LazyIslandErrorBoundary } from "@/components/ui/lazy-island-error-boundary";
 

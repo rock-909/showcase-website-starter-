@@ -8,12 +8,9 @@ import {
   withRateLimit,
   type RateLimitContext,
 } from "@/lib/api/with-rate-limit";
+import { safeParseJson } from "@/lib/api/safe-parse-json";
 import type { CSPReport } from "@/config/security";
-import {
-  HTTP_BAD_REQUEST,
-  HTTP_INTERNAL_ERROR,
-  HTTP_PAYLOAD_TOO_LARGE,
-} from "@/constants";
+import { HTTP_BAD_REQUEST, HTTP_INTERNAL_ERROR } from "@/constants";
 
 const MAX_CSP_REPORT_BODY_BYTES = 16 * 1024; // 16 KB — CSP reports should be tiny; prevents body-based DoS
 const MAX_SCRIPT_SAMPLE_LENGTH = 200;
@@ -124,85 +121,19 @@ const isSuspiciousReport = (csp: CSPReport["csp-report"]) => {
   return patterns.some((p) => blocked.includes(p) || sample.includes(p));
 };
 
-function createPayloadTooLargeResponse(): NextResponse {
-  return createApiErrorResponse(
-    API_ERROR_CODES.PAYLOAD_TOO_LARGE,
-    HTTP_PAYLOAD_TOO_LARGE,
-  );
-}
-
-function parseContentLengthHeader(value: string | null): number | null {
-  if (!value) return null;
-  const parsed = Number.parseInt(value, 10);
-  return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
-}
-
-async function readRequestTextWithLimit(
-  request: NextRequest,
-  maxBytes: number,
-): Promise<string | NextResponse> {
-  const contentLength = parseContentLengthHeader(
-    request.headers.get("content-length"),
-  );
-  if (contentLength !== null && contentLength > maxBytes) {
-    return createPayloadTooLargeResponse();
-  }
-
-  const reader = request.body?.getReader();
-  if (!reader) {
-    return "";
-  }
-
-  const decoder = new TextDecoder();
-  let totalBytes = 0;
-  let text = "";
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    if (!value) continue;
-
-    totalBytes += value.byteLength;
-    if (totalBytes > maxBytes) {
-      await reader.cancel();
-      return createPayloadTooLargeResponse();
-    }
-
-    text += decoder.decode(value, { stream: true });
-  }
-
-  text += decoder.decode();
-  return text;
-}
-
 async function parseAndValidateCSPReport(
   request: NextRequest,
 ): Promise<CSPReport | NextResponse> {
-  const bodyOrResponse = await readRequestTextWithLimit(
-    request,
-    MAX_CSP_REPORT_BODY_BYTES,
-  );
-  if (bodyOrResponse instanceof NextResponse) return bodyOrResponse;
-
-  const body = bodyOrResponse;
-  if (!body.trim()) {
-    return createApiErrorResponse(
-      API_ERROR_CODES.INVALID_REQUEST,
-      HTTP_BAD_REQUEST,
-    );
+  const parsedBody = await safeParseJson<unknown>(request, {
+    route: "/api/csp-report",
+    maxBytes: MAX_CSP_REPORT_BODY_BYTES,
+    emptyBodyErrorCode: API_ERROR_CODES.INVALID_REQUEST,
+  });
+  if (!parsedBody.ok) {
+    return createApiErrorResponse(parsedBody.errorCode, parsedBody.statusCode);
   }
 
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(body);
-  } catch {
-    return createApiErrorResponse(
-      API_ERROR_CODES.INVALID_JSON_BODY,
-      HTTP_BAD_REQUEST,
-    );
-  }
-
-  const result = cspReportSchema.safeParse(parsed);
+  const result = cspReportSchema.safeParse(parsedBody.data);
   if (!result.success) {
     return createApiErrorResponse(
       API_ERROR_CODES.INVALID_REQUEST,

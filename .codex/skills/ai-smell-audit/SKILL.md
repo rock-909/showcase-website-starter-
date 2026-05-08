@@ -112,7 +112,7 @@ For each expected command, determine one of four states:
 Discovery rules:
 - For binaries (`pnpm`, `node`, `git`, `rg`, `fd`, `semgrep`): use `command -v <bin>` then `<bin> --version`.
 - For `package.json` scripts: **Read** `package.json` and check the `scripts` object; do NOT invoke `pnpm run <script>` as an existence probe.
-- NEVER probe by actually running: `build`, `build:cf`, `preview:cf`, `smoke:cf:*`, `deploy:*`, `release:verify`, `test:e2e`, `test:visual`, mutation tests, or any command that triggers a real build/deploy/network pipeline.
+- NEVER probe by actually running: `build`, `website:build:cf`, Cloudflare preview/smoke commands, `deploy:*`, `release:verify`, Playwright E2E, visual regression tests, mutation tests, or any command that triggers a real build/deploy/network pipeline.
 
 ### 0A.3 Audit provenance capture
 
@@ -171,7 +171,7 @@ Run these ONLY if `0A.2` reported them `Available`. Each has a 90s hard timeout.
 
 - `pnpm type-check`
 - `pnpm lint:check`
-- `pnpm dep:check` (or `dep-cruiser`) — validates `.dependency-cruiser.js` rules
+- `pnpm exec dependency-cruiser src --config .dependency-cruiser.js -T err` (or `dep-cruiser`) — validates `.dependency-cruiser.js` rules
 - `pnpm knip` (or equivalent unused-code tool)
 - `pnpm exec semgrep --config=semgrep.yml <scope> --json > /tmp/audit/semgrep.json` (if semgrep available)
 

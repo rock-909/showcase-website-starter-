@@ -1,12 +1,11 @@
 # Grid Layout System
 
-> Vercel CSS Grid approach adapted for showcase website layouts
-> Reference: `docs/impeccable/external/vercel-design-system/` (original Vercel specs — do not modify)
-> Source: Reverse-engineered from vercel.com/home (2026-02-06)
+> Editorial CSS Grid approach adapted for showcase website layouts.
+> External vendor reference files have been removed from the live starter tree.
 
 ## Architecture
 
-Vercel's grid lines are **not a decorative overlay** — they are the layout system itself.
+The grid lines are **not a decorative overlay** — they are the layout system itself.
 
 ```
 ┌─ .grid-system ──────────────────────────────┐
@@ -45,7 +44,7 @@ Content blocks sit **on top of** guide cells (z-index: 2 vs 1) but leave a `1px`
 
 | Property | Value | Note |
 |----------|-------|------|
-| Max width | `1080px` | Vercel standard (prototype used 1140px) |
+| Max width | `1080px` | Starter grid standard (prototype used 1140px) |
 | Horizontal margin | `auto` | Centered |
 | Horizontal padding | `24px` | Inside container |
 
@@ -187,7 +186,6 @@ function heroGuides(cols: number, rows: number): GuideConfig[] {
 
 | File | Purpose |
 |------|---------|
-| `docs/impeccable/external/vercel-design-system/README.md` | Vercel design system overview |
-| `docs/impeccable/external/vercel-design-system/layout.css` | Vercel grid CSS variables |
-| `docs/impeccable/external/vercel-design-system/components/Layout.tsx` | Vercel component reference |
-| Vercel homepage screenshots | 已移出主树；需要时优先查 git 历史 |
+| `docs/impeccable/system/COLOR-SYSTEM.md` | Current color system |
+| `docs/impeccable/system/SECTION-REDESIGN-CHECKLIST.md` | Section redesign checklist |
+| Git history | Archived external reference snapshots, if future design archaeology needs them |

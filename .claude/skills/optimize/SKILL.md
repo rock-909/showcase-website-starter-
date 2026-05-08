@@ -77,10 +77,8 @@ Green tests are not enough if the guard command no longer scans the current file
 For header, navigation, language switching, mobile menu, or client-island performance work, run the smallest set that proves the touched contracts:
 
 ```bash
-node scripts/check-translate-compat.js
-pnpm test:translate-compat
+pnpm exec vitest run tests/unit/i18n.test.ts src/i18n/__tests__/request.test.ts src/lib/__tests__/load-messages.fallback.test.ts
 pnpm type-check
-pnpm type-check:tests
 pnpm lint:check
 pnpm exec playwright test tests/e2e/no-js-html-contract.spec.ts --project=chromium
 ```

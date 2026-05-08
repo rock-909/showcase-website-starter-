@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { coerceLocale } from "@/i18n/locale-utils";
-import { isPublicRuntimeDevelopment } from "@/lib/public-env";
+import { isPublicRuntimeDevelopment } from "@/lib/env";
 
 interface GlobalErrorProps {
   error: Error & { digest?: string };
@@ -44,7 +44,7 @@ function isDevelopmentRuntime(): boolean {
 }
 
 async function reportGlobalError(error: Error): Promise<void> {
-  const { logger } = await import("@/lib/logger-core");
+  const { logger } = await import("@/lib/logger");
   logger.error("Global error caught", error);
 }
 

@@ -14,7 +14,7 @@ import {
 import { Link } from "@/i18n/routing";
 
 export interface FooterProps {
-  /** 页脚列配置，默认使用 Vercel 抓取的四列数据 */
+  /** 页脚列配置，默认使用 starter 四列数据 */
   columns?: FooterColumnConfig[];
   /** 自定义样式 token，默认使用 FOOTER_STYLE_TOKENS */
   tokens?: FooterStyleTokens;

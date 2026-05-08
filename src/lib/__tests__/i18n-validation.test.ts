@@ -193,7 +193,7 @@ describe("i18n-validation Tests - Index", () => {
   describe("Error handling", () => {
     it("should handle malformed translation files", async () => {
       // Mock a malformed translation file
-      vi.doMock("../../messages/zh.json", () => {
+      vi.doMock("../../messages/zh/critical.json", () => {
         throw new Error("Malformed JSON");
       });
 
@@ -206,7 +206,7 @@ describe("i18n-validation Tests - Index", () => {
 
     it("should handle missing translation files", async () => {
       // Mock missing translation file
-      vi.doMock("../../messages/zh.json", () => {
+      vi.doMock("../../messages/zh/critical.json", () => {
         throw new Error("Module not found");
       });
 
@@ -234,7 +234,7 @@ describe("i18n-validation Tests - Index", () => {
     });
 
     it("should handle null and undefined values", async () => {
-      vi.doMock("../../messages/en.json", () => ({
+      vi.doMock("../../messages/en/critical.json", () => ({
         default: {
           test: {
             nullValue: null,

@@ -125,8 +125,8 @@ describe("MobileNavigationIsland", () => {
     expect(html).toContain('data-testid="mobile-language-fallback"');
     expect(html).toContain("English");
     expect(html).toContain("简体中文");
-    expect(html).toContain("/en?fromLocaleFallback=1");
-    expect(html).toContain("/zh?fromLocaleFallback=1");
+    expect(html).toContain("/en");
+    expect(html).toContain("/zh");
     expect(html).not.toContain("mobile-navigation-interactive");
   });
 

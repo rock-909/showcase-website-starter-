@@ -8,9 +8,10 @@ const localeCases = [
     contactHeading: /Contact Us/i,
     languageLabel: "Select Language",
     currentLanguage: "English",
-    targetFallbackHref: "/zh?fromLocaleFallback=1",
+    targetFallbackHref: "/zh",
     targetLocale: "zh",
     targetContactHeading: /联系我们/i,
+    targetHomeHeading: /还没有网站？先从可部署的展示型网站基础开始。/i,
     fullNameLabel: "Full name",
     optionalLabel: "optional",
   },
@@ -20,9 +21,11 @@ const localeCases = [
     contactHeading: /联系我们/i,
     languageLabel: "选择语言",
     currentLanguage: "简体中文",
-    targetFallbackHref: "/en?fromLocaleFallback=1",
+    targetFallbackHref: "/en",
     targetLocale: "en",
     targetContactHeading: /Contact Us/i,
+    targetHomeHeading:
+      /No website yet\? Start with a deployable showcase-site foundation\./i,
     fullNameLabel: "姓名",
     optionalLabel: "选填",
   },
@@ -87,22 +90,16 @@ for (const localeCase of localeCases) {
         "header-mobile-navigation-fallback-panel",
       );
       const englishLanguageLink = fallbackPanel.locator(
-        'a[href="/en?fromLocaleFallback=1"]',
+        'a[hreflang="en"][href="/en"]',
       );
       const chineseLanguageLink = fallbackPanel.locator(
-        'a[href="/zh?fromLocaleFallback=1"]',
+        'a[hreflang="zh"][href="/zh"]',
       );
 
       await expect(englishLanguageLink).toBeHidden();
       await expect(chineseLanguageLink).toBeHidden();
-      await expect(englishLanguageLink).toHaveAttribute(
-        "href",
-        "/en?fromLocaleFallback=1",
-      );
-      await expect(chineseLanguageLink).toHaveAttribute(
-        "href",
-        "/zh?fromLocaleFallback=1",
-      );
+      await expect(englishLanguageLink).toHaveAttribute("href", "/en");
+      await expect(chineseLanguageLink).toHaveAttribute("href", "/zh");
 
       await languageFallback.click();
 
@@ -110,7 +107,7 @@ for (const localeCase of localeCases) {
       await expect(chineseLanguageLink).toBeVisible();
     });
 
-    test("mobile language fallback preserves the current path when same-origin referer is present", async ({
+    test("mobile language fallback lands on the selected locale root without JavaScript", async ({
       page,
     }) => {
       await page.setViewportSize({ width: 390, height: 844 });
@@ -128,7 +125,7 @@ for (const localeCase of localeCases) {
       await languageFallback.click();
 
       const targetLanguageLink = fallbackPanel.locator(
-        `a[href="${localeCase.targetFallbackHref}"]`,
+        `a[hreflang="${localeCase.targetLocale}"][href="${localeCase.targetFallbackHref}"]`,
       );
       await expect(targetLanguageLink).toBeVisible();
 
@@ -136,10 +133,13 @@ for (const localeCase of localeCases) {
 
       await expect
         .poll(() => new URL(page.url()).pathname)
-        .toBe(`/${localeCase.targetLocale}/contact`);
+        .toBe(`/${localeCase.targetLocale}`);
       expect(new URL(page.url()).search).toBe("");
       await expect(
-        page.getByRole("heading", { name: localeCase.targetContactHeading }),
+        page.getByRole("heading", {
+          level: 1,
+          name: localeCase.targetHomeHeading,
+        }),
       ).toBeVisible();
     });
 

@@ -12,7 +12,7 @@ export type CookieCategory = "necessary" | "analytics" | "marketing";
 export interface CookieConsent {
   /** Essential cookies (Turnstile, locale, theme) - always true */
   necessary: true;
-  /** Analytics cookies (Vercel Analytics, Speed Insights) */
+  /** Analytics cookies such as GA4, if configured */
   analytics: boolean;
   /** Marketing cookies (future ads and campaign attribution) */
   marketing: boolean;

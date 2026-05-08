@@ -29,16 +29,10 @@
 
 - [`lighthouserc.js`](../../lighthouserc.js)
 
-### 覆盖率与质量门禁阈值
-
-- [`scripts/quality-gate.js`](../../scripts/quality-gate.js)
-
 ### 架构 / 依赖治理
 
 - [`.dependency-cruiser.js`](../../.dependency-cruiser.js)
-- [`scripts/architecture-metrics.js`](../../scripts/architecture-metrics.js)
-- [`scripts/dependency-conformance.js`](../../scripts/dependency-conformance.js)
-- [`scripts/structural-hotspots.js`](../../scripts/structural-hotspots.js)
+- [`STRUCTURAL-CHANGE-CLUSTERS.md`](./STRUCTURAL-CHANGE-CLUSTERS.md)
 
 ## Supplemental, Not Canonical
 

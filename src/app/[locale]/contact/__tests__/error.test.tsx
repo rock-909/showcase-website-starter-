@@ -8,7 +8,7 @@ const { mockLoggerError } = vi.hoisted(() => ({
   mockLoggerError: vi.fn(),
 }));
 
-vi.mock("@/lib/logger-core", () => ({
+vi.mock("@/lib/logger", () => ({
   logger: {
     error: mockLoggerError,
     info: vi.fn(),

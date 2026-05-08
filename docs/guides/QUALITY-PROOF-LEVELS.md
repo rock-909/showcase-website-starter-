@@ -23,7 +23,9 @@
 
 典型命令：
 
-- `pnpm quality:gate:fast`
+- `pnpm type-check`
+- `pnpm lint:check`
+- change-scoped `pnpm exec vitest run ...`
 - `lefthook` 的 staged / pre-commit / pre-push 检查
 
 它能证明：
@@ -57,20 +59,21 @@
 
 最小组合：
 
+- `pnpm type-check`
+- `pnpm lint:check`
 - `pnpm build`
-- `pnpm test:coverage`
-- `pnpm quality:gate -- --skip-test-run` 或等价完整本地门禁
-- 如果涉及 i18n / messages / content，再补 `pnpm validate:translations`
+- `pnpm test`
+- 如果涉及 i18n / messages / content，再补 `node scripts/starter-checks.js translations`
 
 按需加跑：
 
-- `pnpm build:cf`：平台 / runtime / build-chain 改动
-- `pnpm deploy:cf:dry-run`：Cloudflare 部署拓扑改动，需要不改远端状态的部署证明时
-- `CI=1 pnpm test:e2e`：关键 UI / runtime 行为改动
-- `pnpm website:build`：改到 `src/config/website/**`、`NEXT_PUBLIC_SITE_KEY` 或站点装配入口
+- `pnpm website:build:cf`：平台 / runtime / build-chain 改动
+- `pnpm exec wrangler deploy --dry-run --env preview`：Cloudflare 部署 artifact 改动，需要不改远端状态的部署证明时
+- `CI=1 pnpm exec playwright test`：关键 UI / runtime 行为改动
+- `pnpm build`：改到 `src/config/website/**`、`NEXT_PUBLIC_SITE_KEY` 或站点装配入口
 - `pnpm website:build:cf`：同类改动还要证明 Cloudflare 构建链时
-- `pnpm website:content:readiness`：改到 `content/pages/**`、`messages/{locale}/{critical,deferred}.json`、`public/images/**/*.svg` 或 `src/config/website/**` 时运行
-- `pnpm website:review:client-boundary`：改到 client/server component 边界、interactive islands、forms、theme、cookie 或 header/navigation 交互时运行
+- `node scripts/starter-checks.js content-readiness`：改到 `content/pages/**`、`messages/{locale}/{critical,deferred}.json`、`public/images/**/*.svg` 或 `src/config/website/**` 时运行
+- `node scripts/starter-checks.js client-boundary`：改到 client/server component 边界、interactive islands、forms、theme、cookie 或 header/navigation 交互时运行
 
 它能证明：
 
@@ -98,12 +101,15 @@
 
 这个仓库里，常见 targeted proof 是：
 
-- `pnpm review:docs-truth`
-- `pnpm review:cf:official-compare:source`
-- `pnpm review:derivative-readiness`
+- `node scripts/starter-checks.js truth-docs`
+- `node scripts/starter-checks.js cf-official-compare --source-only`
+- `node scripts/starter-checks.js truth-docs`
+- `pnpm exec vitest run tests/integration/api/lead-family-contract.test.ts tests/integration/api/lead-family-protection.test.ts src/app/api/inquiry/__tests__/route.test.ts tests/integration/api/subscribe.test.ts`
+- `pnpm exec vitest run tests/unit/middleware.test.ts src/__tests__/middleware-locale-cookie.test.ts src/i18n/__tests__/request.test.ts src/lib/__tests__/load-messages.fallback.test.ts`
+- matching focused suites from `docs/guides/STRUCTURAL-CHANGE-CLUSTERS.md`
 - 变更范围对应的 Vitest 套件
-- 串行构建，如 `pnpm clean:next-artifacts && pnpm build`
-- 如果碰到 Cloudflare deploy path，再补 `pnpm deploy:cf:dry-run && pnpm review:cf:official-compare`
+- 串行构建，如 `pnpm build` 后再跑 `pnpm website:build:cf`
+- 如果碰到 Cloudflare deploy path，再补 `pnpm exec wrangler deploy --dry-run --env preview`
 
 它能证明：
 
@@ -113,7 +119,7 @@
 它不能证明：
 
 - 其他无关 dirty 文件也都通过全仓门禁
-- 稍后 clean branch 上的 `ci:local:quick` 已经自动成立
+- 稍后 clean branch 上的 full proof bundle 已经自动成立
 
 ### 3. `ci-proof`
 
@@ -125,22 +131,26 @@ Source of truth：
 
 - `.github/workflows/ci.yml`
 
-最低预期：
+当前 `.github/workflows/ci.yml` 的最低预期：
 
-- basic checks 通过
-- tests 通过
-- translation quality 通过
-- architecture 通过
-- security 通过
-- performance 通过
+- TypeScript 检查通过
+- lint 和 eslint-disable registry 检查通过
+- brand / content / translation shape 检查通过
+- client-boundary source budget 检查通过
+- unit + integration tests 通过
+- lead-family focused proof 通过
+- browser E2E smoke 通过
+- Next.js build 和 Cloudflare/OpenNext build 通过
 
 它能证明：
 
 - 仓库核心门禁在干净 CI 环境里是绿的
-- `pnpm website:content:readiness` 和 `pnpm website:review:client-boundary` 这类轻量 proof 可以在普通 CI 里跑，因为它们不依赖 preview deployment secrets
+- `node scripts/starter-checks.js content-readiness` 和 `node scripts/starter-checks.js client-boundary` 这类轻量 proof 可以在普通 CI 里跑，因为它们不依赖 preview deployment secrets
 
 它不能单独证明：
 
+- standalone security scan 已经执行
+- standalone performance benchmark 已经执行
 - release-specific deployment health
 - 特定环境的 rollout 正确性
 - Tier A 场景下的人类 signoff 已完成
@@ -159,7 +169,7 @@ Source of truth：
 必须使用的场景：
 
 - `src/middleware.ts` 改动
-- locale redirect / nonce / security headers 改动
+- locale redirect / locale cookie / security headers 改动
 - `open-next.config.ts` 或 Cloudflare 部署链改动
 - 关键翻译 bundle 或 runtime locale 语义改动
 - contact / inquiry / abuse-protection 对生产行为有实质影响的改动
@@ -170,7 +180,7 @@ Source of truth：
 - 成功的 `ci-proof`
 - 适用时必须双平台验证：
   - `pnpm build`
-  - `pnpm build:cf`
+  - `pnpm website:build:cf`
 - 受影响关键路径的 runtime 检查
 - Tier A owner review 要求满足
 
@@ -197,13 +207,13 @@ Source of truth：
 
 ## 仓库级补充说明
 
-- `build:cf` 现在走 repo-local Webpack wrapper，而且会自清理后重建，但它和标准构建线仍共享 `.next` 这一类构建产物，所以必须串行跑
-- 想拿到更强的标准构建证据，先跑 `pnpm clean:next-artifacts && pnpm build`，再跑 `pnpm build:cf`
-- 如果碰到 Cloudflare / OpenNext / split-worker 行为，`pnpm deploy:cf:dry-run` 比 stock preview 更强
+- `pnpm website:build:cf` 现在走官方 OpenNext Cloudflare CLI，但它和标准构建线仍共享 `.next` 这一类构建产物，所以必须串行跑
+- 想拿到更强的标准构建证据，先跑 `pnpm build`，再跑 `pnpm website:build:cf`
+- 如果碰到 Cloudflare / OpenNext deploy artifact 行为，`pnpm exec wrangler deploy --dry-run --env preview` 比 stock preview 更强
 - 当前 Cloudflare 兼容链里，`src/middleware.ts` 仍是优先入口，不是 `proxy.ts`
 - 翻译 proof 不能只看 flat 文件，要同时覆盖 full bundles 和 critical bundles
 - site-aware 改动不能只做结构 proof；只要改到站点身份或 overlay seam，至少跑一个 non-default-site build
-- 只要碰到 current-truth docs 或 derivative authoring guidance，补跑 `pnpm review:docs-truth`
+- 只要碰到 current-truth docs 或 derivative authoring guidance，补跑 `node scripts/starter-checks.js truth-docs`
 - 分支是 dirty worktree 时，必须把 targeted proof 和 clean branch proof 分开汇报
 - 当前单站 authoring truth 要明确分成三层：
   - `src/config/single-site.ts`

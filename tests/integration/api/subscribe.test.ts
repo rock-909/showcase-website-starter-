@@ -18,7 +18,7 @@ vi.mock("@/lib/turnstile", () => ({
   verifyTurnstileDetailed: vi.fn(async () => ({ success: true })),
 }));
 
-vi.mock("@/lib/lead-pipeline", () => ({
+vi.mock("@/lib/lead-pipeline/process-lead", () => ({
   processLead: vi.fn(async () => ({
     success: true,
     outcome: "success",
@@ -104,7 +104,7 @@ describe("api/subscribe", () => {
   });
 
   it("processes repeated valid subscribe requests independently", async () => {
-    const leadPipeline = await import("@/lib/lead-pipeline");
+    const leadPipeline = await import("@/lib/lead-pipeline/process-lead");
     const res1 = await route.POST(
       makeReq({ email: "ok@example.com", turnstileToken: "valid-token" }),
     );
@@ -177,7 +177,7 @@ describe("api/subscribe", () => {
   });
 
   it("returns success when the newsletter record is created", async () => {
-    const leadPipeline = await import("@/lib/lead-pipeline");
+    const leadPipeline = await import("@/lib/lead-pipeline/process-lead");
     vi.mocked(leadPipeline.processLead).mockResolvedValueOnce({
       success: true,
       referenceId: "ref-record-123",

@@ -18,12 +18,6 @@ export interface ApiErrorResponse {
   errorCode: ApiErrorCode;
 }
 
-export interface ApiPartialSuccessResponse<T> {
-  success: false;
-  errorCode: ApiErrorCode;
-  data: T;
-}
-
 /**
  * Standard API success response structure
  */

@@ -13,7 +13,7 @@ interface SubsetSource {
 // Analytics 连接优化策略：
 // - 仅在生产环境且显式开启开关时使用 preconnect（更激进，可能占用早期连接）
 // - 默认使用 dns-prefetch（更保守，低成本）
-const ANALYTICS_ORIGIN = "https://vitals.vercel-insights.com" as const;
+const ANALYTICS_ORIGIN = "https://www.googletagmanager.com" as const;
 const isProduction = env.NODE_ENV === "production";
 const enableAnalyticsPreconnect =
   isProduction &&
@@ -32,9 +32,7 @@ const ANALYTICS_PRECONNECTS: Array<{
   : [];
 
 // 可选：添加CDN dns-prefetch（除 Analytics 外的其他域名）
-const DNS_PREFETCH_DOMAINS: string[] = [
-  // 'https://vercel.com', // 示例：Vercel 相关域名
-];
+const DNS_PREFETCH_DOMAINS: string[] = [];
 
 // 当未启用 preconnect 时，对 Analytics 域名使用 dns-prefetch（低成本优化）
 const ANALYTICS_DNS_PREFETCHES: string[] = enableAnalyticsPreconnect
@@ -116,7 +114,7 @@ export default function LocaleHead(): ReactElement {
 
   return (
     <>
-      {/* Vercel Analytics 预连接 - 仅生产且开关启用时渲染 */}
+      {/* Analytics 预连接 - 仅生产且开关启用时渲染 */}
       {ANALYTICS_PRECONNECTS.map(({ href, crossOrigin }) => (
         <link
           key={href}

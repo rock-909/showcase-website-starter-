@@ -1,9 +1,9 @@
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { API_ERROR_CODES } from "@/constants/api-error-codes";
-import { processLead } from "@/lib/lead-pipeline";
+import { processLead } from "@/lib/lead-pipeline/process-lead";
 import { verifyTurnstileDetailed } from "@/lib/turnstile";
-import { POST } from "../route";
+import { OPTIONS, POST } from "../route";
 
 vi.unmock("zod");
 
@@ -22,21 +22,14 @@ vi.mock("@/lib/turnstile", () => ({
   verifyTurnstileDetailed: vi.fn(async () => ({ success: true })),
 }));
 
-vi.mock("@/lib/lead-pipeline", async () => {
-  const actual = await vi.importActual<typeof import("@/lib/lead-pipeline")>(
-    "@/lib/lead-pipeline",
-  );
-
-  return {
-    ...actual,
-    processLead: vi.fn(async () => ({
-      success: true,
-      referenceId: "sub-ref-001",
-      recordCreated: true,
-      emailSent: false,
-    })),
-  };
-});
+vi.mock("@/lib/lead-pipeline/process-lead", () => ({
+  processLead: vi.fn(async () => ({
+    success: true,
+    referenceId: "sub-ref-001",
+    recordCreated: true,
+    emailSent: false,
+  })),
+}));
 
 function makeSubscribeRequest(
   body: unknown,
@@ -160,20 +153,65 @@ describe("/api/subscribe route", () => {
 
     expect(response.status).toBe(200);
     expect(verifyTurnstileDetailed).toHaveBeenCalledTimes(1);
-    expect(processLead).toHaveBeenCalledWith(
-      {
-        type: "newsletter",
-        email: "subscriber@example.com",
-      },
-      expect.objectContaining({
-        requestId: expect.any(String),
-      }),
-    );
+    expect(processLead).toHaveBeenCalledWith({
+      type: "newsletter",
+      email: "subscriber@example.com",
+    });
+    expect(response.headers.get("x-request-id")).toBeNull();
+    expect(response.headers.get("x-observability-surface")).toBeNull();
     await expect(response.json()).resolves.toEqual({
       success: true,
       data: {
         referenceId: "sub-ref-001",
       },
     });
+  });
+
+  it("applies CORS headers on POST response when Origin is present", async () => {
+    const response = await POST(
+      new NextRequest("http://localhost:3000/api/subscribe", {
+        method: "POST",
+        body: JSON.stringify({
+          email: "subscriber@example.com",
+          turnstileToken: "valid-token",
+        }),
+        headers: {
+          "Content-Type": "application/json",
+          origin: "http://localhost:3000",
+          host: "localhost:3000",
+        },
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("Access-Control-Allow-Origin")).toBe(
+      "http://localhost:3000",
+    );
+    expect(response.headers.get("Access-Control-Allow-Methods")).toContain(
+      "POST",
+    );
+  });
+
+  it("returns CORS preflight methods for OPTIONS", () => {
+    const response = OPTIONS(
+      new NextRequest("http://localhost:3000/api/subscribe", {
+        method: "OPTIONS",
+        headers: {
+          origin: "http://localhost:3000",
+          host: "localhost:3000",
+        },
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("Access-Control-Allow-Origin")).toBe(
+      "http://localhost:3000",
+    );
+    expect(response.headers.get("Access-Control-Allow-Methods")).toContain(
+      "POST",
+    );
+    expect(response.headers.get("Access-Control-Allow-Methods")).toContain(
+      "OPTIONS",
+    );
   });
 });

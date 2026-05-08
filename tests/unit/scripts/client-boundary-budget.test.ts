@@ -6,7 +6,7 @@ import {
   collectClientBoundaryFiles,
   hasTopLevelUseClientDirective,
   runClientBoundaryBudgetCheck,
-} from "../../../scripts/client-boundary-budget.mjs";
+} from "../../../scripts/starter-checks.js";
 
 const TEMP_TRASH_ROOT = path.join(
   os.tmpdir(),

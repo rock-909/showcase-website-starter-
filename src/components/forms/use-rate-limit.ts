@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { FIVE_MINUTES_MS } from "@/constants/time";
 import { useCurrentTime } from "@/hooks/use-current-time";
-import { getPublicRuntimeEnvNumber } from "@/lib/public-env";
+import { getPublicRuntimeEnvNumber } from "@/lib/env";
 
 /**
  * 获取配置的冷却时间（毫秒）

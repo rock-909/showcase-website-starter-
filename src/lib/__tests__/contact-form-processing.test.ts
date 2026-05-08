@@ -1,14 +1,19 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { API_ERROR_CODES } from "@/constants/api-error-codes";
 import { CONTACT_SUBJECTS } from "@/lib/lead-pipeline/lead-schema";
 import {
-  processFormSubmission,
   type ContactFormWithToken,
-} from "@/lib/contact-form-processing";
+  submitCanonicalContactSubmission,
+} from "@/lib/contact/submit-canonical-contact";
 
 const mockProcessLead = vi.hoisted(() => vi.fn());
 
 vi.mock("@/lib/lead-pipeline/process-lead", () => ({
   processLead: mockProcessLead,
+}));
+
+vi.mock("@/lib/turnstile", () => ({
+  verifyTurnstileDetailed: vi.fn(() => Promise.resolve({ success: true })),
 }));
 
 vi.mock("@/lib/logger", () => ({
@@ -32,11 +37,17 @@ function createContactFormData(
     acceptPrivacy: true,
     marketingConsent: false,
     turnstileToken: "valid-token",
-    submittedAt: "2026-04-30T12:00:00.000Z",
+    submittedAt: new Date().toISOString(),
   };
 }
 
-describe("processFormSubmission subject mapping", () => {
+describe("canonical contact submission", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-04-30T12:00:00.000Z"));
+  });
+
   it("maps plain custom project wording to the custom project lead subject", async () => {
     mockProcessLead.mockResolvedValueOnce({
       success: true,
@@ -45,7 +56,10 @@ describe("processFormSubmission subject mapping", () => {
       referenceId: "ref-custom",
     });
 
-    await processFormSubmission(createContactFormData("Custom project setup"));
+    await submitCanonicalContactSubmission(
+      createContactFormData("Custom project setup"),
+      { clientIP: "203.0.113.10" },
+    );
 
     expect(mockProcessLead).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -65,8 +79,9 @@ describe("processFormSubmission subject mapping", () => {
       referenceId: "ref-other",
     });
 
-    await processFormSubmission(
+    await submitCanonicalContactSubmission(
       createContactFormData(`${legacyManufacturingTerm} packaging`),
+      { clientIP: "203.0.113.10" },
     );
 
     expect(mockProcessLead).toHaveBeenCalledWith(
@@ -85,13 +100,38 @@ describe("processFormSubmission subject mapping", () => {
       referenceId: "ref-name",
     });
 
-    await processFormSubmission(createContactFormData("Product inquiry"));
+    await submitCanonicalContactSubmission(
+      createContactFormData("Product inquiry"),
+      { clientIP: "203.0.113.10" },
+    );
 
     expect(mockProcessLead).toHaveBeenCalledWith(
       expect.objectContaining({
         fullName: "Alice Example",
       }),
       {},
+    );
+  });
+
+  it("returns a structured failure when lead processing fails", async () => {
+    mockProcessLead.mockResolvedValueOnce({
+      success: false,
+      error: "Airtable unavailable",
+    });
+
+    const result = await submitCanonicalContactSubmission(
+      createContactFormData("Product inquiry"),
+      { clientIP: "203.0.113.10" },
+    );
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        success: false,
+        errorCode: API_ERROR_CODES.CONTACT_PROCESSING_ERROR,
+        error: "Failed to process contact submission",
+        details: null,
+        data: null,
+      }),
     );
   });
 });

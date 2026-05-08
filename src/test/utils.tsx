@@ -95,7 +95,7 @@
  * - `language`: 语言切换 (toggle, selectLanguage, english, chinese, etc.)
  * - `errorBoundary`: 错误边界 (title, description, tryAgain)
  * - `seo`: SEO 元数据 (title, description, siteName, pages, etc.)
- * - `footer`: 页脚内容 (sections, vercel, etc.)
+ * - `footer`: 页脚内容 (sections, platform, etc.)
  * - `underConstruction`: 施工中页面 (title, subtitle, comingSoon, etc.)
  *
  * ### 导入特定命名空间

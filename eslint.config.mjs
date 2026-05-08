@@ -1062,7 +1062,6 @@ export default [
       "jest.config.js",
       "tina/__generated__/**", // 忽略TinaCMS生成的文件
       ".dependency-cruiser.js", // 工具配置文件
-      "docs/impeccable/external/vercel-design-system/**", // 设计系统参考文件，非生产代码
       ".claude/skills/**", // agent skill 参考脚本，非生产代码
       ".claude/worktrees/**", // temporary git worktree state
       ".agent/**", // repo-local agent runtime assets

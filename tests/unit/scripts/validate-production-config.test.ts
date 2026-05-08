@@ -3,7 +3,7 @@ import {
   shouldValidateProductionRuntimeContract,
   validateProductionConfig,
   validateProductionRuntimeContract,
-} from "../../../scripts/validate-production-config";
+} from "../../../scripts/starter-checks.js";
 
 function createValidProductionEnv(): NodeJS.ProcessEnv {
   return {

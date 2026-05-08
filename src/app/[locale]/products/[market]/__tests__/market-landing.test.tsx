@@ -122,7 +122,7 @@ vi.mock("@/components/sections/faq-section", () => ({
   FaqSection: () => <section data-testid="faq-section">FAQ</section>,
 }));
 
-vi.mock("@/lib/content", () => ({
+vi.mock("@/lib/content-query/queries", () => ({
   getPageBySlug: vi.fn(async () => ({
     metadata: {
       faq: [

@@ -1,9 +1,13 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
   getClientMessageNamespaces,
+  loadClientMessages,
   pickMessages,
   pickClientMessages,
 } from "@/lib/i18n/client-messages";
+
+const LAYOUT_SOURCE_PATH = "src/app/[locale]/layout.tsx";
 
 describe("client message scoping", () => {
   it("keeps only namespaces needed by client islands", () => {
@@ -54,5 +58,32 @@ describe("client message scoping", () => {
       contact: { form: { title: "Contact" } },
       apiErrors: { UNKNOWN_ERROR: "Unknown" },
     });
+  });
+
+  it("loads only client provider namespaces from split message bundles", async () => {
+    const scoped = await loadClientMessages("en");
+
+    expect(Object.keys(scoped).sort()).toEqual(
+      [...getClientMessageNamespaces()].sort(),
+    );
+    expect(scoped).toHaveProperty("accessibility");
+    expect(scoped).toHaveProperty("apiErrors");
+    expect(scoped).toHaveProperty("contact");
+    expect(scoped).toHaveProperty("cookie");
+    expect(scoped).toHaveProperty("errors");
+    expect(scoped).toHaveProperty("language");
+    expect(scoped).toHaveProperty("navigation");
+    expect(scoped).not.toHaveProperty("footer");
+    expect(scoped).not.toHaveProperty("home");
+    expect(scoped).not.toHaveProperty("faq");
+    expect(scoped).not.toHaveProperty("products");
+  });
+
+  it("keeps the root layout on the narrow client message loader", () => {
+    const source = readFileSync(LAYOUT_SOURCE_PATH, "utf8");
+
+    expect(source).toContain("loadClientMessages");
+    expect(source).not.toContain("loadCompleteMessages");
+    expect(source).not.toContain("pickClientMessages(messages)");
   });
 });

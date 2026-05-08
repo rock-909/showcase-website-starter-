@@ -13,7 +13,7 @@ vi.mock("@/components/forms/use-rate-limit", () => ({
   }),
 }));
 
-vi.mock("@/lib/logger-core", () => ({
+vi.mock("@/lib/logger", () => ({
   logger: {
     warn: vi.fn(),
     error: vi.fn(),

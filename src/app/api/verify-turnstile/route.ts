@@ -8,14 +8,12 @@ import {
   createCorsPreflightResponse,
 } from "@/lib/api/cors-utils";
 import { safeParseJson } from "@/lib/api/safe-parse-json";
+import {
+  withRateLimit,
+  type RateLimitContext,
+} from "@/lib/api/with-rate-limit";
 import { env } from "@/lib/env";
 import { logger, sanitizeIP } from "@/lib/logger";
-import { getClientIP } from "@/lib/security/client-ip";
-import {
-  checkDistributedRateLimit,
-  createRateLimitHeaders,
-} from "@/lib/security/distributed-rate-limit";
-import { getIPKey } from "@/lib/security/rate-limit-key-strategies";
 import { verifyTurnstileDetailed } from "@/lib/turnstile";
 import { API_ERROR_CODES } from "@/constants/api-error-codes";
 import {
@@ -23,7 +21,6 @@ import {
   HTTP_INTERNAL_ERROR,
   HTTP_OK,
   HTTP_SERVICE_UNAVAILABLE,
-  HTTP_TOO_MANY_REQUESTS,
 } from "@/constants";
 
 /**
@@ -38,6 +35,11 @@ interface TurnstileVerificationRequest {
   token: string;
 }
 
+interface TurnstileVerificationResult {
+  success: boolean;
+  errorCodes?: string[];
+}
+
 /**
  * Validate request body
  */
@@ -49,16 +51,6 @@ function validateRequestBody(body: TurnstileVerificationRequest) {
     );
   }
   return null;
-}
-
-/**
- * Create verification error response
- */
-function createVerificationErrorResponse() {
-  return createApiErrorResponse(
-    API_ERROR_CODES.TURNSTILE_VERIFICATION_FAILED,
-    HTTP_BAD_REQUEST,
-  );
 }
 
 /**
@@ -89,6 +81,53 @@ function checkTurnstileConfigured(): NextResponse | null {
   return null;
 }
 
+function isTurnstileNetworkError(result: TurnstileVerificationResult): boolean {
+  return (
+    result.errorCodes?.some(
+      (code) => code === "network-error" || code === "timeout",
+    ) ?? false
+  );
+}
+
+function createFailedVerificationResponse(
+  result: TurnstileVerificationResult,
+  clientIP: string,
+): NextResponse {
+  if (isTurnstileNetworkError(result)) {
+    logger.error("Turnstile verification network failure", {
+      errorCodes: result.errorCodes,
+      clientIP: sanitizeIP(clientIP),
+    });
+    return createApiErrorResponse(
+      API_ERROR_CODES.TURNSTILE_NETWORK_ERROR,
+      HTTP_SERVICE_UNAVAILABLE,
+    );
+  }
+
+  return createApiErrorResponse(
+    API_ERROR_CODES.TURNSTILE_VERIFICATION_FAILED,
+    HTTP_BAD_REQUEST,
+  );
+}
+
+async function verifyRequestToken(
+  token: string,
+  clientIP: string,
+): Promise<NextResponse | null> {
+  let verificationResult: TurnstileVerificationResult;
+  try {
+    verificationResult = await verifyTurnstileDetailed(token, clientIP);
+  } catch (verifyError) {
+    return createNetworkErrorResponse(verifyError as Error, clientIP);
+  }
+
+  if (!verificationResult.success) {
+    return createFailedVerificationResponse(verificationResult, clientIP);
+  }
+
+  return null;
+}
+
 /**
  * Verify Cloudflare Turnstile token
  *
@@ -96,47 +135,13 @@ function checkTurnstileConfigured(): NextResponse | null {
  * to ensure the user has passed the bot protection challenge.
  * Uses the shared verifyTurnstile function for consistency.
  */
-// eslint-disable-next-line max-statements -- guardrail-exception GSE-20260428-turnstile-security-gates: security route keeps config/rate/parse/validate/verify/respond gates in request order
-async function handlePost(request: NextRequest) {
+async function handlePost(
+  request: NextRequest,
+  { clientIP }: RateLimitContext,
+) {
   try {
     const configError = checkTurnstileConfigured();
     if (configError) return configError;
-
-    let rateLimitResult: Awaited<ReturnType<typeof checkDistributedRateLimit>>;
-    try {
-      // Rate limiting: security-sensitive endpoint uses fail-closed preset
-      const rateLimitKey = await getIPKey(request);
-      rateLimitResult = await checkDistributedRateLimit(
-        rateLimitKey,
-        "turnstile",
-      );
-    } catch (rateLimitError) {
-      logger.error("Turnstile rate limit infrastructure failure", {
-        error: rateLimitError as Error,
-      });
-      return createApiErrorResponse(
-        API_ERROR_CODES.SERVICE_UNAVAILABLE,
-        HTTP_SERVICE_UNAVAILABLE,
-      );
-    }
-
-    if (!rateLimitResult.allowed) {
-      const rateLimitHeaders = createRateLimitHeaders(rateLimitResult);
-      const statusCode =
-        rateLimitResult.deniedReason === "storage_failure"
-          ? HTTP_SERVICE_UNAVAILABLE
-          : HTTP_TOO_MANY_REQUESTS;
-      return NextResponse.json(
-        {
-          success: false,
-          errorCode:
-            rateLimitResult.deniedReason === "storage_failure"
-              ? API_ERROR_CODES.SERVICE_UNAVAILABLE
-              : API_ERROR_CODES.RATE_LIMIT_EXCEEDED,
-        },
-        { status: statusCode, headers: rateLimitHeaders },
-      );
-    }
 
     const parsedBody = await safeParseJson<TurnstileVerificationRequest>(
       request,
@@ -152,35 +157,11 @@ async function handlePost(request: NextRequest) {
     const validationError = validateRequestBody(parsedBody.data);
     if (validationError) return validationError;
 
-    // SECURITY: Always use server-derived IP - never trust client-provided IP
-    const clientIP = getClientIP(request);
-
-    let verificationResult: { success: boolean; errorCodes?: string[] };
-    try {
-      verificationResult = await verifyTurnstileDetailed(
-        parsedBody.data.token,
-        clientIP,
-      );
-    } catch (verifyError) {
-      return createNetworkErrorResponse(verifyError as Error, clientIP);
-    }
-
-    if (!verificationResult.success) {
-      const isNetworkError = verificationResult.errorCodes?.some(
-        (code) => code === "network-error" || code === "timeout",
-      );
-      if (isNetworkError) {
-        logger.error("Turnstile verification network failure", {
-          errorCodes: verificationResult.errorCodes,
-          clientIP: sanitizeIP(clientIP),
-        });
-        return createApiErrorResponse(
-          API_ERROR_CODES.TURNSTILE_NETWORK_ERROR,
-          HTTP_SERVICE_UNAVAILABLE,
-        );
-      }
-      return createVerificationErrorResponse();
-    }
+    const verificationError = await verifyRequestToken(
+      parsedBody.data.token,
+      clientIP,
+    );
+    if (verificationError) return verificationError;
 
     return createApiSuccessResponse({ verified: true }, HTTP_OK);
   } catch (error) {
@@ -192,8 +173,10 @@ async function handlePost(request: NextRequest) {
   }
 }
 
+const POST_RATE_LIMITED = withRateLimit("turnstile", handlePost);
+
 export async function POST(request: NextRequest) {
-  const response = await handlePost(request);
+  const response = await POST_RATE_LIMITED(request);
   return applyCorsHeaders({ request, response });
 }
 
@@ -201,12 +184,9 @@ export async function POST(request: NextRequest) {
  * Handle GET requests (for health checks)
  */
 export function GET() {
-  const isConfigured = Boolean(env.TURNSTILE_SECRET_KEY);
-
   return createApiSuccessResponse(
     {
       status: "Turnstile verification endpoint active",
-      configured: isConfigured,
       timestamp: new Date().toISOString(),
     },
     HTTP_OK,
@@ -217,5 +197,6 @@ export function GET() {
  * Only allow POST and GET methods
  */
 export function OPTIONS(request: NextRequest) {
+  // CORS helper already includes the baseline POST/OPTIONS methods.
   return createCorsPreflightResponse(request, ["GET"]);
 }

@@ -33,7 +33,6 @@ const nextConfig: NextConfig = {
     } catch {
       return (
         process.env.CF_PAGES_COMMIT_SHA?.slice(0, 7) ??
-        process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ??
         process.env.GITHUB_SHA?.slice(0, 7) ??
         "local-dev"
       );
@@ -50,9 +49,6 @@ const nextConfig: NextConfig = {
       "./tests/e2e/.playwright/**",
       "./playwright-report/**",
       "./.playwright/**",
-      // Exclude @vercel/og (resvg.wasm + yoga.wasm + edge runtime) from server bundle.
-      // Not used in this project — saves ~2.2MB from Cloudflare Worker bundle.
-      "./node_modules/next/dist/compiled/@vercel/og/**",
     ],
   },
 
@@ -101,7 +97,10 @@ const nextConfig: NextConfig = {
         hostname: "via.placeholder.com",
       },
     ],
-    // POC: Cloudflare Workers 构建时禁用图片优化（后续可升级为 Cloudflare Images loader）
+    // Starter baseline: Cloudflare builds must not require Images,
+    // Transformations, Polish, Mirage, R2, or a custom image loader. Derived
+    // customer projects can opt into those lanes only with separate deployed
+    // Cloudflare proof.
     ...(isCloudflare ? { unoptimized: true } : {}),
   },
 
@@ -162,12 +161,6 @@ const nextConfig: NextConfig = {
 
   headers() {
     const securityHeaders = getSecurityHeaders();
-    // Prefer CSP from middleware (with nonce). Remove CSP here to avoid duplication/conflicts.
-    const headersNoCSP = securityHeaders.filter(
-      (h) =>
-        h.key !== "Content-Security-Policy" &&
-        h.key !== "Content-Security-Policy-Report-Only",
-    );
 
     // CDN 缓存策略（H-001 LCP 优化）
     // 为静态资源设置长期缓存，提升性能和 LCP
@@ -180,11 +173,11 @@ const nextConfig: NextConfig = {
 
     const headerConfigs = [
       // 安全头部应用到所有路径
-      ...(headersNoCSP.length > 0
+      ...(securityHeaders.length > 0
         ? [
             {
               source: "/:path*",
-              headers: headersNoCSP,
+              headers: securityHeaders,
             },
           ]
         : []),

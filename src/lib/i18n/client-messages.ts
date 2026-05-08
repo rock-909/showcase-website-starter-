@@ -1,3 +1,10 @@
+import { type Locale } from "@/i18n/routing";
+import {
+  loadCriticalMessages,
+  loadDeferredMessages,
+} from "@/lib/load-messages";
+import { mergeObjects } from "@/lib/merge-objects";
+
 type Messages = Record<string, unknown>;
 
 const CLIENT_MESSAGE_NAMESPACES = [
@@ -29,4 +36,14 @@ export function pickMessages(
 
 export function pickClientMessages(messages: Messages): Messages {
   return pickMessages(messages, CLIENT_MESSAGE_NAMESPACES);
+}
+
+export async function loadClientMessages(locale: Locale): Promise<Messages> {
+  const [critical, deferred] = await Promise.all([
+    loadCriticalMessages(locale),
+    loadDeferredMessages(locale),
+  ]);
+  const messages = mergeObjects(critical ?? {}, deferred ?? {}) as Messages;
+
+  return pickClientMessages(messages);
 }
