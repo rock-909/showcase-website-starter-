@@ -81,10 +81,11 @@
       "pnpm build"
     ],
     "optional": [
-      "pnpm build:cf",
-      "pnpm dep:check",
-      "pnpm unused:check",
-      "pnpm security:semgrep"
+      "pnpm website:build:cf",
+      "pnpm website:build:cf",
+      "pnpm exec dependency-cruiser src --config .dependency-cruiser.js -T err",
+      "pnpm exec knip -c knip.jsonc --dependencies --files",
+      "pnpm exec semgrep --config=semgrep.yml src --json"
     ],
     "credential_blocked": []
   },

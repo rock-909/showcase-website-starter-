@@ -1,26 +1,23 @@
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { API_ERROR_CODES } from "@/constants/api-error-codes";
-import { GET, POST } from "@/app/api/verify-turnstile/route";
+import { GET, OPTIONS, POST } from "@/app/api/verify-turnstile/route";
 
 // Mock fetch globally
 const mockFetch = vi.fn();
 global.fetch = mockFetch;
 
-vi.mock("@/lib/security/distributed-rate-limit", () => ({
-  checkDistributedRateLimit: vi.fn(() =>
-    Promise.resolve({
-      allowed: true,
-      remaining: 10,
-      resetTime: Date.now() + 60_000,
-      retryAfter: null,
-    }),
-  ),
-  createRateLimitHeaders: vi.fn(() => new Headers()),
-}));
-
-vi.mock("@/lib/security/rate-limit-key-strategies", () => ({
-  getIPKey: vi.fn(async () => "ip:test-key"),
+vi.mock("@/lib/api/with-rate-limit", () => ({
+  withRateLimit:
+    (
+      _preset: string,
+      handler: (
+        request: NextRequest,
+        context: { clientIP: string },
+      ) => Promise<Response>,
+    ) =>
+    (request: NextRequest) =>
+      handler(request, { clientIP: "192.168.1.1" }),
 }));
 
 // Mock environment variables
@@ -39,6 +36,7 @@ vi.mock("@/lib/env", () => ({
     return process.env[key];
   },
   getRuntimeEnvBoolean: (key: string) => process.env[key] === "true",
+  isRuntimeDevelopment: () => process.env.NODE_ENV === "development",
 }));
 
 describe("Verify Turnstile API Route - Core Tests", () => {
@@ -50,7 +48,7 @@ describe("Verify Turnstile API Route - Core Tests", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockFetch.mockClear();
-    vi.stubEnv("VERCEL", "1");
+    vi.stubEnv("NODE_ENV", "development");
   });
 
   describe("POST /api/verify-turnstile - Basic Functionality", () => {
@@ -170,15 +168,40 @@ describe("Verify Turnstile API Route - Core Tests", () => {
   });
 
   describe("GET /api/verify-turnstile - Health Check", () => {
-    it("应该返回健康检查信息（配置已启用）", async () => {
+    it("应该返回不泄露密钥配置状态的健康检查信息", async () => {
       const response = await GET();
       const data = await response.json();
 
       expect(response.status).toBe(200);
       expect(data.success).toBe(true);
       expect(data.data.status).toBe("Turnstile verification endpoint active");
-      expect(data.data.configured).toBe(true);
+      expect(data.data).not.toHaveProperty("configured");
       expect(data.data.timestamp).toBeDefined();
+    });
+  });
+
+  describe("OPTIONS /api/verify-turnstile", () => {
+    it("应该返回精确的同源预检方法合约", () => {
+      const request = new NextRequest(
+        "http://localhost:3000/api/verify-turnstile",
+        {
+          method: "OPTIONS",
+          headers: {
+            origin: "http://localhost:3000",
+            host: "localhost:3000",
+          },
+        },
+      );
+
+      const response = OPTIONS(request);
+      const allowMethods = response.headers.get("Access-Control-Allow-Methods");
+      const methods = allowMethods
+        ?.split(",")
+        .map((method) => method.trim())
+        .sort();
+
+      expect(response.status).toBe(200);
+      expect(methods).toEqual(["GET", "OPTIONS", "POST"]);
     });
   });
 

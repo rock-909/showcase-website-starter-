@@ -1,16 +1,7 @@
-/* eslint-disable no-console -- server logger intentionally wraps console.* with env-based filtering */
+/* eslint-disable no-console -- logger intentionally wraps console.* with browser-safe env filtering */
 /**
- * Logger facade.
- *
- * Client code should import `logger` from `@/lib/logger-core` so browser chunks
- * do not carry server-only PII sanitizers. Server code can keep using this
- * facade when it needs logger plus sanitization helpers.
+ * Browser-safe logger facade.
  */
-import {
-  getRuntimeEnvString,
-  isRuntimeDevelopment,
-  isRuntimeTest,
-} from "@/lib/env";
 
 type LogArgs = [message?: unknown, ...optionalParams: unknown[]];
 type LogLevel = "error" | "warn" | "info" | "debug";
@@ -23,7 +14,9 @@ const LOG_LEVELS: Record<LogLevel, number> = {
 };
 
 function isDev(): boolean {
-  return isRuntimeDevelopment() || isRuntimeTest();
+  return (
+    process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test"
+  );
 }
 
 function isValidLogLevel(value: string): value is LogLevel {
@@ -31,7 +24,7 @@ function isValidLogLevel(value: string): value is LogLevel {
 }
 
 function getLogLevel(): LogLevel {
-  const rawLevel = getRuntimeEnvString("LOG_LEVEL");
+  const rawLevel = process.env.NEXT_PUBLIC_LOG_LEVEL ?? process.env.LOG_LEVEL;
   const level = rawLevel?.toLowerCase() as LogLevel | undefined;
   if (level && isValidLogLevel(level)) {
     return level;

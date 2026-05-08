@@ -62,15 +62,6 @@ vi.mock("@/i18n/routing", () => ({
   routing: mockRouting,
 }));
 
-// Mock 消息文件
-vi.mock("../../../messages/en.json", () => ({
-  default: mockEnMessages,
-}));
-
-vi.mock("../../../messages/zh.json", () => ({
-  default: mockZhMessages,
-}));
-
 // Mock 格式化函数
 vi.mock("@/i18n/formats", () => ({
   getFormats: mockGetFormats,

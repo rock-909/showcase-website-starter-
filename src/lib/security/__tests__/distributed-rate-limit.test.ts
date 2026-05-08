@@ -3,7 +3,7 @@
  * Distributed Rate Limit Tests
  *
  * Tests for the distributed rate limiting module that supports
- * in-memory, Redis (Upstash), and KV (Vercel) storage backends.
+ * in-memory and Redis-compatible storage backends.
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";

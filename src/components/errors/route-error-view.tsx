@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { logger } from "@/lib/logger-core";
+import { logger } from "@/lib/logger";
 import { Button } from "@/components/ui/button";
 import { Link } from "@/i18n/routing";
 

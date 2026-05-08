@@ -34,11 +34,17 @@ Usually no change needed. Adjust only for UI voice/tone.
 ### Step 8: Run Verification Chain
 
 ```bash
-pnpm ci:local
-pnpm build:cf
-pnpm review:docs-truth
-pnpm review:derivative-readiness
-pnpm review:translation-quartet
+pnpm brand:check
+pnpm content:check
+node scripts/starter-checks.js content-readiness
+node scripts/starter-checks.js client-boundary
+pnpm type-check
+pnpm lint:check
+pnpm test
+pnpm build
+pnpm website:build:cf
+node scripts/starter-checks.js truth-docs
+node scripts/starter-checks.js translations
 ```
 
 Steps 1-6 are replacement. Step 7 is review. Step 8 is proof. Do not skip or reorder.
@@ -53,11 +59,10 @@ Steps 1-6 are replacement. Step 7 is review. Step 8 is proof. Do not skip or reo
 
 ## Minimum proof after replacement
 
-- `pnpm review:docs-truth`
-- `pnpm review:derivative-readiness`
-- `pnpm review:translation-quartet`
+- `node scripts/starter-checks.js truth-docs`
+- `node scripts/starter-checks.js translations`
 - `pnpm type-check`
 - `pnpm lint:check`
 - `pnpm exec vitest run`
 - `pnpm build`
-- `pnpm build:cf`
+- `pnpm website:build:cf`

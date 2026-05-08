@@ -36,7 +36,7 @@ vi.mock("@/components/content/about-page-shell", () => ({
   AboutPageShell: () => <div data-testid="about-shell" />,
 }));
 
-vi.mock("@/lib/content", () => ({
+vi.mock("@/lib/content-query/queries", () => ({
   getPageBySlug: mockGetPageBySlug,
 }));
 

@@ -14,29 +14,7 @@ import { expect, test, type Page, type TestInfo } from "@playwright/test";
 test.describe.configure({ mode: "serial" });
 
 test.describe("Contact Form - Test-Mode Smoke", () => {
-  const resolveSiteMode = (url: string): "showcase" | "showcase-equipment" => {
-    const explicitSiteKey =
-      process.env.PLAYWRIGHT_SITE_KEY || process.env.NEXT_PUBLIC_SITE_KEY;
-
-    if (explicitSiteKey === "showcase-equipment") {
-      return "showcase-equipment";
-    }
-
-    return url.includes("equipment.") ? "showcase-equipment" : "showcase";
-  };
-
-  const getExpectedContactTitle = (
-    locale: "en" | "zh",
-    url: string,
-  ): RegExp => {
-    const siteMode = resolveSiteMode(url);
-
-    if (siteMode === "showcase-equipment") {
-      return locale === "zh"
-        ? /联系 Example Equipment|对接设备团队|联系设备团队/i
-        : /Contact Example Equipment|Talk to the Equipment Team/i;
-    }
-
+  const getExpectedContactTitle = (locale: "en" | "zh"): RegExp => {
     return locale === "zh"
       ? /联系.*Showcase Website Starter|获取报价|联系我们/i
       : /Contact.*Showcase Website Starter|Get a Quote/i;
@@ -146,7 +124,7 @@ test.describe("Contact Form - Test-Mode Smoke", () => {
       throw new Error(`Contact form did not render: ${targetUrl}`);
     }
 
-    await expect(page).toHaveTitle(getExpectedContactTitle(locale, targetUrl));
+    await expect(page).toHaveTitle(getExpectedContactTitle(locale));
     await expectInteractiveContactForm(page);
   };
 

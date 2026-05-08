@@ -13,13 +13,6 @@
   "keep_names": false,
   // Keep cold starts close to the visitor when Cloudflare can infer placement.
   "placement": { "mode": "smart" },
-  // OpenNext's generated default handler still contains a dead @vercel/og import
-  // path. Alias it to an empty module so Wrangler does not pull the edge runtime
-  // and wasm assets back in.
-  "alias": {
-    "next/dist/compiled/@vercel/og/index.edge.js": "./scripts/cloudflare/stubs/vercel-og-empty.mjs",
-  },
-
   // Static assets (OpenNext output)
   "assets": {
     "directory": ".open-next/assets",

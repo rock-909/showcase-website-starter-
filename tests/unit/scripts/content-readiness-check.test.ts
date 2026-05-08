@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import {
   collectContentReadinessFindings,
   runContentReadinessCheck,
-} from "../../../scripts/content-readiness-check.mjs";
+} from "../../../scripts/starter-checks.js";
 
 interface FindingShape {
   file: string;
@@ -416,11 +416,8 @@ describe("content-readiness-check", () => {
     expect(result.warnings).toEqual([]);
   });
 
-  it("scans canonical split locale message files but not flat compatibility files", () => {
+  it("scans canonical split locale message files", () => {
     const rootDir = createFixture({
-      "messages/en.json": JSON.stringify({
-        headline: "lorem ipsum",
-      }),
       "messages/zh/critical.json": JSON.stringify({
         headline: "lorem ipsum",
       }),
@@ -431,13 +428,6 @@ describe("content-readiness-check", () => {
 
     expect(result.status).toBe("failed");
     expectFinding(result.errors, "lorem-ipsum", "messages/zh/critical.json");
-    expect(result.errors).not.toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          file: "messages/en.json",
-        }),
-      ]),
-    );
   });
 
   it("reports the real JSON value line when keys repeat", () => {

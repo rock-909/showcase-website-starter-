@@ -74,7 +74,7 @@
   --blue-900: oklch(0.2 0.05 240);
   --blue-950: oklch(0.16 0.04 240);
 
-  /* Border Radius — 8px base (Vercel precision) */
+  /* Border Radius — 8px base */
   --radius: 0.5rem;
   --radius-none: 0;
   --radius-sharp: 0.125rem;
@@ -177,12 +177,12 @@
   --shadow-accent: 0 0 0 3px
     color-mix(in oklch, var(--primary) 20%, transparent);
 
-  /* Shadow-Border (Vercel technique: shadow as border for smooth transitions) */
+  /* Shadow-Border (shadow as border for smooth transitions) */
   --shadow-card-active:
     0 0 0 1px var(--primary),
     0 0 0 4px color-mix(in oklch, var(--primary) 12%, transparent);
 
-  /* Section Divider (Vercel-style) */
+  /* Section Divider */
   --divider: var(--neutral-4);
 
   /* Grid System */
@@ -338,7 +338,7 @@
   --radius-xl: calc(var(--radius) + 4px);
   --radius-2xl: calc(var(--radius) + 8px);
 
-  /* Shadow-Border System (Vercel technique: box-shadow as border for smooth transitions) */
+  /* Shadow-Border System (box-shadow as border for smooth transitions) */
   --shadow-border: 0 0 0 1px rgba(0, 0, 0, 0.08);
   --shadow-card:
     0 0 0 1px rgba(0, 0, 0, 0.08), 0px 1px 1px rgba(0, 0, 0, 0.02),
@@ -640,7 +640,7 @@
 /* ==================== UTILITY CLASSES ==================== */
 
 @layer utilities {
-  /* Section divider — Vercel style */
+  /* Section divider */
   .section-divider {
     @apply border-t;
     border-color: var(--divider);

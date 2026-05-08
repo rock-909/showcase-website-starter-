@@ -2,7 +2,7 @@
  * 集中测试 Mock 消息
  *
  * 此文件提供统一的测试消息源,按命名空间组织,减少重复定义和维护成本。
- * 消息内容基于 messages/en.json 和 messages/en/critical.json 提取。
+ * 消息内容基于 messages/en/critical.json 和 messages/en/deferred.json 提取。
  *
  * @usage
  * ```typescript
@@ -248,14 +248,14 @@ export const footerMessages = {
       faqs: "FAQs",
       docs: "Docs",
       ambassadors: "Ambassadors",
-      community: "Vercel Community",
-      vercel: "Vercel",
+      community: "Community",
+      platform: "Platform",
     },
     social: {
       title: "Social",
     },
   },
-  vercel: {
+  platform: {
     products: {
       title: "Products",
       ai: "AI",
@@ -283,7 +283,7 @@ export const footerMessages = {
       solutionPartners: "Solution Partners",
       startups: "Startups",
       templates: "Templates",
-      sdks: "SDKs by Vercel",
+      sdks: "SDKs",
     },
     company: {
       title: "Company",

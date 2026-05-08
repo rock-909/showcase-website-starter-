@@ -70,7 +70,7 @@ jobs:
         run: |
           set -euo pipefail
           if [ "${{ inputs.environment }}" = "preview" ]; then
-            pnpm proof:cf:preview-deployed
+            node scripts/starter-checks.js cf-preview-deployed
           else
             pnpm release:verify
           fi
@@ -93,7 +93,7 @@ jobs:
         id: build
         run: |
           set -euo pipefail
-          pnpm build:cf 2>&1 | tee cf_build.log
+          pnpm website:build:cf 2>&1 | tee cf_build.log
           echo "log-path=$(pwd)/cf_build.log" >> "$GITHUB_OUTPUT"
         env:
           CI: true
@@ -133,15 +133,15 @@ jobs:
         id: deploy_production
         run: |
           set -euo pipefail
-          DEPLOY_OUTPUT=$(pnpm deploy:cf 2>&1) || {
+          DEPLOY_OUTPUT=$(pnpm exec opennextjs-cloudflare deploy --env production 2>&1) || {
             echo "❌ 部署失败"
             echo "$DEPLOY_OUTPUT"
             exit 1
           }
           echo "$DEPLOY_OUTPUT"
-          DEPLOY_URL=$(printf '%s\n' "$DEPLOY_OUTPUT" | grep -Eo '\[phase6\] deployed-url gateway https://[^[:space:]]+' | awk '{print $4}' | tail -1 || true)
+          DEPLOY_URL=$(printf '%s\n' "$DEPLOY_OUTPUT" | grep -Eo 'https://[^[:space:]]+\.workers\.dev' | tail -1 || true)
           if [ -z "$DEPLOY_URL" ]; then
-            echo "❌ 未从部署输出中提取到 gateway URL"
+            echo "❌ 未从部署输出中提取到 workers.dev URL"
             exit 1
           fi
           echo "production-url=${DEPLOY_URL}" >> "$GITHUB_OUTPUT"
@@ -236,10 +236,10 @@ jobs:
         run: |
           set -euo pipefail
           echo "Cloudflare deployed proof: running final post-deploy smoke against the deployed URL"
-          if [ ! -f ./scripts/deploy/post-deploy-smoke.mjs ]; then
-            echo "❌ Missing ./scripts/deploy/post-deploy-smoke.mjs in workflow checkout" >&2
+          if [ ! -f ./scripts/starter-checks.js ]; then
+            echo "❌ Missing ./scripts/starter-checks.js in workflow checkout" >&2
             ls -la ./scripts || true
             ls -la ./scripts/deploy || true
             exit 1
           fi
-          node ./scripts/deploy/post-deploy-smoke.mjs --base-url "${{ needs.build-and-deploy.outputs.deployment_url }}"
+          node ./scripts/starter-checks.js deployed-smoke --base-url "${{ needs.build-and-deploy.outputs.deployment_url }}"

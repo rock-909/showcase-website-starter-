@@ -21,7 +21,7 @@
 - `README.md`、`AGENTS.md`、`CLAUDE.md`、`guides/`、`technical/` 才是当前真相入口。
 - `audits/`、`reports/`、`superpowers/plans/`、`superpowers/prompts/` 多数是历史证据或执行计划，旧 Node / Next / OpenNext / Wrangler 版本号代表当时的运行环境，不代表当前项目状态。
 - 退役内容目录要从当前入口移除：`content/posts/` 当前不存在；产品 MDX 已归档到 `content/_archive/products/`，不再作为运行时内容源。
-- `messages/en.json` 和 `messages/zh.json` 是兼容副本，不是 runtime 翻译真相；运行时读取 `messages/{locale}/critical.json` 和 `messages/{locale}/deferred.json`。
+- 根目录 flat locale 文件不再保留；运行时和验证都读取 `messages/{locale}/critical.json` 和 `messages/{locale}/deferred.json`。
 
 如果要进一步精简体量，优先处理这些候选，而不是改历史 evidence：
 
@@ -44,7 +44,7 @@
 位于 `technical/`：
 - `technical/tech-stack.md`：纯技术栈信息
 - `technical/next16-cache-notes.md`：Next.js 16 / Cache Components / i18n 缓存注意点
-- `technical/deployment-notes.md`：Cloudflare / build:cf / preview / deploy 当前技术事实
+- `technical/deployment-notes.md`：Cloudflare / website:build:cf / preview / deploy 当前技术事实
 
 ## 工作盘
 

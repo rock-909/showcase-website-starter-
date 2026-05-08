@@ -1,13 +1,45 @@
 import fs from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { RELEASE_PROOF_SEQUENCE } from "../../../scripts/starter-checks.js";
 
 const REPO_ROOT = path.resolve(__dirname, "../../..");
+const SPLIT_LOCALE_PATHS = [
+  "messages/en/critical.json",
+  "messages/en/deferred.json",
+  "messages/zh/critical.json",
+  "messages/zh/deferred.json",
+];
+const REMOVED_FLAT_LOCALE_PATHS = ["messages/en.json", "messages/zh.json"];
 const LEAD_FAMILY_TEST_FILES = [
   "tests/integration/api/lead-family-contract.test.ts",
   "tests/integration/api/lead-family-protection.test.ts",
   "src/app/api/inquiry/__tests__/route.test.ts",
   "tests/integration/api/subscribe.test.ts",
+] as const;
+const RETIRED_NON_STARTER_TEST_DIRS = [
+  "tests/semgrep",
+  "tests/e2e/__snapshots__",
+] as const;
+const RETIRED_NON_STARTER_TEST_FILES = [
+  "tests/e2e/firefox-diagnosis.spec.ts",
+  "tests/e2e/header-layout.bbox.spec.ts",
+  "tests/e2e/performance.spec.ts",
+  "tests/e2e/visual-cross-browser.spec.ts",
+  "tests/e2e/visual-regression.spec.ts",
+] as const;
+const RETIRED_ACTIVE_PROOF_MARKERS = [
+  "tests/semgrep",
+  "Semgrep untrusted key write",
+  "browser visual smoke",
+  "visual regression",
+  "tests/e2e/visual",
+  "performance.spec.ts",
+  "header-layout.bbox",
+  "firefox-diagnosis",
+  "__snapshots__",
+  "toHaveScreenshot",
+  "toMatchSnapshot",
 ] as const;
 
 function readRepoFile(relativePath: string) {
@@ -15,39 +47,307 @@ function readRepoFile(relativePath: string) {
   return fs.readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
 }
 
+function listRepoFiles(relativeDir: string): string[] {
+  const absoluteDir = path.join(REPO_ROOT, relativeDir);
+  // eslint-disable-next-line security/detect-non-literal-fs-filename -- test checks fixed retired artifact directories
+  if (!fs.existsSync(absoluteDir)) return [];
+
+  // eslint-disable-next-line security/detect-non-literal-fs-filename -- test checks fixed retired artifact directories
+  return fs
+    .readdirSync(absoluteDir, { recursive: true, withFileTypes: true })
+    .filter((entry) => entry.isFile())
+    .map((entry) =>
+      path.relative(REPO_ROOT, path.join(entry.parentPath, entry.name)),
+    );
+}
+
 describe("proof lane contract", () => {
-  it("keeps the lightweight review lanes wired into ci-local and release proof", () => {
+  it("keeps release proof wired without the removed cluster command wrapper", () => {
     const packageJson = readRepoFile("package.json");
-    const ciLocalScript = readRepoFile("scripts/ci-local.sh");
-    const releaseProofScript = readRepoFile("scripts/release-proof.sh");
+    const releaseProofFlow = RELEASE_PROOF_SEQUENCE.join("\n");
 
-    expect(packageJson).toContain('"review:docs-truth"');
-    expect(packageJson).toContain('"review:cf:official-compare"');
-    expect(packageJson).toContain('"review:cf:official-compare:generated"');
-    expect(packageJson).toContain('"review:cf:official-compare:source"');
-    expect(packageJson).toContain('"review:derivative-readiness"');
+    expect(packageJson).toContain('"release:verify"');
+    expect(packageJson).toContain('"brand:check"');
+    expect(packageJson).toContain('"content:check"');
+    expect(packageJson).toContain('"component:check"');
+    expect(packageJson).toContain('"website:check"');
+    expect(packageJson).toContain('"website:build:cf"');
+    expect(packageJson).toContain(
+      '"release:verify": "node scripts/starter-checks.js release-verify"',
+    );
 
-    expect(ciLocalScript).toContain("pnpm review:docs-truth");
-    expect(ciLocalScript).toContain("pnpm review:derivative-readiness");
-    expect(ciLocalScript).toContain("pnpm review:cf:official-compare:source");
+    expect(releaseProofFlow).toContain(
+      "node scripts/starter-checks.js truth-docs",
+    );
+    expect(releaseProofFlow).toContain(
+      "node scripts/starter-checks.js cf-official-compare --source-only",
+    );
+    expect(releaseProofFlow).not.toContain(
+      "node scripts/starter-checks.js cf-official-compare --generated-only",
+    );
     expect(
-      ciLocalScript.indexOf("pnpm review:cf:official-compare:source"),
-    ).toBeLessThan(ciLocalScript.indexOf("# 构建检查"));
-
-    expect(releaseProofScript).toContain("pnpm review:docs-truth");
-    expect(releaseProofScript).toContain(
+      releaseProofFlow.indexOf(
+        "node scripts/starter-checks.js cf-official-compare --source-only",
+      ),
+    ).toBeLessThan(
+      releaseProofFlow.indexOf(
+        "pnpm exec wrangler deploy --dry-run --env preview",
+      ),
+    );
+    expect(releaseProofFlow).not.toContain("phase6");
+    expect(releaseProofFlow).not.toContain("build-webpack");
+    expect(releaseProofFlow).not.toContain("deploy-phase6");
+    expect(releaseProofFlow).not.toContain(
+      "node scripts/review-derivative-readiness.js",
+    );
+    expect(releaseProofFlow).not.toContain("pnpm review:docs-truth");
+    expect(releaseProofFlow).not.toContain(
       "pnpm review:cf:official-compare:source",
     );
-    expect(releaseProofScript).toContain(
+    expect(releaseProofFlow).not.toContain(
       "pnpm review:cf:official-compare:generated",
     );
-    expect(
-      releaseProofScript.indexOf("pnpm review:cf:official-compare:source"),
-    ).toBeLessThan(releaseProofScript.indexOf("pnpm deploy:cf:dry-run"));
-    expect(
-      releaseProofScript.indexOf("pnpm review:cf:official-compare:generated"),
-    ).toBeGreaterThan(releaseProofScript.indexOf("pnpm deploy:cf:dry-run"));
-    expect(releaseProofScript).toContain("pnpm review:derivative-readiness");
+    expect(releaseProofFlow).not.toContain("pnpm review:derivative-readiness");
+    expect(releaseProofFlow).not.toContain("node scripts/review-clusters.js");
+    expect(releaseProofFlow).not.toContain("pnpm review:clusters");
+  });
+
+  it("keeps the canonical starter proof command surface", () => {
+    const packageJson = JSON.parse(readRepoFile("package.json")) as {
+      scripts: Record<string, string>;
+    };
+    const scripts = packageJson.scripts;
+
+    expect(scripts["brand:check"]).toBe("node scripts/starter-checks.js brand");
+    expect(scripts["content:check"]).toBe(
+      "node scripts/starter-checks.js content-slugs && node scripts/starter-checks.js translations",
+    );
+    expect(scripts["component:check"]).toBe(
+      "pnpm component:governance:test && pnpm component:governance && pnpm exec storybook build",
+    );
+    expect(scripts["component:governance"]).toBe(
+      "node scripts/starter-checks.js component-governance",
+    );
+    expect(scripts["website:check"]).toBe(
+      "pnpm type-check && pnpm lint:check && pnpm test && pnpm build",
+    );
+    expect(scripts["start"]).toBe("next start");
+    expect(scripts["website:build:cf"]).toBe(
+      "pnpm exec opennextjs-cloudflare build --noMinify",
+    );
+    expect(Object.keys(scripts)).toHaveLength(14);
+  });
+
+  it("uses split critical/deferred messages as the translation source of truth", () => {
+    const packageJson = JSON.parse(readRepoFile("package.json")) as {
+      scripts: Record<string, string>;
+    };
+    const scripts = packageJson.scripts;
+
+    expect(scripts).not.toHaveProperty("i18n:regenerate-flat");
+    expect(scripts).not.toHaveProperty("validate:translations");
+  });
+
+  it("does not require flat locale files", () => {
+    for (const splitPath of SPLIT_LOCALE_PATHS) {
+      // eslint-disable-next-line security/detect-non-literal-fs-filename -- test reads fixed repo fixture files by relative path
+      expect(fs.existsSync(path.join(REPO_ROOT, splitPath))).toBe(true);
+    }
+
+    for (const relativePath of REMOVED_FLAT_LOCALE_PATHS) {
+      // eslint-disable-next-line security/detect-non-literal-fs-filename -- test reads fixed repo fixture files by relative path
+      expect(fs.existsSync(path.join(REPO_ROOT, relativePath))).toBe(false);
+    }
+  });
+
+  it("does not expose old governance command families as default scripts", () => {
+    const packageJson = JSON.parse(readRepoFile("package.json")) as {
+      scripts: Record<string, string>;
+    };
+    const scriptNames = Object.keys(packageJson.scripts);
+
+    expect(scriptNames.filter((name) => name.startsWith("arch:"))).toEqual([]);
+    expect(scriptNames.filter((name) => name.startsWith("quality:"))).toEqual(
+      [],
+    );
+    expect(scriptNames).not.toContain("review:clusters");
+    expect(scriptNames).not.toContain("review:cluster");
+    expect(scriptNames).not.toContain("review:lead-family");
+    expect(scriptNames).not.toContain("review:translation-quartet");
+    expect(scriptNames).not.toContain("review:architecture-truth");
+    expect(scriptNames).not.toContain("test:visual");
+    expect(scriptNames).not.toContain("test:visual:update");
+    expect(scriptNames).not.toContain("test:e2e:visual-cross");
+    expect(scriptNames).not.toContain("ci:local");
+    expect(scriptNames).not.toContain("ci:local:quick");
+    expect(scriptNames).not.toContain("ci:local:fix");
+  });
+
+  it("keeps internal diagnostic helpers out of the public starter command surface", () => {
+    const packageJson = JSON.parse(readRepoFile("package.json")) as {
+      scripts: Record<string, string>;
+    };
+    const scriptNames = Object.keys(packageJson.scripts);
+
+    expect(scriptNames.length).toBeLessThanOrEqual(30);
+    expect(scriptNames.length).toBeLessThanOrEqual(20);
+    expect(scriptNames).not.toEqual(
+      expect.arrayContaining([
+        "analyze:size",
+        "analyze:stats",
+        "build:analyze",
+        "build:analyze:webpack",
+        "build:check",
+        "cf:sync:server-actions-key",
+        "cf:sync:server-actions-key:dry-run",
+        "design:detect",
+        "design:detect:ci",
+        "dev:react-grab",
+        "i18n:shape:check",
+        "i18n:validate:code",
+        "lint:pii",
+        "perf:check",
+        "perf:lighthouse",
+        "proof:release:tier-a",
+        "review:cf:official-compare:generated",
+        "review:cf:official-compare:source",
+        "review:cf:official-compare",
+        "review:derivative-readiness",
+        "review:docs-truth",
+        "review:health",
+        "review:tier-a",
+        "scan:translations",
+        "security:check",
+        "security:csp:check",
+        "sync:translations:enhanced",
+        "test:debug",
+        "test:coverage",
+        "test:e2e:ci-local",
+        "test:e2e:no-reuse",
+        "test:lead-family",
+        "test:locale-runtime",
+        "test:release-smoke",
+        "test:translate-compat",
+        "transform:barrel",
+        "transform:barrel:dry",
+        "truth:check",
+        "typegen",
+        "type-check:generated",
+        "type-check:source",
+        "type-check:tests",
+        "unused:check",
+        "unused:fix",
+        "unused:production",
+        "validate:generated-types",
+        "validate:translations",
+        "validate:config",
+        "config:check",
+        "content:slug-check",
+        "eslint:disable:check",
+        "clean:next-artifacts",
+        "format:check",
+        "preview:cf",
+        "smoke:cf:deploy",
+        "smoke:cf:preview",
+        "storybook:build",
+        "test:e2e:post-deploy",
+        "validate:launch-content",
+      ]),
+    );
+  });
+
+  it("removes retired governance script files after public command pruning", () => {
+    for (const relativePath of [
+      "scripts/append-guardrail-summary.js",
+      "scripts/architecture-metrics.js",
+      "scripts/archive-hygiene-audit.js",
+      "scripts/check-mutation-required.js",
+      "scripts/check-review-hygiene.js",
+      "scripts/dependency-conformance.js",
+      "scripts/ci-local.sh",
+      "scripts/quality-gate.js",
+      "scripts/quality-monitor.js",
+      "scripts/quality-quick-staged.js",
+      "scripts/review-analysis-env-boundaries.js",
+      "scripts/review-boundary-leaks.js",
+      "scripts/review-ci-env-boundaries.js",
+      "scripts/review-contract-smells.js",
+      "scripts/review-env-boundaries.js",
+      "scripts/review-proof-env-boundaries.js",
+      "scripts/review-server-env-boundaries.js",
+      "scripts/review-template-residue.js",
+      "scripts/run-cluster-review.js",
+      "scripts/run-scripts-env-review.js",
+      "scripts/structural-hotspots.js",
+      "scripts/transform-barrel-exports.js",
+      "scripts/translation-scanner.js",
+      "scripts/validate-i18n-content.ts",
+      "scripts/check-pii-in-logs.js",
+      "scripts/check-translate-compat.js",
+      "scripts/csp/check-inline-scripts.ts",
+      "scripts/legacy-marker-audit.js",
+      "scripts/semgrep-common.js",
+      "scripts/semgrep-scan.js",
+      "scripts/semgrep-test-rules.js",
+      "scripts/dependency-update-policy.mjs",
+      "scripts/deps-check.mjs",
+      "scripts/tech-check.mjs",
+      "scripts/check-config-consistency.js",
+      "scripts/i18n-shape-check.js",
+      "scripts/translation-sync.js",
+      "scripts/lib/guardrail-report.js",
+      "scripts/cloudflare/legacy-entrypoint-guard.mjs",
+      "scripts/review-clusters.js",
+      "scripts/structural-cluster-registry.js",
+      "scripts/tier-a-impact.js",
+      "scripts/lib/runtime-env.js",
+      "scripts/mdx-slug-sync.js",
+      "scripts/copy-translations.js",
+      "scripts/review-derivative-readiness.js",
+      "scripts/translation-split-utils.js",
+      "scripts/static-truth-check.js",
+      "scripts/clean-next-build-artifacts.mjs",
+      "scripts/cloudflare/patch-prefetch-hints-manifest.mjs",
+      "scripts/cloudflare/jsonc-utils.mjs",
+      "scripts/cloudflare/load-local-env.mjs",
+      "scripts/cloudflare/sync-server-actions-key.mjs",
+      "scripts/cloudflare/shims/empty-module.mjs",
+      "scripts/cloudflare/deploy.mjs",
+      "scripts/cloudflare/empty-module.mjs",
+      "scripts/cloudflare/support.mjs",
+      "scripts/cloudflare/check-official-compare.mjs",
+      "scripts/cloudflare/preview-smoke.mjs",
+      "scripts/cloudflare/proof-preview-deployed.mjs",
+      "scripts/deploy/post-deploy-smoke.mjs",
+      "scripts/release-proof.sh",
+      "scripts/brand-check.mjs",
+      "scripts/check-current-truth-docs.js",
+      "scripts/component-governance-check.js",
+      "scripts/check-eslint-disable-usage.js",
+      "scripts/client-boundary-budget.mjs",
+      "scripts/content-readiness-check.mjs",
+      "scripts/content-slug-sync.js",
+      "scripts/validate-translations.js",
+      "scripts/generate-content-manifest.ts",
+      "scripts/validate-production-config.ts",
+    ]) {
+      // eslint-disable-next-line security/detect-non-literal-fs-filename -- test iterates over a fixed retired-script allowlist
+      expect(fs.existsSync(path.join(REPO_ROOT, relativePath))).toBe(false);
+    }
+  });
+
+  it("keeps the remaining script file surface intentionally tiny", () => {
+    const scriptsDir = path.join(REPO_ROOT, "scripts");
+    const scriptFiles = fs
+      .readdirSync(scriptsDir, { recursive: true, withFileTypes: true })
+      .filter((entry) => entry.isFile())
+      .map((entry) => path.join(entry.parentPath, entry.name))
+      .map((filePath) =>
+        path.relative(REPO_ROOT, filePath).replace(/\\/gu, "/"),
+      )
+      .sort();
+
+    expect(scriptFiles).toEqual(["scripts/starter-checks.js"]);
   });
 
   it("documents dirty-worktree targeted proof separately from clean-branch full proof", () => {
@@ -65,31 +365,32 @@ describe("proof lane contract", () => {
     expect(releaseProofRunbook).toContain("dirty worktree");
     expect(releaseProofRunbook).toContain("targeted proof");
     expect(releaseProofRunbook).toContain("clean branch");
-    expect(releaseProofRunbook).toContain("ci:local:quick");
   });
 
   it("keeps the lead-family proof lane aligned with route-level replay coverage", () => {
-    const packageJson = JSON.parse(readRepoFile("package.json")) as {
-      scripts: Record<string, string>;
-    };
-    const leadFamilyScript = packageJson.scripts["test:lead-family"];
+    const ciWorkflow = readRepoFile(".github/workflows/ci.yml");
+    const releaseProofScript = readRepoFile("scripts/starter-checks.js");
 
-    expect(leadFamilyScript).toBeTruthy();
     for (const testFile of LEAD_FAMILY_TEST_FILES) {
-      expect(leadFamilyScript).toContain(testFile);
+      expect(releaseProofScript).toContain(testFile);
+      expect(ciWorkflow).toContain(testFile);
     }
+    expect(JSON.parse(readRepoFile("package.json")).scripts).not.toHaveProperty(
+      "test:lead-family",
+    );
+    expect(ciWorkflow).not.toContain("pnpm review:lead-family");
   });
 
   it("does not imply deployed GET smoke proves real lead submission", () => {
-    const releaseProofScript = readRepoFile("scripts/release-proof.sh");
+    const releaseProofScript = readRepoFile("scripts/starter-checks.js");
     const releaseProofRunbook = readRepoFile(
       "docs/guides/RELEASE-PROOF-RUNBOOK.md",
     );
 
-    expect(releaseProofScript).toContain("test:e2e:post-deploy");
+    expect(releaseProofScript).toContain("tests/e2e/smoke/");
     expect(releaseProofScript).toContain("Airtable");
     expect(releaseProofScript).toContain("manual launch gate");
-    expect(releaseProofRunbook).toContain("test:e2e:post-deploy");
+    expect(releaseProofRunbook).toContain("tests/e2e/smoke/");
     expect(releaseProofRunbook).toContain("manual launch gate");
   });
 
@@ -97,29 +398,124 @@ describe("proof lane contract", () => {
     const packageJson = JSON.parse(readRepoFile("package.json")) as {
       scripts: Record<string, string>;
     };
-    const releaseProofScript = readRepoFile("scripts/release-proof.sh");
+    const releaseProofScript = readRepoFile("scripts/starter-checks.js");
     const scriptNames = Object.keys(packageJson.scripts);
 
-    for (const stableCommand of [
-      "build:cf",
-      "preview:cf",
-      "deploy:cf",
-      "deploy:cf:preview",
-      "deploy:cf:dry-run",
-      "smoke:cf:preview",
-      "smoke:cf:deploy",
-      "website:build:cf",
-    ]) {
-      expect(packageJson.scripts[stableCommand]).toBeTruthy();
-    }
+    expect(packageJson.scripts["website:build:cf"]).toBe(
+      "pnpm exec opennextjs-cloudflare build --noMinify",
+    );
+    expect(packageJson.scripts["build:cf"]).toBeUndefined();
+    expect(packageJson.scripts["deploy:cf"]).toBeUndefined();
+    expect(packageJson.scripts["deploy:cf:dry-run"]).toBeUndefined();
+    expect(packageJson.scripts["proof:cf:preview-deployed"]).toBeUndefined();
 
     expect(
       scriptNames.filter((name) => name.startsWith("test:mutation")),
     ).toEqual([]);
     expect(packageJson.scripts["review:mutation:critical"]).toBeUndefined();
     expect(scriptNames.filter((name) => name.includes(":phase"))).toEqual([]);
-    expect(releaseProofScript).toContain("pnpm deploy:cf:dry-run");
+    expect(releaseProofScript).toContain(
+      "pnpm exec wrangler deploy --dry-run --env preview",
+    );
+    expect(releaseProofScript).not.toContain("phase6");
+    expect(releaseProofScript).not.toContain("build-webpack");
+    expect(releaseProofScript).not.toContain("deploy-phase6");
     expect(releaseProofScript).not.toContain("deploy:cf:phase6");
+  });
+
+  it("keeps Vercel deployment artifacts out of the starter", () => {
+    for (const relativePath of [
+      "vercel.json",
+      ".github/workflows/vercel-deploy.yml",
+      "docs/impeccable/external/vercel-design-system/README.md",
+    ]) {
+      // eslint-disable-next-line security/detect-non-literal-fs-filename -- test iterates over a fixed retired Vercel artifact allowlist
+      expect(fs.existsSync(path.join(REPO_ROOT, relativePath))).toBe(false);
+    }
+  });
+
+  it("removes non-starter security, visual, performance, bbox, and browser-diagnosis test artifacts", () => {
+    for (const relativePath of RETIRED_NON_STARTER_TEST_FILES) {
+      // eslint-disable-next-line security/detect-non-literal-fs-filename -- test checks a fixed retired proof-artifact allowlist
+      expect(fs.existsSync(path.join(REPO_ROOT, relativePath))).toBe(false);
+    }
+    for (const relativeDir of RETIRED_NON_STARTER_TEST_DIRS) {
+      expect(listRepoFiles(relativeDir)).toEqual([]);
+    }
+
+    // Starter governance and contact smoke are still active proof surfaces.
+    expect(fs.existsSync(path.join(REPO_ROOT, "tests/architecture"))).toBe(
+      true,
+    );
+    expect(
+      fs.existsSync(
+        path.join(REPO_ROOT, "tests/e2e/contact-form-smoke.spec.ts"),
+      ),
+    ).toBe(true);
+  });
+
+  it("keeps contact smoke scoped to the showcase starter site only", () => {
+    const contactSmokeSpec = readRepoFile(
+      "tests/e2e/contact-form-smoke.spec.ts",
+    );
+
+    expect(contactSmokeSpec).toContain("Showcase Website Starter");
+    expect(contactSmokeSpec).not.toContain("showcase-equipment");
+    expect(contactSmokeSpec).not.toContain("equipment.");
+  });
+
+  it("removes Playwright snapshot configuration when no E2E snapshot assertions remain", () => {
+    const playwrightConfig = readRepoFile("playwright.config.ts");
+
+    expect(playwrightConfig).not.toContain("toHaveScreenshot");
+    expect(playwrightConfig).not.toContain("toMatchSnapshot");
+    expect(playwrightConfig).not.toContain("snapshotDir");
+    expect(playwrightConfig).not.toContain("snapshotPathTemplate");
+
+    const e2eDir = path.join(REPO_ROOT, "tests/e2e");
+    const e2eSpecFiles = fs
+      .readdirSync(e2eDir, { withFileTypes: true, recursive: true })
+      .filter((entry) => entry.isFile() && entry.name.endsWith(".spec.ts"))
+      .map((entry) =>
+        path.relative(REPO_ROOT, path.join(entry.parentPath, entry.name)),
+      );
+
+    for (const specFile of e2eSpecFiles) {
+      const content = readRepoFile(specFile);
+      expect(content).not.toContain("toHaveScreenshot");
+      expect(content).not.toContain("toMatchSnapshot");
+    }
+  });
+
+  it("does not keep hook commands for retired layout visual E2E specs", () => {
+    const lefthookConfig = readRepoFile("lefthook.yml");
+
+    expect(lefthookConfig).not.toContain("e2e-layout-check");
+    expect(lefthookConfig).not.toContain("RUN_E2E_LAYOUT");
+    expect(lefthookConfig).not.toContain("header-layout.bbox.spec.ts");
+  });
+
+  it("keeps active proof docs on starter smoke and component governance instead of retired derivative proof lanes", () => {
+    const activeProofDocs = [
+      readRepoFile("docs/specs/behavioral-contracts.md"),
+      readRepoFile("docs/guides/PROOF-BOUNDARY-MAP.md"),
+      readRepoFile("docs/guides/CANONICAL-TRUTH-REGISTRY.md"),
+    ].join("\n");
+
+    for (const activeMarker of [
+      "tests/e2e/navigation.spec.ts",
+      "tests/e2e/i18n.spec.ts",
+      "tests/e2e/contact-form-smoke.spec.ts",
+      "tests/e2e/smoke/",
+      "tests/architecture/component-governance.test.ts",
+      "pnpm component:check",
+    ]) {
+      expect(activeProofDocs).toContain(activeMarker);
+    }
+
+    for (const retiredMarker of RETIRED_ACTIVE_PROOF_MARKERS) {
+      expect(activeProofDocs).not.toContain(retiredMarker);
+    }
   });
 
   it("keeps starter readiness proof commands available after grouped guardrail runner removal", () => {
@@ -132,28 +528,33 @@ describe("proof lane contract", () => {
     );
 
     expect(packageJson.scripts["brand:check"]).toBe(
-      "node scripts/brand-check.mjs",
+      "node scripts/starter-checks.js brand",
     );
     expect(packageJson.scripts["content:check"]).toBe(
-      "pnpm content:slug-check && pnpm validate:translations",
+      "node scripts/starter-checks.js content-slugs && node scripts/starter-checks.js translations",
     );
     expect(packageJson.scripts["component:check"]).toBe(
-      "pnpm component:governance:test && pnpm component:governance && pnpm storybook:build",
+      "pnpm component:governance:test && pnpm component:governance && pnpm exec storybook build",
+    );
+    expect(packageJson.scripts["component:governance"]).toBe(
+      "node scripts/starter-checks.js component-governance",
     );
     expect(packageJson.scripts["website:check"]).toBe(
       "pnpm type-check && pnpm lint:check && pnpm test && pnpm build",
     );
-    expect(packageJson.scripts["website:build:cf"]).toBe("pnpm build:cf");
-    expect(packageJson.scripts["website:content:readiness"]).toBe(
-      "node scripts/content-readiness-check.mjs",
+    expect(packageJson.scripts["website:build:cf"]).toBe(
+      "pnpm exec opennextjs-cloudflare build --noMinify",
     );
-    expect(packageJson.scripts["website:review:client-boundary"]).toBe(
-      "node scripts/client-boundary-budget.mjs",
-    );
+    expect(packageJson.scripts["website:content:readiness"]).toBeUndefined();
+    expect(
+      packageJson.scripts["website:review:client-boundary"],
+    ).toBeUndefined();
     expect(groupedRunnerExists).toBe(false);
     expect(ciWorkflow).toContain("pnpm brand:check");
     expect(ciWorkflow).toContain("pnpm content:check");
-    expect(ciWorkflow).toContain("pnpm website:review:client-boundary");
+    expect(ciWorkflow).toContain(
+      "node scripts/starter-checks.js client-boundary",
+    );
     expect(ciWorkflow).toContain("pnpm website:build:cf");
   });
 
@@ -187,13 +588,11 @@ describe("proof lane contract", () => {
     );
     const normalizedContractSpec = contractSpec.replace(/\s+/gu, " ");
 
-    expect(contractSpec).toContain(
-      "Auxiliary response and observability checks only.",
-    );
+    expect(contractSpec).toContain("Auxiliary response contract checks only.");
     expect(normalizedContractSpec).toContain(
       "not full lead-chain protection proof",
     );
-    expect(ciWorkflow).toContain("Lead API Family Layered Proof Review");
+    expect(ciWorkflow).toContain("Lead API family proof");
     expect(ciWorkflow).not.toContain("Lead API Family Contract Review");
     expect(structuralClusters).toContain("auxiliary contract proof");
     expect(structuralClusters).toContain("route-level protection proof");
@@ -263,7 +662,9 @@ describe("proof lane contract", () => {
     expect(qualityProof).toContain("crawl / indexing truth");
     expect(qualityProof).toContain("canonical authoring source");
     expect(qualityProof).toContain("starter 示例可以存在于 starter 仓库");
-    expect(qualityProof).toContain("pnpm validate:launch-content");
+    expect(qualityProof).toContain(
+      "PUBLIC_LAUNCH_STRICT=true node scripts/starter-checks.js validate-production-config",
+    );
   });
 
   it("keeps ai-smell repo profile pointed at current critical surfaces", () => {
@@ -277,7 +678,9 @@ describe("proof lane contract", () => {
     expect(repoProfile).toContain("src/app/api/subscribe/route.ts");
     expect(repoProfile).toContain("src/app/api/verify-turnstile/route.ts");
     expect(repoProfile).toContain("src/lib/turnstile.ts");
-    expect(repoProfile).toContain("src/lib/lead-pipeline/**");
+    expect(repoProfile).toContain(
+      "src/lib/lead-pipeline/{lead-schema,process-lead,utils}.ts",
+    );
     expect(repoProfile).toContain("src/config/single-site-product-catalog.ts");
     expect(repoProfile).toContain("src/constants/product-specs/**");
     expect(repoProfile).toContain("tests/e2e/contact-form-smoke.spec.ts");
@@ -324,8 +727,10 @@ describe("proof lane contract", () => {
     expect(closure).toContain(
       "| Finding | Changed files | Closure method | Verification | Remaining boundary |",
     );
-    expect(closure).toContain("pnpm validate:launch-content");
-    expect(closure).toContain("scripts/validate-production-config.ts");
+    expect(closure).toContain(
+      "PUBLIC_LAUNCH_STRICT=true node scripts/starter-checks.js validate-production-config",
+    );
+    expect(closure).toContain("scripts/starter-checks.js");
     expect(closure).toContain("tests/e2e/contact-form-smoke.spec.ts");
     expect(closure).toContain("playwright.config.ts");
   });

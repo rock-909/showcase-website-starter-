@@ -2,7 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { collectComponentGovernanceFindings } from "../../../scripts/component-governance-check.js";
+import { collectComponentGovernanceFindings } from "../../../scripts/starter-checks.js";
 
 interface ComponentGovernanceFinding {
   file: string;
@@ -87,15 +87,13 @@ describe("component-governance-check", () => {
     }
   });
 
-  it("passes valid primitive registry and warns when business components lack matching stories", () => {
+  it("passes valid primitive registry without warning on business components that lack stories", () => {
     const rootDir = createFixture(
       baseFiles({
         "src/components/products/product-card.tsx":
           "export function ProductCard() { return null; }",
         "src/components/sections/hero-section.tsx":
           "export function HeroSection() { return null; }",
-        "src/components/sections/hero-section.stories.tsx":
-          "export default { title: 'Sections/HeroSection' };",
       }),
     );
     fixtureRoots.push(rootDir);
@@ -104,12 +102,7 @@ describe("component-governance-check", () => {
 
     expect(result.status).toBe("passed");
     expect(result.errors).toEqual([]);
-    expectFinding(
-      result.warnings,
-      "business-component-missing-story",
-      "src/components/products/product-card.tsx",
-    );
-    expect(result.warnings).toHaveLength(1);
+    expect(result.warnings).toEqual([]);
   });
 
   it("does not warn for component folders outside the phase one story backlog", () => {

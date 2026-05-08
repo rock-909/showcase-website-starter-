@@ -9,6 +9,7 @@ paths:
   - "src/lib/lead-pipeline/lead-schema.ts"
   - "src/lib/security-validation.ts"
   - "src/config/security.ts"
+  - "next.config.ts"
 ---
 
 # Security Rules
@@ -68,7 +69,12 @@ copy those wrappers into new code.
 
 ## CSP and headers
 
-- Security header behavior lives in `src/config/security.ts` and middleware.
+- Security header behavior lives in `src/config/security.ts` and Next.js
+  native `headers()` in `next.config.ts`.
+- Middleware owns locale redirects, locale cookies, and leaked middleware
+  cookie cleanup. It does not own CSP or generic security headers.
+- CSP is static by starter default. Do not add dynamic nonce handling unless a
+  dedicated dynamic-rendering proof plan justifies the trade-off.
 - CSP reports go to `/api/csp-report`.
 - Do not use unfiltered `dangerouslySetInnerHTML`.
 - URL values must allow only `https://`, `http://`, or site-relative `/`.
@@ -76,7 +82,7 @@ copy those wrappers into new code.
 ## Env boundaries
 
 - App/runtime code reads server values through `@/lib/env`.
-- Browser code reads public values through `@/lib/public-env`.
+- Browser code reads only `NEXT_PUBLIC_*` helpers exported from `@/lib/env`.
 - Do not expose server secrets through `NEXT_PUBLIC_*`.
 - Sensitive keys include `AIRTABLE_API_KEY`, `RESEND_API_KEY`,
   `TURNSTILE_SECRET_KEY`, `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY`,

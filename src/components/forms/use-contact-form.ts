@@ -1,5 +1,5 @@
 import { useState, useTransition } from "react";
-import { logger } from "@/lib/logger-core";
+import { logger } from "@/lib/logger";
 import { appendAttributionToFormData } from "@/lib/utm";
 import { useRateLimit } from "@/components/forms/use-rate-limit";
 import { type FormSubmissionStatus } from "@/lib/forms/form-submission-status";

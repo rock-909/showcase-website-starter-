@@ -83,17 +83,16 @@ pnpm type-check
 pnpm lint:check
 pnpm test
 pnpm build
-pnpm build:cf
 ```
 
-`pnpm build` and `pnpm build:cf` write to the same `.next` directory - never run them in parallel.
+`pnpm build` and `pnpm website:build:cf` write to the same `.next` directory - never run them in parallel.
 
 Use the smallest validation that proves the change:
 - Type-only changes: `pnpm type-check`
 - Lint-sensitive edits: `pnpm lint:check`
 - Unit-tested logic: `pnpm test`
 - Next.js/runtime changes: `pnpm build`
-- Cloudflare/OpenNext changes: run `pnpm build` before `pnpm build:cf`
+- Cloudflare/OpenNext changes: run `pnpm build` before `pnpm website:build:cf`
 - Broad or release-facing changes: `pnpm website:check`
 
 ## Constraints

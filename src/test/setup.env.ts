@@ -18,9 +18,8 @@ try {
 vi.stubEnv("NODE_ENV", "test");
 vi.stubEnv("APP_ENV", "local");
 vi.stubEnv("NEXT_PUBLIC_BASE_URL", "https://example.com");
-vi.stubEnv("NEXT_PUBLIC_VERCEL_URL", "example.vercel.app");
 vi.stubEnv("NEXT_PUBLIC_TURNSTILE_SITE_KEY", "test-site-key-12345");
-vi.stubEnv("NEXT_PUBLIC_DEPLOYMENT_PLATFORM", "vercel");
+vi.stubEnv("NEXT_PUBLIC_DEPLOYMENT_PLATFORM", "development");
 vi.stubEnv("NEXT_PUBLIC_TEST_MODE", "false");
 
 // Suppress info/debug logs in tests - only warn and error are output
@@ -66,7 +65,6 @@ vi.mock("@t3-oss/env-nextjs", () => ({
     CLOUDFLARE_ANALYTICS_HOSTNAME: "example.com",
     OPS_DASHBOARD_ACCESS_KEY: "test-ops-access-key",
     NEXT_PUBLIC_BASE_URL: "https://example.com",
-    NEXT_PUBLIC_VERCEL_URL: "example.vercel.app",
   })),
 }));
 
@@ -92,9 +90,8 @@ vi.mock("@/lib/env", () => {
     CLOUDFLARE_ANALYTICS_HOSTNAME: "example.com",
     OPS_DASHBOARD_ACCESS_KEY: "test-ops-access-key",
     NEXT_PUBLIC_BASE_URL: "https://example.com",
-    NEXT_PUBLIC_VERCEL_URL: "example.vercel.app",
     NEXT_PUBLIC_TURNSTILE_SITE_KEY: "test-site-key-12345",
-    NEXT_PUBLIC_DEPLOYMENT_PLATFORM: "vercel",
+    NEXT_PUBLIC_DEPLOYMENT_PLATFORM: "development",
     NEXT_PUBLIC_TEST_MODE: false,
   } as Record<string, string | boolean | number | undefined>;
 
@@ -104,6 +101,9 @@ vi.mock("@/lib/env", () => {
   return {
     env: mockEnv,
     getEnvVar: (key: string) => mockEnv[key],
+    serverEnvSchema: {},
+    clientEnvSchema: {},
+    runtimeEnv: mockEnv,
     getRuntimeEnvString: (key: string) => {
       const runtimeValue = readProcessEnvValue(key);
       if (runtimeValue !== undefined) {
@@ -132,6 +132,20 @@ vi.mock("@/lib/env", () => {
       const value = mockEnv[key];
       return typeof value === "number" ? value : undefined;
     },
+    getPublicRuntimeEnvString: (key: string) => readProcessEnvValue(key),
+    getPublicRuntimeEnvBoolean: (key: string) => {
+      const value = readProcessEnvValue(key);
+      return value === undefined ? undefined : value === "true";
+    },
+    getPublicRuntimeEnvNumber: (key: string) => {
+      const value = readProcessEnvValue(key);
+      if (value === undefined) {
+        return undefined;
+      }
+
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed : undefined;
+    },
     getRuntimeNodeEnv: () => {
       const value = readProcessEnvValue("NODE_ENV") ?? mockEnv.NODE_ENV;
       return value === "development" ||
@@ -156,6 +170,11 @@ vi.mock("@/lib/env", () => {
       (readProcessEnvValue("NODE_ENV") ?? mockEnv.NODE_ENV) === "production",
     isRuntimeTest: () =>
       (readProcessEnvValue("NODE_ENV") ?? mockEnv.NODE_ENV) === "test",
+    isPublicRuntimeDevelopment: () =>
+      readProcessEnvValue("NODE_ENV") === "development",
+    isPublicRuntimeProduction: () =>
+      readProcessEnvValue("NODE_ENV") === "production",
+    isPublicRuntimeTest: () => readProcessEnvValue("NODE_ENV") === "test",
     isRuntimeCi: () => readProcessEnvValue("CI") === "true",
     isRuntimePlaywright: () =>
       readProcessEnvValue("PLAYWRIGHT_TEST") === "true",

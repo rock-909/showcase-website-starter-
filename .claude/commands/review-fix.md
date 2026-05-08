@@ -97,7 +97,7 @@ Fetch unresolved PR review comments, categorize, fix, validate, and push.
    ```
    - If `Review-Fix-Run: 3` or higher found in recent commits → warn user: "This is review-fix round 4+. Consider whether fixes are converging or oscillating."
 
-10. **Run preflight**: `pnpm ci:local:quick`
+10. **Run preflight**: `pnpm type-check + pnpm lint:check + pnpm test + pnpm build`
     - If fails: self-heal (same logic as `/pr` Phase 3, max 3 attempts).
     - If still fails: abort with diagnosis.
 

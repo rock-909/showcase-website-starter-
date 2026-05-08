@@ -1,25 +1,13 @@
 "use client";
 
-import { lazy, Suspense, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import Script from "next/script";
 import { useCookieConsentOptional } from "@/lib/cookie-consent";
 import {
   getPublicRuntimeEnvString,
   isPublicRuntimeProduction,
-} from "@/lib/public-env";
-
-const Analytics = lazy(() =>
-  import("@vercel/analytics/next").then((mod) => ({
-    default: mod.Analytics,
-  })),
-);
-
-const SpeedInsights = lazy(() =>
-  import("@vercel/speed-insights/next").then((mod) => ({
-    default: mod.SpeedInsights,
-  })),
-);
+} from "@/lib/env";
 
 function ensureGa4QueueInitialized(measurementId: string): void {
   if (!Array.isArray(window.dataLayer)) {
@@ -44,8 +32,6 @@ export function EnterpriseAnalyticsIsland() {
   const gaMeasurementId = getPublicRuntimeEnvString(
     "NEXT_PUBLIC_GA_MEASUREMENT_ID",
   );
-  const isVercel =
-    getPublicRuntimeEnvString("NEXT_PUBLIC_DEPLOYMENT_PLATFORM") === "vercel";
   const cookieConsent = useCookieConsentOptional();
 
   const analyticsAllowed = cookieConsent
@@ -84,12 +70,6 @@ export function EnterpriseAnalyticsIsland() {
           strategy="afterInteractive"
         />
       )}
-      {isProd && isVercel ? (
-        <Suspense fallback={null}>
-          <Analytics />
-          <SpeedInsights />
-        </Suspense>
-      ) : null}
     </>
   );
 }

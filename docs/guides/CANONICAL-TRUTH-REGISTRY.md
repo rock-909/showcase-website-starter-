@@ -56,15 +56,14 @@ Runtime 正式读取：
 
 非 runtime 真相：
 
-- `messages/en.json`
-- `messages/zh.json`
+- 根目录 flat locale 文件不再保留
 
 规则：
 
-- flat 文件主要给测试、脚本、兼容视图用
-- runtime 不把 flat 文件当主加载源
+- 测试和脚本也从 split source 或专用 mock 读取
+- runtime 不把 flat 文件当加载源
 - 当前仓库没有 active runtime `src/sites/**` registry，也没有 per-site message overlays
-- 如果 split source 变了，要同步检查 flat/public 兼容副本
+- 如果 split source 变了，要同步检查 public runtime delivery copy
 
 ## Runtime Entrypoints
 
@@ -74,7 +73,7 @@ Runtime 正式读取：
 | Root layout | `src/app/[locale]/layout.tsx` | SSR locale 和 `<html lang>` 真相在这里 |
 | Contact conversion path | `src/app/[locale]/contact/page.tsx` + `src/app/api/contact/route.ts` | 当前浏览器联系表单主路径是 Browser contact route handler；`src/lib/actions/contact.ts` 只是兼容入口 |
 | Message loader | `src/lib/load-messages.ts` | 必须和 `src/i18n/request.ts` 使用同一 split-source truth |
-| Cloudflare build | `pnpm build:cf` / `scripts/cloudflare/build-webpack.mjs` | OpenNext + Cloudflare Pages build path |
+| Cloudflare build | `pnpm website:build:cf` / `open-next.config.ts` / `wrangler.jsonc` | Native OpenNext + Cloudflare worker build path |
 
 ## Proof Sources
 
@@ -84,10 +83,12 @@ Runtime 正式读取：
 | 类型正确 | `pnpm type-check` |
 | lint 零警告 | `pnpm lint:check` |
 | 标准构建 | `pnpm build` |
-| Cloudflare 构建 | `pnpm build:cf` |
+| Cloudflare 构建 | `pnpm website:build:cf` |
+| 组件治理 / Storybook | `pnpm component:check` |
+| 本地浏览器 smoke | `pnpm exec playwright test tests/e2e/navigation.spec.ts tests/e2e/i18n.spec.ts tests/e2e/contact-form-smoke.spec.ts --project=chromium` |
 | 本地发布门禁 | `pnpm release:verify` |
-| Cloudflare preview smoke | `pnpm smoke:cf:preview` / `pnpm smoke:cf:preview:strict` |
-| 真实 deployed smoke | `pnpm smoke:cf:deploy -- --base-url <url>` |
+| Cloudflare preview smoke | `node scripts/starter-checks.js cf-preview-smoke`  |
+| 真实 deployed smoke | `node scripts/starter-checks.js deployed-smoke --base-url <url>` |
 
 ## Derivative Project Replacement Order
 
@@ -109,7 +110,7 @@ Runtime 正式读取：
 | Design intent | `DESIGN.md` + `docs/design-truth.md` | Business-facing design direction and current truth |
 | Current color contract | `docs/impeccable/system/COLOR-SYSTEM.md` | Agent-readable token role rules |
 | Agent implementation rule | `.claude/rules/ui.md` | What future Codex/Claude edits must follow |
-| Proof | `tests/architecture/design-token-contract.test.ts` + browser visual smoke | Contract and visual regression checks |
+| Proof | `tests/architecture/design-token-contract.test.ts` + `tests/architecture/component-governance.test.ts` | Source contract and component governance checks |
 
 Rule: current token values are provisional. The role architecture is the stable interface.
 

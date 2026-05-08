@@ -90,7 +90,7 @@ vi.mock("@/lib/env", () => ({
 }));
 
 vi.mock("@/lib/i18n/client-messages", () => ({
-  pickClientMessages: (messages: Record<string, unknown>) => messages,
+  loadClientMessages: vi.fn(async () => ({ navigation: { home: "Home" } })),
 }));
 
 vi.mock("@/lib/structured-data", () => ({

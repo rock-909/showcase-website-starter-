@@ -7,9 +7,11 @@
 
 ## TD-001: CSP `script-src-elem 'unsafe-inline'`
 
-**Severity:** Medium — mitigated by strict `script-src` + nonce + no user-generated content
+**Severity:** Medium — mitigated by strict `script-src`, static CSP headers, and no user-generated content
 
-`script-src` is strict, but `script-src-elem` currently allows `'unsafe-inline'` because App Router prerendered and streamed inline scripts cannot reliably receive a per-request nonce in static/cached HTML.
+`script-src` is strict, but `script-src-elem` currently allows `'unsafe-inline'` because App Router prerendered and streamed inline scripts are not statically hashable in a stable way across cached output.
+
+Starter default now uses static CSP through Next.js native `headers()` in `next.config.ts`. Middleware does not generate or forward CSP-specific request metadata.
 
 Current practical risk is reduced because the starter has no user-generated rich-text surface. Real projects should reassess this before paid traffic or high-risk integrations.
 
@@ -50,10 +52,10 @@ Local Cloudflare preview is useful, but it is not always the strongest proof for
 For deploy-facing changes, prefer this proof ladder:
 
 1. `pnpm build`
-2. `pnpm build:cf`
-3. `pnpm deploy:cf:dry-run`
+2. `pnpm website:build:cf`
+3. `pnpm exec wrangler deploy --dry-run --env preview`
 4. real preview deploy, if the project has credentials
-5. `pnpm smoke:cf:deploy -- --base-url <url>`
+5. `node scripts/starter-checks.js deployed-smoke --base-url <url>`
 
 If local preview and deployed preview disagree, treat deployed runtime evidence as stronger, then debug the local preview path separately.
 

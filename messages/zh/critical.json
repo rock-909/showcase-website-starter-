@@ -511,7 +511,7 @@
         "lighthouse": "Web 性能审计工具",
         "semgrep": "静态代码安全分析工具",
         "embla-carousel": "轻量级轮播组件库",
-        "vercel": "Next.js 应用部署平台",
+        "cloudflare": "Cloudflare Workers 部署平台",
         "sonarqube": "代码质量和安全分析平台",
         "storybook": "组件开发和文档工具",
         "swr": "数据获取和缓存库",
@@ -721,8 +721,8 @@
         "faqs": "常见问题",
         "docs": "文档",
         "ambassadors": "大使",
-        "community": "Vercel社区",
-        "vercel": "Vercel"
+        "community": "社区",
+        "platform": "平台"
       },
       "navigation": {
         "title": "导航",
@@ -744,7 +744,7 @@
         "terms": "服务条款"
       }
     },
-    "vercel": {
+    "platform": {
       "products": {
         "title": "产品",
         "ai": "AI",
@@ -772,7 +772,7 @@
         "solutionPartners": "解决方案合作伙伴",
         "startups": "初创企业",
         "templates": "模板",
-        "sdks": "Vercel SDK"
+        "sdks": "SDK"
       },
       "company": {
         "title": "公司",

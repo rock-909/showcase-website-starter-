@@ -14,7 +14,7 @@ const { mockGetPageBySlug, mockLoggerWarn } = vi.hoisted(() => ({
   mockLoggerWarn: vi.fn(),
 }));
 
-vi.mock("@/lib/content", () => ({
+vi.mock("@/lib/content-query/queries", () => ({
   getPageBySlug: mockGetPageBySlug,
 }));
 

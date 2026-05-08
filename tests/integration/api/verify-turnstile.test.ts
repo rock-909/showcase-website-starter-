@@ -12,24 +12,17 @@ vi.mock("@/lib/env", () => ({
   getRuntimeEnvBoolean: (key: string) => process.env[key] === "true",
 }));
 
-vi.mock("@/lib/security/distributed-rate-limit", () => ({
-  checkDistributedRateLimit: vi.fn(() =>
-    Promise.resolve({
-      allowed: true,
-      remaining: 10,
-      resetTime: Date.now() + 60_000,
-      retryAfter: null,
-    }),
-  ),
-  createRateLimitHeaders: vi.fn(() => new Headers()),
-}));
-
-vi.mock("@/lib/security/rate-limit-key-strategies", () => ({
-  getIPKey: vi.fn(async () => "ip:test-key"),
-}));
-
-vi.mock("@/lib/security/client-ip", () => ({
-  getClientIP: vi.fn(() => "192.168.1.1"),
+vi.mock("@/lib/api/with-rate-limit", () => ({
+  withRateLimit:
+    (
+      _preset: string,
+      handler: (
+        request: NextRequest,
+        context: { clientIP: string },
+      ) => Promise<Response>,
+    ) =>
+    (request: NextRequest) =>
+      handler(request, { clientIP: "192.168.1.1" }),
 }));
 
 vi.mock("@/lib/security/turnstile-config", () => ({

@@ -14,8 +14,7 @@ import { LazyThemeSwitcher } from "@/components/ui/lazy-theme-switcher";
 import { FOOTER_COLUMNS, FOOTER_STYLE_TOKENS } from "@/config/footer-links";
 import { coerceLocale, isLocale } from "@/i18n/locale-utils";
 import { getRuntimeEnvBoolean, getRuntimeEnvString } from "@/lib/env";
-import { pickClientMessages } from "@/lib/i18n/client-messages";
-import { loadCompleteMessages } from "@/lib/load-messages";
+import { loadClientMessages } from "@/lib/i18n/client-messages";
 import { mainNavigation } from "@/lib/navigation";
 
 // Client analytics are rendered as an island to avoid impacting LCP
@@ -52,11 +51,10 @@ async function AsyncLocaleLayoutContent({
   locale,
   children,
 }: AsyncLocaleLayoutContentProps) {
-  // Note: Removed headers() call for CSP nonce to enable Cache Components
-  // static generation. Prerendered inline script elements are covered by the
-  // explicit script-src-elem policy; JsonLdScript still handles escaping.
+  // Do not read runtime headers here; Cache Components need this layout to stay
+  // prerenderable. Static CSP is emitted from next.config.ts.
 
-  const [tFooter, tNavigation, tAccessibility, tLanguage, messages] =
+  const [tFooter, tNavigation, tAccessibility, tLanguage, clientMessages] =
     await Promise.all([
       getTranslations({
         locale,
@@ -74,8 +72,7 @@ async function AsyncLocaleLayoutContent({
         locale,
         namespace: "language",
       }),
-      // Load complete messages for root provider (eliminates need for nested providers)
-      loadCompleteMessages(locale),
+      loadClientMessages(locale),
     ]);
 
   const footerSystemStatus = tFooter("systemStatus");
@@ -88,7 +85,6 @@ async function AsyncLocaleLayoutContent({
     href: item.href,
     label: tNavigation(item.translationKey.replace(/^navigation\./, "")),
   }));
-  const clientMessages = pickClientMessages(messages);
 
   return (
     <>

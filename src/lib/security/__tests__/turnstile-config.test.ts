@@ -10,13 +10,11 @@ async function loadTurnstileConfig({
   allowedHosts,
   expectedAction,
   allowedActions,
-  vercelUrl,
   baseUrl = "https://example.com",
 }: {
   allowedHosts?: string;
   expectedAction?: string;
   allowedActions?: string;
-  vercelUrl?: string;
   baseUrl?: string | null;
 } = {}) {
   vi.resetModules();
@@ -25,7 +23,6 @@ async function loadTurnstileConfig({
       TURNSTILE_ALLOWED_HOSTS: allowedHosts,
       TURNSTILE_ALLOWED_ACTIONS: allowedActions,
       TURNSTILE_EXPECTED_ACTION: expectedAction,
-      VERCEL_URL: vercelUrl,
     },
     getRuntimeEnvString: (key: string) => {
       if (key === "TURNSTILE_ALLOWED_ACTIONS") {
@@ -67,18 +64,16 @@ describe("turnstile-config", () => {
     expect(mod.isAllowedTurnstileHostname("unknown.example")).toBe(false);
   });
 
-  it("falls back to normalized site and vercel hosts plus localhost", async () => {
+  it("falls back to normalized site host plus localhost", async () => {
     const mod = await loadTurnstileConfig({
-      vercelUrl: "Feature-Branch.Vercel.App",
       baseUrl: "https://Preview.Example.com",
     });
 
     expect(mod.getAllowedTurnstileHosts()).toEqual(
-      expect.arrayContaining([
-        "preview.example.com",
-        "feature-branch.vercel.app",
-        "localhost",
-      ]),
+      expect.arrayContaining(["preview.example.com", "localhost"]),
+    );
+    expect(mod.getAllowedTurnstileHosts()).not.toEqual(
+      expect.arrayContaining(["feature-branch.preview.example"]),
     );
   });
 
@@ -95,16 +90,12 @@ describe("turnstile-config", () => {
     );
   });
 
-  it("skips blank base urls without warning and still keeps vercel plus localhost", async () => {
+  it("skips blank base urls without warning and still keeps localhost", async () => {
     const mod = await loadTurnstileConfig({
       baseUrl: "   ",
-      vercelUrl: "preview.example.vercel.app",
     });
 
-    expect(mod.getAllowedTurnstileHosts()).toEqual([
-      "preview.example.vercel.app",
-      "localhost",
-    ]);
+    expect(mod.getAllowedTurnstileHosts()).toEqual(["localhost"]);
     expect(mockWarn).not.toHaveBeenCalled();
   });
 

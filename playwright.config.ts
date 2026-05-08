@@ -182,30 +182,7 @@ export default defineConfig({
   expect: {
     // Increase expect timeout on CI (helps Firefox/Mobile reduce flakes)
     timeout: process.env.CI ? 8 * 1000 : 5 * 1000,
-
-    /* Visual regression testing configuration */
-    toHaveScreenshot: {
-      // Allow small pixel differences to reduce flakiness
-      // maxDiffPixels: 100 allows up to 100 pixels to differ
-      maxDiffPixels: 100,
-      // maxDiffPixelRatio: 0.01 allows up to 1% of pixels to differ
-      maxDiffPixelRatio: 0.01,
-      // threshold: 0.2 means pixels with <20% color difference are considered same
-      threshold: 0.2,
-      // Disable animations to ensure consistent screenshots
-      animations: "disabled",
-      // Use CSS scale for consistent rendering across devices
-      scale: "css",
-    },
-    toMatchSnapshot: {
-      maxDiffPixelRatio: 0.01,
-    },
   },
-
-  /* Snapshot configuration for visual regression tests */
-  snapshotDir: "./tests/e2e/__snapshots__",
-  snapshotPathTemplate:
-    "{snapshotDir}/{testFileDir}/{testFileName}-snapshots/{arg}-{projectName}{ext}",
 
   /* Output directory for test artifacts */
   outputDir: "test-results/",

@@ -49,7 +49,7 @@ function getHeaderState(
     isSticky: variant === "transparent" ? false : sticky,
     isMinimal: variant === "minimal",
     isTransparent: variant === "transparent",
-    isVercelNav: getRuntimeEnvString("NEXT_PUBLIC_NAV_VARIANT") !== "legacy",
+    isModernNav: getRuntimeEnvString("NEXT_PUBLIC_NAV_VARIANT") !== "legacy",
     showTestIds: !locale,
   };
 }
@@ -65,7 +65,7 @@ export function Header({
   mobileLanguageLabel = "Language",
   mainNavItems = [],
 }: HeaderProps) {
-  const { isSticky, isMinimal, isTransparent, isVercelNav, showTestIds } =
+  const { isSticky, isMinimal, isTransparent, isModernNav, showTestIds } =
     getHeaderState(variant, sticky, locale);
 
   return (
@@ -74,7 +74,7 @@ export function Header({
         "w-full bg-background/80 backdrop-blur-md",
         isSticky && "sticky top-0 z-50",
         isTransparent && "border-transparent bg-transparent backdrop-blur-none",
-        isVercelNav
+        isModernNav
           ? "border-b border-border/10 transition-[background-color,border-color] duration-200"
           : !isTransparent && "border-b border-border/10",
         className,

@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { API_ERROR_CODES } from "@/constants/api-error-codes";
 import * as inquiryRoute from "@/app/api/inquiry/route";
 import * as subscribeRoute from "@/app/api/subscribe/route";
-import { processLead } from "@/lib/lead-pipeline";
+import { processLead } from "@/lib/lead-pipeline/process-lead";
 
 /**
  * Protection contract checks for the remaining lead API family.
@@ -28,18 +28,13 @@ vi.mock("@/lib/turnstile", () => ({
   verifyTurnstileDetailed: vi.fn(async () => ({ success: true })),
 }));
 
-vi.mock("@/lib/lead-pipeline", () => ({
+vi.mock("@/lib/lead-pipeline/process-lead", () => ({
   processLead: vi.fn(async () => ({
     success: true,
     emailSent: true,
     recordCreated: true,
     referenceId: "lead-ref-001",
   })),
-  LEAD_TYPES: {
-    PRODUCT: "product",
-    CONTACT: "contact",
-    NEWSLETTER: "newsletter",
-  },
 }));
 
 vi.mock("@/lib/lead-pipeline/lead-schema", () => ({

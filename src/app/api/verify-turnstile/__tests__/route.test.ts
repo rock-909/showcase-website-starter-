@@ -1,27 +1,42 @@
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { API_ERROR_CODES } from "@/constants/api-error-codes";
-import { GET, POST } from "@/app/api/verify-turnstile/route";
+import { GET, OPTIONS, POST } from "@/app/api/verify-turnstile/route";
+
+const mockRateLimitMode = vi.hoisted(() => ({
+  value: "allow" as "allow" | "limited" | "failure",
+}));
 
 // Mock global fetch
 const mockFetch = vi.fn();
 global.fetch = mockFetch;
 
-// Mock distributed rate limit
-vi.mock("@/lib/security/distributed-rate-limit", () => ({
-  checkDistributedRateLimit: vi.fn(() =>
-    Promise.resolve({
-      allowed: true,
-      remaining: 10,
-      resetTime: Date.now() + 60000,
-      retryAfter: null,
-    }),
-  ),
-  createRateLimitHeaders: vi.fn(() => new Headers()),
-}));
+vi.mock("@/lib/api/with-rate-limit", () => ({
+  withRateLimit:
+    (
+      _preset: string,
+      handler: (
+        request: NextRequest,
+        context: { clientIP: string },
+      ) => Promise<Response>,
+    ) =>
+    async (request: NextRequest) => {
+      if (mockRateLimitMode.value === "limited") {
+        return Response.json(
+          { success: false, errorCode: "RATE_LIMIT_EXCEEDED" },
+          { status: 429 },
+        );
+      }
 
-vi.mock("@/lib/security/rate-limit-key-strategies", () => ({
-  getIPKey: vi.fn(async () => "ip:test-key"),
+      if (mockRateLimitMode.value === "failure") {
+        return Response.json(
+          { success: false, errorCode: "SERVICE_UNAVAILABLE" },
+          { status: 503 },
+        );
+      }
+
+      return handler(request, { clientIP: "192.168.1.1" });
+    },
 }));
 
 // Mock environment variables
@@ -51,6 +66,7 @@ vi.mock("@/lib/env", () => ({
     return undefined;
   },
   getRuntimeEnvBoolean: () => false,
+  isRuntimeDevelopment: () => process.env.NODE_ENV === "development",
 }));
 
 describe("Verify Turnstile API Route", () => {
@@ -62,7 +78,8 @@ describe("Verify Turnstile API Route", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockFetch.mockClear();
-    vi.stubEnv("VERCEL", "1");
+    mockRateLimitMode.value = "allow";
+    vi.stubEnv("NODE_ENV", "development");
   });
 
   describe("POST /api/verify-turnstile", () => {
@@ -246,10 +263,7 @@ describe("Verify Turnstile API Route", () => {
     });
 
     it("应该在限流基础设施失败时返回 503", async () => {
-      const rateLimit = await import("@/lib/security/distributed-rate-limit");
-      vi.mocked(rateLimit.checkDistributedRateLimit).mockRejectedValueOnce(
-        new Error("pepper missing"),
-      );
+      mockRateLimitMode.value = "failure";
 
       const request = new NextRequest(
         "http://localhost:3000/api/verify-turnstile",
@@ -372,7 +386,7 @@ describe("Verify Turnstile API Route", () => {
   });
 
   describe("GET /api/verify-turnstile", () => {
-    it("应该返回健康检查信息（配置已启用）", async () => {
+    it("应该返回不泄露密钥配置状态的健康检查信息", async () => {
       // GET request doesn't need request object
 
       const response = await GET();
@@ -381,8 +395,33 @@ describe("Verify Turnstile API Route", () => {
       expect(response.status).toBe(200);
       expect(data.success).toBe(true);
       expect(data.data.status).toBe("Turnstile verification endpoint active");
-      expect(data.data.configured).toBe(true);
+      expect(data.data).not.toHaveProperty("configured");
       expect(data.data.timestamp).toBeDefined();
+    });
+  });
+
+  describe("OPTIONS /api/verify-turnstile", () => {
+    it("应该返回精确的同源预检方法合约", () => {
+      const request = new NextRequest(
+        "http://localhost:3000/api/verify-turnstile",
+        {
+          method: "OPTIONS",
+          headers: {
+            origin: "http://localhost:3000",
+            host: "localhost:3000",
+          },
+        },
+      );
+
+      const response = OPTIONS(request);
+      const allowMethods = response.headers.get("Access-Control-Allow-Methods");
+      const methods = allowMethods
+        ?.split(",")
+        .map((method) => method.trim())
+        .sort();
+
+      expect(response.status).toBe(200);
+      expect(methods).toEqual(["GET", "OPTIONS", "POST"]);
     });
   });
 
@@ -428,14 +467,7 @@ describe("Verify Turnstile API Route", () => {
 
   describe("Rate Limiting", () => {
     it("should return 429 when rate limit is exceeded", async () => {
-      const { checkDistributedRateLimit } =
-        await import("@/lib/security/distributed-rate-limit");
-      vi.mocked(checkDistributedRateLimit).mockResolvedValueOnce({
-        allowed: false,
-        remaining: 0,
-        resetTime: Date.now() + 60000,
-        retryAfter: 60,
-      });
+      mockRateLimitMode.value = "limited";
 
       const request = new NextRequest(
         "http://localhost:3000/api/verify-turnstile",
@@ -455,15 +487,6 @@ describe("Verify Turnstile API Route", () => {
     });
 
     it("should process normally when rate limit allows", async () => {
-      const { checkDistributedRateLimit } =
-        await import("@/lib/security/distributed-rate-limit");
-      vi.mocked(checkDistributedRateLimit).mockResolvedValueOnce({
-        allowed: true,
-        remaining: 10,
-        resetTime: Date.now() + 60000,
-        retryAfter: null,
-      });
-
       mockFetch.mockResolvedValue({
         ok: true,
         json: () =>

@@ -24,7 +24,7 @@ Submission pipeline: preflight → self-heal → commit → push → PR → CI m
 
 ### Phase 2: Preflight
 
-4. **Run `pnpm ci:local:quick`**: Full local validation.
+4. **Run `pnpm type-check + pnpm lint:check + pnpm test + pnpm build`**: Full local validation.
    - If passes: proceed to Phase 4 (Commit & Push).
    - If fails: proceed to Phase 3 (Self-Heal).
 
@@ -34,8 +34,8 @@ Submission pipeline: preflight → self-heal → commit → push → PR → CI m
 
    | Check | Auto-fixable? | Fix Strategy |
    |-------|---------------|--------------|
-   | Prettier | Yes | `pnpm format:write` |
-   | ESLint | Partially | `pnpm lint:fix` + manual |
+   | Prettier | Yes | `pnpm exec prettier --write <files>` |
+   | ESLint | Partially | `pnpm exec eslint . --ext .js,.jsx,.ts,.tsx --config eslint.config.mjs --fix` + manual |
    | TypeScript | Yes (usually) | Fix type errors |
    | Tests | Yes (usually) | Read output, fix tests |
    | Build (imports) | Yes | Fix import paths |
@@ -45,7 +45,7 @@ Submission pipeline: preflight → self-heal → commit → push → PR → CI m
    | Security audit | **No** | **Abort** |
    | Node/pnpm version | **No** | **Abort** |
 
-6. **Fix and retry**: Apply fixes, re-run `pnpm ci:local:quick`.
+6. **Fix and retry**: Apply fixes, re-run `pnpm type-check + pnpm lint:check + pnpm test + pnpm build`.
    - If passes: proceed to Phase 4.
    - If same failure after 3 attempts: **abort**.
    - If non-auto-fixable: **abort immediately**.

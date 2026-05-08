@@ -17,12 +17,10 @@ import {
 } from "@/lib/security/ip-parsing";
 import { isTrustedCdnSource } from "@/lib/security/ip-range";
 
-const PLATFORM_VERCEL = "vercel";
 const PLATFORM_CLOUDFLARE = "cloudflare";
 const PLATFORM_DEVELOPMENT = "development";
 
 type DeploymentPlatform =
-  | typeof PLATFORM_VERCEL
   | typeof PLATFORM_CLOUDFLARE
   | typeof PLATFORM_DEVELOPMENT;
 
@@ -45,11 +43,6 @@ const INTERNAL_HEADER_CONFIG: TrustedProxyConfig = {
   primaryHeader: INTERNAL_TRUSTED_CLIENT_IP_HEADER,
 };
 
-const VERCEL_TRUSTED_PROXY_CONFIG: TrustedProxyConfig = {
-  primaryHeader: "x-real-ip",
-  secondaryHeader: "x-forwarded-for",
-};
-
 const CLOUDFLARE_TRUSTED_PROXY_CONFIG: TrustedProxyConfig = {
   primaryHeader: "cf-connecting-ip",
   secondaryHeader: "x-forwarded-for",
@@ -66,7 +59,6 @@ function getDeploymentPlatform(): DeploymentPlatform | null {
 
   if (platform) {
     const normalizedPlatform = platform.toLowerCase();
-    if (normalizedPlatform === PLATFORM_VERCEL) return PLATFORM_VERCEL;
     if (normalizedPlatform === PLATFORM_CLOUDFLARE) return PLATFORM_CLOUDFLARE;
     if (normalizedPlatform === PLATFORM_DEVELOPMENT) {
       return PLATFORM_DEVELOPMENT;
@@ -74,9 +66,6 @@ function getDeploymentPlatform(): DeploymentPlatform | null {
     return null;
   }
 
-  if (getRuntimeEnvString("VERCEL")) {
-    return PLATFORM_VERCEL;
-  }
   if (getRuntimeEnvString("CF_PAGES")) {
     return PLATFORM_CLOUDFLARE;
   }
@@ -128,11 +117,9 @@ function getPlatformContext(): {
   return {
     platform,
     config:
-      platform === PLATFORM_VERCEL
-        ? VERCEL_TRUSTED_PROXY_CONFIG
-        : platform === PLATFORM_CLOUDFLARE
-          ? CLOUDFLARE_TRUSTED_PROXY_CONFIG
-          : DEVELOPMENT_TRUSTED_PROXY_CONFIG,
+      platform === PLATFORM_CLOUDFLARE
+        ? CLOUDFLARE_TRUSTED_PROXY_CONFIG
+        : DEVELOPMENT_TRUSTED_PROXY_CONFIG,
   };
 }
 

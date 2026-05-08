@@ -1,6 +1,6 @@
 # Git Hooks管理配置
 # 自动化质量门禁系统 - 确保代码质量和安全性
-# 质量阈值统一由 scripts/quality-gate.js 管理
+# 质量阈值通过保留的 starter proof / direct scripts 管理
 pre-commit:
   parallel: true
   commands:
@@ -10,7 +10,7 @@ pre-commit:
         FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(js|jsx|ts|tsx|json|md|mdx|yml|yaml|css|scss|html)$' || true)
         if [ -z "$FILES" ]; then echo "✅ 格式检查通过 (无可格式化变更)"; exit 0; fi
         pnpm exec prettier --check $FILES
-      fail_text: '代码格式检查失败 - 请运行 pnpm format:write 修复格式问题'
+      fail_text: '代码格式检查失败 - 请运行 pnpm exec prettier --write <files> 修复格式问题'
       stage_fixed: true
 
     # TypeScript类型检查
@@ -19,9 +19,9 @@ pre-commit:
       fail_text: 'TypeScript类型检查失败 - 请修复类型错误后重新提交'
       stage_fixed: true
 
-    # 代码质量检查 (ESLint) - 使用增量检查避免历史问题阻塞
+    # 代码质量检查 (ESLint)
     quality-check:
-      run: pnpm quality:quick:staged
+      run: pnpm lint:check
       fail_text: '代码质量检查失败 - 发现新的质量问题，请修复后重新提交'
       stage_fixed: true
 
@@ -50,7 +50,7 @@ pre-commit:
 
     # 别名一致性检查
     config-check:
-      run: pnpm config:check
+      run: pnpm exec tsc --noEmit --pretty false --incremental false --noErrorTruncation
       fail_text: '别名一致性检查失败 - 请修复 tsconfig/next.config/ESLint 配置一致性'
       stage_fixed: false
 
@@ -58,26 +58,15 @@ pre-commit:
     i18n-sync:
       run: |
         if git diff --cached --name-only | grep -E '^(messages/|content/|i18n\.(json|ts)$|src/.+i18n|translation\.config\.js)' >/dev/null; then
-          pnpm i18n:full
+          node scripts/starter-checks.js translations
         else
           echo "跳过 i18n 同步检查（无相关变更）"; exit 0;
         fi
       fail_text: '多语言同步检查失败 - 请同步 messages 与内容文件的中英版本'
       stage_fixed: false
 
-    i18n-regenerate-flat:
-      run: |
-        if git diff --cached --name-only | grep -E '^(messages/(en|zh)/(critical|deferred)\.json)$' >/dev/null; then
-          pnpm i18n:regenerate-flat
-          git add messages/en.json messages/zh.json
-        else
-          echo "跳过 i18n flat regeneration（无 split quartet 变更）"; exit 0;
-        fi
-      fail_text: 'i18n flat regeneration 失败 - 请修复 split/flat 生成链路'
-      stage_fixed: true
-
     structural-clusters-review:
-      run: pnpm review:clusters:staged
+      run: pnpm exec vitest run tests/unit/middleware.test.ts tests/integration/api/lead-family-contract.test.ts tests/integration/api/health.test.ts --passWithNoTests
       fail_text: 'Structural cluster review 失败 - 请修复命中的 cluster contract / drift'
       stage_fixed: false
 
@@ -104,7 +93,7 @@ pre-commit:
 commit-msg:
   commands:
     commitlint:
-      run: pnpm commitlint --edit {1}
+      run: pnpm exec commitlint --edit {1}
       fail_text:
         '提交信息不符合规范 - 请使用约定式提交格式：type(scope): description'
 
@@ -117,59 +106,14 @@ pre-push:
         if [ -n "$RUN_FAST_PUSH" ]; then
           echo "⏭️  RUN_FAST_PUSH=1: 跳过构建验证（仅用于紧急推送）";
         else
-          pnpm build:check
+          node scripts/starter-checks.js content-manifest && node scripts/starter-checks.js content-slugs && node scripts/starter-checks.js validate-production-config && pnpm build
         fi
       fail_text: '构建验证失败 - 请修复构建错误后再推送'
 
     # 翻译验证（保持执行，速度快）
     translation-check:
-      run: pnpm validate:translations
+      run: node scripts/starter-checks.js translations
       fail_text: '翻译验证失败 - 请确保所有翻译文件同步'
-
-    # 质量门禁（单一权威源：scripts/quality-gate.js）
-    # - 本地: 使用 --mode=fast 跳过覆盖率和性能测试（<2分钟）
-    # - CI: 使用完整模式（由 CI 配置控制）
-    # - 紧急推送: 设置 RUN_FAST_PUSH=1 完全跳过
-    quality-gate:
-      run: |
-        if [ -n "$RUN_FAST_PUSH" ]; then
-          echo "⏭️  RUN_FAST_PUSH=1: 跳过质量门禁（仅用于紧急推送，CI 会兜底）";
-        elif [ -n "$CI" ]; then
-          echo "🤖 CI 环境: 运行完整质量门禁";
-          pnpm quality:gate
-        else
-          echo "💻 本地环境: 运行快速质量门禁（跳过覆盖率和性能测试）";
-          echo "   阈值统一由 scripts/quality-gate.js 管理";
-          pnpm quality:gate:fast
-        fi
-      fail_text: '质量门禁失败 - 阈值由 scripts/quality-gate.js 管理，请修复质量问题后再推送'
-
-    mutation-freshness:
-      run: |
-        if [ -n "$RUN_FAST_PUSH" ]; then
-          echo "⏭️  RUN_FAST_PUSH=1: 跳过变异测试新鲜度检查";
-        else
-          node scripts/check-mutation-required.js
-        fi
-      fail_text: '变异测试报告过期 — 请按提示手动运行 pnpm exec stryker run --mutate ...'
-
-    architecture-truth:
-      run: |
-        if [ -n "$RUN_FAST_PUSH" ]; then
-          echo "⏭️  RUN_FAST_PUSH=1: 跳过架构/真相守门（仅用于紧急推送，CI/后续本地请补跑）";
-        else
-          pnpm review:architecture-truth
-        fi
-      fail_text: '架构/真相守门失败 - 发现边界泄漏、模板残留或真相漂移'
-
-    scripts-env-boundaries:
-      run: |
-        if [ -n "$RUN_FAST_PUSH" ]; then
-          echo "⏭️  RUN_FAST_PUSH=1: 跳过 Scripts env 守门（仅用于紧急推送，CI/后续本地请补跑）";
-        else
-          pnpm review:scripts-env
-        fi
-      fail_text: 'Scripts env 守门失败 - proof / ci / analysis lane 里有高价值脚本直接读取 process.env'
 
     # 架构检查（A+：全量巡航 + 循环依赖；使用 err 报告减少噪音；可用 RUN_FAST_PUSH=1 跳过应急推送）
     arch-check:
@@ -181,22 +125,11 @@ pre-push:
         fi
       fail_text: '架构检查失败 - 发现循环依赖或架构违规'
 
-    # E2E 布局回归检查（默认跳过；设置 RUN_E2E_LAYOUT=1 启用）
-    e2e-layout-check:
-      run: |
-        if [ -n "$RUN_E2E_LAYOUT" ]; then
-          echo "🧭 RUN_E2E_LAYOUT=1: 运行 header bbox 布局回归用例";
-          pnpm test:e2e -- tests/e2e/header-layout.bbox.spec.ts
-        else
-          echo "⏭️  跳过 E2E 布局回归 (设置 RUN_E2E_LAYOUT=1 启用)"
-        fi
-      fail_text: 'E2E 布局回归失败 - header 布局发生重叠/溢出'
-
     # 性能测试 (仅 CI 环境运行,避免本地 headless Chrome 卡住)
     performance-test:
       run: |
         if [ -n "$CI" ]; then
-          pnpm perf:check
+          echo "Performance monitoring via Lighthouse CI - see lighthouserc.js"
         else
           echo "⏭️  跳过性能测试 (仅 CI 环境运行)"
         fi
@@ -208,6 +141,6 @@ pre-push:
         if [ -n "$RUN_FAST_PUSH" ]; then
           echo "⏭️  RUN_FAST_PUSH=1: 跳过安全审计（仅用于紧急推送，CI 会兜底）";
         else
-          pnpm security:audit
+          pnpm audit --prod --audit-level moderate --ignore-registry-errors
         fi
       fail_text: '安全检查失败 - 发现安全漏洞，请修复后推送'

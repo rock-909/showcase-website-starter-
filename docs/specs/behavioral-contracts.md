@@ -61,7 +61,7 @@ Language toggle (desktop dropdown / mobile sheet link) switches the UI language,
 | Test File | `tests/e2e/i18n.spec.ts` |
 | Status | Covered |
 
-Notes: The JavaScript language switchers preserve the current path directly. The mobile no-JS fallback also preserves the path when the browser sends a same-origin `Referer`; if that header is missing, the fallback language link lands on the selected locale root instead of guessing the previous path.
+Notes: The JavaScript language switchers preserve the current path directly. The mobile no-JS fallback is intentionally simpler and links to the selected locale root (`/en` or `/zh`) instead of guessing the previous page from request headers.
 
 ---
 
@@ -202,18 +202,18 @@ Notes: Contact route validation is covered through the canonical contact path. I
 
 ---
 
-#### BC-012A: Lead submission retries and anti-abuse checks remain stable
+#### BC-012A: Lead submission sink handling and anti-abuse checks remain stable
 
-Lead submission surfaces must preserve stable behavior for duplicate starter submissions, endpoint-bound Turnstile action checks, downstream timeout ambiguity, Airtable sink handling, and Cloudflare client-IP handling.
+Lead submission surfaces must preserve stable behavior for duplicate starter submissions, endpoint-bound Turnstile action checks, Airtable-first sink handling, non-blocking owner/confirmation email handling, and Cloudflare client-IP handling.
 
 | Field | Value |
 |-------|-------|
 | Priority | High |
 | Test Type | Unit + Integration |
-| Test File | `src/lib/lead-pipeline/__tests__/with-timeout.test.ts`, `src/lib/__tests__/airtable-create-operations.test.ts`, `src/lib/security/__tests__/client-ip.test.ts`, `tests/integration/api/subscribe.test.ts`, `src/app/api/inquiry/__tests__/route.test.ts`, `src/app/__tests__/actions.test.ts`, `src/app/__tests__/contact-integration.test.ts` |
+| Test File | `src/lib/lead-pipeline/__tests__/process-lead.test.ts`, `src/lib/lead-pipeline/__tests__/process-lead-observability.test.ts`, `src/lib/__tests__/airtable-create-operations.test.ts`, `src/lib/security/__tests__/client-ip.test.ts`, `tests/integration/api/lead-family-protection.test.ts`, `tests/integration/api/subscribe.test.ts`, `src/app/api/contact/__tests__/route.test.ts`, `src/app/api/inquiry/__tests__/route.test.ts`, `src/app/__tests__/actions.test.ts`, `src/app/__tests__/contact-integration.test.ts` |
 | Status | Covered |
 
-Notes: Duplicate starter submissions are processed independently instead of replayed. Timeout tests prove timeout is distinguishable from normal service rejection; they do not claim downstream Airtable or Resend requests are canceled. Cloudflare client-IP tests preserve the stop line that raw `cf-connecting-ip` alone is not enough when the trusted source cannot be proven.
+Notes: Duplicate starter submissions are processed independently instead of replayed. Lead pipeline tests prove Airtable record creation is the business success condition: Airtable failure returns failure and skips email, while email failure after record creation remains user-successful. Cloudflare client-IP tests preserve the stop line that raw `cf-connecting-ip` alone is not enough when the trusted source cannot be proven.
 
 ---
 
@@ -356,7 +356,7 @@ GET /api/health returns HTTP 200 with a JSON body indicating service status. Use
 |-------|-------|
 | Priority | High |
 | Test Type | Integration |
-| Test File | `tests/integration/api/health.test.ts`, `scripts/deploy/post-deploy-smoke.mjs` |
+| Test File | `tests/integration/api/health.test.ts`, `scripts/starter-checks.js deployed-smoke` |
 | Status | Covered |
 
 Notes: `tests/integration/api/health.test.ts` covers the route in-suite. Deployed smoke still matters as the final platform proof, but this contract is no longer untested.

@@ -1,25 +1,26 @@
 import "server-only";
 
 import { NextRequest, NextResponse } from "next/server";
-import { createApiErrorResponse } from "@/lib/api/api-response";
-import { createLeadSuccessPayload } from "@/lib/api/lead-route-response";
+import {
+  createApiErrorResponse,
+  createApiSuccessResponse,
+} from "@/lib/api/api-response";
+import {
+  applyCorsHeaders,
+  createCorsPreflightResponse,
+} from "@/lib/api/cors-utils";
 import { safeParseJson } from "@/lib/api/safe-parse-json";
 import {
   withRateLimit,
   type RateLimitContext,
 } from "@/lib/api/with-rate-limit";
-import { validateContactSubmissionPayload } from "@/lib/contact-form-processing";
-import { submitCanonicalContactSubmission } from "@/lib/contact/submit-canonical-contact";
+import {
+  submitCanonicalContactSubmission,
+  validateContactSubmissionPayload,
+} from "@/lib/contact/submit-canonical-contact";
 import { logger, sanitizeIP } from "@/lib/logger";
 import { API_ERROR_CODES } from "@/constants/api-error-codes";
 import { HTTP_BAD_REQUEST, HTTP_INTERNAL_ERROR } from "@/constants";
-
-function createSubmissionErrorResponse(errorCode: string, status?: number) {
-  return createApiErrorResponse(
-    errorCode as (typeof API_ERROR_CODES)[keyof typeof API_ERROR_CODES],
-    status ?? HTTP_BAD_REQUEST,
-  );
-}
 
 async function handleContactPost(
   request: NextRequest,
@@ -35,9 +36,9 @@ async function handleContactPost(
 
   const payloadValidation = validateContactSubmissionPayload(parsedBody.data);
   if (!payloadValidation.success) {
-    return createSubmissionErrorResponse(
+    return createApiErrorResponse(
       payloadValidation.errorCode,
-      payloadValidation.statusCode,
+      payloadValidation.statusCode ?? HTTP_BAD_REQUEST,
     );
   }
 
@@ -47,9 +48,9 @@ async function handleContactPost(
     });
 
     if (!submission.success) {
-      return createSubmissionErrorResponse(
+      return createApiErrorResponse(
         submission.errorCode,
-        submission.statusCode,
+        submission.statusCode ?? HTTP_BAD_REQUEST,
       );
     }
 
@@ -58,7 +59,7 @@ async function handleContactPost(
       throw new Error("referenceId missing on successful contact submission");
     }
 
-    return NextResponse.json(createLeadSuccessPayload(referenceId));
+    return createApiSuccessResponse({ referenceId });
   } catch (error) {
     logger.error("Contact route submission failed unexpectedly", {
       error: error instanceof Error ? error.message : "Unknown error",
@@ -74,6 +75,11 @@ async function handleContactPost(
 
 const POST_RATE_LIMITED = withRateLimit("contact", handleContactPost);
 
-export function POST(request: NextRequest) {
-  return POST_RATE_LIMITED(request);
+export async function POST(request: NextRequest) {
+  const response = await POST_RATE_LIMITED(request);
+  return applyCorsHeaders({ request, response });
+}
+
+export function OPTIONS(request: NextRequest) {
+  return createCorsPreflightResponse(request);
 }

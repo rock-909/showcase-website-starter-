@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getPageBySlug } from "@/lib/content";
+import { getPageBySlug } from "@/lib/content-query/queries";
 
 describe("Contact page MDX rendering contract", () => {
   it("provides body sections for get in touch and response expectations", async () => {

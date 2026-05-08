@@ -2,8 +2,7 @@
  * 集中测试 Mock 消息 - 中文版
  *
  * 此文件提供统一的中文测试消息源。当前 runtime 真相来自
- * messages/zh/critical.json + messages/zh/deferred.json；messages/zh.json
- * 只作为测试/脚本兼容副本使用。
+ * messages/zh/critical.json + messages/zh/deferred.json。
  *
  * @usage
  * ```typescript
@@ -230,14 +229,14 @@ export const footerMessages = {
       faqs: "常见问题",
       docs: "文档",
       ambassadors: "大使",
-      community: "Vercel社区",
-      vercel: "Vercel",
+      community: "社区",
+      platform: "平台",
     },
     social: {
       title: "社交",
     },
   },
-  vercel: {
+  platform: {
     products: {
       title: "产品",
       ai: "AI",
@@ -265,7 +264,7 @@ export const footerMessages = {
       solutionPartners: "解���方案合作伙伴",
       startups: "初创企业",
       templates: "模板",
-      sdks: "Vercel SDK",
+      sdks: "SDK",
     },
     company: {
       title: "公司",

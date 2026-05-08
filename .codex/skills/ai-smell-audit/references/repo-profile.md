@@ -16,7 +16,7 @@ These surfaces deserve first-pass attention because they are closest to business
    - `src/app/api/verify-turnstile/route.ts`
    - `src/components/forms/**`
    - `src/lib/actions/contact.ts`
-   - `src/lib/lead-pipeline/**`
+   - `src/lib/lead-pipeline/{lead-schema,process-lead,utils}.ts`
 
 2. **Idempotency / anti-abuse / trust boundary**
    - `src/lib/idempotency.ts`
@@ -39,7 +39,7 @@ These surfaces deserve first-pass attention because they are closest to business
    - `wrangler.jsonc`
    - `scripts/cloudflare/**`
    - `scripts/deploy/**`
-   - `scripts/release-proof.sh`
+   - `scripts/starter-checks.js release-verify`
 
 5. **E2E / deployed proof boundary**
    - `tests/e2e/contact-form-smoke.spec.ts`
@@ -109,19 +109,18 @@ This repo has multiple proof layers. Keep them separate:
 
 ### Build truth
 - `pnpm build`
-- `pnpm build:cf`
+- `pnpm website:build:cf`
 
 ### Local preview truth
-- `pnpm preview:cf`
-- `pnpm smoke:cf:preview`
-- `pnpm smoke:cf:preview:strict`
+- `pnpm exec opennextjs-cloudflare preview --env preview`
+- `node scripts/starter-checks.js cf-preview-smoke`
 
 ### Deployed truth
-- `pnpm smoke:cf:deploy -- --base-url <url>`
-- `pnpm proof:cf:preview-deployed`
+- `node scripts/starter-checks.js deployed-smoke --base-url <url>`
+- `node scripts/starter-checks.js cf-preview-deployed`
 
 ### Review truth
-- `pnpm truth:check`
+- `node scripts/starter-checks.js truth-docs`
 - targeted `vitest` suites
 - behavior-contract review
 

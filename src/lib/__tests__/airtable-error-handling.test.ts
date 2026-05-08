@@ -73,7 +73,7 @@ describe("Airtable Error Handling Tests", () => {
     vi.resetModules();
 
     // Import the service fresh for each test
-    const AirtableModule = await import("../airtable");
+    const AirtableModule = await import("../airtable/service");
     AirtableServiceClass =
       AirtableModule.AirtableService as typeof AirtableServiceType;
   });

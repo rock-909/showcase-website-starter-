@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getPageBySlug } from "@/lib/content";
+import { getPageBySlug } from "@/lib/content-query/queries";
 import { extractFaqFromMetadata } from "@/lib/content/mdx-faq";
 
 describe("Contact page MDX i18n", () => {

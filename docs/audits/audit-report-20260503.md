@@ -148,7 +148,7 @@ rg -n "websiteProfile|Example Showcase Company|sales@example.com|example.com" sr
 
 **Minimal correct design**：保留 starter 示例，但 public launch strict gate 必须要求替换或 owner 明确签收。
 
-**建议修复**：复核并强化 `pnpm website:content:readiness` / `validate:launch-content` 的 launch-strict 文案和阻断范围。
+**建议修复**：复核并强化 `node scripts/starter-checks.js content-readiness` / `PUBLIC_LAUNCH_STRICT=true node scripts/starter-checks.js validate-production-config` 的 launch-strict 文案和阻断范围。
 
 ---
 
@@ -495,7 +495,7 @@ find src/app/api src/components/products src/lib -maxdepth 3 -type f | sort | rg
 
 **共同根因**：真相被手写在多个 summary / profile 中，代码或测试变了以后没有同一机制强制同步。
 
-**推荐收口路径**：修正文档矛盾，并给 `check-current-truth-docs.js` 增加少量高风险合同 consistency checks。
+**推荐收口路径**：修正文档矛盾，并给 `starter-checks.js truth-docs` 增加少量高风险合同 consistency checks。
 
 **业务影响**：会误导后续审计和修复排序。
 
@@ -575,11 +575,11 @@ find src/app/api src/components/products src/lib -maxdepth 3 -type f | sort | rg
 |---|---|
 | `pnpm type-check` | Pass |
 | `pnpm lint:check` | Pass |
-| `pnpm dep:check` | Pass |
-| `pnpm unused:check` | Pass |
-| `pnpm security:semgrep` | Pass: ERROR 0, WARNING 0 |
+| Historical dependency-cruiser proof | Pass |
+| Historical unused-code proof | Pass |
+| Historical Semgrep proof | Pass: ERROR 0, WARNING 0 |
 
-Note: direct `semgrep` binary probing was not used as the baseline source because the binary is not on PATH for this workspace. The audited security baseline is the project script `pnpm security:semgrep`, which wraps `scripts/semgrep-scan.js` and exited 0.
+Note: direct `semgrep` binary probing was not used as the baseline source because the binary is not on PATH for this workspace. The audited security baseline ran the repository Semgrep rules and exited 0. That package alias has since been retired from the starter public command surface.
 
 ### 8.3 工作区 dirty caveat
 

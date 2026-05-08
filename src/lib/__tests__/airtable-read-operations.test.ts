@@ -12,7 +12,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type {
   AirtableBaseLike,
   AirtableServicePrivate,
-  DynamicImportModule,
 } from "@/test/test-types";
 import type { AirtableService as AirtableServiceType } from "../airtable/service";
 import {
@@ -106,7 +105,7 @@ describe("Airtable Service - Read Operations Tests", () => {
     mockConfigure.mockClear();
 
     // Dynamically import the module to ensure fresh instance
-    const module = (await import("../airtable")) as DynamicImportModule;
+    const module = await import("../airtable/service");
     AirtableServiceClass = module.AirtableService as typeof AirtableServiceType;
   });
 
