@@ -254,5 +254,3 @@ export const SocialIconLink: FC<SocialIconLinkProps> = (props) => {
   // Fallback for invalid props
   return null;
 };
-
-export default SocialIconMapper;

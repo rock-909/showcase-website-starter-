@@ -363,8 +363,3 @@ export type ErrorBoundaryMessages = typeof errorBoundaryMessages;
 export type SeoMessages = typeof seoMessages;
 export type FooterMessages = typeof footerMessages;
 export type UnderConstructionMessages = typeof underConstructionMessages;
-
-/**
- * 默认导出合并消息
- */
-export default combinedMessages;

@@ -10,9 +10,6 @@ export const HTTP_TOO_MANY_REQUESTS = 429;
 export const HTTP_INTERNAL_ERROR = 500;
 export const HTTP_SERVICE_UNAVAILABLE = 503;
 
-export const HTTP_OK_CONST = HTTP_OK;
-export const HTTP_BAD_REQUEST_CONST = HTTP_BAD_REQUEST;
-
 export const BREAKPOINT_FULL_HD = 1920;
 
 export const ANIMATION_DURATION_NORMAL = 300;

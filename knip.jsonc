@@ -27,8 +27,6 @@
   "ignoreExportsUsedInFile": true,
   // 跳过模板/测试脚手架文件，避免误报（所有问题类型）。
   "ignore": ["src/constants/test-performance-constants.ts"],
-  // 系统自带的命令无需额外二进制依赖，忽略告警。
-  "ignoreBinaries": ["open", "du", "openssl"],
   // 工具型依赖由 CI/lint/分析脚本消费，标记为已使用以便聚焦业务未用项。
   "ignoreDependencies": [
     // Prettier plugins are auto-loaded by Prettier when installed; knip may not detect usage reliably.
