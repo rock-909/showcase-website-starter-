@@ -25,6 +25,8 @@ pnpm website:build:cf
 
 这些命令能证明代码和配置没有明显破损，但还不能证明真实部署环境、真实表单写入、真实客户信任资产已经准备好。
 
+Local release proof is not public launch proof. Public launch still requires `PUBLIC_LAUNCH_STRICT=true node scripts/starter-checks.js validate-production-config`, deployed smoke against the real URL, deployed lead canary, and owner signoff.
+
 ## Component proof 边界
 
 `pnpm component:check` 证明三件事：

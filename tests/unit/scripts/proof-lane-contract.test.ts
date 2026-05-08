@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import yaml from "js-yaml";
 import { describe, expect, it } from "vitest";
 import { RELEASE_PROOF_SEQUENCE } from "../../../scripts/starter-checks.js";
 
@@ -42,9 +43,28 @@ const RETIRED_ACTIVE_PROOF_MARKERS = [
   "toMatchSnapshot",
 ] as const;
 
+interface WorkflowStep {
+  readonly name?: string;
+  readonly if?: string;
+  readonly run?: string;
+  readonly env?: Record<string, string>;
+}
+
+interface WorkflowJob {
+  readonly steps?: WorkflowStep[];
+}
+
+interface Workflow {
+  readonly jobs?: Record<string, WorkflowJob>;
+}
+
 function readRepoFile(relativePath: string) {
   // eslint-disable-next-line security/detect-non-literal-fs-filename -- test reads fixed repo fixture files by relative path
   return fs.readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
+}
+
+function readCiWorkflow(): Workflow {
+  return yaml.load(readRepoFile(".github/workflows/ci.yml")) as Workflow;
 }
 
 function listRepoFiles(relativeDir: string): string[] {
@@ -62,6 +82,62 @@ function listRepoFiles(relativeDir: string): string[] {
 }
 
 describe("proof lane contract", () => {
+  it("makes release verify wording impossible to confuse with public launch proof", () => {
+    const releaseProofScript = readRepoFile("scripts/starter-checks.js");
+    const qualityProof = readRepoFile("docs/website/quality-proof.md");
+    const releaseRunbook = readRepoFile("docs/guides/RELEASE-PROOF-RUNBOOK.md");
+
+    expect(releaseProofScript).toContain("Local release proof completed");
+    expect(releaseProofScript).toContain("NOT public launch proof");
+    expect(releaseProofScript).not.toContain(
+      "Release verification completed successfully.",
+    );
+
+    for (const content of [qualityProof, releaseRunbook]) {
+      expect(content).toContain(
+        "Local release proof is not public launch proof",
+      );
+      expect(content).toContain(
+        "PUBLIC_LAUNCH_STRICT=true node scripts/starter-checks.js validate-production-config",
+      );
+      expect(content).toContain("deployed lead canary");
+    }
+  });
+
+  it("runs Wrangler dry-run in the PR Cloudflare build job", () => {
+    const workflow = readCiWorkflow();
+    const steps = workflow.jobs?.["cloudflare-build"]?.steps ?? [];
+    const buildIndex = steps.findIndex(
+      (step) => step.name === "Cloudflare/OpenNext 构建",
+    );
+    const dryRunIndex = steps.findIndex(
+      (step) => step.name === "Cloudflare/Wrangler dry-run",
+    );
+    const dryRunStep = steps[dryRunIndex];
+    const dryRunCondition = dryRunStep?.if ?? "";
+
+    expect(buildIndex).toBeGreaterThan(-1);
+    expect(dryRunIndex).toBeGreaterThan(-1);
+    expect(buildIndex).toBeLessThan(dryRunIndex);
+    expect(dryRunCondition).toContain("github.event_name != 'pull_request'");
+    expect(dryRunCondition).toContain(
+      "github.event.pull_request.head.repo.full_name == github.repository",
+    );
+    expect(dryRunCondition).toContain("github.actor != 'dependabot[bot]'");
+    expect(dryRunStep?.run).toContain(
+      "pnpm exec wrangler deploy --dry-run --env preview",
+    );
+    expect(dryRunStep?.env).toEqual(
+      expect.objectContaining({
+        NODE_ENV: "production",
+        APP_ENV: "preview",
+        NEXT_PUBLIC_SITE_URL: "https://showcase-website-starter.test",
+        CLOUDFLARE_API_TOKEN: "${{ secrets.CLOUDFLARE_API_TOKEN }}",
+        CLOUDFLARE_ACCOUNT_ID: "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}",
+      }),
+    );
+  });
+
   it("keeps release proof wired without the removed cluster command wrapper", () => {
     const packageJson = readRepoFile("package.json");
     const releaseProofFlow = RELEASE_PROOF_SEQUENCE.join("\n");

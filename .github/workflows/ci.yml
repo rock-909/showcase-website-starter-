@@ -173,6 +173,16 @@ jobs:
           APP_ENV: preview
           NEXT_PUBLIC_SITE_URL: https://showcase-website-starter.test
 
+      - name: Cloudflare/Wrangler dry-run
+        if: ${{ github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]') }}
+        run: pnpm exec wrangler deploy --dry-run --env preview
+        env:
+          NODE_ENV: production
+          APP_ENV: preview
+          NEXT_PUBLIC_SITE_URL: https://showcase-website-starter.test
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
   ci-summary:
     name: CI 汇总
     runs-on: ubuntu-latest
