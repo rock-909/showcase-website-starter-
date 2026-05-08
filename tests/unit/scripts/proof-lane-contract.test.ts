@@ -47,10 +47,17 @@ interface WorkflowStep {
   readonly name?: string;
   readonly if?: string;
   readonly run?: string;
+  readonly uses?: string;
+  readonly with?: Record<string, unknown>;
   readonly env?: Record<string, string>;
 }
 
 interface WorkflowJob {
+  readonly name?: string;
+  readonly "runs-on"?: string;
+  readonly needs?: string | string[];
+  readonly "timeout-minutes"?: number;
+  readonly container?: string;
   readonly steps?: WorkflowStep[];
 }
 
@@ -80,6 +87,66 @@ function listRepoFiles(relativeDir: string): string[] {
       path.relative(REPO_ROOT, path.join(entry.parentPath, entry.name)),
     );
 }
+
+describe("Semgrep proof lane contract", () => {
+  it("wires Semgrep through CI without depending on fake npm semgrep", () => {
+    const packageJson = JSON.parse(readRepoFile("package.json")) as {
+      dependencies?: Record<string, string>;
+      devDependencies?: Record<string, string>;
+    };
+    const workflow = readCiWorkflow();
+    const semgrepJob = workflow.jobs?.semgrep;
+    const ciSummaryNeeds = workflow.jobs?.["ci-summary"]?.needs;
+    const checkoutStep = semgrepJob?.steps?.find(
+      (step) => step.uses === "actions/checkout@v6",
+    );
+    const semgrepStep = semgrepJob?.steps?.find(
+      (step) => step.name === "运行 Semgrep",
+    );
+    const ciSummaryRun =
+      workflow.jobs?.["ci-summary"]?.steps?.find(
+        (step) => step.name === "检查所有作业状态",
+      )?.run ?? "";
+
+    expect(packageJson.dependencies?.semgrep).toBeUndefined();
+    expect(packageJson.devDependencies?.semgrep).toBeUndefined();
+    expect(semgrepJob).toMatchObject({
+      name: "Semgrep 安全扫描",
+      "runs-on": "ubuntu-latest",
+      needs: "quality",
+      "timeout-minutes": 10,
+      container: "semgrep/semgrep:latest",
+    });
+    expect(checkoutStep).toMatchObject({
+      name: "检出代码",
+      uses: "actions/checkout@v6",
+      with: { submodules: false, "persist-credentials": false },
+    });
+    expect(semgrepStep?.run).toContain(
+      "semgrep scan --error --config semgrep.yml src",
+    );
+    expect(ciSummaryNeeds).toContain("semgrep");
+    for (const expectedSummaryText of [
+      "needs.semgrep.result",
+      "| Semgrep 安全扫描 | ${{ needs.semgrep.result }} |",
+      '${{ needs.semgrep.result }}" != "success"',
+    ]) {
+      expect(ciSummaryRun).toContain(expectedSummaryText);
+    }
+  });
+
+  it("documents Semgrep local binary absence as blocked instead of passed", () => {
+    const qualityProof = readRepoFile("docs/website/quality-proof.md");
+    const qualityProofLevels = readRepoFile(
+      "docs/guides/QUALITY-PROOF-LEVELS.md",
+    );
+
+    expect(qualityProof).toContain("Semgrep local CLI may be unavailable");
+    expect(qualityProofLevels).toContain(
+      "A missing local `semgrep` binary is `Blocked`, not `Passed`.",
+    );
+  });
+});
 
 describe("proof lane contract", () => {
   it("makes release verify wording impossible to confuse with public launch proof", () => {

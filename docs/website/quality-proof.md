@@ -37,6 +37,10 @@ Local release proof is not public launch proof. Public launch still requires `PU
 
 它不证明每一个业务区块、页面区块、表单组合都有 Storybook 覆盖。业务/page-level stories 是 starter 的示例和评审辅助，可以逐步增加，但不作为派生项目的硬门禁。
 
+### Semgrep proof boundary
+
+Semgrep local CLI may be unavailable on a developer machine. When local `pnpm exec semgrep --config semgrep.yml src` returns `Command "semgrep" not found`, record the lane as blocked locally, not passed. CI owns the canonical Semgrep scan through `semgrep scan --error --config semgrep.yml src` in the official `semgrep/semgrep` container.
+
 ## 四层证明口径
 
 | 层级 | 目的 | 典型证明 | 不能证明什么 |
