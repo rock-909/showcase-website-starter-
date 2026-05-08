@@ -19,6 +19,27 @@
 | `@types/node` | 项目 runtime 支持范围是 `>=24 <25`，Node 25 types 不匹配 | 只有当 runtime baseline 扩到 Node 25 时再升 |
 | `vite` | Vite 8 是 major，影响 Storybook/Vitest peer graph | 独立开 tooling lane，至少跑 Storybook build、Vitest、相关 preview proof |
 
+## 2026-05-08 当前版本快照
+
+这轮全面同步后的版本边界：
+
+- Next.js / `@next/*`：16.2.6
+- React / React DOM / `react-server-dom-*`：19.2.6
+- TypeScript：6.0.3
+- Tailwind CSS / `@tailwindcss/postcss`：4.2.4
+- next-intl：4.11.0
+- ESLint：10.3.0，`eslint-plugin-react-you-might-not-need-an-effect`：0.10.1
+- React Email：6.1.1，`@react-email/render`：2.0.8
+- React Grab：0.1.33，当前入口是 `@react-grab/mcp`
+- OpenNext Cloudflare：1.19.8
+- Wrangler：4.90.0
+- workerd：1.20260507.1，由 Wrangler / Miniflare 间接带入
+- Node proof baseline：24.15.0，`@types/node` 保持 24.x
+
+这份快照不替代 `package.json` 和 lockfile；它只是给人工阅读时快速判断“是不是旧文档”的锚点。
+
+Cloudflare `compatibility_date` 仍是 `2026-05-04`。这不是漏升依赖，而是 runtime 行为开关没有跟着 Wrangler 补丁日历自动前进。后续如果推进到 `2026-05-07` 或更晚日期，要单独做 Cloudflare runtime proof。
+
 ## 这次升级经验
 
 ### react-grab

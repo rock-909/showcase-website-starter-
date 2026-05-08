@@ -15,9 +15,12 @@
 - `docs/superpowers/plans/`
   - 放 **Superpowers workflow 直接产出的 plan**
   - 也就是 brainstorming / writing-plans 这条链默认会落到这里
+  - 已完成或旧日期的 plan 可能保留当时的技术栈快照，不能当成当前依赖版本真相
 - 历史上的 `docs/plans/`
   - 已退出主树
   - 如果旧 plan 里提到这个路径，按历史上下文理解，不再视为当前默认落点
+
+当前依赖版本只看 `docs/technical/tech-stack.md`、`docs/technical/dependency-upgrade-policy.md`、`package.json` 和 lockfile。看到旧 plan/spec 里的 Next、React、OpenNext、Wrangler 版本号时，先按历史快照处理，不要直接照着执行升级命令。
 
 一句话：
 

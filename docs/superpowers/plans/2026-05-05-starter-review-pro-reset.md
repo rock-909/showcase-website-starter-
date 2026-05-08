@@ -1,5 +1,7 @@
 # Starter Review Pro Reset Implementation Plan
 
+> Historical snapshot: this plan keeps the dependency versions that were true when it was written. For current versions, use `docs/technical/tech-stack.md` and `package.json`.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Reproduce the upstream `review-pro-reset` direction in `showcase-website-starter`, treating inherited source-site complexity as the default assumption and keeping only real reusable starter capabilities.

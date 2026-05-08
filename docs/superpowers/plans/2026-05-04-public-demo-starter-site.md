@@ -1,5 +1,7 @@
 # Public Demo Starter Site Implementation Plan
 
+> Historical snapshot: this plan keeps the dependency versions and upgrade commands that were true when it was written. For current versions, use `docs/technical/tech-stack.md` and `package.json`.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build the Phase 1 public demo starter site: Cloudflare-first positioning, owner-only real traffic dashboard, starter boundary notices, and launch-truth documentation.
