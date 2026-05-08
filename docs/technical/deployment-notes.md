@@ -70,6 +70,36 @@ pnpm deploy:cf:dry-run
 
 不要把 dry-run 当成真实上线证明。它只说明部署脚本和配置链路能走到 dry-run 阶段。
 
+## Cloudflare Runtime Compatibility
+
+当前 `wrangler.jsonc` 使用：
+
+- `compatibility_date: 2026-05-04`
+- `compatibility_flags: ["nodejs_compat", "global_fetch_strictly_public"]`
+
+`compatibility_date` 不是普通依赖版本号，而是 Cloudflare Workers runtime 行为开关集合。更新它会启用截至该日期的 runtime 修复和兼容性变化。
+
+维护规则：
+
+1. 可以定期更新 `compatibility_date`，但要作为 Cloudflare runtime 变更处理。
+2. 不要为了消 warning 顺手删除或改动 `nodejs_compat` / `global_fetch_strictly_public`。
+3. 改日期后至少跑：
+
+```bash
+pnpm build
+pnpm build:cf
+```
+
+4. 如果涉及上线或部署行为，再补：
+
+```bash
+pnpm preview:cf
+pnpm smoke:cf:preview
+pnpm smoke:cf:preview:strict
+```
+
+当前日期选择 `2026-05-04`，是为了对齐本地 Wrangler/OpenNext 链路使用的 `workerd@1.20260504.x`，避免长期停在旧 runtime 行为，也避免追入比当前本地 runtime 更新的未来行为。
+
 ## Runtime Cache Policy
 
 starter 默认不依赖 R2 / D1 / Durable Object 作为运行时内容缓存和内容失效机制。

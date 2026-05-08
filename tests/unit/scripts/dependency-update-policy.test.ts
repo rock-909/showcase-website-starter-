@@ -26,18 +26,32 @@ describe("dependency update policy", () => {
         dependencyType: "devDependencies",
       },
       {
+        name: "vite",
+        current: "7.3.2",
+        latest: "8.0.11",
+        dependencyType: "devDependencies",
+      },
+      {
         name: "some-new-package",
         current: "1.0.0",
         latest: "1.0.1",
+        dependencyType: "devDependencies",
+      },
+      {
+        name: "another-new-package",
+        current: "2.0.0",
+        latest: "2.0.1",
         dependencyType: "dependencies",
       },
     ];
 
     const result = partitionDependencyUpdates(candidates);
 
-    expect(result.heldUpdates).toHaveLength(1);
-    expect(result.heldUpdates[0]?.name).toBe("@types/node");
-    expect(result.actionableUpdates).toEqual([candidates[1]]);
+    expect(result.heldUpdates.map((item) => item.name)).toEqual([
+      "@types/node",
+      "vite",
+    ]);
+    expect(result.actionableUpdates).toEqual([candidates[2], candidates[3]]);
   });
 
   it("does not suppress a held package when it has a vulnerability", () => {
@@ -68,6 +82,18 @@ describe("dependency update policy", () => {
         latest: "25.6.0",
         dependencyType: "devDependencies",
       },
+      {
+        name: "@types/node",
+        current: "24.12.2",
+        latest: "25.6.2",
+        dependencyType: "devDependencies",
+      },
+      {
+        name: "vite",
+        current: "7.3.2",
+        latest: "8.0.11",
+        dependencyType: "devDependencies",
+      },
     ];
 
     expect(canTreatOutdatedResultAsReviewed(result, candidates)).toBe(true);
@@ -79,10 +105,10 @@ describe("dependency update policy", () => {
     };
     const candidates: UpdateCandidate[] = [
       {
-        name: "some-new-package",
-        current: "1.0.0",
-        latest: "1.0.1",
-        dependencyType: "dependencies",
+        name: "eslint-plugin-react-you-might-not-need-an-effect",
+        current: "0.10.1",
+        latest: "0.10.2",
+        dependencyType: "devDependencies",
       },
     ];
 

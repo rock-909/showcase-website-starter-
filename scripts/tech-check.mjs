@@ -295,6 +295,8 @@ function summarizeUpdates(outdatedPackages, vulnerabilities) {
 
 const stepResults = [];
 const packageJson = readPackageJson();
+const skipOutdated = process.env.TECH_CHECK_SKIP_OUTDATED === "1";
+const outdatedArgs = ["outdated", "--format", "json"];
 const nodeEngineRange = parseNodeEngineRange(packageJson.engines?.node);
 const supportedNodeMajors = nodeEngineRange?.supportedMajors ?? [];
 const currentNodeVersion = parseVersionParts(process.version.replace(/^v/, ""));
@@ -315,11 +317,22 @@ if (nodeEngineRange && currentNodeVersion) {
 }
 stepResults.push(runCommand("pnpm version", "pnpm", ["--version"]));
 
-const outdatedResult = runCommand("dependency updates", "pnpm", [
-  "outdated",
-  "--format",
-  "json",
-]);
+const outdatedResult = skipOutdated
+  ? {
+      label: "dependency updates",
+      ok: true,
+      status: 0,
+      stdout: "{}",
+      stderr: "",
+      error: null,
+      signal: null,
+      skipped: true,
+    }
+  : runCommand("dependency updates", "pnpm", outdatedArgs);
+if (skipOutdated) {
+  console.log("\n=== dependency updates ===");
+  console.log("Skipped by TECH_CHECK_SKIP_OUTDATED=1");
+}
 stepResults.push(outdatedResult);
 
 const auditResult = runCommand("dependency audit", "pnpm", [
