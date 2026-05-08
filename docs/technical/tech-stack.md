@@ -130,13 +130,14 @@
 
 - **pnpm 10.13.1**
 - **Node.js 支持范围**：`>=24 <25`
-- 当前仓库的**proof baseline** 按 **Node 24.15.x LTS** 看
+- 当前仓库的**proof baseline** 按 **Node 24.15.0 LTS** 看
 - **@types/node 24.12.2**：跟当前 Node 24 LTS 运行边界对齐，不跟随 Node 25 类型面
 
 ### Cloudflare 构建链
 
 - **@opennextjs/cloudflare 1.19.8**
 - **wrangler 4.90.0**
+- **workerd 1.20260507.1**：由 Wrangler / Miniflare 间接带入，不是项目直接依赖
 - `pnpm build`：标准 Next.js 构建
 - `pnpm build:cf`：Cloudflare 构建
 - `pnpm preview:cf`：本地 stock preview，仅用于页面级初筛

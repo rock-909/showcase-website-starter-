@@ -1,5 +1,7 @@
 # Public Demo Starter Site Design
 
+> Historical snapshot: this spec keeps the dependency versions and upgrade targets that were true when it was written. For current versions, use `docs/technical/tech-stack.md` and `package.json`.
+
 Date: 2026-05-04
 Branch: docs/public-demo-starter-site-spec
 Status: Design ready for owner review

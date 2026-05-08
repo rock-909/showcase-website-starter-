@@ -1,5 +1,7 @@
 # AI Smell Remediation Stage 1 Implementation Plan
 
+> Historical snapshot: this plan keeps the dependency versions that were true when it was written. For current versions, use `docs/technical/tech-stack.md` and `package.json`.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Close every finding from `docs/audits/audit-report-20260503.md` while keeping the repository a reusable starter, not a Public Demo Starter Site.
