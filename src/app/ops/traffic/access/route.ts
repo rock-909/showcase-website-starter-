@@ -5,6 +5,7 @@ import {
   withRateLimit,
   type RateLimitContext,
 } from "@/lib/api/with-rate-limit";
+import { HTTP_SERVICE_UNAVAILABLE, HTTP_TOO_MANY_REQUESTS } from "@/constants";
 import { getRuntimeEnvString, isRuntimeProduction } from "@/lib/env";
 import {
   createOpsAccessCookieValue,
@@ -14,14 +15,39 @@ import {
 import { constantTimeCompare } from "@/lib/security-crypto";
 
 const SEE_OTHER_STATUS = 303;
+const RATE_LIMIT_HEADER_NAMES = [
+  "retry-after",
+  "x-ratelimit-remaining",
+  "x-ratelimit-reset",
+  "x-ratelimit-degraded",
+] as const;
 
-function redirectTo(path: string) {
+function redirectTo(path: string, headers?: Headers) {
   return new NextResponse(null, {
     status: SEE_OTHER_STATUS,
     headers: {
+      ...Object.fromEntries(headers?.entries() ?? []),
       Location: path,
     },
   });
+}
+
+function redirectToDenied(headers?: Headers) {
+  const response = redirectTo("/ops/traffic?access=denied", headers);
+  response.cookies.delete({
+    name: OPS_TRAFFIC_ACCESS_COOKIE_NAME,
+    path: "/ops/traffic",
+  });
+  return response;
+}
+
+function copyRateLimitHeaders(source: Headers): Headers {
+  const headers = new Headers();
+  for (const headerName of RATE_LIMIT_HEADER_NAMES) {
+    const value = source.get(headerName);
+    if (value) headers.set(headerName, value);
+  }
+  return headers;
 }
 
 async function handlePost(request: NextRequest, _context: RateLimitContext) {
@@ -30,12 +56,7 @@ async function handlePost(request: NextRequest, _context: RateLimitContext) {
   const accessKey = String(form.get("accessKey") ?? "");
 
   if (!secret || !constantTimeCompare(accessKey, secret)) {
-    const response = redirectTo("/ops/traffic?access=denied");
-    response.cookies.delete({
-      name: OPS_TRAFFIC_ACCESS_COOKIE_NAME,
-      path: "/ops/traffic",
-    });
-    return response;
+    return redirectToDenied();
   }
 
   const response = redirectTo("/ops/traffic");
@@ -53,4 +74,13 @@ async function handlePost(request: NextRequest, _context: RateLimitContext) {
 
 const POST_RATE_LIMITED = withRateLimit("opsAccess", handlePost);
 
-export const POST = POST_RATE_LIMITED;
+export async function POST(request: NextRequest) {
+  const response = await POST_RATE_LIMITED(request);
+  if (
+    response.status === HTTP_TOO_MANY_REQUESTS ||
+    response.status === HTTP_SERVICE_UNAVAILABLE
+  ) {
+    return redirectToDenied(copyRateLimitHeaders(response.headers));
+  }
+  return response;
+}

@@ -1,21 +1,9 @@
 import { NextRequest } from "next/server";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { resetRateLimitStore } from "@/lib/security/distributed-rate-limit";
+import { resetPepperWarning } from "@/lib/security/rate-limit-key-strategies";
 
-const mockCheckDistributedRateLimit = vi.hoisted(() => vi.fn());
-const mockCreateRateLimitHeaders = vi.hoisted(() => vi.fn(() => new Headers()));
 const mockConstantTimeCompare = vi.hoisted(() => vi.fn());
-
-vi.mock("@/lib/security/distributed-rate-limit", async (importOriginal) => {
-  const original =
-    await importOriginal<
-      typeof import("@/lib/security/distributed-rate-limit")
-    >();
-  return {
-    ...original,
-    checkDistributedRateLimit: mockCheckDistributedRateLimit,
-    createRateLimitHeaders: mockCreateRateLimitHeaders,
-  };
-});
 
 vi.mock("@/lib/security-crypto", async (importOriginal) => {
   const original =
@@ -31,15 +19,19 @@ import { POST } from "@/app/ops/traffic/access/route";
 describe("ops traffic access route", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockCheckDistributedRateLimit.mockResolvedValue({
-      allowed: true,
-      remaining: 4,
-      resetTime: Date.now() + 60000,
-      retryAfter: null,
-    });
+    resetRateLimitStore();
+    resetPepperWarning();
+    vi.stubEnv("NODE_ENV", "test");
+    vi.stubEnv("RATE_LIMIT_PEPPER", "ops-access-test-pepper-1234567890");
     mockConstantTimeCompare.mockImplementation(
       (a: string, b: string) => a === b,
     );
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    resetRateLimitStore();
+    resetPepperWarning();
   });
 
   it("sets a signed cookie for the correct access key", async () => {
@@ -85,17 +77,47 @@ describe("ops traffic access route", () => {
     expect(response.headers.get("set-cookie")).toContain("Path=/ops/traffic");
   });
 
-  it("rate limits invalid owner access attempts before comparing the key", async () => {
+  it("rate limits invalid owner access attempts before comparing the key while keeping the form redirect flow", async () => {
     vi.stubEnv("OPS_DASHBOARD_ACCESS_KEY", "owner-access-key-123456");
-    mockCheckDistributedRateLimit.mockResolvedValueOnce({
-      allowed: false,
-      remaining: 0,
-      resetTime: Date.now() + 60000,
-      retryAfter: 60,
-      deniedReason: "limit",
-    });
+
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      const form = new FormData();
+      form.set("accessKey", "wrong");
+      const response = await POST(
+        new NextRequest("http://localhost/ops/traffic/access", {
+          method: "POST",
+          body: form,
+        }),
+      );
+      expect(response.status).toBe(303);
+      expect(response.headers.get("location")).toBe(
+        "/ops/traffic?access=denied",
+      );
+    }
+    mockConstantTimeCompare.mockClear();
+
+    const limitedForm = new FormData();
+    limitedForm.set("accessKey", "wrong");
+
+    const response = await POST(
+      new NextRequest("http://localhost/ops/traffic/access", {
+        method: "POST",
+        body: limitedForm,
+      }),
+    );
+
+    expect(response.status).toBe(303);
+    expect(response.headers.get("location")).toBe("/ops/traffic?access=denied");
+    expect(response.headers.get("retry-after")).toBeTruthy();
+    expect(mockConstantTimeCompare).not.toHaveBeenCalled();
+  });
+
+  it("keeps the form redirect flow when rate-limit infrastructure fails closed", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("OPS_DASHBOARD_ACCESS_KEY", "owner-access-key-123456");
+    vi.stubEnv("RATE_LIMIT_PEPPER", "");
     const form = new FormData();
-    form.set("accessKey", "wrong");
+    form.set("accessKey", "owner-access-key-123456");
 
     const response = await POST(
       new NextRequest("http://localhost/ops/traffic/access", {
@@ -104,7 +126,8 @@ describe("ops traffic access route", () => {
       }),
     );
 
-    expect(response.status).toBe(429);
+    expect(response.status).toBe(303);
+    expect(response.headers.get("location")).toBe("/ops/traffic?access=denied");
     expect(mockConstantTimeCompare).not.toHaveBeenCalled();
   });
 
