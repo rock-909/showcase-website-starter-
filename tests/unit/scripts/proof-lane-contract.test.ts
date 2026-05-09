@@ -115,7 +115,7 @@ describe("Semgrep proof lane contract", () => {
       "runs-on": "ubuntu-latest",
       needs: "quality",
       "timeout-minutes": 10,
-      container: "semgrep/semgrep:latest",
+      container: "semgrep/semgrep:1.162.0",
     });
     expect(checkoutStep).toMatchObject({
       name: "检出代码",
@@ -171,7 +171,7 @@ describe("proof lane contract", () => {
     }
   });
 
-  it("runs Wrangler dry-run in the PR Cloudflare build job", () => {
+  it("keeps Wrangler dry-run secrets out of pull request workflows", () => {
     const workflow = readCiWorkflow();
     const steps = workflow.jobs?.["cloudflare-build"]?.steps ?? [];
     const buildIndex = steps.findIndex(
@@ -186,11 +186,7 @@ describe("proof lane contract", () => {
     expect(buildIndex).toBeGreaterThan(-1);
     expect(dryRunIndex).toBeGreaterThan(-1);
     expect(buildIndex).toBeLessThan(dryRunIndex);
-    expect(dryRunCondition).toContain("github.event_name != 'pull_request'");
-    expect(dryRunCondition).toContain(
-      "github.event.pull_request.head.repo.full_name == github.repository",
-    );
-    expect(dryRunCondition).toContain("github.actor != 'dependabot[bot]'");
+    expect(dryRunCondition).toBe("${{ github.event_name != 'pull_request' }}");
     expect(dryRunStep?.run).toContain(
       "pnpm exec wrangler deploy --dry-run --env preview",
     );

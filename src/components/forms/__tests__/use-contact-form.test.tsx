@@ -89,6 +89,32 @@ describe("useContactForm", () => {
     expect(body).not.toHaveProperty("replayKey");
   });
 
+  it("keeps public contact success state limited to the public reference id", async () => {
+    const { result } = renderHook(() => useContactForm());
+
+    act(() => {
+      result.current.setTurnstileToken("valid-token");
+    });
+
+    await act(async () => {
+      await result.current.formAction(createValidFormData());
+    });
+
+    await waitFor(() => {
+      expect(result.current.state).toEqual(
+        expect.objectContaining({
+          success: true,
+          data: {
+            referenceId: "contact-ref-001",
+          },
+        }),
+      );
+    });
+    expect(result.current.state?.data).not.toHaveProperty("emailSent");
+    expect(result.current.state?.data).not.toHaveProperty("ownerNotified");
+    expect(result.current.state?.data).not.toHaveProperty("recordCreated");
+  });
+
   it("uses a stable error code when the contact request cannot reach the API", async () => {
     vi.mocked(fetch).mockRejectedValueOnce(new Error("network unavailable"));
 

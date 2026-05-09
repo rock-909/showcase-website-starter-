@@ -47,6 +47,9 @@ export const serverEnvSchema = {
   DEPLOYMENT_PLATFORM: z
     .enum(["cloudflare", "development", "self-hosted"])
     .optional(),
+  DEPLOY_TARGET: z
+    .enum(["cloudflare", "development", "self-hosted"])
+    .optional(),
   CF_PAGES: z.string().optional(),
   GOOGLE_SITE_VERIFICATION: z.string().min(1).optional(),
   YANDEX_VERIFICATION: z.string().min(1).optional(),
@@ -192,6 +195,7 @@ export const runtimeEnv = {
   LOG_LEVEL: process.env.LOG_LEVEL,
   CONTENT_ENABLE_DRAFTS: process.env.CONTENT_ENABLE_DRAFTS,
   DEPLOYMENT_PLATFORM: process.env.DEPLOYMENT_PLATFORM,
+  DEPLOY_TARGET: process.env.DEPLOY_TARGET,
   CF_PAGES: process.env.CF_PAGES,
   GOOGLE_SITE_VERIFICATION: process.env.GOOGLE_SITE_VERIFICATION,
   YANDEX_VERIFICATION: process.env.YANDEX_VERIFICATION,
@@ -481,6 +485,7 @@ export function isRuntimeProductionBuildPhase(): boolean {
 export function isRuntimeCloudflare(): boolean {
   return (
     getRuntimeEnvString("DEPLOYMENT_PLATFORM") === "cloudflare" ||
+    getRuntimeEnvString("DEPLOY_TARGET") === "cloudflare" ||
     getRuntimeEnvString("NEXT_PUBLIC_DEPLOYMENT_PLATFORM") === "cloudflare"
   );
 }

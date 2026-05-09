@@ -6,9 +6,6 @@ import { type FormSubmissionStatus } from "@/lib/forms/form-submission-status";
 import { type ServerActionResult } from "@/lib/server-action-utils";
 
 export interface ContactFormResult {
-  emailSent: boolean;
-  ownerNotified: boolean;
-  recordCreated: boolean;
   referenceId?: string | null;
 }
 
@@ -164,9 +161,6 @@ function createContactStateFromResponse(
     return {
       success: true,
       data: {
-        emailSent: false,
-        ownerNotified: false,
-        recordCreated: true,
         referenceId: payload.data.referenceId,
       },
       timestamp,

@@ -2,17 +2,18 @@ import "server-only";
 
 import { NextRequest, NextResponse } from "next/server";
 import {
-  withRateLimit,
-  type RateLimitContext,
-} from "@/lib/api/with-rate-limit";
-import { HTTP_SERVICE_UNAVAILABLE, HTTP_TOO_MANY_REQUESTS } from "@/constants";
+  checkDistributedRateLimit,
+  createRateLimitHeaders,
+} from "@/lib/security/distributed-rate-limit";
 import { getRuntimeEnvString, isRuntimeProduction } from "@/lib/env";
+import { logger } from "@/lib/logger";
 import {
   createOpsAccessCookieValue,
   OPS_TRAFFIC_ACCESS_COOKIE_MAX_AGE_SECONDS,
   OPS_TRAFFIC_ACCESS_COOKIE_NAME,
 } from "@/lib/ops/access-cookie";
 import { constantTimeCompare } from "@/lib/security-crypto";
+import { getIPKey } from "@/lib/security/rate-limit-key-strategies";
 
 const SEE_OTHER_STATUS = 303;
 const RATE_LIMIT_HEADER_NAMES = [
@@ -50,13 +51,44 @@ function copyRateLimitHeaders(source: Headers): Headers {
   return headers;
 }
 
-async function handlePost(request: NextRequest, _context: RateLimitContext) {
-  const secret = getRuntimeEnvString("OPS_DASHBOARD_ACCESS_KEY");
+async function createFailedAttemptRateLimitKey(
+  request: NextRequest,
+): Promise<string | null> {
+  try {
+    return await getIPKey(request);
+  } catch (error) {
+    logger.error("Ops access rate limit key generation failed", { error });
+    return null;
+  }
+}
+
+async function redirectAfterFailedAttempt(rateLimitKey: string) {
+  try {
+    const result = await checkDistributedRateLimit(rateLimitKey, "opsAccess");
+    if (!result.allowed) {
+      return redirectToDenied(
+        copyRateLimitHeaders(createRateLimitHeaders(result)),
+      );
+    }
+  } catch (error) {
+    logger.error("Ops access rate limit check failed", { error });
+  }
+
+  return redirectToDenied();
+}
+
+export async function POST(request: NextRequest) {
+  const rateLimitKey = await createFailedAttemptRateLimitKey(request);
+  if (!rateLimitKey) {
+    return redirectToDenied();
+  }
+
   const form = await request.formData();
   const accessKey = String(form.get("accessKey") ?? "");
+  const secret = getRuntimeEnvString("OPS_DASHBOARD_ACCESS_KEY");
 
   if (!secret || !constantTimeCompare(accessKey, secret)) {
-    return redirectToDenied();
+    return redirectAfterFailedAttempt(rateLimitKey);
   }
 
   const response = redirectTo("/ops/traffic");
@@ -69,18 +101,5 @@ async function handlePost(request: NextRequest, _context: RateLimitContext) {
     path: "/ops/traffic",
     maxAge: OPS_TRAFFIC_ACCESS_COOKIE_MAX_AGE_SECONDS,
   });
-  return response;
-}
-
-const POST_RATE_LIMITED = withRateLimit("opsAccess", handlePost);
-
-export async function POST(request: NextRequest) {
-  const response = await POST_RATE_LIMITED(request);
-  if (
-    response.status === HTTP_TOO_MANY_REQUESTS ||
-    response.status === HTTP_SERVICE_UNAVAILABLE
-  ) {
-    return redirectToDenied(copyRateLimitHeaders(response.headers));
-  }
   return response;
 }

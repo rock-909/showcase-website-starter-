@@ -1,7 +1,7 @@
 import { useFormStatus } from "react-dom";
-import type { ContactFormResult } from "@/lib/actions/contact";
 import type { FormSubmissionStatus } from "@/lib/forms/form-submission-status";
 import type { ServerActionResult } from "@/lib/server-action-utils";
+import type { ContactFormResult } from "@/components/forms/use-contact-form";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
