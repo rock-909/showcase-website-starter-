@@ -66,6 +66,11 @@ export const RATE_LIMIT_PRESETS = {
     windowMs: MINUTE_MS,
     failureMode: "closed" as const,
   },
+  opsAccess: {
+    maxRequests: COUNT_FIVE,
+    windowMs: MINUTE_MS,
+    failureMode: "closed" as const,
+  },
 } as const;
 
 export type RateLimitPreset = keyof typeof RATE_LIMIT_PRESETS;

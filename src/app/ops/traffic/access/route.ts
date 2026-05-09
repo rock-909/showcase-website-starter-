@@ -1,12 +1,17 @@
 import "server-only";
 
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import {
+  withRateLimit,
+  type RateLimitContext,
+} from "@/lib/api/with-rate-limit";
 import { getRuntimeEnvString, isRuntimeProduction } from "@/lib/env";
 import {
   createOpsAccessCookieValue,
   OPS_TRAFFIC_ACCESS_COOKIE_MAX_AGE_SECONDS,
   OPS_TRAFFIC_ACCESS_COOKIE_NAME,
 } from "@/lib/ops/access-cookie";
+import { constantTimeCompare } from "@/lib/security-crypto";
 
 const SEE_OTHER_STATUS = 303;
 
@@ -19,12 +24,12 @@ function redirectTo(path: string) {
   });
 }
 
-export async function POST(request: Request) {
+async function handlePost(request: NextRequest, _context: RateLimitContext) {
   const secret = getRuntimeEnvString("OPS_DASHBOARD_ACCESS_KEY");
   const form = await request.formData();
   const accessKey = String(form.get("accessKey") ?? "");
 
-  if (!secret || accessKey !== secret) {
+  if (!secret || !constantTimeCompare(accessKey, secret)) {
     const response = redirectTo("/ops/traffic?access=denied");
     response.cookies.delete({
       name: OPS_TRAFFIC_ACCESS_COOKIE_NAME,
@@ -45,3 +50,7 @@ export async function POST(request: Request) {
   });
   return response;
 }
+
+const POST_RATE_LIMITED = withRateLimit("opsAccess", handlePost);
+
+export const POST = POST_RATE_LIMITED;
