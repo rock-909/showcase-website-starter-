@@ -69,7 +69,7 @@
 
 - `pnpm website:build:cf`：平台 / runtime / build-chain 改动
 - `pnpm exec wrangler deploy --dry-run --env preview`：Cloudflare 部署 artifact 改动，需要不改远端状态的部署证明时
-- Semgrep security scan: CI runs `semgrep scan --error --config semgrep.yml src` in the official `semgrep/semgrep` container. A missing local `semgrep` binary is `Blocked`, not `Passed`.
+- Semgrep security scan: CI runs `semgrep scan --error --severity ERROR --config semgrep.yml src` in the official `semgrep/semgrep` container. INFO/WARNING heuristic findings are review signals, not CI blockers. A missing local `semgrep` binary is `Blocked`, not `Passed`.
 - `CI=1 pnpm exec playwright test`：关键 UI / runtime 行为改动
 - `pnpm build`：改到 `src/config/website/**`、`NEXT_PUBLIC_SITE_KEY` 或站点装配入口
 - `pnpm website:build:cf`：同类改动还要证明 Cloudflare 构建链时

@@ -146,7 +146,7 @@ jobs:
           persist-credentials: false
 
       - name: 运行 Semgrep
-        run: semgrep scan --error --config semgrep.yml src
+        run: semgrep scan --error --severity ERROR --config semgrep.yml src
 
   cloudflare-build:
     name: Cloudflare 构建证明

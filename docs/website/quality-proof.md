@@ -39,7 +39,7 @@ Local release proof is not public launch proof. Public launch still requires `PU
 
 ### Semgrep proof boundary
 
-Semgrep local CLI may be unavailable on a developer machine. When local `pnpm exec semgrep --config semgrep.yml src` returns `Command "semgrep" not found`, record the lane as blocked locally, not passed. CI owns the canonical Semgrep scan through `semgrep scan --error --config semgrep.yml src` in the official `semgrep/semgrep` container.
+Semgrep local CLI may be unavailable on a developer machine. When local `pnpm exec semgrep --config semgrep.yml src` returns `Command "semgrep" not found`, record the lane as blocked locally, not passed. CI owns the canonical blocking Semgrep scan through `semgrep scan --error --severity ERROR --config semgrep.yml src` in the official `semgrep/semgrep` container. INFO/WARNING heuristic findings are review signals, not CI blockers.
 
 ### Cloudflare platform signal
 

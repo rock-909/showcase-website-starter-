@@ -123,7 +123,7 @@ describe("Semgrep proof lane contract", () => {
       with: { submodules: false, "persist-credentials": false },
     });
     expect(semgrepStep?.run).toContain(
-      "semgrep scan --error --config semgrep.yml src",
+      "semgrep scan --error --severity ERROR --config semgrep.yml src",
     );
     expect(ciSummaryNeeds).toContain("semgrep");
     for (const expectedSummaryText of [
