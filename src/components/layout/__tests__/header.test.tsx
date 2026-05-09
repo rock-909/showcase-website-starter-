@@ -218,13 +218,8 @@ describe("Header Component", () => {
     });
   });
 
-  describe("Convenience Components", () => {
-    // Note: HeaderMinimal and HeaderTransparent are convenience wrappers that
-    // don't pass locale, relying on next-intl's getLocale() in real usage.
-    // In unit tests without the full next-intl server context, we test the
-    // underlying Header component with explicit locale and variant props.
-
-    it("HeaderMinimal behavior via Header with minimal variant", async () => {
+  describe("Header variants", () => {
+    it("minimal behavior via Header with minimal variant", async () => {
       await renderAsyncComponent(Header({ locale: "en", variant: "minimal" }));
 
       const header = screen.getByRole("banner");
@@ -233,7 +228,7 @@ describe("Header Component", () => {
       expect(header).toHaveClass("sticky");
     });
 
-    it("HeaderTransparent behavior via Header with transparent variant", async () => {
+    it("transparent behavior via Header with transparent variant", async () => {
       await renderAsyncComponent(
         Header({ locale: "en", variant: "transparent" }),
       );

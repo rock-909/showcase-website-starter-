@@ -70,6 +70,9 @@ export const logger = {
   },
 };
 
+/**
+ * @public Logger facade contract for downstream integrations.
+ */
 export type Logger = typeof logger;
 
 /**

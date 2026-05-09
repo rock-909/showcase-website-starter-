@@ -4,93 +4,13 @@ import type AirtableNS from "airtable";
 import type {
   AirtableQueryOptions,
   AirtableRecord,
-  ContactFormData,
   ContactStatus,
 } from "@/lib/airtable/types";
-import { airtableRecordSchema } from "@/lib/airtable/record-schema";
-import { logger, sanitizeCompany, sanitizeEmail } from "@/lib/logger";
-import { sanitizePlainText } from "@/lib/security-validation";
-import { splitName } from "@/lib/lead-pipeline/utils";
+import { logger } from "@/lib/logger";
 import { ONE, PERCENTAGE_FULL, ZERO } from "@/constants";
-
-function sanitizeFormData(formData: ContactFormData): ContactFormData {
-  return {
-    fullName: sanitizePlainText(formData.fullName),
-    email: formData.email.toLowerCase().trim(),
-    ...(formData.company
-      ? { company: sanitizePlainText(formData.company) }
-      : {}),
-    message: sanitizePlainText(formData.message),
-    phone: formData.phone ? sanitizePlainText(formData.phone) : undefined,
-    subject: formData.subject ? sanitizePlainText(formData.subject) : undefined,
-    acceptPrivacy: formData.acceptPrivacy,
-    marketingConsent: formData.marketingConsent,
-    website: formData.website,
-  };
-}
 
 function escapeAirtableFormulaValue(value: string): string {
   return value.replaceAll("\\", "\\\\").replaceAll('"', '\\"');
-}
-
-export async function createContactRecord(params: {
-  base: AirtableNS.Base;
-  tableName: string;
-  formData: ContactFormData;
-}): Promise<AirtableRecord> {
-  const { base, tableName, formData } = params;
-
-  try {
-    const sanitizedData = sanitizeFormData(formData);
-    const { firstName, lastName } = splitName(sanitizedData.fullName);
-
-    const recordData = {
-      "First Name": firstName,
-      "Last Name": lastName,
-      Email: sanitizedData.email,
-      Company: sanitizedData.company ?? "",
-      Message: sanitizedData.message,
-      Phone: sanitizedData.phone || "",
-      Subject: sanitizedData.subject || "",
-      "Submitted At": new Date().toISOString(),
-      Status: "New" as const,
-      Source: "Website Contact Form",
-      "Marketing Consent": sanitizedData.marketingConsent || false,
-    };
-
-    const validatedRecord = airtableRecordSchema.parse({
-      fields: recordData,
-    });
-
-    const records = await base.table(tableName).create([
-      {
-        fields: validatedRecord.fields,
-      },
-    ]);
-
-    const [createdRecord] = records;
-
-    if (!createdRecord) {
-      throw new Error("Failed to create record");
-    }
-
-    logger.info("Contact record created successfully", {
-      recordId: createdRecord.id,
-      email: sanitizeEmail(sanitizedData.email),
-      company: sanitizeCompany(sanitizedData.company ?? ""),
-    });
-
-    return {
-      id: createdRecord.id,
-      fields: createdRecord.fields as AirtableRecord["fields"],
-      createdTime: createdRecord.get("Created Time") as string,
-    };
-  } catch (error) {
-    logger.error("Failed to create contact record", {
-      error: error instanceof Error ? error.message : "Unknown error",
-    });
-    throw new Error("Failed to create contact record", { cause: error });
-  }
 }
 
 export async function getContactRecords(params: {

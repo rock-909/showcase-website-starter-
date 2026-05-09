@@ -27,7 +27,7 @@ export interface ApiSuccessResponse<T> {
 }
 
 /**
- * Union type for all API responses
+ * @public Union type for standardized API responses.
  */
 export type ApiResponse<T> = ApiSuccessResponse<T> | ApiErrorResponse;
 

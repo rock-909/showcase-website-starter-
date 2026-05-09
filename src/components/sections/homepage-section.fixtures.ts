@@ -1,22 +1,9 @@
 import type { LinkHref } from "@/lib/i18n/route-parsing";
 import type { FinalCtaContent } from "@/components/sections/final-cta-view";
-import type {
-  HeroSectionContent,
-  HeroSectionCta,
-  HeroSectionPreview,
-  HeroSectionProofItem,
-} from "@/components/sections/hero-section-view";
-import type {
-  QualityCommitmentItem,
-  QualityProofItem,
-  QualitySectionContent,
-  QualityStandardItem,
-} from "@/components/sections/quality-section-view";
+import type { HeroSectionContent } from "@/components/sections/hero-section-view";
+import type { QualitySectionContent } from "@/components/sections/quality-section-view";
 import type { ScenarioSectionItem } from "@/components/sections/scenarios-section-view";
 
-export type HomepageStoryProofItem = HeroSectionProofItem;
-export type HomepageStoryCta = HeroSectionCta;
-export type HomepageStoryHeroPreview = HeroSectionPreview;
 export type HomepageStoryHeroContent = HeroSectionContent;
 
 export interface HomepageStoryProductItem {
@@ -28,10 +15,7 @@ export interface HomepageStoryProductItem {
   link: LinkHref;
 }
 
-export type HomepageStoryQualityCommitment = QualityCommitmentItem;
 export type HomepageStoryQualityContent = QualitySectionContent;
-export type HomepageStoryQualityStandard = QualityStandardItem;
-export type HomepageStoryQualityProofItem = QualityProofItem;
 export type HomepageStoryScenarioItem = ScenarioSectionItem;
 
 export type HomepageStoryFinalCtaContent = FinalCtaContent;

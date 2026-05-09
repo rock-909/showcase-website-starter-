@@ -13,6 +13,9 @@ import {
 
 export { FOOTER_STYLE_TOKENS };
 
+/**
+ * @public Footer link item contract for downstream starter customization.
+ */
 export type FooterLinkItem = SiteFooterLinkItem;
 export type FooterColumnConfig = SiteFooterColumnConfig;
 
@@ -96,4 +99,7 @@ export interface FooterStyleTokens {
 // exposes the active single-site columns together with style tokens.
 export const FOOTER_COLUMNS: FooterColumnConfig[] = SINGLE_SITE_FOOTER_COLUMNS;
 
+/**
+ * @public Footer token surface for downstream layout/theme customization.
+ */
 export type FooterTokens = typeof FOOTER_STYLE_TOKENS;

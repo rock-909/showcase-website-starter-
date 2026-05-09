@@ -2,7 +2,7 @@
  * 企业级国际化验证工具
  * 提供翻译完整性检查、质量验证和同步机制
  */
-import { ONE, PERCENTAGE_FULL, ZERO } from "@/constants";
+import { PERCENTAGE_FULL, ZERO } from "@/constants";
 import { routing } from "@/i18n/routing";
 
 // 测试环境检测
@@ -325,48 +325,6 @@ function getNestedValue(obj: Record<string, unknown>, path: string): unknown {
 }
 
 /**
- * 生成翻译质量报告
- */
-export function generateTranslationReport(
-  result: TranslationValidationResult,
-): string {
-  const { isValid, errors, warnings, coverage, missingKeys } = result;
-
-  let report = "# 翻译质量报告\n\n";
-
-  report += `## 总体状态: ${isValid ? "✅ 通过" : "❌ 失败"}\n`;
-  report += `## 覆盖率: ${coverage.toFixed(ONE)}%\n\n`;
-
-  if (errors.length > ZERO) {
-    report += "## 错误\n\n";
-    errors.forEach((error) => {
-      report += `- **${error.severity.toUpperCase()}**: ${error.message} (${error.locale}.${error.key})\n`;
-    });
-    report += "\n";
-  }
-
-  if (warnings.length > ZERO) {
-    report += "## 警告\n\n";
-    warnings.forEach((warning) => {
-      report += `- **${warning.type}**: ${warning.message} (${warning.locale}.${warning.key})\n`;
-      if (warning.suggestion) {
-        report += `  建议: ${warning.suggestion}\n`;
-      }
-    });
-    report += "\n";
-  }
-
-  if (missingKeys.length > ZERO) {
-    report += "## 缺失的翻译键\n\n";
-    missingKeys.forEach((key) => {
-      report += `- ${key}\n`;
-    });
-  }
-
-  return report;
-}
-
-/**
  * 验证翻译完整性
  */
 function validateTranslationCompleteness(params: {
@@ -526,31 +484,4 @@ function checkPlaceholderConsistency(params: {
       });
     }
   }
-}
-
-/**
- * 实时翻译同步检查
- */
-export function createTranslationSyncChecker() {
-  let lastValidation: TranslationValidationResult | null = null;
-
-  return {
-    async check(): Promise<TranslationValidationResult> {
-      const result = await validateTranslations();
-      lastValidation = result;
-      return result;
-    },
-
-    getLastResult(): TranslationValidationResult | null {
-      return lastValidation;
-    },
-
-    isHealthy(): boolean {
-      return lastValidation?.isValid ?? false;
-    },
-
-    getCoverage(): number {
-      return lastValidation?.coverage ?? ZERO;
-    },
-  };
 }

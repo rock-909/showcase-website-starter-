@@ -58,23 +58,6 @@ export const TEST_DELAY_VALUES = {
   CLEANUP_DELAY: 1000,
 } as const;
 
-// ==================== 百分比值常量 ====================
-
-/** 百分比值常量 */
-export const TEST_PERCENTAGE_VALUES = {
-  /** 完整 - 100 */
-  FULL: TEST_BASE_NUMBERS.PERCENTAGE_FULL,
-
-  /** 一半 - 50 */
-  HALF: TEST_BASE_NUMBERS.HALF_PERCENTAGE,
-
-  /** 四分之一 - 25 */
-  QUARTER: TEST_BASE_NUMBERS.HUGE_COUNT,
-
-  /** 60% */
-  SIXTY: 60,
-} as const;
-
 // ==================== 性能时间戳常量 ====================
 
 /** 性能时间戳常量 */
@@ -145,22 +128,3 @@ export const TEST_APP_CONSTANTS = {
   /** 超时基数 - 1000ms */
   TIMEOUT_BASE: TEST_BASE_NUMBERS.MILLISECONDS_PER_SECOND,
 } as const;
-
-// ==================== 导出所有常量 ====================
-
-/** 统一导出的测试常量 */
-export const UNIFIED_TEST_CONSTANTS = {
-  TIME: TEST_TIME_CALCULATIONS,
-  DELAY: TEST_DELAY_VALUES,
-  PERCENTAGE: TEST_PERCENTAGE_VALUES,
-  PERFORMANCE: TEST_PERFORMANCE_TIMESTAMPS,
-  APP: TEST_APP_CONSTANTS,
-} as const;
-
-// ==================== 类型定义 ====================
-
-export type TestTimeCalculations = typeof TEST_TIME_CALCULATIONS;
-export type TestDelayValues = typeof TEST_DELAY_VALUES;
-export type TestPercentageValues = typeof TEST_PERCENTAGE_VALUES;
-export type TestPerformanceTimestamps = typeof TEST_PERFORMANCE_TIMESTAMPS;
-export type TestAppConstants = typeof TEST_APP_CONSTANTS;

@@ -30,6 +30,9 @@ export const LOCALES_CONFIG = Object.freeze({
   }),
 } as const);
 
+/**
+ * @public Locale configuration contract for downstream routing customization.
+ */
 export type LocalesConfig = typeof LOCALES_CONFIG;
 export type ConfiguredLocale = (typeof LOCALES_CONFIG.locales)[number];
 export type ConfiguredCurrency =

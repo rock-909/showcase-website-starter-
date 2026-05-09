@@ -1,70 +1,7 @@
-// 注意：这些导入的常量在当前文件中未使用，但保留以备将来使用
-// import {
-//   BREAKPOINT_MD,
-//   BREAKPOINT_SM,
-//   BREAKPOINT_XL,
-//   ZERO,
-// } from '@/constants/magic-numbers';
-import { TEST_BASE_NUMBERS } from "./test-base-constants";
-
 /**
  * 测试UI相关常量定义
  * 包含透明度、角度、屏幕尺寸、内容限制等UI相关常量
  */
-
-// ==================== 测试UI常量 ====================
-
-/** 测试透明度常量 */
-export const TEST_OPACITY_CONSTANTS = {
-  /** 完全透明 */
-  TRANSPARENT: 0,
-
-  /** 低透明度 - 0.3 */
-  LOW: 0.3,
-
-  /** 中等透明度 - 0.5 */
-  MEDIUM: 0.5,
-
-  /** 高透明度 - 0.8 */
-  HIGH: 0.8,
-
-  /** 完全不透明 */
-  OPAQUE: 1,
-} as const;
-
-// ==================== 测试几何和角度常量 ====================
-
-/** 测试角度常量 */
-export const TEST_ANGLE_CONSTANTS = {
-  /** 完整圆周 - 360度 */
-  FULL_CIRCLE: TEST_BASE_NUMBERS.FULL_CIRCLE_DEGREES,
-
-  /** 半圆 - 180度 */
-  HALF_CIRCLE:
-    TEST_BASE_NUMBERS.FULL_CIRCLE_DEGREES / TEST_BASE_NUMBERS.SMALL_COUNT,
-
-  /** 四分之一圆 - 90度 */
-  QUARTER_CIRCLE:
-    TEST_BASE_NUMBERS.FULL_CIRCLE_DEGREES /
-    (TEST_BASE_NUMBERS.SMALL_COUNT * TEST_BASE_NUMBERS.SMALL_COUNT),
-} as const;
-
-// ==================== 测试对比度和颜色常量 ====================
-
-/** 测试对比度常量 */
-export const TEST_CONTRAST_CONSTANTS = {
-  /** 最小对比度 - 1 */
-  MINIMUM: 1,
-
-  /** 低对比度阈值 - 2 */
-  LOW_THRESHOLD: TEST_BASE_NUMBERS.SMALL_COUNT,
-
-  /** 高对比度阈值 - 10 */
-  HIGH_THRESHOLD: TEST_BASE_NUMBERS.LARGE_COUNT,
-
-  /** 精度位数 - 5 */
-  PRECISION_DIGITS: TEST_BASE_NUMBERS.MEDIUM_COUNT,
-} as const;
 
 // ==================== 测试屏幕尺寸常量 ====================
 
@@ -136,20 +73,6 @@ export const TEST_CONTENT_LIMITS = {
   SEO_DESCRIPTION_MAX_LENGTH: 160,
 } as const;
 
-// ==================== 测试动画和缓动常量 ====================
-
-/** 测试动画缓动常量 */
-export const TEST_EASING_CONSTANTS = {
-  /** 缓动测试点 - 0.25 */
-  QUARTER_POINT: 0.25,
-
-  /** 缓动测试点 - 0.5 */
-  HALF_POINT: 0.5,
-
-  /** 缓动测试点 - 0.75 */
-  THREE_QUARTER_POINT: 0.75,
-} as const;
-
 // ==================== 测试数值样本常量 ====================
 
 /** 测试数值样本常量 */
@@ -207,47 +130,3 @@ export const TEST_SPECIAL_CONSTANTS = {
   /** 负单位值 */
   NEGATIVE_UNIT: -1,
 } as const;
-
-// ==================== 测试性能监控常量 ====================
-
-/** 测试性能监控常量 */
-export const TEST_PERFORMANCE_MONITORING = {
-  /** CLS警告阈值 - 0.1 */
-  CLS_WARNING_THRESHOLD: 0.1,
-
-  /** CLS严重阈值 - 0.25 */
-  CLS_CRITICAL_THRESHOLD: 0.25,
-
-  /** LCP警告阈值 - 2500ms */
-  LCP_WARNING_THRESHOLD: 2500,
-
-  /** LCP严重阈值 - 4000ms */
-  LCP_CRITICAL_THRESHOLD: 4000,
-
-  /** FID警告阈值 - 100ms */
-  FID_WARNING_THRESHOLD: 100,
-
-  /** FID严重阈值 - 300ms */
-  FID_CRITICAL_THRESHOLD: 300,
-
-  /** 长超时时间 - 5000ms */
-  LONG_TIMEOUT: 5000,
-
-  /** 监控超时时间 - 1000ms */
-  MONITORING_TIMEOUT: 1000,
-
-  /** 性能数据测试值 - 0.15 */
-  PERFORMANCE_DATA_VALUE: 0.15,
-} as const;
-
-// ==================== 导出UI常量类型 ====================
-
-export type TestOpacityConstants = typeof TEST_OPACITY_CONSTANTS;
-export type TestAngleConstants = typeof TEST_ANGLE_CONSTANTS;
-export type TestContrastConstants = typeof TEST_CONTRAST_CONSTANTS;
-export type TestScreenConstants = typeof TEST_SCREEN_CONSTANTS;
-export type TestContentLimits = typeof TEST_CONTENT_LIMITS;
-export type TestEasingConstants = typeof TEST_EASING_CONSTANTS;
-export type TestSampleConstants = typeof TEST_SAMPLE_CONSTANTS;
-export type TestSpecialConstants = typeof TEST_SPECIAL_CONSTANTS;
-export type TestPerformanceMonitoring = typeof TEST_PERFORMANCE_MONITORING;

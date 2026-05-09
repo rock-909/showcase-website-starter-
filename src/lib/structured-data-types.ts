@@ -50,7 +50,9 @@ export interface BreadcrumbData {
   }>;
 }
 
-// 联合类型定义
+/**
+ * @public Structured data union for downstream schema customizations.
+ */
 export type StructuredDataType =
   | OrganizationData
   | WebSiteData

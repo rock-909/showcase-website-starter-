@@ -41,14 +41,3 @@ export function getContentEntriesByType(
 export function getAllContentEntries(): ContentEntry[] {
   return CONTENT_MANIFEST.entries;
 }
-
-export function getStaticParamsForType(
-  type: ContentType,
-): { locale: Locale; slug: string }[] {
-  return CONTENT_MANIFEST.entries
-    .filter((entry) => entry.type === type)
-    .map((entry) => ({
-      locale: entry.locale,
-      slug: entry.slug,
-    }));
-}

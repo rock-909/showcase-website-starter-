@@ -172,14 +172,18 @@ export interface TranslationParams {
   [key: string]: string | number | boolean | Date;
 }
 
-// 格式化选项
+/**
+ * @public Formatting options for downstream i18n helpers.
+ */
 export interface FormatOptions {
   dateTime?: Intl.DateTimeFormatOptions;
   number?: Intl.NumberFormatOptions;
   list?: Intl.ListFormatOptions;
 }
 
-// 翻译上下文
+/**
+ * @public Translation context contract for downstream i18n helpers.
+ */
 export interface TranslationContext {
   locale: Locale;
   fallbackLocale: Locale;
@@ -197,7 +201,9 @@ export interface TranslationError {
   params?: TranslationParams;
 }
 
-// 翻译状态
+/**
+ * @public Translation state contract for downstream i18n helpers.
+ */
 export interface TranslationState {
   isLoading: boolean;
   error: TranslationError | null;
@@ -207,7 +213,9 @@ export interface TranslationState {
   coverage: number;
 }
 
-// 翻译配置
+/**
+ * @public I18n configuration contract for downstream integrations.
+ */
 export interface I18nConfig {
   defaultLocale: Locale;
   locales: Locale[];
@@ -238,7 +246,9 @@ export interface I18nConfig {
   };
 }
 
-// 翻译钩子返回类型
+/**
+ * @public Translation hook return contract for downstream UI helpers.
+ */
 export interface UseTranslationReturn {
   t: (_key: TranslationKey, _params?: TranslationParams) => string;
   locale: Locale;
@@ -248,7 +258,9 @@ export interface UseTranslationReturn {
   ready: boolean;
 }
 
-// 格式化钩子返回类型
+/**
+ * @public Formatter hook return contract for downstream UI helpers.
+ */
 export interface UseFormatterReturn {
   formatDate: (
     _date: Date | string | number,
@@ -276,7 +288,9 @@ export interface DomainConfig {
   locales?: Locale[];
 }
 
-// 中间件配置类型
+/**
+ * @public Routing middleware configuration contract.
+ */
 export interface MiddlewareConfig {
   locales: Locale[];
   defaultLocale: Locale;
@@ -287,7 +301,9 @@ export interface MiddlewareConfig {
   localeDetection?: boolean;
 }
 
-// 性能监控类型
+/**
+ * @public I18n metrics contract for downstream observability.
+ */
 export interface I18nMetrics {
   loadTime: number;
   cacheHitRate: number;
@@ -296,7 +312,9 @@ export interface I18nMetrics {
   localeUsage: Record<Locale, number>;
 }
 
-// 翻译质量指标
+/**
+ * @public Translation quality contract for downstream reporting.
+ */
 export interface TranslationQuality {
   completeness: number;
   consistency: number;

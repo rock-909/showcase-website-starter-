@@ -339,12 +339,24 @@ export const generateCanonicalURL =
   urlGenerator.generateCanonicalURL.bind(urlGenerator);
 export const generateLanguageAlternates =
   urlGenerator.generateLanguageAlternates.bind(urlGenerator);
+/**
+ * @public SEO helper for downstream sitemap and hreflang customization.
+ */
 export const generateHreflangLinks =
   urlGenerator.generateHreflangLinks.bind(urlGenerator);
+/**
+ * @public SEO helper for downstream sitemap customization.
+ */
 export const generateSitemapEntry =
   urlGenerator.generateSitemapEntry.bind(urlGenerator);
+/**
+ * @public SEO helper for downstream sitemap customization.
+ */
 export const generateAllSitemapEntries =
   urlGenerator.generateAllSitemapEntries.bind(urlGenerator);
+/**
+ * @public Routing helper for downstream URL parsing customization.
+ */
 export const parseURLToPageInfo =
   urlGenerator.parseURLToPageInfo.bind(urlGenerator);
 export const isValidURL = urlGenerator.isValidURL.bind(urlGenerator);

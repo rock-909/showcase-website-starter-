@@ -37,9 +37,6 @@ export const CONTACT_SUBJECTS = {
   OTHER: "other",
 } as const;
 
-export type ContactSubject =
-  (typeof CONTACT_SUBJECTS)[keyof typeof CONTACT_SUBJECTS];
-
 /**
  * Reusable sanitized string field
  * Uses Zod v4 .overwrite() to sanitize while preserving ZodString type for chaining

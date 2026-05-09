@@ -446,10 +446,6 @@ export function isPublicRuntimeProduction(): boolean {
   return getPublicRuntimeEnvString("NODE_ENV") === "production";
 }
 
-export function isPublicRuntimeTest(): boolean {
-  return getPublicRuntimeEnvString("NODE_ENV") === "test";
-}
-
 export function getRuntimeNodeEnv(): RuntimeNodeEnv | undefined {
   return coerceRuntimeNodeEnv(getRuntimeEnvString("NODE_ENV"));
 }

@@ -91,10 +91,6 @@ let rateLimitStore: RateLimitStore | null = null;
 /** Per-key promise queue for single-process atomicity (prevents TOCTOU races) */
 const rateLimitQueue = new Map<string, Promise<unknown>>();
 
-export function getPendingRateLimitQueueSize(): number {
-  return rateLimitQueue.size;
-}
-
 function getRateLimitStore(): RateLimitStore {
   if (!rateLimitStore) {
     rateLimitStore = createRateLimitStore();

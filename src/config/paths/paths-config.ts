@@ -77,5 +77,11 @@ export const DYNAMIC_PATHS_CONFIG = Object.freeze({
   }),
 } as const satisfies Record<DynamicPageType, DynamicRoutePattern>);
 
+/**
+ * @public Static path configuration contract for downstream routing customization.
+ */
 export type PathsConfig = typeof PATHS_CONFIG;
+/**
+ * @public Dynamic path configuration contract for downstream routing customization.
+ */
 export type DynamicPathsConfig = typeof DYNAMIC_PATHS_CONFIG;

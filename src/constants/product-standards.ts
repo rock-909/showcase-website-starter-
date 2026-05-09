@@ -16,8 +16,11 @@ export const PRODUCT_STANDARDS = {
   },
 } as const satisfies Record<string, { label: string }>;
 
-export type ProductStandardId = keyof typeof PRODUCT_STANDARDS;
-
+/**
+ * @public Starter catalog contract: downstream projects can enumerate supported standard ids.
+ */
 export const PRODUCT_STANDARD_IDS = Object.keys(
   PRODUCT_STANDARDS,
 ) as readonly ProductStandardId[];
+
+export type ProductStandardId = keyof typeof PRODUCT_STANDARDS;
