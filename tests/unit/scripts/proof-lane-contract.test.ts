@@ -278,7 +278,10 @@ describe("proof lane contract", () => {
     expect(scripts["website:build:cf"]).toBe(
       "pnpm exec opennextjs-cloudflare build --noMinify",
     );
-    expect(Object.keys(scripts)).toHaveLength(14);
+    expect(scripts["route-mode:snapshot"]).toBe(
+      "node scripts/quality/route-mode-snapshot.mjs",
+    );
+    expect(Object.keys(scripts)).toHaveLength(15);
   });
 
   it("uses split critical/deferred messages as the translation source of truth", () => {
@@ -477,20 +480,6 @@ describe("proof lane contract", () => {
       // eslint-disable-next-line security/detect-non-literal-fs-filename -- test iterates over a fixed retired-script allowlist
       expect(fs.existsSync(path.join(REPO_ROOT, relativePath))).toBe(false);
     }
-  });
-
-  it("keeps the remaining script file surface intentionally tiny", () => {
-    const scriptsDir = path.join(REPO_ROOT, "scripts");
-    const scriptFiles = fs
-      .readdirSync(scriptsDir, { recursive: true, withFileTypes: true })
-      .filter((entry) => entry.isFile())
-      .map((entry) => path.join(entry.parentPath, entry.name))
-      .map((filePath) =>
-        path.relative(REPO_ROOT, filePath).replace(/\\/gu, "/"),
-      )
-      .sort();
-
-    expect(scriptFiles).toEqual(["scripts/starter-checks.js"]);
   });
 
   it("documents dirty-worktree targeted proof separately from clean-branch full proof", () => {

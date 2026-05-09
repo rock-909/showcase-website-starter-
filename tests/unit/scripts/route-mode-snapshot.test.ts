@@ -1,6 +1,9 @@
+import fs from "node:fs";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { parseRouteModeSummary } from "../../../scripts/quality/route-mode-snapshot.mjs";
 
+const REPO_ROOT = path.resolve(__dirname, "../../..");
 const SAMPLE_SUMMARY = `
 Route (app)
 ┌ ○ /_not-found
@@ -22,6 +25,23 @@ describe("route mode snapshot parser", () => {
       { mode: "dynamic", route: "/api/contact" },
       { mode: "static", route: "/api/health" },
       { mode: "dynamic", route: "/sitemap.xml" },
+    ]);
+  });
+
+  it("keeps route-mode snapshot as the only extra scripts helper", () => {
+    const scriptsDir = path.join(REPO_ROOT, "scripts");
+    const scriptFiles = fs
+      .readdirSync(scriptsDir, { recursive: true, withFileTypes: true })
+      .filter((entry) => entry.isFile())
+      .map((entry) =>
+        path.relative(REPO_ROOT, path.join(entry.parentPath, entry.name)),
+      )
+      .map((filePath) => filePath.replace(/\\/gu, "/"))
+      .sort();
+
+    expect(scriptFiles).toEqual([
+      "scripts/quality/route-mode-snapshot.mjs",
+      "scripts/starter-checks.js",
     ]);
   });
 });
