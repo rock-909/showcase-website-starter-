@@ -57,6 +57,7 @@ vi.mock("@/lib/contact/submit-canonical-contact", async (importOriginal) => {
       submissionResult: {
         success: true,
         emailSent: true,
+        ownerNotified: true,
         recordCreated: true,
         referenceId: "contact-ref-001",
       },

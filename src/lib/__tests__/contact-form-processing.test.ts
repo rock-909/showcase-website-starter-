@@ -52,6 +52,7 @@ describe("canonical contact submission", () => {
     mockProcessLead.mockResolvedValueOnce({
       success: true,
       emailSent: true,
+      ownerNotified: true,
       recordCreated: true,
       referenceId: "ref-custom",
     });
@@ -75,6 +76,7 @@ describe("canonical contact submission", () => {
     mockProcessLead.mockResolvedValueOnce({
       success: true,
       emailSent: true,
+      ownerNotified: true,
       recordCreated: true,
       referenceId: "ref-other",
     });
@@ -96,6 +98,7 @@ describe("canonical contact submission", () => {
     mockProcessLead.mockResolvedValueOnce({
       success: true,
       emailSent: true,
+      ownerNotified: true,
       recordCreated: true,
       referenceId: "ref-name",
     });

@@ -89,6 +89,7 @@ export interface CanonicalContactSubmissionSuccess {
   submissionResult: {
     success: true;
     emailSent: boolean;
+    ownerNotified: boolean;
     recordCreated: boolean;
     referenceId?: string | null | undefined;
   };
@@ -337,6 +338,7 @@ async function processValidatedContactSubmission(
     return {
       success: true,
       emailSent: result.emailSent,
+      ownerNotified: result.ownerNotified,
       recordCreated: result.recordCreated,
       referenceId: result.referenceId,
     };

@@ -7,6 +7,7 @@ import { type ServerActionResult } from "@/lib/server-action-utils";
 
 export interface ContactFormResult {
   emailSent: boolean;
+  ownerNotified: boolean;
   recordCreated: boolean;
   referenceId?: string | null;
 }
@@ -164,6 +165,7 @@ function createContactStateFromResponse(
       success: true,
       data: {
         emailSent: false,
+        ownerNotified: false,
         recordCreated: true,
         referenceId: payload.data.referenceId,
       },

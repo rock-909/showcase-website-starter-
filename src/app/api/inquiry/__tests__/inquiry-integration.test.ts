@@ -57,6 +57,7 @@ vi.mock("@/lib/lead-pipeline/process-lead", () => ({
     Promise.resolve({
       success: true,
       emailSent: true,
+      ownerNotified: true,
       recordCreated: true,
       referenceId: "ref-integration-001",
     }),
@@ -222,6 +223,7 @@ describe("/api/inquiry — integration (protection chain)", () => {
         success: false,
         error: "PROCESSING_ERROR",
         emailSent: false,
+        ownerNotified: false,
         recordCreated: false,
       });
 

@@ -37,6 +37,7 @@ interface LeadProcessingContext {
 export interface LeadResult {
   success: boolean;
   emailSent: boolean;
+  ownerNotified: boolean;
   recordCreated: boolean;
   referenceId?: string | undefined;
   error?: "VALIDATION_ERROR" | "PROCESSING_FAILED" | string | undefined;
@@ -56,6 +57,7 @@ function createValidationFailureResult(): LeadResult {
   return {
     success: false,
     emailSent: false,
+    ownerNotified: false,
     recordCreated: false,
     error: "VALIDATION_ERROR",
   };
@@ -65,6 +67,7 @@ function createProcessingFailureResult(referenceId?: string): LeadResult {
   return {
     success: false,
     emailSent: false,
+    ownerNotified: false,
     recordCreated: false,
     ...(referenceId ? { referenceId } : {}),
     error: "PROCESSING_FAILED",
@@ -172,6 +175,7 @@ async function processContact(
   return {
     success: true,
     emailSent,
+    ownerNotified: emailSent,
     recordCreated: true,
     referenceId,
   };
@@ -254,6 +258,7 @@ async function processProduct(
   return {
     success: true,
     emailSent,
+    ownerNotified: emailSent,
     recordCreated: true,
     referenceId,
   };
@@ -283,6 +288,7 @@ async function processNewsletter(
   return {
     success: true,
     emailSent: false,
+    ownerNotified: false,
     recordCreated: true,
     referenceId,
   };

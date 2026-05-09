@@ -120,6 +120,7 @@ export const contactFormSuccessState = {
   success: true,
   data: {
     emailSent: true,
+    ownerNotified: true,
     recordCreated: true,
     referenceId: "story-ref-1000",
   },

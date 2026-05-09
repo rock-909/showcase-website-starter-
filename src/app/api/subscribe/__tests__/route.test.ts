@@ -28,6 +28,7 @@ vi.mock("@/lib/lead-pipeline/process-lead", () => ({
     referenceId: "sub-ref-001",
     recordCreated: true,
     emailSent: false,
+    ownerNotified: false,
   })),
 }));
 

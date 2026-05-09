@@ -165,6 +165,13 @@ This proof does not prove sales quality, legal readiness, or form delivery.
 - 目标 URL 限制在 localhost、preview、staging 或明确的非生产域名。
 - 报告记录提交 reference，便于人工去 Airtable/邮件系统核对。
 
+For contact and product inquiry launch canaries, success means both:
+
+- a lead record exists in Airtable or the configured CRM;
+- the owner notification was delivered or the configured owner-notification fallback was explicitly accepted.
+
+The runtime result distinguishes `recordCreated` from `ownerNotified`; do not treat record creation alone as full owner delivery proof.
+
 不要把“错误请求被拒绝”说成“表单链路闭环已证明”。
 
 ### 5. Client boundary budget

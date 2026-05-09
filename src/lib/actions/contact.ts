@@ -32,6 +32,8 @@ import {
 export interface ContactFormResult {
   /** 邮件是否发送成功 */
   emailSent: boolean;
+  /** 站点 owner 是否已收到通知 */
+  ownerNotified: boolean;
   /** 记录是否创建成功 */
   recordCreated: boolean;
   /** 统一线索引用ID */
@@ -103,6 +105,7 @@ function performHoneypotCheck(
     return createSuccessResultWithLogging(
       {
         emailSent: false,
+        ownerNotified: false,
         recordCreated: false,
         referenceId: null,
       } satisfies ContactFormResult,
@@ -147,6 +150,7 @@ async function executeContactSubmissionAttempt(
   const { submissionResult } = submission;
   const normalizedSubmissionResult: ContactFormResult = {
     emailSent: submissionResult.emailSent,
+    ownerNotified: submissionResult.ownerNotified,
     recordCreated: submissionResult.recordCreated,
     referenceId: submissionResult.referenceId ?? null,
   };
@@ -156,6 +160,7 @@ async function executeContactSubmissionAttempt(
     logger.info("Contact form submitted via Server Action", {
       processingTime,
       emailSent: normalizedSubmissionResult.emailSent,
+      ownerNotified: normalizedSubmissionResult.ownerNotified,
       recordCreated: normalizedSubmissionResult.recordCreated,
       referenceId: normalizedSubmissionResult.referenceId,
     });
