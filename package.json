@@ -17,6 +17,7 @@
     "release:verify": "node scripts/starter-checks.js release-verify",
     "website:check": "pnpm type-check && pnpm lint:check && pnpm test && pnpm build",
     "website:build:cf": "pnpm exec opennextjs-cloudflare build --noMinify",
+    "route-mode:snapshot": "node scripts/quality/route-mode-snapshot.mjs",
     "brand:check": "node scripts/starter-checks.js brand",
     "content:check": "node scripts/starter-checks.js content-slugs && node scripts/starter-checks.js translations",
     "component:governance:test": "pnpm exec vitest run tests/architecture/component-governance.test.ts tests/unit/scripts/component-governance-check.test.ts",
