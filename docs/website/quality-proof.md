@@ -45,6 +45,10 @@ Semgrep local CLI may be unavailable on a developer machine. When local `pnpm ex
 
 Cloudflare platform detection uses `DEPLOYMENT_PLATFORM=cloudflare` as the canonical signal. `DEPLOY_TARGET=cloudflare` is accepted only as a legacy compatibility alias.
 
+### Warning baseline
+
+Generated warning baseline lives in `docs/quality/cloudflare-warning-baseline.md` and `docs/quality/storybook-warning-baseline.md`. A known warning baseline is not a pass/fail claim; it prevents old generated warnings from hiding new warning categories.
+
 ## 四层证明口径
 
 | 层级 | 目的 | 典型证明 | 不能证明什么 |
