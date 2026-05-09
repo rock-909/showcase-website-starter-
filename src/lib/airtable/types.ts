@@ -16,15 +16,6 @@ export interface AirtableQueryOptions {
   }>;
 }
 
-// Airtable 统计数据类型
-export interface AirtableStatistics {
-  totalContacts: number;
-  newContacts: number;
-  inProgressContacts: number;
-  completedContacts: number;
-  archivedContacts: number;
-}
-
 // 联系人状态类型
 export type ContactStatus = "New" | "In Progress" | "Completed" | "Archived";
 
@@ -66,6 +57,3 @@ export interface ProductLeadData extends BaseLeadData {
 // Newsletter subscription lead data
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type -- intentionally minimal, only email from BaseLeadData
 export interface NewsletterLeadData extends BaseLeadData {}
-
-// Union type for all lead data
-export type LeadData = ContactLeadData | ProductLeadData | NewsletterLeadData;

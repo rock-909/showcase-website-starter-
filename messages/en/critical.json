@@ -807,7 +807,11 @@
     "loading": "Content is loading",
     "error": "An error has occurred",
     "languageSelector": "Select language",
-    "themeSelector": "Select theme"
+    "themeSelector": "Select theme",
+    "securityVerificationUnavailable": "Security verification is temporarily unavailable.",
+    "turnstileDevBypass": "Dev mode: Turnstile verification bypassed",
+    "turnstileTestMode": "Bot protection disabled in test mode",
+    "turnstileLoadFailed": "Security verification failed to load."
   },
   "underConstruction": {
     "title": "Under Construction",

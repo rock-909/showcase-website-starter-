@@ -35,6 +35,7 @@ vi.mock("@/lib/lead-pipeline/process-lead", () => ({
     Promise.resolve({
       success: true,
       emailSent: true,
+      ownerNotified: true,
       recordCreated: true,
       referenceId: "ref-123",
     }),
@@ -312,6 +313,7 @@ describe("/api/inquiry route", () => {
         success: false,
         error: "PROCESSING_ERROR",
         emailSent: false,
+        ownerNotified: false,
         recordCreated: false,
       });
 
@@ -329,6 +331,7 @@ describe("/api/inquiry route", () => {
       vi.mocked(processLead).mockResolvedValueOnce({
         success: true,
         emailSent: false,
+        ownerNotified: false,
         recordCreated: true,
         referenceId: "ref-record-123",
       });
@@ -353,6 +356,7 @@ describe("/api/inquiry route", () => {
       vi.mocked(processLead).mockResolvedValueOnce({
         success: false,
         emailSent: false,
+        ownerNotified: false,
         recordCreated: false,
         error: "PROCESSING_FAILED",
       });
@@ -373,6 +377,7 @@ describe("/api/inquiry route", () => {
         success: false,
         error: "VALIDATION_ERROR",
         emailSent: false,
+        ownerNotified: false,
         recordCreated: false,
       });
 

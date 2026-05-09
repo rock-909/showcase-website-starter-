@@ -12,6 +12,7 @@ import { ContactFormContainerView } from "@/components/forms/contact-form-contai
 export function ContactFormContainer() {
   const t = useTranslations("contact.form");
   const tApi = useTranslations(API_ERROR_NAMESPACE);
+  const tAccessibility = useTranslations("accessibility");
   const errorSummaryRef = useRef<HTMLDivElement | null>(null);
   const handleErrorDisplayRef = (node: HTMLDivElement | null) => {
     errorSummaryRef.current = node;
@@ -40,6 +41,12 @@ export function ContactFormContainer() {
       isRateLimited={isRateLimited}
       translateForm={t}
       translateApi={tApi}
+      turnstileLabels={{
+        unavailable: tAccessibility("securityVerificationUnavailable"),
+        loadFailed: tAccessibility("turnstileLoadFailed"),
+        devBypass: tAccessibility("turnstileDevBypass"),
+        testMode: tAccessibility("turnstileTestMode"),
+      }}
       onTurnstileSuccess={setTurnstileToken}
       onTurnstileError={() => setTurnstileToken("")}
       onTurnstileExpire={() => setTurnstileToken("")}

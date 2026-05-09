@@ -268,12 +268,3 @@ export interface CSPReport {
     "script-sample": string;
   };
 }
-
-/**
- * Security utilities
- */
-export const SecurityUtils = {
-  generateCSP,
-  getSecurityHeaders,
-  getSecurityConfig,
-} as const;

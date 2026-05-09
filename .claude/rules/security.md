@@ -67,6 +67,15 @@ copy those wrappers into new code.
 | `/api/verify-turnstile` | body size gate; no secrets in response |
 | `/api/health` | public health only; no credentials, config dumps, or env details |
 
+### Owner ops access
+
+`/ops/traffic/access` is a route-local rate-limit exception. It must use the
+shared `opsAccess` preset and trusted client-IP keying, but only failed owner
+access attempts consume the bucket. A valid access key must not be locked out by
+previous failed attempts. Do not copy this pattern to public write endpoints;
+they should keep the shared `withRateLimit` wrapper unless their auth flow
+requires route-local ordering.
+
 ## CSP and headers
 
 - Security header behavior lives in `src/config/security.ts` and Next.js

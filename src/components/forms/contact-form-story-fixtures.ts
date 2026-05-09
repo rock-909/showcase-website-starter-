@@ -1,6 +1,6 @@
 import { API_ERROR_CODES } from "@/constants/api-error-codes";
-import type { ContactFormResult } from "@/lib/actions/contact";
 import type { ServerActionResult } from "@/lib/server-action-utils";
+import type { ContactFormResult } from "@/components/forms/use-contact-form";
 
 const STORY_TIMESTAMP = "2026-05-06T00:00:00.000Z";
 
@@ -20,6 +20,7 @@ const defaultFormMessages = {
   phone: "Phone",
   phonePlaceholder: "+1 555 0100",
   rateLimitMessage: "Please wait before submitting again.",
+  networkError: "We could not submit the form. Please try again.",
   subject: "Subject",
   subjectPlaceholder: "Project inquiry",
   submit: "Send inquiry",
@@ -54,6 +55,7 @@ const longChineseFormMessages = {
   phone: "电话",
   phonePlaceholder: "+86 138 0000 0000",
   rateLimitMessage: "请稍后再提交。",
+  networkError: "表单暂时无法提交，请稍后重试。",
   subject: "主题",
   subjectPlaceholder:
     "关于展示型网站模板替换、证明材料和上线检查的较长询盘主题",
@@ -87,6 +89,13 @@ export const contactFormLongChineseTranslate = translateFrom(
 );
 export const contactFormApiStoryTranslate = translateFrom(apiMessages);
 
+export const contactFormTurnstileStoryLabels = {
+  unavailable: "Security verification is temporarily unavailable.",
+  loadFailed: "Security verification failed to load.",
+  devBypass: "Dev mode: Turnstile verification bypassed",
+  testMode: "Bot protection disabled in test mode",
+} as const;
+
 export const contactFormValidationErrorState = {
   success: false,
   error: "Validation failed",
@@ -101,17 +110,15 @@ export const contactFormProcessingErrorState = {
   timestamp: STORY_TIMESTAMP,
 } satisfies ServerActionResult<ContactFormResult>;
 
-export const contactFormRawErrorState = {
+export const contactFormNetworkErrorState = {
   success: false,
-  error: "The email provider did not respond.",
+  errorCode: "FORM_NETWORK_ERROR",
   timestamp: STORY_TIMESTAMP,
 } satisfies ServerActionResult<ContactFormResult>;
 
 export const contactFormSuccessState = {
   success: true,
   data: {
-    emailSent: true,
-    recordCreated: true,
     referenceId: "story-ref-1000",
   },
   timestamp: STORY_TIMESTAMP,

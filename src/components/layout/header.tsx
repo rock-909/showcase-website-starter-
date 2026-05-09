@@ -235,12 +235,3 @@ function HeaderUtilityControls({
     </div>
   );
 }
-
-// Simplified convenience components (only keep the most commonly used ones)
-export function HeaderMinimal({ className }: { className?: string }) {
-  return <Header variant="minimal" {...(className && { className })} />;
-}
-
-export function HeaderTransparent({ className }: { className?: string }) {
-  return <Header variant="transparent" {...(className && { className })} />;
-}

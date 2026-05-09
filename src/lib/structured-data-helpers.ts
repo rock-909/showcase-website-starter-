@@ -20,6 +20,8 @@ import type {
 
 /**
  * 创建面包屑导航结构化数据
+ *
+ * @public Structured data helper kept for downstream SEO customizations.
  */
 export function createBreadcrumbStructuredData(
   locale: Locale,
@@ -36,6 +38,8 @@ export function createBreadcrumbStructuredData(
 
 /**
  * 创建文章结构化数据
+ *
+ * @public Structured data helper kept for downstream SEO customizations.
  */
 export function createArticleStructuredData(
   locale: Locale,

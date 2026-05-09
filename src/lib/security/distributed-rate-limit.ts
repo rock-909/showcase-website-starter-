@@ -66,6 +66,11 @@ export const RATE_LIMIT_PRESETS = {
     windowMs: MINUTE_MS,
     failureMode: "closed" as const,
   },
+  opsAccess: {
+    maxRequests: COUNT_FIVE,
+    windowMs: MINUTE_MS,
+    failureMode: "closed" as const,
+  },
 } as const;
 
 export type RateLimitPreset = keyof typeof RATE_LIMIT_PRESETS;
@@ -85,10 +90,6 @@ let rateLimitStore: RateLimitStore | null = null;
 
 /** Per-key promise queue for single-process atomicity (prevents TOCTOU races) */
 const rateLimitQueue = new Map<string, Promise<unknown>>();
-
-export function getPendingRateLimitQueueSize(): number {
-  return rateLimitQueue.size;
-}
 
 function getRateLimitStore(): RateLimitStore {
   if (!rateLimitStore) {

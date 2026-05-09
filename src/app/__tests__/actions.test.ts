@@ -53,6 +53,7 @@ vi.mock("@/lib/contact/submit-canonical-contact", async (importOriginal) => {
         data: {},
         submissionResult: {
           emailSent: true,
+          ownerNotified: true,
           recordCreated: true,
           referenceId: "ref-123",
         },
@@ -112,6 +113,7 @@ describe("actions.ts", () => {
       expect(result.success).toBe(true);
       expect(result.data).toEqual({
         emailSent: true,
+        ownerNotified: true,
         recordCreated: true,
         referenceId: "ref-123",
       });
@@ -306,6 +308,7 @@ describe("actions.ts", () => {
         data: {},
         submissionResult: {
           emailSent: false,
+          ownerNotified: false,
           recordCreated: true,
           referenceId: "ref-record-123",
         },
@@ -319,6 +322,7 @@ describe("actions.ts", () => {
       expect(result.error).toBeUndefined();
       expect(result.data).toEqual({
         emailSent: false,
+        ownerNotified: false,
         recordCreated: true,
         referenceId: "ref-record-123",
       });

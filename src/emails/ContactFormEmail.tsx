@@ -84,5 +84,3 @@ export function ContactFormEmail(data: EmailTemplateData) {
     </EmailLayout>
   );
 }
-
-export default ContactFormEmail;

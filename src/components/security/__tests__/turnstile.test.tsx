@@ -33,6 +33,10 @@ const getMockTurnstile = () => mockTurnstile;
 describe("TurnstileWidget", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.stubEnv("NEXT_PUBLIC_TURNSTILE_SITE_KEY", "test-site-key-12345");
+    vi.stubEnv("NEXT_PUBLIC_TEST_MODE", "false");
+    vi.stubEnv("NEXT_PUBLIC_TURNSTILE_BYPASS", "false");
+    vi.stubEnv("NODE_ENV", "test");
   });
 
   afterEach(() => {
@@ -211,6 +215,44 @@ describe("TurnstileWidget", () => {
       expect(() => {
         render(<TurnstileWidget />);
       }).not.toThrow();
+    });
+  });
+
+  describe("localized degraded-state labels", () => {
+    const labels = {
+      unavailable: "安全验证暂时不可用。",
+      devBypass: "开发模式：Turnstile 验证已跳过",
+      testMode: "测试模式下已关闭机器人防护",
+    };
+
+    it("uses the provided unavailable label when the site key is missing", () => {
+      vi.stubEnv("NEXT_PUBLIC_TURNSTILE_SITE_KEY", "");
+
+      render(<TurnstileWidget labels={labels} />);
+
+      expect(screen.getByRole("status")).toHaveTextContent(labels.unavailable);
+    });
+
+    it("uses the provided test-mode label when the site key is missing", () => {
+      vi.stubEnv("NEXT_PUBLIC_TEST_MODE", "true");
+      vi.stubEnv("NEXT_PUBLIC_TURNSTILE_SITE_KEY", "");
+
+      render(<TurnstileWidget labels={labels} />);
+
+      expect(screen.getByTestId("turnstile-mock")).toHaveTextContent(
+        labels.testMode,
+      );
+    });
+
+    it("uses the provided dev-bypass label", () => {
+      vi.stubEnv("NODE_ENV", "development");
+      vi.stubEnv("NEXT_PUBLIC_TURNSTILE_BYPASS", "true");
+
+      render(<TurnstileWidget labels={labels} />);
+
+      expect(screen.getByTestId("turnstile-bypass")).toHaveTextContent(
+        labels.devBypass,
+      );
     });
   });
 });

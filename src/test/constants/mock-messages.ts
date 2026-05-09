@@ -120,6 +120,12 @@ export const accessibilityMessages = {
   error: "An error has occurred",
   languageSelector: "Select language",
   themeSelector: "Select theme",
+  securityVerificationUnavailable:
+    "Security verification is temporarily unavailable.",
+  turnstileDevBypass: "Dev mode: Turnstile verification bypassed",
+  turnstileTestMode: "Bot protection disabled in test mode",
+  turnstileLoadFailed:
+    "Security verification could not load. Please try again.",
 } as const;
 
 /**
@@ -349,22 +355,3 @@ export const combinedMessages = {
   footer: footerMessages,
   underConstruction: underConstructionMessages,
 } as const;
-
-/**
- * 类型导出 - 供 TypeScript 类型检查使用
- */
-export type MockMessages = typeof combinedMessages;
-export type CommonMessages = typeof commonMessages;
-export type NavigationMessages = typeof navigationMessages;
-export type AccessibilityMessages = typeof accessibilityMessages;
-export type ThemeMessages = typeof themeMessages;
-export type LanguageMessages = typeof languageMessages;
-export type ErrorBoundaryMessages = typeof errorBoundaryMessages;
-export type SeoMessages = typeof seoMessages;
-export type FooterMessages = typeof footerMessages;
-export type UnderConstructionMessages = typeof underConstructionMessages;
-
-/**
- * 默认导出合并消息
- */
-export default combinedMessages;

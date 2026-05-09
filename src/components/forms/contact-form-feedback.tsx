@@ -6,6 +6,8 @@ import { type ServerActionResult } from "@/lib/server-action-utils";
 import { type ContactFormResult } from "@/components/forms/use-contact-form";
 import { FORM_STATUS_CLASS_NAMES } from "@/components/forms/form-status-styles";
 
+const FORM_NETWORK_ERROR_CODE = "FORM_NETWORK_ERROR";
+
 /**
  * 获取状态消息配置
  */
@@ -75,9 +77,16 @@ interface ErrorDisplayState {
   uniqueDetails: string[] | undefined;
   isValidationError: boolean;
   translatedError: string | undefined;
+  hasRenderableError: boolean;
   shouldShowTranslatedMessage: boolean;
   shouldShowRawMessage: boolean;
   containerClass: string;
+}
+
+function hasSubmittedError(
+  state: ServerActionResult<ContactFormResult> | null,
+): state is ServerActionResult<ContactFormResult> {
+  return Boolean(state?.error || state?.errorCode || state?.details?.length);
 }
 
 function getErrorDisplayState(
@@ -93,18 +102,26 @@ function getErrorDisplayState(
     : undefined;
   const isValidationError =
     state.errorCode === API_ERROR_CODES.CONTACT_VALIDATION_FAILED;
-  const translatedError = state.errorCode
-    ? translateApiError(translateApi, state.errorCode)
-    : undefined;
+  const translatedError =
+    state.errorCode === FORM_NETWORK_ERROR_CODE
+      ? translateForm("networkError")
+      : state.errorCode
+        ? translateApiError(translateApi, state.errorCode)
+        : undefined;
+  const shouldShowTranslatedMessage =
+    translatedError !== undefined && !isValidationError;
+  const shouldShowRawMessage = false;
 
   return {
     uniqueDetails,
     isValidationError,
     translatedError,
-    shouldShowTranslatedMessage:
-      translatedError !== undefined && !isValidationError,
-    shouldShowRawMessage:
-      state.error !== undefined && !state.errorCode && !isValidationError,
+    hasRenderableError:
+      shouldShowTranslatedMessage ||
+      shouldShowRawMessage ||
+      (uniqueDetails?.length ?? 0) > 0,
+    shouldShowTranslatedMessage,
+    shouldShowRawMessage,
     containerClass: `rounded-lg border p-4 ${FORM_STATUS_CLASS_NAMES.error}`,
   };
 }
@@ -115,15 +132,18 @@ export function ErrorDisplay({
   translateApi,
   containerRef,
 }: ErrorDisplayProps) {
-  if (!state?.error && !state?.errorCode) return null;
+  if (!hasSubmittedError(state)) return null;
 
   const {
     uniqueDetails,
     translatedError,
+    hasRenderableError,
     shouldShowTranslatedMessage,
     shouldShowRawMessage,
     containerClass,
   } = getErrorDisplayState(state, translateForm, translateApi);
+
+  if (!hasRenderableError) return null;
 
   return (
     <div

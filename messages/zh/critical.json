@@ -807,7 +807,11 @@
     "loading": "内容正在加载",
     "error": "发生了错误",
     "languageSelector": "选择语言",
-    "themeSelector": "选择主题"
+    "themeSelector": "选择主题",
+    "securityVerificationUnavailable": "安全验证暂时不可用。",
+    "turnstileDevBypass": "开发模式：Turnstile 验证已跳过",
+    "turnstileTestMode": "测试模式下已关闭机器人防护",
+    "turnstileLoadFailed": "安全验证加载失败。"
   },
   "underConstruction": {
     "title": "建设中",

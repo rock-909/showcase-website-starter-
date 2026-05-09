@@ -25,6 +25,7 @@ vi.mock("@/lib/lead-pipeline/process-lead", () => ({
     referenceId: "ref-123",
     recordCreated: true,
     emailSent: false,
+    ownerNotified: false,
   })),
 }));
 
@@ -183,6 +184,7 @@ describe("api/subscribe", () => {
       referenceId: "ref-record-123",
       recordCreated: true,
       emailSent: false,
+      ownerNotified: false,
     });
 
     const res = await route.POST(

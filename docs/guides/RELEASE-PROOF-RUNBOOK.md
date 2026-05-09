@@ -59,6 +59,8 @@ node scripts/starter-checks.js client-boundary
 
 These commands prove content residue and source client-boundary budget only. They do not replace deployed preview proof, observability proof, form canary, or owner signoff.
 
+Local release proof is not public launch proof. Public launch still requires `PUBLIC_LAUNCH_STRICT=true node scripts/starter-checks.js validate-production-config`, deployed smoke against the real URL, deployed lead canary, and owner signoff.
+
 ## 为什么要这个顺序
 
 - 先跑 docs-truth：先抓 stale 规则和假真相，别让后面的绿构建替它洗白

@@ -77,6 +77,7 @@ describe("processLead observability contracts", () => {
     expect(result).toEqual({
       success: false,
       emailSent: false,
+      ownerNotified: false,
       recordCreated: false,
       error: "VALIDATION_ERROR",
     });
@@ -119,6 +120,7 @@ describe("processLead observability contracts", () => {
     expect(result).toEqual({
       success: false,
       emailSent: false,
+      ownerNotified: false,
       recordCreated: false,
       referenceId: expect.stringMatching(/^CON-/),
       error: "PROCESSING_FAILED",
@@ -147,6 +149,7 @@ describe("processLead observability contracts", () => {
     expect(result).toEqual({
       success: true,
       emailSent: false,
+      ownerNotified: false,
       recordCreated: true,
       referenceId: expect.stringMatching(/^CON-/),
     });
@@ -176,6 +179,7 @@ describe("processLead observability contracts", () => {
     expect(result).toEqual({
       success: true,
       emailSent: true,
+      ownerNotified: true,
       recordCreated: true,
       referenceId: expect.stringMatching(/^CON-/),
     });
@@ -202,6 +206,7 @@ describe("processLead observability contracts", () => {
     expect(result).toEqual({
       success: false,
       emailSent: false,
+      ownerNotified: false,
       recordCreated: false,
       referenceId: expect.stringMatching(/^CON-/),
       error: "PROCESSING_FAILED",
@@ -229,6 +234,7 @@ describe("processLead observability contracts", () => {
     expect(result).toEqual({
       success: true,
       emailSent: false,
+      ownerNotified: false,
       recordCreated: true,
       referenceId: expect.stringMatching(/^NEW-/),
     });

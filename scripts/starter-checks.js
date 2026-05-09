@@ -3395,7 +3395,12 @@ function runReleaseVerify() {
   console.log(
     "  - The lead canary requires deployed Airtable/Resend/Turnstile credentials and must be recorded before broad public launch.",
   );
-  console.log("Release verification completed successfully.");
+  console.log(
+    "Local release proof completed. This is NOT public launch proof.",
+  );
+  console.log(
+    "Public launch still requires strict config, deployed smoke, real lead canary, and owner signoff.",
+  );
   return 0;
 }
 

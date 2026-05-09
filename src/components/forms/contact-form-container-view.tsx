@@ -1,7 +1,7 @@
 import { useFormStatus } from "react-dom";
-import type { ContactFormResult } from "@/lib/actions/contact";
 import type { FormSubmissionStatus } from "@/lib/forms/form-submission-status";
 import type { ServerActionResult } from "@/lib/server-action-utils";
+import type { ContactFormResult } from "@/components/forms/use-contact-form";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -21,6 +21,12 @@ export interface ContactFormContainerViewProps {
   isRateLimited: boolean;
   translateForm: (key: string) => string;
   translateApi: (key: string) => string;
+  turnstileLabels: {
+    unavailable: string;
+    loadFailed: string;
+    devBypass: string;
+    testMode: string;
+  };
   onTurnstileSuccess: (token: string) => void;
   onTurnstileError: () => void;
   onTurnstileExpire: () => void;
@@ -68,6 +74,7 @@ export function ContactFormContainerView({
   isRateLimited,
   translateForm,
   translateApi,
+  turnstileLabels,
   onTurnstileSuccess,
   onTurnstileError,
   onTurnstileExpire,
@@ -93,6 +100,7 @@ export function ContactFormContainerView({
         <FormFields t={translateForm} isPending={isPending} />
 
         <LazyTurnstile
+          labels={turnstileLabels}
           onSuccess={onTurnstileSuccess}
           onError={onTurnstileError}
           onExpire={onTurnstileExpire}

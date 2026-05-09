@@ -6,6 +6,7 @@ import {
 } from "@/components/forms/contact-form-container-view";
 import {
   contactFormApiStoryTranslate,
+  contactFormTurnstileStoryLabels,
   contactFormStoryTranslate,
   contactFormValidationErrorState,
 } from "@/components/forms/contact-form-story-fixtures";
@@ -23,6 +24,7 @@ const defaultArgs = {
   isRateLimited: false,
   translateForm: contactFormStoryTranslate,
   translateApi: contactFormApiStoryTranslate,
+  turnstileLabels: contactFormTurnstileStoryLabels,
   onTurnstileSuccess: storyTokenHandler,
   onTurnstileError: storyStatusHandler,
   onTurnstileExpire: storyStatusHandler,

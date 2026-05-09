@@ -84,6 +84,8 @@ export function getPathnames(): typeof PATHNAMES {
 
 /**
  * 获取动态路由模式配置
+ *
+ * @public Starter routing contract for consumers that need dynamic pathname maps.
  */
 export function getDynamicPathnames(): Record<string, string> {
   return Object.fromEntries(

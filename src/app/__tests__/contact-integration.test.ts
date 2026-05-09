@@ -73,6 +73,7 @@ vi.mock("@/lib/contact/submit-canonical-contact", async (importOriginal) => {
         data: {},
         submissionResult: {
           emailSent: true,
+          ownerNotified: true,
           recordCreated: true,
           referenceId: "ref-integration-001",
         },
@@ -133,6 +134,7 @@ describe("Contact form — integration (happy path chain)", () => {
       // Full chain completed successfully
       expect(result.success).toBe(true);
       expect(result.data?.emailSent).toBe(true);
+      expect(result.data?.ownerNotified).toBe(true);
       expect(result.data?.recordCreated).toBe(true);
 
       // Protection chain was invoked in order
@@ -202,6 +204,7 @@ describe("Contact form — integration (happy path chain)", () => {
       // Silent rejection: returns success but no actual processing
       expect(result.success).toBe(true);
       expect(result.data?.emailSent).toBe(false);
+      expect(result.data?.ownerNotified).toBe(false);
       expect(result.data?.recordCreated).toBe(false);
       expect(submitCanonicalContactSubmission).not.toHaveBeenCalled();
     });

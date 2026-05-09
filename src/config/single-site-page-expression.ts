@@ -55,11 +55,6 @@ export const SINGLE_SITE_HOME_PUBLIC_DEMO_START_PATH_KEYS = [
   "deploy",
 ] as const;
 
-export type SingleSiteHomeGridSectionId =
-  (typeof SINGLE_SITE_HOME_GRID_SECTION_ORDER)[number];
-export type SingleSiteHomeTrailingSectionId =
-  (typeof SINGLE_SITE_HOME_TRAILING_SECTION_ORDER)[number];
-
 export const SINGLE_SITE_HOME_HERO_PROOF_ITEMS = [
   "est",
   "countries",

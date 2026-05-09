@@ -30,6 +30,10 @@ vi.mock("next-intl/server", () => ({
     const translations: Record<string, string> = {
       systemStatus: "System online",
       contactSales: "Contact sales",
+      skipToContent:
+        namespace === "accessibility"
+          ? "Skip to main content"
+          : "skipToContent",
       openMenu: "Open menu",
       closeMenu: "Close menu",
       selectLanguage: "Select language",
@@ -208,6 +212,17 @@ describe("LocaleLayout", () => {
         "https://unpkg.com/@react-grab/mcp@0.1.33/dist/client.global.js",
       ]);
       expect(mockSetRequestLocale).toHaveBeenCalledWith("en");
+    });
+
+    it("renders the skip link from the accessibility namespace", async () => {
+      const page = await LocaleLayout({
+        children: <div>Child</div>,
+        params: Promise.resolve({ locale: "zh" }),
+      });
+
+      await renderAsyncPage(page);
+
+      expect(screen.getByText("Skip to main content")).toBeInTheDocument();
     });
 
     it("disables all dev scripts when dev tools are disabled", async () => {

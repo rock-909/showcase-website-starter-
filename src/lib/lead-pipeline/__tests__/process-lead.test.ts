@@ -89,6 +89,7 @@ describe("processLead", () => {
     expect(result).toEqual({
       success: false,
       emailSent: false,
+      ownerNotified: false,
       recordCreated: false,
       error: "VALIDATION_ERROR",
     });
@@ -108,6 +109,7 @@ describe("processLead", () => {
       expect.objectContaining({
         success: true,
         emailSent: false,
+        ownerNotified: false,
         recordCreated: true,
       }),
     );
@@ -124,6 +126,7 @@ describe("processLead", () => {
     expect(result).toEqual({
       success: false,
       emailSent: false,
+      ownerNotified: false,
       recordCreated: false,
       referenceId: expect.stringMatching(/^CON-/),
       error: "PROCESSING_FAILED",
@@ -144,6 +147,7 @@ describe("processLead", () => {
       expect.objectContaining({
         success: true,
         emailSent: true,
+        ownerNotified: true,
         recordCreated: true,
       }),
     );
@@ -173,6 +177,7 @@ describe("processLead", () => {
       expect.objectContaining({
         success: true,
         emailSent: false,
+        ownerNotified: false,
         recordCreated: true,
       }),
     );
@@ -189,6 +194,7 @@ describe("processLead", () => {
     expect(result).toEqual({
       success: false,
       emailSent: false,
+      ownerNotified: false,
       recordCreated: false,
       referenceId: expect.stringMatching(/^PRO-/),
       error: "PROCESSING_FAILED",
@@ -206,6 +212,7 @@ describe("processLead", () => {
       expect.objectContaining({
         success: true,
         emailSent: false,
+        ownerNotified: false,
         recordCreated: true,
       }),
     );
@@ -224,6 +231,7 @@ describe("processLead", () => {
     expect(result).toEqual({
       success: false,
       emailSent: false,
+      ownerNotified: false,
       recordCreated: false,
       referenceId: expect.stringMatching(/^NEW-/),
       error: "PROCESSING_FAILED",

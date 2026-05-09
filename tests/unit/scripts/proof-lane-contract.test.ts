@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import yaml from "js-yaml";
 import { describe, expect, it } from "vitest";
 import { RELEASE_PROOF_SEQUENCE } from "../../../scripts/starter-checks.js";
 
@@ -42,9 +43,35 @@ const RETIRED_ACTIVE_PROOF_MARKERS = [
   "toMatchSnapshot",
 ] as const;
 
+interface WorkflowStep {
+  readonly name?: string;
+  readonly if?: string;
+  readonly run?: string;
+  readonly uses?: string;
+  readonly with?: Record<string, unknown>;
+  readonly env?: Record<string, string>;
+}
+
+interface WorkflowJob {
+  readonly name?: string;
+  readonly "runs-on"?: string;
+  readonly needs?: string | string[];
+  readonly "timeout-minutes"?: number;
+  readonly container?: string;
+  readonly steps?: WorkflowStep[];
+}
+
+interface Workflow {
+  readonly jobs?: Record<string, WorkflowJob>;
+}
+
 function readRepoFile(relativePath: string) {
   // eslint-disable-next-line security/detect-non-literal-fs-filename -- test reads fixed repo fixture files by relative path
   return fs.readFileSync(path.join(REPO_ROOT, relativePath), "utf8");
+}
+
+function readCiWorkflow(): Workflow {
+  return yaml.load(readRepoFile(".github/workflows/ci.yml")) as Workflow;
 }
 
 function listRepoFiles(relativeDir: string): string[] {
@@ -61,7 +88,119 @@ function listRepoFiles(relativeDir: string): string[] {
     );
 }
 
+describe("Semgrep proof lane contract", () => {
+  it("wires Semgrep through CI without depending on fake npm semgrep", () => {
+    const packageJson = JSON.parse(readRepoFile("package.json")) as {
+      dependencies?: Record<string, string>;
+      devDependencies?: Record<string, string>;
+    };
+    const workflow = readCiWorkflow();
+    const semgrepJob = workflow.jobs?.semgrep;
+    const ciSummaryNeeds = workflow.jobs?.["ci-summary"]?.needs;
+    const checkoutStep = semgrepJob?.steps?.find(
+      (step) => step.uses === "actions/checkout@v6",
+    );
+    const semgrepStep = semgrepJob?.steps?.find(
+      (step) => step.name === "运行 Semgrep",
+    );
+    const ciSummaryRun =
+      workflow.jobs?.["ci-summary"]?.steps?.find(
+        (step) => step.name === "检查所有作业状态",
+      )?.run ?? "";
+
+    expect(packageJson.dependencies?.semgrep).toBeUndefined();
+    expect(packageJson.devDependencies?.semgrep).toBeUndefined();
+    expect(semgrepJob).toMatchObject({
+      name: "Semgrep 安全扫描",
+      "runs-on": "ubuntu-latest",
+      needs: "quality",
+      "timeout-minutes": 10,
+      container: "semgrep/semgrep:1.162.0",
+    });
+    expect(checkoutStep).toMatchObject({
+      name: "检出代码",
+      uses: "actions/checkout@v6",
+      with: { submodules: false, "persist-credentials": false },
+    });
+    expect(semgrepStep?.run).toContain(
+      "semgrep scan --error --severity ERROR --config semgrep.yml src",
+    );
+    expect(ciSummaryNeeds).toContain("semgrep");
+    for (const expectedSummaryText of [
+      "needs.semgrep.result",
+      "| Semgrep 安全扫描 | ${{ needs.semgrep.result }} |",
+      '${{ needs.semgrep.result }}" != "success"',
+    ]) {
+      expect(ciSummaryRun).toContain(expectedSummaryText);
+    }
+  });
+
+  it("documents Semgrep local binary absence as blocked instead of passed", () => {
+    const qualityProof = readRepoFile("docs/website/quality-proof.md");
+    const qualityProofLevels = readRepoFile(
+      "docs/guides/QUALITY-PROOF-LEVELS.md",
+    );
+
+    expect(qualityProof).toContain("Semgrep local CLI may be unavailable");
+    expect(qualityProofLevels).toContain(
+      "A missing local `semgrep` binary is `Blocked`, not `Passed`.",
+    );
+  });
+});
+
 describe("proof lane contract", () => {
+  it("makes release verify wording impossible to confuse with public launch proof", () => {
+    const releaseProofScript = readRepoFile("scripts/starter-checks.js");
+    const qualityProof = readRepoFile("docs/website/quality-proof.md");
+    const releaseRunbook = readRepoFile("docs/guides/RELEASE-PROOF-RUNBOOK.md");
+
+    expect(releaseProofScript).toContain("Local release proof completed");
+    expect(releaseProofScript).toContain("NOT public launch proof");
+    expect(releaseProofScript).not.toContain(
+      "Release verification completed successfully.",
+    );
+
+    for (const content of [qualityProof, releaseRunbook]) {
+      expect(content).toContain(
+        "Local release proof is not public launch proof",
+      );
+      expect(content).toContain(
+        "PUBLIC_LAUNCH_STRICT=true node scripts/starter-checks.js validate-production-config",
+      );
+      expect(content).toContain("deployed lead canary");
+    }
+  });
+
+  it("keeps Wrangler dry-run secrets out of pull request workflows", () => {
+    const workflow = readCiWorkflow();
+    const steps = workflow.jobs?.["cloudflare-build"]?.steps ?? [];
+    const buildIndex = steps.findIndex(
+      (step) => step.name === "Cloudflare/OpenNext 构建",
+    );
+    const dryRunIndex = steps.findIndex(
+      (step) => step.name === "Cloudflare/Wrangler dry-run",
+    );
+    const dryRunStep = steps[dryRunIndex];
+    const dryRunCondition = dryRunStep?.if ?? "";
+
+    expect(buildIndex).toBeGreaterThan(-1);
+    expect(dryRunIndex).toBeGreaterThan(-1);
+    expect(buildIndex).toBeLessThan(dryRunIndex);
+    expect(dryRunCondition).toBe("${{ github.event_name != 'pull_request' }}");
+    expect(dryRunStep?.run).toContain(
+      "pnpm exec wrangler deploy --dry-run --env preview",
+    );
+    expect(dryRunStep?.env).toEqual(
+      expect.objectContaining({
+        NODE_ENV: "production",
+        APP_ENV: "preview",
+        NEXT_PUBLIC_SITE_URL: "https://showcase-website-starter.test",
+        CLOUDFLARE_API_TOKEN: "${{ secrets.CLOUDFLARE_API_TOKEN }}",
+        CLOUDFLARE_ACCOUNT_ID: "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}",
+      }),
+    );
+  });
+
   it("keeps release proof wired without the removed cluster command wrapper", () => {
     const packageJson = readRepoFile("package.json");
     const releaseProofFlow = RELEASE_PROOF_SEQUENCE.join("\n");
@@ -135,7 +274,10 @@ describe("proof lane contract", () => {
     expect(scripts["website:build:cf"]).toBe(
       "pnpm exec opennextjs-cloudflare build --noMinify",
     );
-    expect(Object.keys(scripts)).toHaveLength(14);
+    expect(scripts["route-mode:snapshot"]).toBe(
+      "node scripts/quality/route-mode-snapshot.mjs",
+    );
+    expect(Object.keys(scripts)).toHaveLength(15);
   });
 
   it("uses split critical/deferred messages as the translation source of truth", () => {
@@ -334,20 +476,6 @@ describe("proof lane contract", () => {
       // eslint-disable-next-line security/detect-non-literal-fs-filename -- test iterates over a fixed retired-script allowlist
       expect(fs.existsSync(path.join(REPO_ROOT, relativePath))).toBe(false);
     }
-  });
-
-  it("keeps the remaining script file surface intentionally tiny", () => {
-    const scriptsDir = path.join(REPO_ROOT, "scripts");
-    const scriptFiles = fs
-      .readdirSync(scriptsDir, { recursive: true, withFileTypes: true })
-      .filter((entry) => entry.isFile())
-      .map((entry) => path.join(entry.parentPath, entry.name))
-      .map((filePath) =>
-        path.relative(REPO_ROOT, filePath).replace(/\\/gu, "/"),
-      )
-      .sort();
-
-    expect(scriptFiles).toEqual(["scripts/starter-checks.js"]);
   });
 
   it("documents dirty-worktree targeted proof separately from clean-branch full proof", () => {

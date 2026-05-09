@@ -6,8 +6,6 @@ import { type FormSubmissionStatus } from "@/lib/forms/form-submission-status";
 import { type ServerActionResult } from "@/lib/server-action-utils";
 
 export interface ContactFormResult {
-  emailSent: boolean;
-  recordCreated: boolean;
   referenceId?: string | null;
 }
 
@@ -15,12 +13,13 @@ interface SubmitStatusInput {
   isPending: boolean;
   stateSuccess: boolean | undefined;
   stateError: string | undefined;
+  stateErrorCode: string | undefined;
 }
 
 function computeSubmitStatus(input: SubmitStatusInput): FormSubmissionStatus {
   if (input.isPending) return "submitting";
   if (input.stateSuccess) return "success";
-  if (input.stateError) return "error";
+  if (input.stateError || input.stateErrorCode) return "error";
   return "idle";
 }
 
@@ -50,6 +49,7 @@ export function useContactForm(): UseContactFormResult {
     isPending: isSubmitting,
     stateSuccess: state?.success,
     stateError: state?.error,
+    stateErrorCode: state?.errorCode,
   });
 
   const enhancedFormAction = async (formData: FormData) => {
@@ -85,7 +85,7 @@ export function useContactForm(): UseContactFormResult {
       startTransition(() => {
         setState({
           success: false,
-          error: "Failed to submit form. Please try again.",
+          errorCode: "FORM_NETWORK_ERROR",
           timestamp: new Date().toISOString(),
         });
       });
@@ -161,8 +161,6 @@ function createContactStateFromResponse(
     return {
       success: true,
       data: {
-        emailSent: false,
-        recordCreated: true,
         referenceId: payload.data.referenceId,
       },
       timestamp,

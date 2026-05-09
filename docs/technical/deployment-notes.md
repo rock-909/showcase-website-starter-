@@ -76,6 +76,10 @@ pnpm exec opennextjs-cloudflare deploy --env production
 
 不要把 dry-run 当成真实上线证明。它只说明生成后的 Cloudflare worker artifact 能走到 Wrangler dry-run 阶段。
 
+## Cloudflare Platform Signal
+
+Cloudflare platform detection uses `DEPLOYMENT_PLATFORM=cloudflare` as the canonical signal. `DEPLOY_TARGET=cloudflare` is accepted only as a legacy compatibility alias.
+
 ## Cloudflare Runtime Compatibility
 
 当前 `wrangler.jsonc` 使用：

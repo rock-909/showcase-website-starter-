@@ -14,7 +14,7 @@ import type {
   ParsedContent,
 } from "@/types/content.types";
 import { getContentFiles, parseContentFile } from "@/lib/content-parser";
-import { getContentConfig, PAGES_DIR } from "@/lib/content-utils";
+import { PAGES_DIR } from "@/lib/content-utils";
 
 type ContentLoader<T> = (slug: string, locale?: Locale) => Promise<T>;
 
@@ -22,21 +22,6 @@ function cacheOutsideCloudflare<T>(loader: ContentLoader<T>): ContentLoader<T> {
   const cachedLoader = cache(loader);
   return (slug, locale) =>
     isRuntimeCloudflare() ? loader(slug, locale) : cachedLoader(slug, locale);
-}
-
-/**
- * Get all pages
- */
-export async function getAllPages(locale?: Locale): Promise<Page[]> {
-  const files = await getContentFiles(PAGES_DIR, locale);
-  const parsedPages = await Promise.all(
-    files.map((file) => parseContentFile<PageMetadata>(file, "pages")),
-  );
-  return parsedPages.filter((page) => {
-    // Filter drafts in production
-    const config = getContentConfig();
-    return config.enableDrafts || !page.metadata.draft;
-  }) as Page[];
 }
 
 /**

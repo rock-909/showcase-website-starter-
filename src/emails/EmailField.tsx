@@ -32,5 +32,3 @@ export function EmailField({ label, children }: EmailFieldProps) {
     </Section>
   );
 }
-
-export default EmailField;

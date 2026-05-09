@@ -188,6 +188,7 @@ describe("distributed-rate-limit", () => {
         "cacheInvalidatePreAuth",
         RATE_LIMIT_PRESETS.cacheInvalidatePreAuth.maxRequests,
       ],
+      ["opsAccess", RATE_LIMIT_PRESETS.opsAccess.maxRequests],
     ] as const)("uses the %s preset", async (preset, maxRequests) => {
       const result = await checkDistributedRateLimit(
         `preset-${preset}`,
@@ -746,6 +747,12 @@ describe("distributed-rate-limit", () => {
       expect(RATE_LIMIT_PRESETS.csp.failureMode).toBe("open");
     });
 
+    it("should have expected values for opsAccess preset", () => {
+      expect(RATE_LIMIT_PRESETS.opsAccess.maxRequests).toBe(COUNT_FIVE);
+      expect(RATE_LIMIT_PRESETS.opsAccess.windowMs).toBe(MINUTE_MS);
+      expect(RATE_LIMIT_PRESETS.opsAccess.failureMode).toBe("closed");
+    });
+
     it("should have cacheInvalidatePreAuth with higher limit", () => {
       // cacheInvalidatePreAuth should be more permissive (pre-auth)
       expect(
@@ -1169,6 +1176,24 @@ describe("distributed-rate-limit", () => {
         "[Rate Limit] Storage backend error details",
         expect.objectContaining({ error: expect.any(Error) }),
       );
+    });
+
+    it("should use fail-closed for opsAccess preset on storage failure", async () => {
+      resetRateLimitStore();
+      const mod = await import("@/lib/security/stores/rate-limit-store");
+      vi.spyOn(mod, "createRateLimitStore").mockReturnValue({
+        increment: vi.fn().mockRejectedValue(new Error("ops access boom")),
+      } as unknown as ReturnType<typeof mod.createRateLimitStore>);
+
+      const result = await checkDistributedRateLimit(
+        "owner-login-ip",
+        "opsAccess",
+      );
+
+      expect(result.allowed).toBe(false);
+      expect(result.degraded).toBe(true);
+      expect(result.deniedReason).toBe("storage_failure");
+      expect(result.retryAfter).toBe(Math.ceil(MINUTE_MS / 1000));
     });
 
     it("should use fail-open for csp preset on storage failure", async () => {

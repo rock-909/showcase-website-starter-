@@ -32,6 +32,7 @@ vi.mock("@/lib/lead-pipeline/process-lead", () => ({
   processLead: vi.fn(async () => ({
     success: true,
     emailSent: true,
+    ownerNotified: true,
     recordCreated: true,
     referenceId: "lead-ref-001",
   })),

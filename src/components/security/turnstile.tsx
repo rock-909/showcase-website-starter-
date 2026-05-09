@@ -13,6 +13,12 @@ import {
  * 使用全局 logger（开发环境输出，生产环境静默）
  */
 
+interface TurnstileLabels {
+  unavailable: string;
+  devBypass: string;
+  testMode: string;
+}
+
 interface TurnstileProps {
   onSuccess?: (_token: string) => void;
   onError?: (_error: string) => void;
@@ -25,6 +31,59 @@ interface TurnstileProps {
   id?: string;
   action?: string;
   cData?: string;
+  labels?: TurnstileLabels;
+}
+
+interface TurnstileStatusProps {
+  className: string | undefined;
+  label: string;
+}
+
+const DEFAULT_TURNSTILE_LABELS = {
+  unavailable: "Security verification is temporarily unavailable.",
+  devBypass: "Dev mode: Turnstile verification bypassed",
+  testMode: "Bot protection disabled in test mode",
+} satisfies TurnstileLabels;
+
+function TurnstileBypassStatus({ className, label }: TurnstileStatusProps) {
+  return (
+    <div
+      className={`turnstile-bypass ${className ?? ""}`}
+      data-testid="turnstile-bypass"
+      role="status"
+      aria-live="polite"
+    >
+      <div className="rounded-md border border-[var(--warning-border)] bg-[var(--warning-muted)] p-3 text-sm text-[var(--warning-foreground)]">
+        {label}
+      </div>
+    </div>
+  );
+}
+
+function TurnstileMockStatus({ className, label }: TurnstileStatusProps) {
+  return (
+    <div
+      className={`turnstile-mock ${className ?? ""}`}
+      data-testid="turnstile-mock"
+    >
+      <div className="text-sm text-muted-foreground">{label}</div>
+    </div>
+  );
+}
+
+function TurnstileUnavailableStatus({
+  className,
+  label,
+}: TurnstileStatusProps) {
+  return (
+    <div
+      className={`turnstile-fallback ${className ?? ""}`}
+      role="status"
+      aria-live="polite"
+    >
+      <div className="text-sm text-destructive">{label}</div>
+    </div>
+  );
 }
 
 /**
@@ -43,12 +102,16 @@ export function TurnstileWidget({
   action = getPublicRuntimeEnvString("NEXT_PUBLIC_TURNSTILE_ACTION") ||
     "contact_form",
   cData,
+  labels,
 }: TurnstileProps) {
   const siteKey = getPublicRuntimeEnvString("NEXT_PUBLIC_TURNSTILE_SITE_KEY");
   const isBypassMode =
     isPublicRuntimeDevelopment() &&
     getPublicRuntimeEnvBoolean("NEXT_PUBLIC_TURNSTILE_BYPASS") === true;
+  const isTestMode =
+    getPublicRuntimeEnvBoolean("NEXT_PUBLIC_TEST_MODE") === true;
   const bypassTriggeredRef = useRef(false);
+  const labelText = labels ?? DEFAULT_TURNSTILE_LABELS;
 
   // All hooks must be called before any conditional returns
   useEffect(() => {
@@ -62,7 +125,7 @@ export function TurnstileWidget({
   }, [isBypassMode, onSuccess]);
 
   useEffect(() => {
-    if (!siteKey && !isBypassMode) {
+    if (!siteKey && !isBypassMode && !isTestMode) {
       logger.warn(
         "Turnstile site key not configured. Bot protection is disabled.",
       );
@@ -71,48 +134,30 @@ export function TurnstileWidget({
         onError("Turnstile site key not configured");
       }
     }
-  }, [siteKey, isBypassMode, onError]);
+  }, [siteKey, isBypassMode, isTestMode, onError]);
 
   // Conditional returns after all hooks
   if (isBypassMode) {
     return (
-      <div
-        className={`turnstile-bypass ${className ?? ""}`}
-        data-testid="turnstile-bypass"
-        role="status"
-        aria-live="polite"
-      >
-        <div className="rounded-md border border-[var(--warning-border)] bg-[var(--warning-muted)] p-3 text-sm text-[var(--warning-foreground)]">
-          <strong>Dev Mode:</strong> Turnstile verification bypassed
-        </div>
-      </div>
+      <TurnstileBypassStatus
+        className={className}
+        label={labelText.devBypass}
+      />
+    );
+  }
+
+  if (isTestMode) {
+    return (
+      <TurnstileMockStatus className={className} label={labelText.testMode} />
     );
   }
 
   if (!siteKey) {
     return (
-      <div
-        className={`turnstile-fallback ${className ?? ""}`}
-        role="status"
-        aria-live="polite"
-      >
-        <div className="text-sm text-destructive">
-          Security verification is temporarily unavailable.
-        </div>
-      </div>
-    );
-  }
-
-  if (getPublicRuntimeEnvBoolean("NEXT_PUBLIC_TEST_MODE") === true) {
-    return (
-      <div
-        className={`turnstile-mock ${className ?? ""}`}
-        data-testid="turnstile-mock"
-      >
-        <div className="text-sm text-muted-foreground">
-          Bot protection disabled in test mode
-        </div>
-      </div>
+      <TurnstileUnavailableStatus
+        className={className}
+        label={labelText.unavailable}
+      />
     );
   }
 

@@ -68,5 +68,3 @@ export function ConfirmationEmail(data: EmailTemplateData) {
     </EmailLayout>
   );
 }
-
-export default ConfirmationEmail;

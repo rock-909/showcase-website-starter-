@@ -35,16 +35,6 @@ export function getFamiliesForMarket(
   );
 }
 
-/** Get a specific family by market + family slug combination */
-export function getFamilyBySlug(
-  marketSlug: string,
-  familySlug: string,
-): ProductFamilyDefinition | undefined {
-  return PRODUCT_CATALOG.families.find(
-    (family) => family.marketSlug === marketSlug && family.slug === familySlug,
-  );
-}
-
 /** Check if a market slug is valid */
 export function isValidMarketSlug(slug: string): boolean {
   return PRODUCT_CATALOG.markets.some((market) => market.slug === slug);

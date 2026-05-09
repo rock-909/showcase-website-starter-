@@ -6,14 +6,14 @@ import {
 } from "@/components/forms/contact-form-feedback";
 import {
   contactFormApiStoryTranslate,
+  contactFormNetworkErrorState,
   contactFormProcessingErrorState,
-  contactFormRawErrorState,
   contactFormStoryTranslate,
   contactFormValidationErrorState,
 } from "@/components/forms/contact-form-story-fixtures";
 import type { FormSubmissionStatus } from "@/lib/forms/form-submission-status";
-import type { ContactFormResult } from "@/lib/actions/contact";
 import type { ServerActionResult } from "@/lib/server-action-utils";
+import type { ContactFormResult } from "@/components/forms/use-contact-form";
 
 interface ContactFormFeedbackStoryProps {
   status: FormSubmissionStatus;
@@ -68,10 +68,10 @@ export const ValidationError: Story = {
   },
 };
 
-export const RawError: Story = {
+export const NetworkError: Story = {
   args: {
     status: "error",
-    state: contactFormRawErrorState,
+    state: contactFormNetworkErrorState,
   },
 };
 

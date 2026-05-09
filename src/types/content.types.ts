@@ -95,6 +95,9 @@ export interface ProductMetadata extends ContentMetadata {
 }
 
 // Product content
+/**
+ * @public Starter content contract for MDX product pages.
+ */
 export interface Product extends ParsedContent<ProductMetadata> {
   metadata: ProductMetadata;
 }
@@ -176,45 +179,6 @@ export interface ProductListOptions {
   featured?: boolean;
 }
 
-/**
- * Cache-friendly wrapper signatures for products.
- */
-export type GetAllProductsCachedFn = (
-  locale: Locale,
-  options?: ProductListOptions,
-) => Promise<ProductSummary[]>;
-
-export type GetProductBySlugCachedFn = (
-  locale: Locale,
-  slug: string,
-) => Promise<ProductDetail>;
-
-export type GetProductCategoriesCachedFn = (
-  locale: Locale,
-) => Promise<string[]>;
-
-export type GetProductStandardsCachedFn = (
-  locale: Locale,
-) => Promise<ProductStandardId[]>;
-
-/**
- * High-level cache-friendly wrapper signatures designed in P2-1.
- *
- * These functions are intentionally designed to:
- * - accept only explicit, serializable parameters
- * - avoid any request-scoped APIs (cookies, headers, etc.)
- * - be compatible with future explicit cache boundaries if they are reintroduced
- */
-export type GetProductListingCachedFn = (
-  locale: Locale,
-  category: string,
-) => Promise<ProductSummary[]>;
-
-export type GetProductDetailCachedFn = (
-  locale: Locale,
-  slug: string,
-) => Promise<ProductDetail>;
-
 // Content validation result
 export interface ContentValidationResult {
   isValid: boolean;
@@ -222,7 +186,56 @@ export interface ContentValidationResult {
   warnings: string[];
 }
 
+/**
+ * @public Starter extension contract for cached product listing loaders.
+ */
+export type GetAllProductsCachedFn = (
+  locale: Locale,
+  options?: ProductListOptions,
+) => Promise<ProductSummary[]>;
+
+/**
+ * @public Starter extension contract for cached product detail loaders.
+ */
+export type GetProductBySlugCachedFn = (
+  locale: Locale,
+  slug: string,
+) => Promise<ProductDetail>;
+
+/**
+ * @public Starter extension contract for cached product category loaders.
+ */
+export type GetProductCategoriesCachedFn = (
+  locale: Locale,
+) => Promise<string[]>;
+
+/**
+ * @public Starter extension contract for cached product standard loaders.
+ */
+export type GetProductStandardsCachedFn = (
+  locale: Locale,
+) => Promise<ProductStandardId[]>;
+
+/**
+ * @public Starter extension contract for explicit product listing cache boundaries.
+ */
+export type GetProductListingCachedFn = (
+  locale: Locale,
+  category: string,
+) => Promise<ProductSummary[]>;
+
+/**
+ * @public Starter extension contract for explicit product detail cache boundaries.
+ */
+export type GetProductDetailCachedFn = (
+  locale: Locale,
+  slug: string,
+) => Promise<ProductDetail>;
+
 // Content search result
+/**
+ * @public Starter extension contract for optional content search.
+ */
 export interface ContentSearchResult<
   T extends ContentMetadata = ContentMetadata,
 > {
@@ -246,6 +259,9 @@ export interface ContentConfig {
 }
 
 // Content statistics
+/**
+ * @public Starter extension contract for optional content dashboards.
+ */
 export interface ContentStats {
   totalPosts: number;
   totalPages: number;
@@ -257,6 +273,9 @@ export interface ContentStats {
 }
 
 // Content cache entry
+/**
+ * @public Starter extension contract for optional content cache layers.
+ */
 export interface ContentCacheEntry<
   T extends ContentMetadata = ContentMetadata,
 > {
@@ -266,6 +285,9 @@ export interface ContentCacheEntry<
 }
 
 // Content index for search
+/**
+ * @public Starter extension contract for optional content search indexing.
+ */
 export interface ContentIndex {
   id: string;
   title: string;
@@ -300,6 +322,9 @@ export class ContentValidationError extends ContentError {
   }
 }
 
+/**
+ * @public Starter content error for downstream content-query implementations.
+ */
 export class ContentNotFoundError extends ContentError {
   constructor(slug: string, locale?: Locale) {
     super(

@@ -109,5 +109,3 @@ export function ProductInquiryEmail(data: ProductInquiryEmailData) {
     </EmailLayout>
   );
 }
-
-export default ProductInquiryEmail;

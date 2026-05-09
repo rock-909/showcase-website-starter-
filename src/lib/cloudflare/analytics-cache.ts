@@ -29,7 +29,3 @@ export async function getCachedCloudflareTrafficSummary(input: {
   });
   return value;
 }
-
-export function clearCloudflareAnalyticsCache(): void {
-  cache.clear();
-}

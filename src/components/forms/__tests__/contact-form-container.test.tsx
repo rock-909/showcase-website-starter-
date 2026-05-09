@@ -62,6 +62,7 @@ const mockT = vi.fn((key: string) => {
     // Status messages
     submitSuccess: "Form submitted successfully!",
     submitError: "Failed to submit form. Please try again.",
+    networkError: "We could not submit the form. Please try again.",
     rateLimitMessage: "Please wait before submitting again.",
     CONTACT_SUBMISSION_EXPIRED:
       "This form expired. Please refresh the page and try again.",
@@ -400,7 +401,7 @@ describe("ContactFormContainer - ErrorDisplay", () => {
     expect(screen.getByText("errors.messageTooShort")).toBeInTheDocument();
   });
 
-  it("should display raw error message for non-validation errors", () => {
+  it("should not display raw error message for non-validation errors", () => {
     mockContactForm({
       state: {
         success: false,
@@ -413,7 +414,25 @@ describe("ContactFormContainer - ErrorDisplay", () => {
 
     render(<ContactFormContainer />);
 
-    expect(screen.getByText("Server connection failed")).toBeInTheDocument();
+    expect(screen.queryByText("Server connection failed")).toBeNull();
+    expect(screen.queryByTestId("contact-form-error-display")).toBeNull();
+  });
+
+  it("should translate network error codes", () => {
+    mockContactForm({
+      state: {
+        success: false,
+        errorCode: "FORM_NETWORK_ERROR",
+        timestamp: "2026-05-05T00:00:00.000Z",
+      },
+      submitStatus: "error",
+    });
+
+    render(<ContactFormContainer />);
+
+    expect(
+      screen.getByText("We could not submit the form. Please try again."),
+    ).toBeInTheDocument();
   });
 
   it("should not render raw english details for translated error-code paths", () => {
