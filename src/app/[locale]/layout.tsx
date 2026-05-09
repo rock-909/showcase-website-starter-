@@ -79,6 +79,7 @@ async function AsyncLocaleLayoutContent({
   const contactSalesLabel = tNavigation("contactSales");
   const openMenuLabel = tAccessibility("openMenu");
   const closeMenuLabel = tAccessibility("closeMenu");
+  const skipToContentLabel = tAccessibility("skipToContent");
   const mobileLanguageLabel = tLanguage("selectLanguage");
   const mainNavItems = mainNavigation.map((item) => ({
     key: item.key,
@@ -88,6 +89,9 @@ async function AsyncLocaleLayoutContent({
 
   return (
     <>
+      <a href="#main-content" className="skip-link">
+        {skipToContentLabel}
+      </a>
       <NextIntlClientProvider locale={locale} messages={clientMessages}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {/* P1-1 Fix: Single attribution initialization for UTM tracking */}
@@ -152,8 +156,6 @@ export default async function LocaleLayout({
     getRuntimeEnvBoolean("NEXT_PUBLIC_DISABLE_REACT_SCAN") === true;
   const shouldLoadDevScripts =
     getRuntimeEnvString("NODE_ENV") === "development";
-  const skipToContentLabel =
-    typedLocale === "zh" ? "跳转到主要内容" : "Skip to main content";
 
   return (
     <html
@@ -162,9 +164,6 @@ export default async function LocaleLayout({
       suppressHydrationWarning
     >
       <body className="flex min-h-screen flex-col antialiased">
-        <a href="#main-content" className="skip-link">
-          {skipToContentLabel}
-        </a>
         {/* Dev-only scripts: never loaded in production (NODE_ENV gate).
             SRI omitted intentionally — versioned CDN URLs would break on update if integrity drifts.
             Security note: these scripts have zero production attack surface. */}

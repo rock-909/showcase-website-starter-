@@ -32,6 +32,12 @@ interface LazyTurnstileProps {
   id?: string;
   action?: string;
   cData?: string;
+  labels?: {
+    unavailable: string;
+    loadFailed: string;
+    devBypass: string;
+    testMode: string;
+  };
 }
 
 const TurnstileWidget = lazy(() =>
@@ -124,10 +130,17 @@ export function LazyTurnstile({
   id,
   action,
   cData,
+  labels,
 }: LazyTurnstileProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const shouldRender = useLazyRender(containerRef);
   const placeholderStyle = createTurnstilePlaceholderStyle(size);
+  const labelText = labels ?? {
+    unavailable: "Security verification is temporarily unavailable.",
+    loadFailed: "Security verification failed to load.",
+    devBypass: "Dev mode: Turnstile verification bypassed",
+    testMode: "Bot protection disabled in test mode",
+  };
   const placeholder = (
     <div className={TURNSTILE_PLACEHOLDER_CLASS_NAME} aria-hidden="true" />
   );
@@ -137,18 +150,21 @@ export function LazyTurnstile({
       role="status"
       aria-live="polite"
     >
-      <div className="text-sm text-destructive">
-        Security verification is temporarily unavailable.
-      </div>
+      <div className="text-sm text-destructive">{labelText.unavailable}</div>
     </div>
   );
   const handleLazyError = () => {
-    onError?.("Turnstile widget failed to load");
+    onError?.(labelText.loadFailed);
   };
   const turnstileProps = {
     className: className ?? "w-full",
     theme,
     size,
+    labels: {
+      unavailable: labelText.unavailable,
+      devBypass: labelText.devBypass,
+      testMode: labelText.testMode,
+    },
     ...(onSuccess ? { onSuccess } : {}),
     ...(onError ? { onError } : {}),
     ...(onExpire ? { onExpire } : {}),

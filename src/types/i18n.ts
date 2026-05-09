@@ -157,6 +157,10 @@ export interface Messages {
     error: string;
     languageSelector: string;
     themeSelector: string;
+    securityVerificationUnavailable: string;
+    turnstileDevBypass: string;
+    turnstileTestMode: string;
+    turnstileLoadFailed: string;
   };
 }
 

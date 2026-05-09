@@ -19,6 +19,7 @@ const {
       size,
       theme,
       className,
+      labels,
       onSuccess,
       onError,
       onExpire,
@@ -28,6 +29,11 @@ const {
       size?: string;
       theme?: string;
       className?: string;
+      labels?: {
+        unavailable: string;
+        devBypass: string;
+        testMode: string;
+      };
       onSuccess?: (token: string) => void;
       onError?: (reason?: string) => void;
       onExpire?: () => void;
@@ -44,6 +50,9 @@ const {
           data-size={size}
           data-theme={theme}
           data-classname={className}
+          data-label-unavailable={labels?.unavailable}
+          data-label-dev-bypass={labels?.devBypass}
+          data-label-test-mode={labels?.testMode}
         >
           <button
             type="button"
@@ -257,9 +266,15 @@ describe("LazyTurnstile", () => {
     const consoleError = vi
       .spyOn(console, "error")
       .mockImplementation(() => undefined);
+    const labels = {
+      unavailable: "安全验证暂时不可用。",
+      loadFailed: "安全验证加载失败。",
+      devBypass: "开发模式：Turnstile 验证已跳过",
+      testMode: "测试模式下已关闭机器人防护",
+    };
 
     try {
-      render(<LazyTurnstile onError={onError} />);
+      render(<LazyTurnstile onError={onError} labels={labels} />);
 
       await act(async () => {
         idleCallbacks[0]?.();
@@ -267,12 +282,34 @@ describe("LazyTurnstile", () => {
       });
 
       expect(screen.queryByTestId("turnstile-widget")).not.toBeInTheDocument();
-      expect(screen.getByRole("status")).toHaveTextContent(
-        "Security verification is temporarily unavailable.",
-      );
-      expect(onError).toHaveBeenCalledWith("Turnstile widget failed to load");
+      expect(screen.getByRole("status")).toHaveTextContent(labels.unavailable);
+      expect(onError).toHaveBeenCalledWith(labels.loadFailed);
     } finally {
       consoleError.mockRestore();
     }
+  });
+
+  it("passes localized availability labels to the shared widget", async () => {
+    const labels = {
+      unavailable: "安全验证暂时不可用。",
+      loadFailed: "安全验证加载失败。",
+      devBypass: "开发模式：Turnstile 验证已跳过",
+      testMode: "测试模式下已关闭机器人防护",
+    };
+
+    render(<LazyTurnstile onSuccess={vi.fn()} labels={labels} />);
+
+    await act(async () => {
+      idleCallbacks[0]?.();
+      await vi.dynamicImportSettled();
+    });
+
+    const widget = screen.getByTestId("turnstile-widget");
+    expect(widget).toHaveAttribute(
+      "data-label-unavailable",
+      labels.unavailable,
+    );
+    expect(widget).toHaveAttribute("data-label-dev-bypass", labels.devBypass);
+    expect(widget).toHaveAttribute("data-label-test-mode", labels.testMode);
   });
 });

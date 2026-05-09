@@ -120,6 +120,12 @@ export const accessibilityMessages = {
   error: "An error has occurred",
   languageSelector: "Select language",
   themeSelector: "Select theme",
+  securityVerificationUnavailable:
+    "Security verification is temporarily unavailable.",
+  turnstileDevBypass: "Dev mode: Turnstile verification bypassed",
+  turnstileTestMode: "Bot protection disabled in test mode",
+  turnstileLoadFailed:
+    "Security verification could not load. Please try again.",
 } as const;
 
 /**

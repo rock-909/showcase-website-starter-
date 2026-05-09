@@ -6,8 +6,8 @@ import {
 } from "@/components/forms/contact-form-feedback";
 import {
   contactFormApiStoryTranslate,
+  contactFormNetworkErrorState,
   contactFormProcessingErrorState,
-  contactFormRawErrorState,
   contactFormStoryTranslate,
   contactFormValidationErrorState,
 } from "@/components/forms/contact-form-story-fixtures";
@@ -68,10 +68,10 @@ export const ValidationError: Story = {
   },
 };
 
-export const RawError: Story = {
+export const NetworkError: Story = {
   args: {
     status: "error",
-    state: contactFormRawErrorState,
+    state: contactFormNetworkErrorState,
   },
 };
 

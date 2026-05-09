@@ -21,6 +21,12 @@ export interface ContactFormContainerViewProps {
   isRateLimited: boolean;
   translateForm: (key: string) => string;
   translateApi: (key: string) => string;
+  turnstileLabels: {
+    unavailable: string;
+    loadFailed: string;
+    devBypass: string;
+    testMode: string;
+  };
   onTurnstileSuccess: (token: string) => void;
   onTurnstileError: () => void;
   onTurnstileExpire: () => void;
@@ -68,6 +74,7 @@ export function ContactFormContainerView({
   isRateLimited,
   translateForm,
   translateApi,
+  turnstileLabels,
   onTurnstileSuccess,
   onTurnstileError,
   onTurnstileExpire,
@@ -93,6 +100,7 @@ export function ContactFormContainerView({
         <FormFields t={translateForm} isPending={isPending} />
 
         <LazyTurnstile
+          labels={turnstileLabels}
           onSuccess={onTurnstileSuccess}
           onError={onTurnstileError}
           onExpire={onTurnstileExpire}
