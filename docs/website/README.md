@@ -11,7 +11,8 @@
 3. `内容设置.md`
 4. `部署设置.md`
 5. `quality-proof.md`
-6. `AI工作流.md`
+6. `starter-positioning-decision.md`
+7. `AI工作流.md`
 
 ## 命名规则
 
