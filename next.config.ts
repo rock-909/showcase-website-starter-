@@ -19,7 +19,9 @@ const withMDX = createMDX({
   },
 });
 
-const isCloudflare = process.env.DEPLOY_TARGET === "cloudflare";
+const isCloudflare =
+  process.env.DEPLOYMENT_PLATFORM === "cloudflare" ||
+  process.env.DEPLOY_TARGET === "cloudflare";
 const nextConfig: NextConfig = {
   // Keep the same build ID across containers serving the same commit, but do
   // not reuse one fixed ID across releases. This avoids stale _next asset
