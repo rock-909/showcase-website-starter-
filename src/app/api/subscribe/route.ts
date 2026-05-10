@@ -34,6 +34,8 @@ const TURNSTILE_SERVICE_FAILURE_CODES = new Set([
   "network-error",
   "timeout",
 ]);
+const SUBSCRIBE_EMAIL_REQUIRED_DETAILS = ["errors.email.required"];
+const SUBSCRIBE_EMAIL_INVALID_DETAILS = ["errors.email.invalid"];
 
 function getSuccessfulReferenceId(
   result: LeadResult,
@@ -122,6 +124,7 @@ function handlePost(
       return createApiErrorResponse(
         API_ERROR_CODES.SUBSCRIBE_VALIDATION_EMAIL_REQUIRED,
         HTTP_BAD_REQUEST,
+        { details: SUBSCRIBE_EMAIL_REQUIRED_DETAILS },
       );
     }
 
@@ -133,6 +136,7 @@ function handlePost(
       return createApiErrorResponse(
         API_ERROR_CODES.SUBSCRIBE_VALIDATION_EMAIL_INVALID,
         HTTP_BAD_REQUEST,
+        { details: SUBSCRIBE_EMAIL_INVALID_DETAILS },
       );
     }
 

@@ -164,6 +164,7 @@ describe("lead API family response contract (auxiliary)", () => {
     expect(body).toEqual({
       success: false,
       errorCode: API_ERROR_CODES.SUBSCRIBE_VALIDATION_EMAIL_REQUIRED,
+      details: ["errors.email.required"],
     });
   });
 

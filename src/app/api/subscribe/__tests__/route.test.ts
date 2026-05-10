@@ -108,6 +108,7 @@ describe("/api/subscribe route", () => {
     await expect(response.json()).resolves.toEqual({
       success: false,
       errorCode: API_ERROR_CODES.SUBSCRIBE_VALIDATION_EMAIL_REQUIRED,
+      details: ["errors.email.required"],
     });
     expect(verifyTurnstileDetailed).not.toHaveBeenCalled();
     expect(processLead).not.toHaveBeenCalled();
@@ -124,6 +125,7 @@ describe("/api/subscribe route", () => {
     await expect(response.json()).resolves.toEqual({
       success: false,
       errorCode: API_ERROR_CODES.SUBSCRIBE_VALIDATION_EMAIL_INVALID,
+      details: ["errors.email.invalid"],
     });
     expect(verifyTurnstileDetailed).not.toHaveBeenCalled();
     expect(processLead).not.toHaveBeenCalled();
