@@ -23,6 +23,12 @@ export const MAX_LEAD_COMPANY_LENGTH = 200 as const;
 /** Max full name length for lead forms. */
 export const MAX_LEAD_NAME_LENGTH = 100 as const;
 
+/** Min subject length for contact leads. */
+export const MIN_LEAD_SUBJECT_LENGTH = 5 as const;
+
+/** Max subject length for contact leads. */
+export const MAX_LEAD_SUBJECT_LENGTH = 100 as const;
+
 /** Min message length for contact leads. */
 export const MIN_LEAD_MESSAGE_LENGTH = 10 as const;
 

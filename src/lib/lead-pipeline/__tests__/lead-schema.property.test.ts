@@ -2,7 +2,6 @@ import fc from "fast-check";
 import { describe, expect, it, vi } from "vitest";
 
 import {
-  CONTACT_SUBJECTS,
   contactLeadSchema,
   isContactLead,
   isNewsletterLead,
@@ -16,12 +15,15 @@ const SAFE_SUBMITTED_AT_MIN = new Date("2000-01-01T00:00:00.000Z");
 const SAFE_SUBMITTED_AT_MAX = new Date("2100-12-31T23:59:59.999Z");
 const SAFE_SUBMITTED_AT_MIN_MS = SAFE_SUBMITTED_AT_MIN.getTime();
 const SAFE_SUBMITTED_AT_MAX_MS = SAFE_SUBMITTED_AT_MAX.getTime();
+const contactSubjectArb = fc.stringMatching(
+  /^[A-Za-z0-9][A-Za-z0-9 .,'-]{4,79}$/,
+);
 const contactLeadArb = fc
   .record({
     type: fc.constant(LEAD_TYPES.CONTACT),
     fullName: fc.string({ minLength: 1, maxLength: 24 }),
     email: fc.emailAddress(),
-    subject: fc.constantFrom(...Object.values(CONTACT_SUBJECTS)),
+    subject: contactSubjectArb,
     message: fc.string({ minLength: 20, maxLength: 120 }),
     turnstileToken: fc.string({ minLength: 1, maxLength: 48 }),
     marketingConsent: fc.boolean(),
@@ -123,7 +125,7 @@ describe("lead-schema property tests", () => {
           type: LEAD_TYPES.CONTACT,
           fullName: "Jane Doe",
           email: invalidEmail,
-          subject: CONTACT_SUBJECTS.OTHER,
+          subject: "General question",
           message: "This message is definitely long enough.",
           turnstileToken: "token",
         });

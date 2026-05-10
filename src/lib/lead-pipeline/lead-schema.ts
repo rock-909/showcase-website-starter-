@@ -13,6 +13,8 @@ import {
   MAX_LEAD_PRODUCT_NAME_LENGTH,
   MAX_LEAD_REQUIREMENTS_LENGTH,
   MIN_LEAD_MESSAGE_LENGTH,
+  MAX_LEAD_SUBJECT_LENGTH,
+  MIN_LEAD_SUBJECT_LENGTH,
   ONE,
 } from "@/constants";
 
@@ -87,12 +89,10 @@ const productQuantitySchema: z.ZodType<string | number> = z
 export const contactLeadSchema = z.object({
   type: z.literal(LEAD_TYPES.CONTACT),
   fullName: sanitizedString().min(ONE).max(MAX_LEAD_NAME_LENGTH),
-  subject: z.enum([
-    CONTACT_SUBJECTS.PRODUCT_INQUIRY,
-    CONTACT_SUBJECTS.DISTRIBUTOR,
-    CONTACT_SUBJECTS.CUSTOM_PROJECT,
-    CONTACT_SUBJECTS.OTHER,
-  ]),
+  subject: sanitizedString()
+    .min(MIN_LEAD_SUBJECT_LENGTH)
+    .max(MAX_LEAD_SUBJECT_LENGTH)
+    .optional(),
   message: sanitizedString()
     .min(MIN_LEAD_MESSAGE_LENGTH)
     .max(MAX_LEAD_MESSAGE_LENGTH),

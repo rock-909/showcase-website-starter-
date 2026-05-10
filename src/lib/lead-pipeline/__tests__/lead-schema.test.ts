@@ -5,7 +5,6 @@
 
 import { describe, expect, it, vi } from "vitest";
 import {
-  CONTACT_SUBJECTS,
   contactLeadSchema,
   isContactLead,
   isNewsletterLead,
@@ -28,7 +27,7 @@ describe("Lead Schema", () => {
       type: LEAD_TYPES.CONTACT,
       fullName: "John Doe",
       email: "john@example.com",
-      subject: CONTACT_SUBJECTS.PRODUCT_INQUIRY,
+      subject: "Product inquiry",
       message: "This is a test message with enough characters.",
       turnstileToken: "valid-token",
       company: "Test Company",
@@ -45,7 +44,7 @@ describe("Lead Schema", () => {
         type: LEAD_TYPES.CONTACT,
         fullName: "John Doe",
         email: "john@example.com",
-        subject: CONTACT_SUBJECTS.OTHER,
+        subject: "General question",
         message: "Test message with enough characters.",
         turnstileToken: "token",
       };
@@ -68,8 +67,8 @@ describe("Lead Schema", () => {
       expect(result.success).toBe(false);
     });
 
-    it("should reject contact lead with invalid subject", () => {
-      const invalidLead = { ...validContactLead, subject: "invalid_subject" };
+    it("should reject contact lead with too-short subject", () => {
+      const invalidLead = { ...validContactLead, subject: "Hey" };
       const result = contactLeadSchema.safeParse(invalidLead);
       expect(result.success).toBe(false);
     });
@@ -83,12 +82,19 @@ describe("Lead Schema", () => {
       }
     });
 
-    it("should accept all valid subject types", () => {
-      const subjects = Object.values(CONTACT_SUBJECTS);
-      for (const subject of subjects) {
-        const lead = { ...validContactLead, subject };
-        const result = contactLeadSchema.safeParse(lead);
-        expect(result.success).toBe(true);
+    it("should accept buyer-entered subject text", () => {
+      const lead = {
+        ...validContactLead,
+        subject: "Need custom distributor website quote",
+      };
+
+      const result = contactLeadSchema.safeParse(lead);
+
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.subject).toBe(
+          "Need custom distributor website quote",
+        );
       }
     });
   });
@@ -316,7 +322,7 @@ describe("Lead Schema", () => {
         type: LEAD_TYPES.CONTACT,
         fullName: "Test User",
         email: "test@example.com",
-        subject: CONTACT_SUBJECTS.OTHER,
+        subject: "General question",
         message: "Test message with enough length.",
         turnstileToken: "token",
       };
@@ -375,7 +381,7 @@ describe("Lead Schema", () => {
         type: LEAD_TYPES.CONTACT,
         fullName: "Test",
         email: "test@example.com",
-        subject: CONTACT_SUBJECTS.OTHER,
+        subject: "General question",
         message: "Test message.",
         turnstileToken: "token",
         marketingConsent: false,
