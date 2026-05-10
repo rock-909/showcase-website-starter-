@@ -254,8 +254,61 @@ describe("/api/inquiry route", () => {
       const data = await response.json();
 
       expect(response.status).toBe(400);
-      expect(data.success).toBe(false);
-      expect(data.errorCode).toBe(API_ERROR_CODES.INQUIRY_VALIDATION_FAILED);
+      expect(data).toEqual({
+        success: false,
+        errorCode: API_ERROR_CODES.INQUIRY_VALIDATION_FAILED,
+        details: ["errors.email.invalid"],
+      });
+      expect(verifyTurnstileDetailed).not.toHaveBeenCalled();
+      expect(processLead).not.toHaveBeenCalled();
+    });
+
+    it("should report missing required identity fields before turnstile and lead processing", async () => {
+      function omitInquiryField(field: "fullName" | "email") {
+        const body: Record<string, unknown> = { ...validInquiryData };
+        delete body[field];
+        return body;
+      }
+
+      const missingFieldCases = [
+        {
+          field: "fullName" as const,
+          expectedDetails: ["errors.fullName.required"],
+        },
+        {
+          field: "email" as const,
+          expectedDetails: ["errors.email.required"],
+        },
+      ];
+
+      const results = [];
+
+      for (const { field, expectedDetails } of missingFieldCases) {
+        const request = createInquiryRequest(
+          JSON.stringify(omitInquiryField(field)),
+        );
+
+        const response = await POST(request);
+        const data = await response.json();
+
+        results.push({
+          status: response.status,
+          data,
+          expectedDetails,
+        });
+      }
+
+      expect(results).toEqual(
+        missingFieldCases.map(({ expectedDetails }) => ({
+          status: 400,
+          data: {
+            success: false,
+            errorCode: API_ERROR_CODES.INQUIRY_VALIDATION_FAILED,
+            details: expectedDetails,
+          },
+          expectedDetails,
+        })),
+      );
       expect(verifyTurnstileDetailed).not.toHaveBeenCalled();
       expect(processLead).not.toHaveBeenCalled();
     });
@@ -273,8 +326,32 @@ describe("/api/inquiry route", () => {
       const data = await response.json();
 
       expect(response.status).toBe(400);
-      expect(data.success).toBe(false);
-      expect(data.errorCode).toBe(API_ERROR_CODES.INQUIRY_VALIDATION_FAILED);
+      expect(data).toEqual({
+        success: false,
+        errorCode: API_ERROR_CODES.INQUIRY_VALIDATION_FAILED,
+        details: ["errors.productSlug.required", "errors.productName.required"],
+      });
+      expect(processLead).not.toHaveBeenCalled();
+    });
+
+    it("should reject missing quantity before turnstile and lead processing", async () => {
+      const dataWithoutQuantity: Record<string, unknown> = {
+        ...validInquiryData,
+      };
+      delete dataWithoutQuantity.quantity;
+
+      const request = createInquiryRequest(JSON.stringify(dataWithoutQuantity));
+
+      const response = await POST(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(data).toEqual({
+        success: false,
+        errorCode: API_ERROR_CODES.INQUIRY_VALIDATION_FAILED,
+        details: ["errors.quantity.required"],
+      });
+      expect(verifyTurnstileDetailed).not.toHaveBeenCalled();
       expect(processLead).not.toHaveBeenCalled();
     });
 
@@ -287,8 +364,11 @@ describe("/api/inquiry route", () => {
       const data = await response.json();
 
       expect(response.status).toBe(400);
-      expect(data.success).toBe(false);
-      expect(data.errorCode).toBe(API_ERROR_CODES.INQUIRY_VALIDATION_FAILED);
+      expect(data).toEqual({
+        success: false,
+        errorCode: API_ERROR_CODES.INQUIRY_VALIDATION_FAILED,
+        details: ["errors.quantity.invalid"],
+      });
       expect(processLead).not.toHaveBeenCalled();
     });
 

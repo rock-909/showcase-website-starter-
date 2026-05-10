@@ -115,6 +115,38 @@ describe("useContactForm", () => {
     expect(result.current.state?.data).not.toHaveProperty("recordCreated");
   });
 
+  it("preserves validation details returned by the contact API", async () => {
+    global.fetch = vi.fn(async () =>
+      Response.json(
+        {
+          success: false,
+          errorCode: "CONTACT_VALIDATION_FAILED",
+          details: ["errors.email.invalid"],
+        },
+        { status: 400 },
+      ),
+    );
+
+    const { result } = renderHook(() => useContactForm());
+
+    act(() => {
+      result.current.setTurnstileToken("valid-token");
+    });
+
+    await act(async () => {
+      await result.current.formAction(createValidFormData());
+    });
+
+    await waitFor(() => {
+      expect(result.current.state).toMatchObject({
+        success: false,
+        errorCode: "CONTACT_VALIDATION_FAILED",
+        details: ["errors.email.invalid"],
+      });
+    });
+    expect(result.current.submitStatus).toBe("error");
+  });
+
   it("uses a stable error code when the contact request cannot reach the API", async () => {
     vi.mocked(fetch).mockRejectedValueOnce(new Error("network unavailable"));
 

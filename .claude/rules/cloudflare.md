@@ -52,14 +52,21 @@ Never run `pnpm build` and `pnpm website:build:cf` in parallel. They both write 
 
 ## Runtime entry
 
-Keep `src/middleware.ts` until a dedicated Cloudflare proof branch shows the
-renamed Next.js `proxy.ts` convention works with this OpenNext setup:
+Keep `src/middleware.ts` as the runtime entrypoint.
+
+Do not rename `src/middleware.ts` to `src/proxy.ts` in this starter. Cloudflare/OpenNext support is not acceptable for a blind migration.
+Next.js warns that `middleware` is deprecated, but this repo treats that as a known
+platform-transition warning, not as a reason to risk the locale-routing entrypoint.
+
+The matcher must remain static string literals.
+
+If a future branch revisits the migration, it must be a dedicated proof lane
+with at least:
 
 ```bash
 pnpm build
 pnpm website:build:cf
 node scripts/starter-checks.js cf-preview-smoke
-
 ```
 
 If a deployed preview URL exists, also run:
@@ -67,8 +74,6 @@ If a deployed preview URL exists, also run:
 ```bash
 node scripts/starter-checks.js deployed-smoke --base-url "$DEPLOYED_BASE_URL"
 ```
-
-The matcher must remain static string literals.
 
 ## Public submission identity
 

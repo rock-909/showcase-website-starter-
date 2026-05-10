@@ -16,6 +16,11 @@ import { HTTP_OK } from "@/constants";
 export interface ApiErrorResponse {
   success: false;
   errorCode: ApiErrorCode;
+  details?: string[];
+}
+
+export interface ApiErrorResponseOptions {
+  details?: string[];
 }
 
 /**
@@ -47,11 +52,25 @@ export type ApiResponse<T> = ApiSuccessResponse<T> | ApiErrorResponse;
  * return createApiErrorResponse(API_ERROR_CODES.INVALID_JSON_BODY, HTTP_BAD_REQUEST);
  * ```
  */
+function createApiErrorBody(
+  errorCode: ApiErrorCode,
+  options?: ApiErrorResponseOptions,
+): ApiErrorResponse {
+  const body: ApiErrorResponse = { success: false, errorCode };
+
+  if (options?.details && options.details.length > 0) {
+    body.details = options.details;
+  }
+
+  return body;
+}
+
 export function createApiErrorResponse(
   errorCode: ApiErrorCode,
   status: number,
+  options?: ApiErrorResponseOptions,
 ): NextResponse<ApiErrorResponse> {
-  return NextResponse.json({ success: false, errorCode }, { status });
+  return NextResponse.json(createApiErrorBody(errorCode, options), { status });
 }
 
 /**

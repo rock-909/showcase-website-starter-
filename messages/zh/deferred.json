@@ -130,6 +130,24 @@
           "tooLong": "公司名称需少于100个字符",
           "invalid": "公司名称包含无效字符"
         },
+        "productSlug": {
+          "required": "请选择产品后再提交询盘",
+          "invalid": "所选产品无法识别"
+        },
+        "productName": {
+          "required": "产品名称为必填项",
+          "tooShort": "产品名称至少需要2个字符",
+          "tooLong": "产品名称需少于100个字符",
+          "invalid": "产品名称包含无效字符"
+        },
+        "quantity": {
+          "required": "需求数量为必填项",
+          "invalid": "需求数量格式无效"
+        },
+        "requirements": {
+          "tooLong": "特殊要求需少于1000个字符",
+          "invalid": "特殊要求包含无效字符"
+        },
         "message": {
           "required": "消息内容为必填项",
           "tooShort": "消息内容至少需要10个字符",

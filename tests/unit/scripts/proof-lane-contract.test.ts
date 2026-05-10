@@ -149,6 +149,26 @@ describe("Semgrep proof lane contract", () => {
 });
 
 describe("proof lane contract", () => {
+  it("documents the no-proxy migration policy for Cloudflare/OpenNext", () => {
+    const cloudflareRules = readRepoFile(".claude/rules/cloudflare.md");
+    const routeModeContract = readRepoFile(
+      "docs/quality/route-mode-contract.md",
+    );
+    const qualityProof = readRepoFile("docs/website/quality-proof.md");
+
+    for (const content of [cloudflareRules, routeModeContract, qualityProof]) {
+      expect(content).toContain(
+        "Do not rename `src/middleware.ts` to `src/proxy.ts`",
+      );
+      expect(content).toContain(
+        "Cloudflare/OpenNext support is not acceptable for a blind migration",
+      );
+    }
+
+    expect(qualityProof).toContain("Next.js deprecation warning");
+    expect(qualityProof).toContain("known platform-transition warning");
+  });
+
   it("makes release verify wording impossible to confuse with public launch proof", () => {
     const releaseProofScript = readRepoFile("scripts/starter-checks.js");
     const qualityProof = readRepoFile("docs/website/quality-proof.md");

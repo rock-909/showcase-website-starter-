@@ -14,6 +14,29 @@ const REQUIRED_RUNTIME_KEYS = [
   "contact.form.networkError",
 ] as const;
 
+const INQUIRY_API_VALIDATION_DETAIL_KEYS = [
+  "errors.fullName.required",
+  "errors.fullName.invalid",
+  "errors.fullName.tooLong",
+  "errors.fullName.tooShort",
+  "errors.email.required",
+  "errors.email.invalid",
+  "errors.email.tooLong",
+  "errors.company.tooShort",
+  "errors.company.tooLong",
+  "errors.company.invalid",
+  "errors.productSlug.required",
+  "errors.productSlug.invalid",
+  "errors.productName.required",
+  "errors.productName.invalid",
+  "errors.productName.tooLong",
+  "errors.productName.tooShort",
+  "errors.quantity.required",
+  "errors.quantity.invalid",
+  "errors.requirements.invalid",
+  "errors.requirements.tooLong",
+] as const;
+
 function isJsonObject(value: unknown): value is JsonObject {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -47,6 +70,22 @@ describe("real i18n runtime message contract", () => {
     "keeps degraded-state form keys in the real %s split message bundle",
     (_locale, messages) => {
       for (const keyPath of REQUIRED_RUNTIME_KEYS) {
+        const value = getMessageValue(messages, keyPath);
+
+        expect(typeof value, keyPath).toBe("string");
+        expect(String(value).trim(), keyPath).not.toBe("");
+      }
+    },
+  );
+
+  it.each([
+    ["en", mergeMessages(enCriticalMessages, enDeferredMessages)],
+    ["zh", mergeMessages(zhCriticalMessages, zhDeferredMessages)],
+  ] as const)(
+    "keeps inquiry API validation detail keys in the real %s contact form bundle",
+    (_locale, messages) => {
+      for (const detailKey of INQUIRY_API_VALIDATION_DETAIL_KEYS) {
+        const keyPath = `contact.form.${detailKey}`;
         const value = getMessageValue(messages, keyPath);
 
         expect(typeof value, keyPath).toBe("string");

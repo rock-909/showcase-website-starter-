@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { CONTACT_SUBJECTS, LEAD_TYPES } from "../lead-schema";
+import { LEAD_TYPES } from "../lead-schema";
 import { processLead } from "../process-lead";
 
 vi.unmock("zod");
@@ -54,7 +54,7 @@ describe("processLead", () => {
     type: LEAD_TYPES.CONTACT,
     fullName: "John Doe",
     email: "john@example.com",
-    subject: CONTACT_SUBJECTS.PRODUCT_INQUIRY,
+    subject: "Product inquiry",
     message: "This is a test message with enough characters.",
     turnstileToken: "valid-token",
     company: "Test Company",
@@ -116,6 +116,30 @@ describe("processLead", () => {
     expect(result).not.toHaveProperty("partialSuccess");
     expect(result.referenceId?.startsWith("CON-")).toBe(true);
     expect(result.error).toBeUndefined();
+  });
+
+  it("passes buyer-entered contact subject to Airtable and owner email", async () => {
+    mockCreateLead.mockResolvedValue({ id: "record-subject" });
+    mockSendContactFormEmail.mockResolvedValue("email-subject");
+    const buyerSubject = "Need custom distributor website quote";
+
+    const result = await processLead({
+      ...validContactLead,
+      subject: buyerSubject,
+    });
+
+    expect(result.success).toBe(true);
+    expect(mockCreateLead).toHaveBeenCalledWith(
+      LEAD_TYPES.CONTACT,
+      expect.objectContaining({
+        subject: buyerSubject,
+      }),
+    );
+    expect(mockSendContactFormEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        subject: buyerSubject,
+      }),
+    );
   });
 
   it("fails contact lead and does not send email when Airtable fails", async () => {

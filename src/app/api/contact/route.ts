@@ -22,6 +22,12 @@ import { logger, sanitizeIP } from "@/lib/logger";
 import { API_ERROR_CODES } from "@/constants/api-error-codes";
 import { HTTP_BAD_REQUEST, HTTP_INTERNAL_ERROR } from "@/constants";
 
+function createValidationDetailOptions(
+  details: string[] | null,
+): { details: string[] } | undefined {
+  return details && details.length > 0 ? { details } : undefined;
+}
+
 async function handleContactPost(
   request: NextRequest,
   { clientIP }: RateLimitContext,
@@ -39,6 +45,7 @@ async function handleContactPost(
     return createApiErrorResponse(
       payloadValidation.errorCode,
       payloadValidation.statusCode ?? HTTP_BAD_REQUEST,
+      createValidationDetailOptions(payloadValidation.details),
     );
   }
 
@@ -51,6 +58,7 @@ async function handleContactPost(
       return createApiErrorResponse(
         submission.errorCode,
         submission.statusCode ?? HTTP_BAD_REQUEST,
+        createValidationDetailOptions(submission.details),
       );
     }
 

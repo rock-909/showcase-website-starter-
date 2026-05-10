@@ -74,6 +74,12 @@ function createProcessingFailureResult(referenceId?: string): LeadResult {
   };
 }
 
+function createOptionalSubject(
+  subject: string | undefined,
+): { subject: string } | Record<string, never> {
+  return subject ? { subject } : {};
+}
+
 function createContactEmailData(lead: ContactLeadInput): EmailTemplateData {
   const { firstName, lastName } = splitName(lead.fullName);
   const company = lead.company?.trim();
@@ -83,7 +89,7 @@ function createContactEmailData(lead: ContactLeadInput): EmailTemplateData {
     lastName,
     email: lead.email,
     ...(company ? { company } : {}),
-    subject: lead.subject,
+    ...createOptionalSubject(lead.subject),
     message: lead.message,
     submittedAt: lead.submittedAt || new Date().toISOString(),
     marketingConsent: lead.marketingConsent,
@@ -154,7 +160,7 @@ async function processContact(
       lastName,
       email: lead.email,
       company: lead.company,
-      subject: lead.subject,
+      ...createOptionalSubject(lead.subject),
       message: lead.message,
       marketingConsent: lead.marketingConsent,
       referenceId,

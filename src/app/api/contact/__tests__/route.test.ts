@@ -123,8 +123,11 @@ describe("/api/contact route", () => {
     const data = await response.json();
 
     expect(response.status).toBe(400);
-    expect(data.success).toBe(false);
-    expect(data.errorCode).toBe(API_ERROR_CODES.CONTACT_VALIDATION_FAILED);
+    expect(data).toEqual({
+      success: false,
+      errorCode: API_ERROR_CODES.CONTACT_VALIDATION_FAILED,
+      details: ["errors.email.invalid"],
+    });
     expect(submitCanonicalContactSubmission).not.toHaveBeenCalled();
   });
 
@@ -152,6 +155,26 @@ describe("/api/contact route", () => {
         clientIP: "203.0.113.10",
       },
     );
+  });
+
+  it("returns canonical contact validation details when canonical submission fails with details", async () => {
+    vi.mocked(submitCanonicalContactSubmission).mockResolvedValueOnce({
+      success: false,
+      errorCode: API_ERROR_CODES.CONTACT_VALIDATION_FAILED,
+      error: "Validation failed",
+      details: ["errors.message.tooShort"],
+      data: null,
+    });
+
+    const response = await POST(createContactRequest(createValidContactBody()));
+    const data = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(data).toEqual({
+      success: false,
+      errorCode: API_ERROR_CODES.CONTACT_VALIDATION_FAILED,
+      details: ["errors.message.tooShort"],
+    });
   });
 
   it("returns body-size error before canonical contact submission", async () => {
