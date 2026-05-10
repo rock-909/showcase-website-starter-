@@ -115,6 +115,7 @@ interface ContactApiSuccessResponse {
 interface ContactApiErrorResponse {
   success: false;
   errorCode?: string;
+  details?: string[];
 }
 
 type ContactApiResponse = ContactApiSuccessResponse | ContactApiErrorResponse;
@@ -167,9 +168,22 @@ function createContactStateFromResponse(
     };
   }
 
-  return {
+  return createContactErrorState(payload, timestamp);
+}
+
+function createContactErrorState(
+  payload: ContactApiErrorResponse,
+  timestamp: string,
+): ServerActionResult<ContactFormResult> {
+  const errorState: ServerActionResult<ContactFormResult> = {
     success: false,
     errorCode: payload.errorCode,
     timestamp,
   };
+
+  if (payload.details && payload.details.length > 0) {
+    errorState.details = payload.details;
+  }
+
+  return errorState;
 }
