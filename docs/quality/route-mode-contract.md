@@ -14,4 +14,7 @@ This document records expected route modes for the starter. It is a proof note, 
 
 ## Deferred
 
-`src/middleware.ts` to `src/proxy.ts` migration is intentionally deferred until Cloudflare/OpenNext support is proven.
+Do not rename `src/middleware.ts` to `src/proxy.ts`.
+
+Next.js reports a `middleware` deprecation warning, but Cloudflare/OpenNext support is not acceptable for a blind migration in this starter.
+Keep `src/middleware.ts` until a dedicated proof lane demonstrates the renamed runtime entrypoint across local build, Cloudflare/OpenNext build, local Cloudflare preview smoke, and deployed smoke when a preview URL exists.

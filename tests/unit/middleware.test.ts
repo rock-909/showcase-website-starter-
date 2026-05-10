@@ -118,4 +118,13 @@ describe("middleware next-intl boundary", () => {
       "/((?!api|_next|admin|ops|.*\\..*).*)",
     ]);
   });
+
+  it("keeps middleware as the Cloudflare runtime entrypoint until proxy support is proven", async () => {
+    const fs = await import("node:fs");
+    const path = await import("node:path");
+    const repoRoot = path.resolve(__dirname, "../..");
+
+    expect(fs.existsSync(path.join(repoRoot, "src/middleware.ts"))).toBe(true);
+    expect(fs.existsSync(path.join(repoRoot, "src/proxy.ts"))).toBe(false);
+  });
 });
