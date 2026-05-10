@@ -77,7 +77,20 @@ const baseLeadFields = {
 
 const productQuantitySchema: z.ZodType<string | number> = z
   .any()
-  .transform((value) => (typeof value === "string" ? value.trim() : value))
+  .transform((value, context) => {
+    if (value === undefined) {
+      context.addIssue({
+        code: "too_small",
+        minimum: ONE,
+        inclusive: true,
+        origin: "string",
+        message: "Quantity is required",
+      });
+      return z.NEVER;
+    }
+
+    return typeof value === "string" ? value.trim() : value;
+  })
   .refine(isValidProductQuantity, {
     message: "Quantity must be positive when using a numeric string",
   });

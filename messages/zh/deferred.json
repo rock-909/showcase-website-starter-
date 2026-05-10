@@ -141,6 +141,7 @@
           "invalid": "产品名称包含无效字符"
         },
         "quantity": {
+          "required": "需求数量为必填项",
           "invalid": "需求数量格式无效"
         },
         "requirements": {

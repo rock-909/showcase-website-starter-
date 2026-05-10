@@ -334,6 +334,27 @@ describe("/api/inquiry route", () => {
       expect(processLead).not.toHaveBeenCalled();
     });
 
+    it("should reject missing quantity before turnstile and lead processing", async () => {
+      const dataWithoutQuantity: Record<string, unknown> = {
+        ...validInquiryData,
+      };
+      delete dataWithoutQuantity.quantity;
+
+      const request = createInquiryRequest(JSON.stringify(dataWithoutQuantity));
+
+      const response = await POST(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(data).toEqual({
+        success: false,
+        errorCode: API_ERROR_CODES.INQUIRY_VALIDATION_FAILED,
+        details: ["errors.quantity.required"],
+      });
+      expect(verifyTurnstileDetailed).not.toHaveBeenCalled();
+      expect(processLead).not.toHaveBeenCalled();
+    });
+
     it("should reject a non-positive numeric quantity", async () => {
       const request = createInquiryRequest(
         JSON.stringify({ ...validInquiryData, quantity: "0" }),

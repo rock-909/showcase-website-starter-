@@ -31,6 +31,7 @@ const INQUIRY_API_VALIDATION_DETAIL_KEYS = [
   "errors.productName.invalid",
   "errors.productName.tooLong",
   "errors.productName.tooShort",
+  "errors.quantity.required",
   "errors.quantity.invalid",
   "errors.requirements.invalid",
   "errors.requirements.tooLong",

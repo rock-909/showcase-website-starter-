@@ -141,6 +141,7 @@
           "invalid": "Product name contains invalid characters"
         },
         "quantity": {
+          "required": "Quantity is required",
           "invalid": "Quantity must be a valid amount"
         },
         "requirements": {
