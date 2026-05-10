@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { API_ERROR_CODES } from "@/constants/api-error-codes";
-import { CONTACT_SUBJECTS } from "@/lib/lead-pipeline/lead-schema";
 import {
   type ContactFormWithToken,
   submitCanonicalContactSubmission,
@@ -48,7 +47,7 @@ describe("canonical contact submission", () => {
     vi.setSystemTime(new Date("2026-04-30T12:00:00.000Z"));
   });
 
-  it("maps plain custom project wording to the custom project lead subject", async () => {
+  it("passes buyer-entered subject text to the lead pipeline", async () => {
     mockProcessLead.mockResolvedValueOnce({
       success: true,
       emailSent: true,
@@ -64,7 +63,7 @@ describe("canonical contact submission", () => {
 
     expect(mockProcessLead).toHaveBeenCalledWith(
       expect.objectContaining({
-        subject: CONTACT_SUBJECTS.CUSTOM_PROJECT,
+        subject: "Custom project setup",
       }),
       {},
     );
@@ -88,7 +87,7 @@ describe("canonical contact submission", () => {
 
     expect(mockProcessLead).toHaveBeenCalledWith(
       expect.objectContaining({
-        subject: CONTACT_SUBJECTS.OTHER,
+        subject: `${legacyManufacturingTerm} packaging`,
       }),
       {},
     );

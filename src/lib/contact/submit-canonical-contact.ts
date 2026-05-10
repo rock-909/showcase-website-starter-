@@ -11,7 +11,7 @@ import {
 } from "@/constants/api-error-codes";
 import { TEN_MINUTES_MS } from "@/constants/time";
 import { contactFieldValidators } from "@/lib/form-schema/contact-field-validators";
-import { CONTACT_SUBJECTS, LEAD_TYPES } from "@/lib/lead-pipeline/lead-schema";
+import { LEAD_TYPES } from "@/lib/lead-pipeline/lead-schema";
 import { processLead } from "@/lib/lead-pipeline/process-lead";
 import { logger, sanitizeEmail } from "@/lib/logger";
 import { verifyTurnstileDetailed } from "@/lib/turnstile";
@@ -110,6 +110,13 @@ function isCanonicalContactFailure(
   result: ProcessedContactSubmissionResult | CanonicalContactSubmissionFailure,
 ): result is CanonicalContactSubmissionFailure {
   return result.success === false;
+}
+
+function createSubjectInput(
+  subject: string | undefined,
+): { subject: string } | Record<string, never> {
+  const trimmedSubject = subject?.trim();
+  return trimmedSubject ? { subject: trimmedSubject } : {};
 }
 
 function getBaseErrorKey(issue: ZodIssue): string {
@@ -294,24 +301,6 @@ export async function validateContactSubmission(
   };
 }
 
-function mapSubjectToEnum(
-  subject: string | undefined,
-): (typeof CONTACT_SUBJECTS)[keyof typeof CONTACT_SUBJECTS] {
-  if (!subject) return CONTACT_SUBJECTS.OTHER;
-
-  const subjectLower = subject.toLowerCase();
-  if (subjectLower.includes("product")) return CONTACT_SUBJECTS.PRODUCT_INQUIRY;
-  if (subjectLower.includes("distributor")) return CONTACT_SUBJECTS.DISTRIBUTOR;
-  if (
-    subjectLower.includes("custom") ||
-    subjectLower.includes("project") ||
-    subjectLower.includes("configuration")
-  ) {
-    return CONTACT_SUBJECTS.CUSTOM_PROJECT;
-  }
-  return CONTACT_SUBJECTS.OTHER;
-}
-
 async function processValidatedContactSubmission(
   formData: ContactFormWithToken,
   options: ProcessValidatedContactSubmissionOptions = {},
@@ -323,7 +312,7 @@ async function processValidatedContactSubmission(
     fullName: formData.fullName || "Unknown",
     email: formData.email,
     company: formData.company,
-    subject: mapSubjectToEnum(formData.subject),
+    ...createSubjectInput(formData.subject),
     message: formData.message,
     turnstileToken: formData.turnstileToken,
     submittedAt: formData.submittedAt,

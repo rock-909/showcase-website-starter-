@@ -206,6 +206,32 @@ describe("Airtable Service - Create Operations Tests", () => {
       ]);
     });
 
+    it("should write buyer-entered contact subject to Airtable Subject", async () => {
+      const service = new AirtableServiceClass();
+      setServiceReady(service);
+      const buyerSubject = "Need custom distributor website quote";
+      const leadDataWithSubject = {
+        ...validLeadData,
+        subject: buyerSubject,
+      };
+      const mockRecordData = {
+        id: "rec-subject",
+        fields: leadDataWithSubject,
+        createdTime: "2023-01-01T00:00:00Z",
+      };
+      mockCreate.mockResolvedValue([createMockRecord(mockRecordData)]);
+
+      await service.createLead("contact", leadDataWithSubject);
+
+      expect(mockCreate).toHaveBeenCalledWith([
+        {
+          fields: expect.objectContaining({
+            Subject: buyerSubject,
+          }),
+        },
+      ]);
+    });
+
     it("should include optional fields when provided", async () => {
       const service = new AirtableServiceClass();
 
