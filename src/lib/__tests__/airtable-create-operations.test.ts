@@ -161,7 +161,6 @@ describe("Airtable Service - Create Operations Tests", () => {
             Company: "Test Company",
             Message: "This is a test message",
             "Marketing Consent": false,
-            Subject: "",
             Status: "New",
             Source: "Website Contact Form",
             "Submitted At": expect.any(String),
@@ -230,6 +229,23 @@ describe("Airtable Service - Create Operations Tests", () => {
           }),
         },
       ]);
+    });
+
+    it("should omit Airtable Subject when contact subject is missing", async () => {
+      const service = new AirtableServiceClass();
+      setServiceReady(service);
+      mockCreate.mockResolvedValue([
+        createMockRecord({
+          id: "rec-no-subject",
+          fields: {},
+          createdTime: "2023-01-01T00:00:00Z",
+        }),
+      ]);
+
+      await service.createLead("contact", validLeadData);
+
+      const fields = mockCreate.mock.calls[0][0][0].fields;
+      expect(fields).not.toHaveProperty("Subject");
     });
 
     it("should include optional fields when provided", async () => {
@@ -431,7 +447,6 @@ describe("Airtable Service - Create Operations Tests", () => {
             Company: "Test & Co.",
             Message: 'Message with "quotes" and special chars: @#$%',
             "Marketing Consent": false,
-            Subject: "",
             Status: "New",
             Source: "Website Contact Form",
             "Submitted At": expect.any(String),
@@ -474,7 +489,6 @@ describe("Airtable Service - Create Operations Tests", () => {
             Company: "Test Company",
             Message: longMessage,
             "Marketing Consent": false,
-            Subject: "",
             Status: "New",
             Source: "Website Contact Form",
             "Submitted At": expect.any(String),

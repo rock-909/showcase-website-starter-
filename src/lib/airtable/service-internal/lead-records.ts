@@ -52,9 +52,9 @@ function addContactFields(fields: AirtableFields, data: ContactLeadData): void {
   fields["Company"] = data.company
     ? sanitizeAirtableTextField(data.company)
     : "";
-  fields["Subject"] = data.subject
-    ? sanitizeAirtableTextField(data.subject)
-    : "";
+  if (data.subject) {
+    fields["Subject"] = sanitizeAirtableTextField(data.subject);
+  }
   fields["Message"] = sanitizeAirtableTextField(data.message);
   fields["Marketing Consent"] = data.marketingConsent || false;
 }
