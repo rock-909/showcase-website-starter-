@@ -263,6 +263,56 @@ describe("/api/inquiry route", () => {
       expect(processLead).not.toHaveBeenCalled();
     });
 
+    it("should report missing required identity fields before turnstile and lead processing", async () => {
+      function omitInquiryField(field: "fullName" | "email") {
+        const body: Record<string, unknown> = { ...validInquiryData };
+        delete body[field];
+        return body;
+      }
+
+      const missingFieldCases = [
+        {
+          field: "fullName" as const,
+          expectedDetails: ["errors.fullName.required"],
+        },
+        {
+          field: "email" as const,
+          expectedDetails: ["errors.email.required"],
+        },
+      ];
+
+      const results = [];
+
+      for (const { field, expectedDetails } of missingFieldCases) {
+        const request = createInquiryRequest(
+          JSON.stringify(omitInquiryField(field)),
+        );
+
+        const response = await POST(request);
+        const data = await response.json();
+
+        results.push({
+          status: response.status,
+          data,
+          expectedDetails,
+        });
+      }
+
+      expect(results).toEqual(
+        missingFieldCases.map(({ expectedDetails }) => ({
+          status: 400,
+          data: {
+            success: false,
+            errorCode: API_ERROR_CODES.INQUIRY_VALIDATION_FAILED,
+            details: expectedDetails,
+          },
+          expectedDetails,
+        })),
+      );
+      expect(verifyTurnstileDetailed).not.toHaveBeenCalled();
+      expect(processLead).not.toHaveBeenCalled();
+    });
+
     it("should reject a missing product identity before lead processing", async () => {
       const request = createInquiryRequest(
         JSON.stringify({
