@@ -254,8 +254,11 @@ describe("/api/inquiry route", () => {
       const data = await response.json();
 
       expect(response.status).toBe(400);
-      expect(data.success).toBe(false);
-      expect(data.errorCode).toBe(API_ERROR_CODES.INQUIRY_VALIDATION_FAILED);
+      expect(data).toEqual({
+        success: false,
+        errorCode: API_ERROR_CODES.INQUIRY_VALIDATION_FAILED,
+        details: ["errors.email.invalid"],
+      });
       expect(verifyTurnstileDetailed).not.toHaveBeenCalled();
       expect(processLead).not.toHaveBeenCalled();
     });
@@ -273,8 +276,11 @@ describe("/api/inquiry route", () => {
       const data = await response.json();
 
       expect(response.status).toBe(400);
-      expect(data.success).toBe(false);
-      expect(data.errorCode).toBe(API_ERROR_CODES.INQUIRY_VALIDATION_FAILED);
+      expect(data).toEqual({
+        success: false,
+        errorCode: API_ERROR_CODES.INQUIRY_VALIDATION_FAILED,
+        details: ["errors.productSlug.required", "errors.productName.required"],
+      });
       expect(processLead).not.toHaveBeenCalled();
     });
 
@@ -287,8 +293,11 @@ describe("/api/inquiry route", () => {
       const data = await response.json();
 
       expect(response.status).toBe(400);
-      expect(data.success).toBe(false);
-      expect(data.errorCode).toBe(API_ERROR_CODES.INQUIRY_VALIDATION_FAILED);
+      expect(data).toEqual({
+        success: false,
+        errorCode: API_ERROR_CODES.INQUIRY_VALIDATION_FAILED,
+        details: ["errors.quantity.invalid"],
+      });
       expect(processLead).not.toHaveBeenCalled();
     });
 

@@ -10,6 +10,10 @@ import {
   createApiSuccessResponse,
 } from "@/lib/api/api-response";
 import {
+  mapZodIssuesToValidationDetails,
+  type ValidationFieldErrorKeys,
+} from "@/lib/api/validation-error-details";
+import {
   applyCorsHeaders,
   createCorsPreflightResponse,
 } from "@/lib/api/cors-utils";
@@ -39,6 +43,30 @@ const TURNSTILE_SERVICE_FAILURE_CODES = new Set([
   "network-error",
   "timeout",
 ]);
+
+interface ProductLeadValidationSuccess {
+  success: true;
+  data: ProductLeadInput;
+}
+
+interface ProductLeadValidationFailure {
+  success: false;
+  details: string[];
+}
+
+type ProductLeadValidationResult =
+  | ProductLeadValidationSuccess
+  | ProductLeadValidationFailure;
+
+const PRODUCT_INQUIRY_FIELD_ERROR_KEYS: ValidationFieldErrorKeys = {
+  fullName: "errors.fullName",
+  email: "errors.email",
+  company: "errors.company",
+  productSlug: "errors.productSlug",
+  productName: "errors.productName",
+  quantity: "errors.quantity",
+  requirements: "errors.requirements",
+};
 
 function getSuccessfulReferenceId(
   result: LeadResult,
@@ -101,7 +129,7 @@ async function validateProductInquiryTurnstile(
 
 function validateLeadData(
   data: Record<string, unknown>,
-): ProductLeadInput | null {
+): ProductLeadValidationResult {
   const parsed = productLeadSchema.safeParse({
     type: LEAD_TYPES.PRODUCT,
     fullName: data.fullName,
@@ -114,7 +142,20 @@ function validateLeadData(
     marketingConsent: data.marketingConsent,
   });
 
-  return parsed.success ? parsed.data : null;
+  if (parsed.success) {
+    return {
+      success: true,
+      data: parsed.data,
+    };
+  }
+
+  return {
+    success: false,
+    details: mapZodIssuesToValidationDetails(
+      parsed.error.issues,
+      PRODUCT_INQUIRY_FIELD_ERROR_KEYS,
+    ),
+  };
 }
 
 function createProductInquirySuccessResponse(
@@ -184,11 +225,12 @@ const POST_RATE_LIMITED = withRateLimit(
 
     try {
       const data = parsedBody.data ?? {};
-      const leadData = validateLeadData(data);
-      if (!leadData) {
+      const leadValidation = validateLeadData(data);
+      if (!leadValidation.success) {
         return createApiErrorResponse(
           API_ERROR_CODES.INQUIRY_VALIDATION_FAILED,
           HTTP_BAD_REQUEST,
+          { details: leadValidation.details },
         );
       }
 
@@ -201,7 +243,7 @@ const POST_RATE_LIMITED = withRateLimit(
       if (turnstileError) return turnstileError;
 
       const result = await processLead({
-        ...leadData,
+        ...leadValidation.data,
       });
 
       if (result.success) {
