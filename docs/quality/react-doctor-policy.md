@@ -30,6 +30,12 @@ Most warning volume is not production behavior:
 - scripts mostly trigger performance micro-optimization rules
 - several warnings are known project exceptions
 
+## Warning gate decision
+
+Warning-level CI blocking is deferred until `confirmed-real <= 10`, all project exceptions are documented, and test fixture noise is excluded from release blocking.
+
+Do not change the CI gate to `--fail-on warning`. If warning enforcement is added later, it should be a separate classified gate that targets only production `confirmed-real` warnings after the proof lanes are stable.
+
 ## Rules of repair
 
 1. Do not treat warning count as bug count.

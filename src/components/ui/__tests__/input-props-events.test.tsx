@@ -379,9 +379,23 @@ describe("Input - Props & Events", () => {
     it("handles event propagation", async () => {
       const activateInputGroupFixture = vi.fn();
       const clickInputFixture = vi.fn();
+      const activateInputGroupFromKeyboard = (
+        event: React.KeyboardEvent<HTMLElement>,
+      ) => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+
+        event.preventDefault();
+        activateInputGroupFixture();
+      };
 
       render(
-        <section aria-label="Input group" onClick={activateInputGroupFixture}>
+        <section
+          aria-label="Input group"
+          onClick={activateInputGroupFixture}
+          onKeyDown={activateInputGroupFromKeyboard}
+          role="button"
+          tabIndex={0}
+        >
           <Input onClick={clickInputFixture} data-testid="input" />
         </section>,
       );
@@ -398,9 +412,23 @@ describe("Input - Props & Events", () => {
       const clickInputFixture = vi.fn((e: React.MouseEvent) => {
         e.stopPropagation();
       });
+      const activateInputGroupFromKeyboard = (
+        event: React.KeyboardEvent<HTMLElement>,
+      ) => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+
+        event.preventDefault();
+        activateInputGroupFixture();
+      };
 
       render(
-        <section aria-label="Input group" onClick={activateInputGroupFixture}>
+        <section
+          aria-label="Input group"
+          onClick={activateInputGroupFixture}
+          onKeyDown={activateInputGroupFromKeyboard}
+          role="button"
+          tabIndex={0}
+        >
           <Input onClick={clickInputFixture} data-testid="input" />
         </section>,
       );
