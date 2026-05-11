@@ -84,6 +84,19 @@ export function getFieldInputProps(
   }
 }
 
+function getFieldLabelClass(field: ContactFormFieldDescriptor): string {
+  return ["text-sm", field.required ? FORM_FIELD_REQUIRED_CLASS_NAME : ""]
+    .filter(Boolean)
+    .join(" ");
+}
+
+function getFieldPlaceholder(
+  field: ContactFormFieldDescriptor,
+  t: (key: string) => string,
+): string | undefined {
+  return field.placeholderKey ? t(field.placeholderKey) : undefined;
+}
+
 export const FormFields = memo(({ t, isPending }: FormFieldsProps) => {
   const configuredFields = buildFormFieldsFromConfig(CONTACT_FORM_CONFIG);
   const textInputs = configuredFields.filter(
@@ -96,21 +109,13 @@ export const FormFields = memo(({ t, isPending }: FormFieldsProps) => {
   const checkboxFields = configuredFields.filter((field) => field.isCheckbox);
   const honeypotField = configuredFields.find((field) => field.isHoneypot);
 
-  const renderLabelClass = (field: ContactFormFieldDescriptor) =>
-    ["text-sm", field.required ? FORM_FIELD_REQUIRED_CLASS_NAME : ""]
-      .filter(Boolean)
-      .join(" ");
-
-  const renderPlaceholder = (field: ContactFormFieldDescriptor) =>
-    field.placeholderKey ? t(field.placeholderKey) : undefined;
-
   return (
     <>
       {textInputs.length > 0 && (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {textInputs.map((field) => (
             <div key={field.key} className="space-y-2">
-              <Label htmlFor={field.key} className={renderLabelClass(field)}>
+              <Label htmlFor={field.key} className={getFieldLabelClass(field)}>
                 {t(field.labelKey)}
                 {!field.required && !field.isHoneypot ? (
                   <OptionalFieldMarker
@@ -123,7 +128,7 @@ export const FormFields = memo(({ t, isPending }: FormFieldsProps) => {
                 id={field.key}
                 name={field.key}
                 type={field.type}
-                placeholder={renderPlaceholder(field)}
+                placeholder={getFieldPlaceholder(field, t)}
                 disabled={isPending}
                 required={field.required}
                 aria-describedby={`${field.key}-error`}
@@ -136,13 +141,13 @@ export const FormFields = memo(({ t, isPending }: FormFieldsProps) => {
 
       {textareas.map((field) => (
         <div key={field.key} className="space-y-2">
-          <Label htmlFor={field.key} className={renderLabelClass(field)}>
+          <Label htmlFor={field.key} className={getFieldLabelClass(field)}>
             {t(field.labelKey)}
           </Label>
           <Textarea
             id={field.key}
             name={field.key}
-            placeholder={renderPlaceholder(field)}
+            placeholder={getFieldPlaceholder(field, t)}
             disabled={isPending}
             required={field.required}
             aria-describedby={`${field.key}-error`}
@@ -165,7 +170,10 @@ export const FormFields = memo(({ t, isPending }: FormFieldsProps) => {
                   required={field.required}
                   className="size-4 rounded border border-input"
                 />
-                <Label htmlFor={field.key} className={renderLabelClass(field)}>
+                <Label
+                  htmlFor={field.key}
+                  className={getFieldLabelClass(field)}
+                >
                   {t(field.labelKey)}
                 </Label>
               </div>

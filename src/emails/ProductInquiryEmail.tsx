@@ -45,6 +45,10 @@ const requirementLineStyle: CSSProperties = {
   margin: "0 0 6px 0",
 };
 
+function getRequirementLineKey(line: string, index: number): string {
+  return `requirement-line-${index}-${line.length}-${line.slice(0, 16)}`;
+}
+
 export function ProductInquiryEmail(data: ProductInquiryEmailData) {
   const quantity =
     typeof data.quantity === "number"
@@ -85,7 +89,10 @@ export function ProductInquiryEmail(data: ProductInquiryEmailData) {
       {data.requirements ? (
         <EmailField label="Requirements">
           {requirementLines.map((line, index) => (
-            <Text key={`requirement-${index}`} style={requirementLineStyle}>
+            <Text
+              key={getRequirementLineKey(line, index)}
+              style={requirementLineStyle}
+            >
               {line || " "}
             </Text>
           ))}

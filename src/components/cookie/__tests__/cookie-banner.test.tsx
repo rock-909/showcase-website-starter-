@@ -345,6 +345,42 @@ describe("CookieBanner", () => {
       expect(screen.getByText("Cookie Preferences")).toBeInTheDocument();
     });
 
+    it("associates cookie category labels with their checkboxes", () => {
+      render(<CookieBanner />);
+
+      fireEvent.click(screen.getByRole("button", { name: "Manage" }));
+
+      const necessaryCheckbox = screen.getByRole("checkbox", {
+        name: "Necessary",
+      });
+      const analyticsCheckbox = screen.getByRole("checkbox", {
+        name: "Analytics",
+      });
+      const marketingCheckbox = screen.getByRole("checkbox", {
+        name: "Marketing",
+      });
+
+      expect(necessaryCheckbox).toBeDisabled();
+      expect(necessaryCheckbox).not.toHaveAttribute("aria-label");
+      expect(analyticsCheckbox).not.toBeChecked();
+      expect(analyticsCheckbox).not.toHaveAttribute("aria-label");
+      expect(marketingCheckbox).not.toBeChecked();
+      expect(marketingCheckbox).not.toHaveAttribute("aria-label");
+    });
+
+    it("keeps the full category card clickable through visible text", () => {
+      render(<CookieBanner />);
+
+      fireEvent.click(screen.getByRole("button", { name: "Manage" }));
+
+      const analyticsCheckbox = screen.getByRole("checkbox", {
+        name: "Analytics",
+      });
+      fireEvent.click(screen.getByText("Analytics"));
+
+      expect(analyticsCheckbox).toBeChecked();
+    });
+
     it("closes preferences panel with Escape", () => {
       render(<CookieBanner />);
 

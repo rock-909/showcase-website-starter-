@@ -21,6 +21,10 @@ const messageLineStyle: CSSProperties = {
   margin: "0 0 6px 0",
 };
 
+function getMessageLineKey(line: string, index: number): string {
+  return `message-line-${index}-${line.length}-${line.slice(0, 16)}`;
+}
+
 export function ContactFormEmail(data: EmailTemplateData) {
   const messageLines = data.message.split("\n");
   const submittedAt = ResendUtils.formatDateTime(data.submittedAt);
@@ -58,7 +62,7 @@ export function ContactFormEmail(data: EmailTemplateData) {
       ) : null}
       <EmailField label="Message">
         {messageLines.map((line, index) => (
-          <Text key={`message-line-${index}`} style={messageLineStyle}>
+          <Text key={getMessageLineKey(line, index)} style={messageLineStyle}>
             {line || " "}
           </Text>
         ))}

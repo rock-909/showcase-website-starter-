@@ -131,9 +131,9 @@ export const SINGLE_SITE_ABOUT_PAGE_EXPRESSION = {
 
 const SPECIALTY_MARKET_SLUG = "specialty-product-systems" as const;
 
-const standardMarketSlugs = PRODUCT_CATALOG.markets
-  .map((market) => market.slug)
-  .filter((slug) => slug !== SPECIALTY_MARKET_SLUG);
+const standardMarketSlugs = PRODUCT_CATALOG.markets.flatMap((market) =>
+  market.slug === SPECIALTY_MARKET_SLUG ? [] : [market.slug],
+);
 
 export const SINGLE_SITE_PRODUCTS_PAGE_EXPRESSION = {
   standardMarketSlugs,

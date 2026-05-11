@@ -108,6 +108,18 @@ describe("ProductInquiryEmail", () => {
       expect(html).toContain("Line 3");
     });
 
+    it("should preserve duplicate requirement lines", async () => {
+      const data = {
+        ...baseData,
+        requirements: "Same requirement\n\nSame requirement",
+      };
+      const text = await render(<ProductInquiryEmail {...data} />, {
+        plainText: true,
+      });
+
+      expect(text.match(/Same requirement/g)).toHaveLength(2);
+    });
+
     it("should not render requirements section when not provided", async () => {
       const html = await render(<ProductInquiryEmail {...baseData} />);
       expect(html).not.toContain(">Requirements<");

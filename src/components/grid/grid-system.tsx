@@ -41,13 +41,15 @@ interface GridSystemProps {
   className?: string;
 }
 
+const EMPTY_CROSSHAIRS: CSSProperties[] = [];
+
 /**
  * Outermost grid wrapper. Draws a 1px border frame and places crosshair marks.
  * Hidden on screens ≤1024px — decorative grid is desktop-only.
  */
 export function GridSystem({
   children,
-  crosshairs = [],
+  crosshairs = EMPTY_CROSSHAIRS,
   className,
 }: GridSystemProps) {
   return (

@@ -326,29 +326,27 @@ export async function getContentFiles(
 
   // eslint-disable-next-line security/detect-non-literal-fs-filename -- validatedContentDir已通过validateFilePath安全验证，防止路径遍历攻击
   const files = await fs.promises.readdir(validatedContentDir);
-  return files
-    .filter((file) => {
-      const ext = path.extname(file);
-      const isValidExtension = [".md", ".mdx"].includes(ext);
-      if (!isValidExtension) {
-        return false;
-      }
+  return files.flatMap((file) => {
+    const ext = path.extname(file);
+    const isValidExtension = [".md", ".mdx"].includes(ext);
+    if (!isValidExtension) {
+      return [];
+    }
 
-      // For locale-specific subdirectories, most files will not contain the
-      // locale in the filename (e.g. about.mdx under /en). We still keep the
-      // original safeguard that allows files with an explicit ".<locale>."
-      // suffix and files without any locale suffix.
-      if (!locale) {
-        return true;
-      }
+    // For locale-specific subdirectories, most files will not contain the
+    // locale in the filename (e.g. about.mdx under /en). We still keep the
+    // original safeguard that allows files with an explicit ".<locale>."
+    // suffix and files without any locale suffix.
+    if (!locale) {
+      return [path.join(validatedContentDir, file)];
+    }
 
-      const normalized = file.toLowerCase();
-      const hasExplicitLocale = normalized.includes(
-        `.${locale.toLowerCase()}.`,
-      );
-      const hasNoLocaleSuffix =
-        !normalized.includes(".en.") && !normalized.includes(".zh.");
-      return hasExplicitLocale || hasNoLocaleSuffix;
-    })
-    .map((file) => path.join(validatedContentDir, file));
+    const normalized = file.toLowerCase();
+    const hasExplicitLocale = normalized.includes(`.${locale.toLowerCase()}.`);
+    const hasNoLocaleSuffix =
+      !normalized.includes(".en.") && !normalized.includes(".zh.");
+    return hasExplicitLocale || hasNoLocaleSuffix
+      ? [path.join(validatedContentDir, file)]
+      : [];
+  });
 }

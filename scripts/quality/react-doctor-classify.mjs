@@ -90,7 +90,73 @@ const PROJECT_EXCEPTIONS = [
     reason:
       "Turnstile dev bypass and missing-site-key callbacks are external widget adapter events.",
   },
+  {
+    filePath: "src/components/cookie/lazy-cookie-consent-island.tsx",
+    rule: "rerender-state-only-in-handlers",
+    reason:
+      "Idle-render state is read by an early return and must trigger lazy island mount.",
+  },
+  {
+    filePath: "src/components/ui/lazy-theme-switcher.tsx",
+    rule: "rerender-state-only-in-handlers",
+    reason:
+      "Idle-render and module state are read by lazy import/render gates and must trigger rerenders.",
+  },
+  {
+    filePath: "src/components/layout/header-client.tsx",
+    rule: "rerender-state-only-in-handlers",
+    reason:
+      "Activation state switches fallback header controls to interactive lazy islands.",
+  },
+  {
+    filePath: "src/components/security/turnstile.tsx",
+    rule: "rendering-usetransition-loading",
+    reason:
+      "Turnstile loading state mirrors an external widget lifecycle, not a React transition.",
+  },
 ];
+
+const STATIC_SKELETON_INDEX_KEY_FILES = new Set([
+  "src/app/[locale]/about/page.tsx",
+  "src/app/[locale]/capabilities/page.tsx",
+  "src/app/[locale]/custom-project-support/page.tsx",
+  "src/app/[locale]/how-it-works/page.tsx",
+  "src/app/[locale]/privacy/page.tsx",
+  "src/app/[locale]/terms/page.tsx",
+]);
+
+const DECORATIVE_GRID_INDEX_KEY_FILES = new Set([
+  "src/components/grid/grid-frame.tsx",
+  "src/components/grid/grid-system.tsx",
+]);
+
+const USER_TEXT_LINE_KEY_FILES = new Set([
+  "src/emails/ContactFormEmail.tsx",
+  "src/emails/ProductInquiryEmail.tsx",
+]);
+
+const PURE_RENDER_HELPER_FILES = new Set([
+  "src/app/[locale]/capabilities/page.tsx",
+  "src/app/[locale]/contact/page.tsx",
+  "src/app/[locale]/how-it-works/page.tsx",
+]);
+
+const QUALITY_SCRIPT_RULES = new Set([
+  "js-combine-iterations",
+  "js-flatmap-filter",
+  "js-set-map-lookups",
+  "js-tosorted-immutable",
+]);
+
+const STARTER_CHECKS_STRING_SCAN_RULES = new Set(["js-set-map-lookups"]);
+
+const STARTER_CHECKS_SEQUENTIAL_PROOF_RULES = new Set([
+  "async-await-in-loop",
+  "async-parallel",
+  "server-sequential-independent-await",
+]);
+
+const SECURITY_VALIDATION_STRING_SCAN_RULES = new Set(["js-set-map-lookups"]);
 
 function isTestFile(filePath) {
   return TEST_FILE_PATTERN.test(filePath);
@@ -127,6 +193,90 @@ function classifyDiagnostic(diagnostic) {
     };
   }
 
+  if (
+    diagnostic.filePath.startsWith("scripts/") &&
+    diagnostic.filePath === "scripts/starter-checks.js" &&
+    STARTER_CHECKS_STRING_SCAN_RULES.has(diagnostic.rule)
+  ) {
+    return {
+      bucket: "project-exception",
+      reason:
+        "starter-checks scans strings and docs; React Doctor reports these string searches as array lookup optimizations.",
+    };
+  }
+
+  if (
+    diagnostic.filePath === "scripts/starter-checks.js" &&
+    STARTER_CHECKS_SEQUENTIAL_PROOF_RULES.has(diagnostic.rule)
+  ) {
+    return {
+      bucket: "project-exception",
+      reason:
+        "Cloudflare smoke and retry probes intentionally preserve request order, retry timing, and readable failure output.",
+    };
+  }
+
+  if (
+    diagnostic.filePath.startsWith("scripts/") &&
+    QUALITY_SCRIPT_RULES.has(diagnostic.rule)
+  ) {
+    return {
+      bucket: "needs-manual-proof",
+      reason: "Quality scripts need a separate proof lane before performance rewrites.",
+    };
+  }
+
+  if (
+    diagnostic.filePath === "src/lib/security-validation.ts" &&
+    SECURITY_VALIDATION_STRING_SCAN_RULES.has(diagnostic.rule)
+  ) {
+    return {
+      bucket: "needs-manual-proof",
+      reason:
+        "HTML sanitizer string scans need security proof before rewriting loop internals.",
+    };
+  }
+
+  if (
+    diagnostic.rule === "no-array-index-as-key" &&
+    STATIC_SKELETON_INDEX_KEY_FILES.has(diagnostic.filePath)
+  ) {
+    return {
+      bucket: "low-value-style",
+      reason: "Static loading skeleton rows have no business identity or reorder path.",
+    };
+  }
+
+  if (
+    diagnostic.rule === "no-array-index-as-key" &&
+    DECORATIVE_GRID_INDEX_KEY_FILES.has(diagnostic.filePath)
+  ) {
+    return {
+      bucket: "low-value-style",
+      reason: "Decorative grid crosshairs have no business identity.",
+    };
+  }
+
+  if (
+    diagnostic.rule === "no-array-index-as-key" &&
+    USER_TEXT_LINE_KEY_FILES.has(diagnostic.filePath)
+  ) {
+    return {
+      bucket: "needs-manual-proof",
+      reason: "User-entered text lines need duplicate/empty-line proof before replacing index keys.",
+    };
+  }
+
+  if (
+    diagnostic.rule === "no-render-in-render" &&
+    PURE_RENDER_HELPER_FILES.has(diagnostic.filePath)
+  ) {
+    return {
+      bucket: "low-value-style",
+      reason: "Pure content render helper extraction is structural cleanup, not a proven behavior risk.",
+    };
+  }
+
   if (LOW_VALUE_STYLE_RULES.has(diagnostic.rule)) {
     return {
       bucket: "low-value-style",
@@ -147,22 +297,77 @@ function classifyDiagnostic(diagnostic) {
   };
 }
 
+function getDisposition(bucket) {
+  switch (bucket) {
+    case "blocking-error":
+    case "confirmed-real":
+      return {
+        disposition: "fix",
+        owner: "engineering",
+        unresolved: true,
+      };
+    case "delete-after-proof":
+      return {
+        disposition: "delete-after-proof",
+        owner: "engineering",
+        unresolved: false,
+      };
+    case "project-exception":
+      return {
+        disposition: "exempt-after-proof",
+        owner: "quality-governance",
+        unresolved: false,
+      };
+    case "test-fixture-noise":
+      return {
+        disposition: "exempt-after-proof",
+        owner: "test-governance",
+        unresolved: false,
+      };
+    case "needs-manual-proof":
+      return {
+        disposition: "temporarily-retain",
+        owner: "proof-lane",
+        unresolved: false,
+      };
+    case "low-value-style":
+      return {
+        disposition: "temporarily-retain",
+        owner: "quality-governance",
+        unresolved: false,
+      };
+    default:
+      return {
+        disposition: "fix",
+        owner: "engineering",
+        unresolved: true,
+      };
+  }
+}
+
 export function classifyDiagnostics(diagnostics) {
   const classifiedDiagnostics = diagnostics.map((diagnostic) => {
     const classification = classifyDiagnostic(diagnostic);
+    const disposition = getDisposition(classification.bucket);
     return {
       ...diagnostic,
       bucket: classification.bucket,
       bucketReason: classification.reason,
+      ...disposition,
     };
   });
 
-  const byBucket = Object.create(null);
-  const byRule = Object.create(null);
-  const byScope = Object.create(null);
+  const byBucket = {};
+  const byDisposition = {};
+  const byOwner = {};
+  const byRule = {};
+  const byScope = {};
 
   for (const diagnostic of classifiedDiagnostics) {
     byBucket[diagnostic.bucket] = (byBucket[diagnostic.bucket] ?? 0) + 1;
+    byDisposition[diagnostic.disposition] =
+      (byDisposition[diagnostic.disposition] ?? 0) + 1;
+    byOwner[diagnostic.owner] = (byOwner[diagnostic.owner] ?? 0) + 1;
     byRule[diagnostic.rule] = (byRule[diagnostic.rule] ?? 0) + 1;
     const scope = isTestFile(diagnostic.filePath)
       ? "tests"
@@ -181,12 +386,44 @@ export function classifyDiagnostics(diagnostics) {
       warnings: classifiedDiagnostics.filter(
         (diagnostic) => diagnostic.severity === "warning",
       ).length,
+      unresolved: classifiedDiagnostics.filter(
+        (diagnostic) => diagnostic.unresolved,
+      ).length,
     },
     byBucket,
+    byDisposition,
+    byOwner,
     byRule,
     byScope,
     diagnostics: classifiedDiagnostics,
   };
+}
+
+export function assertGovernance(result) {
+  if (result.summary.unresolved === 0) {
+    return;
+  }
+
+  const unresolvedDiagnostics = result.diagnostics.filter(
+    (diagnostic) => diagnostic.unresolved,
+  );
+  const preview = unresolvedDiagnostics
+    .slice(0, 10)
+    .map(
+      (diagnostic) =>
+        `- ${diagnostic.bucket}: ${diagnostic.filePath}:${diagnostic.line} ${diagnostic.rule}`,
+    )
+    .join("\n");
+
+  throw new Error(
+    [
+      `React Doctor governance has ${result.summary.unresolved} unresolved diagnostics.`,
+      "Unresolved diagnostics must be fixed or classified with owner/reason before merge.",
+      preview,
+    ]
+      .filter(Boolean)
+      .join("\n"),
+  );
 }
 
 function loadReport(reportPath) {
@@ -200,8 +437,11 @@ function writeJson(filePath, data) {
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   const reportPath = process.argv[2];
+  const args = process.argv.slice(3);
+  const check = args.includes("--check");
   const outputPath =
-    process.argv[3] ?? "reports/quality/react-doctor-classified.json";
+    args.find((arg) => !arg.startsWith("--")) ??
+    "reports/quality/react-doctor-classified.json";
 
   if (!reportPath) {
     console.error(
@@ -217,4 +457,9 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   console.log(
     `[react-doctor-classify] wrote ${outputPath} with ${result.summary.total} diagnostics`,
   );
+
+  if (check) {
+    assertGovernance(result);
+    console.log("[react-doctor-classify] governance check passed");
+  }
 }

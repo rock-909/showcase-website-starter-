@@ -20,10 +20,10 @@ function parseCorsEnvOrigins(): string[] {
   const origins = getRuntimeEnvString("CORS_ALLOWED_ORIGINS");
   if (!origins) return [];
 
-  return origins
-    .split(",")
-    .map((o) => o.trim().toLowerCase())
-    .filter(Boolean);
+  return origins.split(",").flatMap((origin) => {
+    const normalized = origin.trim().toLowerCase();
+    return normalized ? [normalized] : [];
+  });
 }
 
 /**
@@ -84,6 +84,7 @@ const allowedOriginsMemo = (() => {
 
   return Array.from(origins);
 })();
+const allowedOriginsSet = new Set(allowedOriginsMemo);
 
 /**
  * Get the list of allowed CORS origins.
@@ -102,7 +103,7 @@ export function isAllowedOrigin(origin: string | null): boolean {
   if (!origin) return false;
 
   const normalized = origin.toLowerCase();
-  return getAllowedCorsOrigins().includes(normalized);
+  return allowedOriginsSet.has(normalized);
 }
 
 /**

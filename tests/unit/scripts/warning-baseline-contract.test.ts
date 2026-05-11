@@ -22,9 +22,12 @@ describe("generated warning baseline contract", () => {
       "react-doctor . --offline --json --fail-on none",
     );
     expect(packageJson.scripts["react:doctor:classify"]).toBe(
-      "node scripts/quality/react-doctor-classify.mjs /tmp/showcase-react-doctor-current.json reports/quality/react-doctor-classified.json",
+      "react-doctor . --offline --json --fail-on none > /tmp/showcase-react-doctor-current.json && node scripts/quality/react-doctor-classify.mjs /tmp/showcase-react-doctor-current.json reports/quality/react-doctor-classified.json",
     );
-    expect(Object.keys(packageJson.scripts)).toHaveLength(18);
+    expect(packageJson.scripts["react:doctor:governance"]).toBe(
+      "react-doctor . --offline --json --fail-on none > /tmp/showcase-react-doctor-current.json && node scripts/quality/react-doctor-classify.mjs /tmp/showcase-react-doctor-current.json reports/quality/react-doctor-classified.json --check",
+    );
+    expect(Object.keys(packageJson.scripts)).toHaveLength(19);
   });
 
   it("tracks generated warning baselines without treating them as source defects", () => {

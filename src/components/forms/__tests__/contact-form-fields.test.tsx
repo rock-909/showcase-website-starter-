@@ -5,6 +5,7 @@ import {
   AdditionalFields,
   CheckboxFields,
   ContactFields,
+  FormFields,
   NameFields,
 } from "../contact-form-fields";
 
@@ -20,6 +21,28 @@ const defaultProps = {
 describe("Contact Form Fields - React 19 Native Form Tests", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  describe("FormFields Component", () => {
+    it("renders optional markers for optional configured fields", () => {
+      render(<FormFields {...defaultProps} />);
+
+      expect(screen.getAllByText("optional").length).toBeGreaterThan(0);
+      expect(screen.getByLabelText(/company/i)).not.toHaveAttribute("required");
+    });
+
+    it("keeps translated placeholders on configured fields", () => {
+      render(<FormFields {...defaultProps} />);
+
+      expect(screen.getByLabelText(/email/i)).toHaveAttribute(
+        "placeholder",
+        "emailPlaceholder",
+      );
+      expect(screen.getByLabelText(/message/i)).toHaveAttribute(
+        "placeholder",
+        "messagePlaceholder",
+      );
+    });
   });
 
   describe("NameFields Component", () => {

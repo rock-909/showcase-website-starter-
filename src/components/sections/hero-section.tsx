@@ -10,36 +10,42 @@ import { HOMEPAGE_SECTION_LINKS } from "@/components/sections/homepage-section-l
 
 export async function HeroSection() {
   const t = await getTranslations("home");
-  const proofItems = SINGLE_SITE_HOME_HERO_PROOF_ITEMS.map((item) => {
+  const proofItems: HeroSectionContent["proofItems"] = [];
+
+  for (const item of SINGLE_SITE_HOME_HERO_PROOF_ITEMS) {
     switch (item) {
       case "est":
-        return {
+        proofItems.push({
           value: t("hero.proof.est", {
             established: siteFacts.company.established,
           }),
           label: t("hero.proof.estLabel"),
-        };
+        });
+        break;
       case "countries":
-        return {
+        proofItems.push({
           value: t("hero.proof.countries", {
             countries: siteFacts.stats.exportCountries,
           }),
           label: t("hero.proof.countriesLabel"),
-        };
+        });
+        break;
       case "range":
-        return {
+        proofItems.push({
           value: t("hero.proof.range"),
           label: t("hero.proof.rangeLabel"),
-        };
+        });
+        break;
       case "production":
-        return {
+        proofItems.push({
           value: t("hero.proof.production"),
           label: t("hero.proof.productionLabel"),
-        };
+        });
+        break;
       default:
-        return null;
+        break;
     }
-  }).filter((item) => item !== null);
+  }
 
   const content = {
     eyebrow: t("hero.eyebrow", {

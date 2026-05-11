@@ -20,6 +20,8 @@ interface GridSectionProps {
   className?: string;
 }
 
+const EMPTY_GUIDES: GuideConfig[] = [];
+
 /**
  * Generate hero-style guide configs with fade-out effect.
  * Row 1 has full borders, progressively fewer as rows increase.
@@ -54,7 +56,7 @@ export function GridSection({
   children,
   columns,
   rows,
-  guides = [],
+  guides = EMPTY_GUIDES,
   divider = "none",
   className,
 }: GridSectionProps) {

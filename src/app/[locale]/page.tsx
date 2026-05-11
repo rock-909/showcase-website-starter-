@@ -31,6 +31,13 @@ interface HomePageProps {
   params: Promise<LocaleParam>;
 }
 
+const HERO_PREVIEW_ITEMS = [
+  { key: "page-structure", messageIndex: 0 },
+  { key: "replacement-surface", messageIndex: 1 },
+  { key: "inquiry-path", messageIndex: 2 },
+  { key: "cloudflare-launch", messageIndex: 3 },
+] as const;
+
 export function generateStaticParams() {
   return generateLocaleStaticParams();
 }
@@ -117,12 +124,12 @@ function HomeHero({ t }: { t: HomeTranslator }) {
             {t("hero.preview.description")}
           </p>
           <ul className="mt-6 space-y-3">
-            {[0, 1, 2, 3].map((index) => (
+            {HERO_PREVIEW_ITEMS.map((item) => (
               <li
-                key={index}
+                key={item.key}
                 className="rounded-xl border border-border bg-muted px-4 py-3 text-sm font-medium"
               >
-                {t(`hero.preview.items.${index}`)}
+                {t(`hero.preview.items.${item.messageIndex}`)}
               </li>
             ))}
           </ul>
