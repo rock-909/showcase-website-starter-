@@ -30,7 +30,19 @@ describe("generated warning baseline contract", () => {
     expect(packageJson.scripts["react:doctor:raw-governance"]).toBe(
       "node scripts/quality/react-doctor-raw-governance.mjs",
     );
-    expect(Object.keys(packageJson.scripts)).toHaveLength(20);
+  });
+
+  it("keeps raw React Doctor governance in audit mode with isolated temporary output", () => {
+    const rawGovernanceScript = readRepoFile(
+      "scripts/quality/react-doctor-raw-governance.mjs",
+    );
+
+    expect(rawGovernanceScript).toContain("fs.mkdtempSync");
+    expect(rawGovernanceScript).toContain("--no-respect-inline-disables");
+    expect(rawGovernanceScript).toContain("projects.flatMap");
+    expect(rawGovernanceScript).toContain(
+      "docs/quality/react-doctor-raw-baseline.json",
+    );
   });
 
   it("tracks generated warning baselines without treating them as source defects", () => {

@@ -5,22 +5,30 @@ import path from "node:path";
 
 import {
   assertGovernance,
+  assertDiagnosticCountBaseline,
   assertSuppressionCoverage,
   classifyDiagnostics,
 } from "./react-doctor-classify.mjs";
 
 const REPO_ROOT = path.resolve(import.meta.dirname, "../..");
+const RUN_TEMP_ROOT = fs.mkdtempSync(
+  path.join(os.tmpdir(), "showcase-react-doctor-raw-"),
+);
 const RAW_REPORT_PATH = path.join(
-  os.tmpdir(),
+  RUN_TEMP_ROOT,
   "showcase-react-doctor-raw-current.json",
 );
 const CLASSIFIED_REPORT_PATH = path.join(
-  os.tmpdir(),
+  RUN_TEMP_ROOT,
   "showcase-react-doctor-raw-classified.json",
 );
-const TEMP_CONFIG_ROOT = path.join(os.tmpdir(), "react-doctor-raw-config");
+const TEMP_CONFIG_ROOT = path.join(RUN_TEMP_ROOT, "react-doctor-raw-config");
 const TEMP_CONFIG_PATH = path.join(TEMP_CONFIG_ROOT, "react-doctor.config.json");
 const PROJECT_CONFIG_PATH = path.join(REPO_ROOT, "react-doctor.config.json");
+const RAW_BASELINE_PATH = path.join(
+  REPO_ROOT,
+  "docs/quality/react-doctor-raw-baseline.json",
+);
 const REACT_DOCTOR_BIN = path.join(
   REPO_ROOT,
   "node_modules/.bin/react-doctor",
@@ -35,7 +43,14 @@ writeJson(TEMP_CONFIG_PATH, { rootDir: REPO_ROOT });
 
 const result = spawnSync(
   REACT_DOCTOR_BIN,
-  [TEMP_CONFIG_ROOT, "--offline", "--json", "--fail-on", "none"],
+  [
+    TEMP_CONFIG_ROOT,
+    "--offline",
+    "--json",
+    "--fail-on",
+    "none",
+    "--no-respect-inline-disables",
+  ],
   {
     cwd: REPO_ROOT,
     encoding: "utf8",
@@ -57,11 +72,14 @@ fs.writeFileSync(RAW_REPORT_PATH, result.stdout);
 
 const rawReport = JSON.parse(result.stdout);
 const config = JSON.parse(fs.readFileSync(PROJECT_CONFIG_PATH, "utf8"));
-const diagnostics = rawReport.projects?.[0]?.diagnostics ?? [];
+const rawBaseline = JSON.parse(fs.readFileSync(RAW_BASELINE_PATH, "utf8"));
+const projects = rawReport.projects ?? [];
+const diagnostics = projects.flatMap((project) => project.diagnostics ?? []);
 const classified = classifyDiagnostics(diagnostics);
 
 assertGovernance(classified);
 assertSuppressionCoverage(classified, config);
+assertDiagnosticCountBaseline(classified, rawBaseline);
 writeJson(CLASSIFIED_REPORT_PATH, classified);
 
 console.log(
@@ -69,6 +87,7 @@ console.log(
     `[react-doctor-raw-governance] raw diagnostics: ${classified.summary.total}`,
     `[react-doctor-raw-governance] unresolved: ${classified.summary.unresolved}`,
     "[react-doctor-raw-governance] suppression coverage check passed",
+    "[react-doctor-raw-governance] raw count baseline check passed",
     `[react-doctor-raw-governance] wrote ${CLASSIFIED_REPORT_PATH}`,
   ].join("\n"),
 );

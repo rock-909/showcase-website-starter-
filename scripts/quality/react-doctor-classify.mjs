@@ -16,7 +16,6 @@ const LOW_VALUE_STYLE_RULES = new Set([
 const NEEDS_PROOF_RULES = new Set([
   "async-await-in-loop",
   "async-parallel",
-  "nextjs-no-redirect-in-try-catch",
   "nextjs-no-use-search-params-without-suspense",
   "server-sequential-independent-await",
 ]);
@@ -130,11 +129,6 @@ const DECORATIVE_GRID_INDEX_KEY_FILES = new Set([
   "src/components/grid/grid-system.tsx",
 ]);
 
-const USER_TEXT_LINE_KEY_FILES = new Set([
-  "src/emails/ContactFormEmail.tsx",
-  "src/emails/ProductInquiryEmail.tsx",
-]);
-
 const PURE_RENDER_HELPER_FILES = new Set([
   "src/app/[locale]/capabilities/page.tsx",
   "src/app/[locale]/contact/page.tsx",
@@ -155,8 +149,6 @@ const STARTER_CHECKS_SEQUENTIAL_PROOF_RULES = new Set([
   "async-parallel",
   "server-sequential-independent-await",
 ]);
-
-const SECURITY_VALIDATION_STRING_SCAN_RULES = new Set(["js-set-map-lookups"]);
 
 function isTestFile(filePath) {
   return TEST_FILE_PATTERN.test(filePath);
@@ -233,17 +225,6 @@ function classifyDiagnostic(diagnostic) {
   }
 
   if (
-    diagnostic.filePath === "src/lib/security-validation.ts" &&
-    SECURITY_VALIDATION_STRING_SCAN_RULES.has(diagnostic.rule)
-  ) {
-    return {
-      bucket: "needs-manual-proof",
-      reason:
-        "HTML sanitizer string scans need security proof before rewriting loop internals.",
-    };
-  }
-
-  if (
     diagnostic.rule === "no-array-index-as-key" &&
     STATIC_SKELETON_INDEX_KEY_FILES.has(diagnostic.filePath)
   ) {
@@ -260,16 +241,6 @@ function classifyDiagnostic(diagnostic) {
     return {
       bucket: "low-value-style",
       reason: "Decorative grid crosshairs have no business identity.",
-    };
-  }
-
-  if (
-    diagnostic.rule === "no-array-index-as-key" &&
-    USER_TEXT_LINE_KEY_FILES.has(diagnostic.filePath)
-  ) {
-    return {
-      bucket: "needs-manual-proof",
-      reason: "User-entered text lines need duplicate/empty-line proof before replacing index keys.",
     };
   }
 
@@ -463,9 +434,38 @@ function pairKey(filePath, ruleIdentifier) {
   return `${filePath}\u0000${ruleIdentifier}`;
 }
 
+function countKey(filePath, ruleIdentifier, count) {
+  return `${filePath}\u0000${ruleIdentifier}\u0000${count}`;
+}
+
 function formatPair(key) {
   const [filePath, ruleIdentifier] = key.split("\u0000");
   return `${filePath} ${ruleIdentifier}`;
+}
+
+function formatCountPair(key) {
+  const [filePath, ruleIdentifier, count] = key.split("\u0000");
+  return `${filePath} ${ruleIdentifier} x${count}`;
+}
+
+function pairSet(pairs) {
+  return new Set(
+    pairs.map((pair) => pairKey(pair.filePath, pair.ruleIdentifier)),
+  );
+}
+
+function countedPairSet(pairs) {
+  const counts = new Map();
+  for (const pair of pairs) {
+    const baseKey = `${pair.filePath}\u0000${pair.ruleIdentifier}`;
+    counts.set(baseKey, (counts.get(baseKey) ?? 0) + 1);
+  }
+  return new Set(
+    [...counts.entries()].map(([baseKey, count]) => {
+      const [filePath, ruleIdentifier] = baseKey.split("\u0000");
+      return countKey(filePath, ruleIdentifier, count);
+    }),
+  );
 }
 
 export function assertSuppressionCoverage(result, config) {
@@ -485,12 +485,13 @@ export function assertSuppressionCoverage(result, config) {
     );
   }
 
-  const rawPairs = new Set(
-    result.diagnostics.map((diagnostic) =>
-      pairKey(diagnostic.filePath, getRuleIdentifier(diagnostic)),
-    ),
+  const rawPairs = pairSet(
+    result.diagnostics.map((diagnostic) => ({
+      filePath: diagnostic.filePath,
+      ruleIdentifier: getRuleIdentifier(diagnostic),
+    })),
   );
-  const overridePairs = new Set();
+  const overridePairInputs = [];
 
   for (const [index, override] of (ignore.overrides ?? []).entries()) {
     if (!Array.isArray(override.files) || override.files.length === 0) {
@@ -507,10 +508,11 @@ export function assertSuppressionCoverage(result, config) {
 
     for (const filePath of override.files) {
       for (const ruleIdentifier of override.rules) {
-        overridePairs.add(pairKey(filePath, ruleIdentifier));
+        overridePairInputs.push({ filePath, ruleIdentifier });
       }
     }
   }
+  const overridePairs = pairSet(overridePairInputs);
 
   const missingPairs = [...rawPairs].filter((key) => !overridePairs.has(key));
   const stalePairs = [...overridePairs].filter((key) => !rawPairs.has(key));
@@ -530,6 +532,71 @@ export function assertSuppressionCoverage(result, config) {
           : "",
         stalePairs.length > 0
           ? `Stale overrides (${stalePairs.length}):\n${stalePreview}`
+          : "",
+      ]
+        .filter(Boolean)
+        .join("\n"),
+    );
+  }
+}
+
+export function buildDiagnosticCountBaseline(result) {
+  return {
+    diagnostics: [...countedPairSet(
+      result.diagnostics.map((diagnostic) => ({
+        filePath: diagnostic.filePath,
+        ruleIdentifier: getRuleIdentifier(diagnostic),
+      })),
+    )]
+      .map((key) => {
+        const [filePath, ruleIdentifier, count] = key.split("\u0000");
+        return {
+          filePath,
+          rule: ruleIdentifier,
+          count: Number(count),
+        };
+      })
+      .sort((left, right) =>
+        `${left.filePath}\u0000${left.rule}`.localeCompare(
+          `${right.filePath}\u0000${right.rule}`,
+        ),
+      ),
+  };
+}
+
+export function assertDiagnosticCountBaseline(result, baseline) {
+  const currentPairs = countedPairSet(
+    result.diagnostics.map((diagnostic) => ({
+      filePath: diagnostic.filePath,
+      ruleIdentifier: getRuleIdentifier(diagnostic),
+    })),
+  );
+  const baselinePairs = new Set(
+    (baseline.diagnostics ?? []).map((diagnostic) =>
+      countKey(diagnostic.filePath, diagnostic.rule, diagnostic.count),
+    ),
+  );
+  const missingPairs = [...currentPairs].filter((key) => !baselinePairs.has(key));
+  const stalePairs = [...baselinePairs].filter((key) => !currentPairs.has(key));
+
+  if (missingPairs.length > 0 || stalePairs.length > 0) {
+    const missingPreview = missingPairs
+      .slice(0, 10)
+      .map(formatCountPair)
+      .join("\n");
+    const stalePreview = stalePairs
+      .slice(0, 10)
+      .map(formatCountPair)
+      .join("\n");
+
+    throw new Error(
+      [
+        "React Doctor raw diagnostic count baseline does not match.",
+        missingPairs.length > 0
+          ? `Missing baseline entries (${missingPairs.length}):\n${missingPreview}`
+          : "",
+        stalePairs.length > 0
+          ? `Stale baseline entries (${stalePairs.length}):\n${stalePreview}`
           : "",
       ]
         .filter(Boolean)

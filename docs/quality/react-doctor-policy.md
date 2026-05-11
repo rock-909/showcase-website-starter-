@@ -17,6 +17,9 @@ React Doctor is an error-level gate in this starter.
 - CI also runs a raw-governance gate against the pre-suppression diagnostics.
   That gate verifies the native suppression config still matches the current
   raw file/rule set and does not use global rule or whole-file ignores.
+- Raw governance also compares pre-suppression diagnostic counts against
+  `docs/quality/react-doctor-raw-baseline.json` so a future warning with the
+  same file/rule pair is not silently swallowed by an existing narrow override.
 
 ## Buckets
 
@@ -51,10 +54,11 @@ Every raw warning must have exactly one actionable disposition:
 | `temporarily-retain` | The warning needs a dedicated proof lane or is low-value style cleanup. | `proof-lane` or `quality-governance` |
 
 At the current calibrated baseline, native React Doctor reports zero issues.
-Historical diagnostics are represented by narrow project config overrides and
-the governance docs. If a future raw React Doctor run produces a diagnostic
-outside that config, the raw-governance gate should fail until the item is
-repaired, removed after proof, or reclassified with owner and reason.
+Historical diagnostics are represented by narrow project config overrides,
+the governance docs, and the raw count baseline. If a future raw React Doctor
+run produces a diagnostic outside that config, or grows the count for an
+already-governed file/rule pair, the raw-governance gate should fail until the
+item is repaired, removed after proof, or reclassified with owner and reason.
 
 ## Current known shape
 
