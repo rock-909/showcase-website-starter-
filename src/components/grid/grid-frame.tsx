@@ -8,6 +8,8 @@ interface GridFrameProps {
   crosshairs?: CSSProperties[];
 }
 
+const EMPTY_CROSSHAIRS: CSSProperties[] = [];
+
 /**
  * Detect crosshair corner from its CSS position and return the rotation
  * needed so the L-shape points inward. The Crosshair component draws
@@ -27,7 +29,10 @@ function getCrosshairRotation(pos: CSSProperties): string {
  * Does NOT constrain children — sections flow normally beneath.
  * Hidden on screens < lg (decorative grid is desktop-only).
  */
-export function GridFrame({ children, crosshairs = [] }: GridFrameProps) {
+export function GridFrame({
+  children,
+  crosshairs = EMPTY_CROSSHAIRS,
+}: GridFrameProps) {
   return (
     <div className="relative">
       {/* Outer frame — centered 1080px border, desktop only */}

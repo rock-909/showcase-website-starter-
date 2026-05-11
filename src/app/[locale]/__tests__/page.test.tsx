@@ -134,6 +134,18 @@ describe("Home Page", () => {
         screen.getByText("Cloudflare-ready foundation"),
       ).toBeInTheDocument();
       expect(
+        screen.getByText("Home, Products, Blog, About, and Contact"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText("Brand and content replacement surfaces"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText("Inquiry path with anti-abuse basics"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText("Cloudflare-ready deployment direction"),
+      ).toBeInTheDocument();
+      expect(
         screen.getAllByRole("link", { name: "View product capabilities" })[0],
       ).toHaveAttribute("href", "/products");
       expect(

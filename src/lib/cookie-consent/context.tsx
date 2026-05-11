@@ -8,8 +8,8 @@
  */
 import {
   createContext,
+  use,
   useCallback,
-  useContext,
   useMemo,
   useSyncExternalStore,
   type ReactNode,
@@ -216,7 +216,7 @@ export function CookieConsentProvider({
 
 /** Hook to access cookie consent state and actions */
 export function useCookieConsent(): CookieConsentContextValue {
-  const context = useContext(CookieConsentContext);
+  const context = use(CookieConsentContext);
   if (!context) {
     throw new Error(
       "useCookieConsent must be used within CookieConsentProvider",
@@ -227,5 +227,5 @@ export function useCookieConsent(): CookieConsentContextValue {
 
 /** Optional hook that returns null if outside provider (for conditional use) */
 export function useCookieConsentOptional(): CookieConsentContextValue | null {
-  return useContext(CookieConsentContext);
+  return use(CookieConsentContext);
 }

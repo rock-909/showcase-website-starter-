@@ -110,12 +110,16 @@ export function generateCSP(): string {
 
   // Convert directives to CSP string
   return Object.entries(cspDirectives)
-    .filter(([, value]) => value !== undefined)
-    .map(([key, value]) => {
-      if (Array.isArray(value) && value.length > ZERO) {
-        return `${key} ${value.join(" ")}`;
+    .flatMap(([key, value]) => {
+      if (value === undefined) {
+        return [];
       }
-      return key;
+
+      if (Array.isArray(value) && value.length > ZERO) {
+        return [`${key} ${value.join(" ")}`];
+      }
+
+      return [key];
     })
     .join("; ");
 }

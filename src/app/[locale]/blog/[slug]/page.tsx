@@ -29,7 +29,7 @@ function loadArticle(locale: Locale, slug: string) {
   try {
     return getStarterBlogArticle(locale, slug);
   } catch {
-    return notFound();
+    return null;
   }
 }
 
@@ -38,6 +38,9 @@ export async function generateMetadata({
 }: BlogArticlePageProps): Promise<Metadata> {
   const { locale, slug } = await params;
   const article = loadArticle(locale, slug);
+  if (!article) {
+    notFound();
+  }
 
   return generateMetadataForPath({
     locale,
@@ -61,6 +64,9 @@ export default async function BlogArticlePage({
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "blog" });
   const article = loadArticle(locale, slug);
+  if (!article) {
+    notFound();
+  }
 
   return (
     <div className="mx-auto max-w-[840px] px-6 py-16">

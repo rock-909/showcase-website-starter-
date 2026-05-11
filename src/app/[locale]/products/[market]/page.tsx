@@ -108,12 +108,16 @@ export default async function MarketPage({ params }: MarketPageProps) {
 
       {pageData.marketSpecs ? (
         <StickyFamilyNav
-          families={pageData.families
-            .filter((family) => pageData.familySpecsMap.has(family.slug))
-            .map((family) => ({
-              slug: family.slug,
-              label: t(`families.${marketSlug}.${family.slug}.label`),
-            }))}
+          families={pageData.families.flatMap((family) =>
+            pageData.familySpecsMap.has(family.slug)
+              ? [
+                  {
+                    slug: family.slug,
+                    label: t(`families.${marketSlug}.${family.slug}.label`),
+                  },
+                ]
+              : [],
+          )}
           ariaLabel={t("market.familyNav.jumpTo")}
         />
       ) : null}

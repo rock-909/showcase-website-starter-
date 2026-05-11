@@ -42,7 +42,7 @@ const textComponents = {
     );
   },
   blockquote: ({ children }: { children: React.ReactNode }) => (
-    <blockquote className="mb-4 border-l-4 border-primary pl-4 text-muted-foreground italic">
+    <blockquote className="mb-4 rounded-lg border border-border bg-muted/40 px-4 py-3 text-muted-foreground italic">
       {children}
     </blockquote>
   ),

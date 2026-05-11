@@ -1234,15 +1234,317 @@ This script must be planned and tested in a separate branch. It is not part of t
 
 ---
 
-## Final verification for the whole governance program
+## Phase 2: Continue production warning governance
 
-Run these commands before claiming the governance plan is implemented:
+Phase 2 keeps the same long-term policy:
+
+- do not upgrade the CI gate to raw `--fail-on warning`
+- do not treat all warnings as bugs
+- repair production `confirmed-real` warnings in small proof-backed waves
+- leave skeleton placeholders, decorative grid arrays, email text line splitting, and test fixture noise out of this wave
+- keep each wave narrow enough that React Doctor, focused tests, lint, and type-check can explain the change
+
+Phase 2 wave A verified baseline:
+
+```text
+errorCount: 0
+warningCount: 463
+affectedFileCount: 167
+score: 69 / 100
+confirmed-real: 67
+```
+
+### Task 13: Production correctness wave A - stable homepage preview key
+
+**Files:**
+- Modify: `/Users/Data/workspace/showcase-website-starter/src/app/[locale]/page.tsx`
+- Test: `/Users/Data/workspace/showcase-website-starter/src/app/[locale]/__tests__/page.test.tsx`
+
+**Scope:**
+
+Only fix the homepage hero preview `no-array-index-as-key` warning. Do not change loading skeleton keys, decorative grid crosshair keys, or email line keys in this task.
+
+- [ ] **Step 1: Add a focused behavior test for the existing preview list**
+
+In `/Users/Data/workspace/showcase-website-starter/src/app/[locale]/__tests__/page.test.tsx`, add this assertion to the existing homepage rendering test:
+
+```typescript
+expect(screen.getByText("Home, Products, Blog, About, and Contact")).toBeInTheDocument();
+expect(screen.getByText("Brand and content replacement surfaces")).toBeInTheDocument();
+expect(screen.getByText("Inquiry path with anti-abuse basics")).toBeInTheDocument();
+expect(screen.getByText("Cloudflare-ready deployment direction")).toBeInTheDocument();
+```
+
+- [ ] **Step 2: Run the focused test before implementation**
+
+Run:
 
 ```bash
-pnpm react:doctor
+pnpm exec vitest run 'src/app/[locale]/__tests__/page.test.tsx'
+```
+
+Expected: PASS. This is a characterization test that protects buyer-visible copy while the internal key changes.
+
+- [ ] **Step 3: Replace the index key with stable preview item metadata**
+
+In `/Users/Data/workspace/showcase-website-starter/src/app/[locale]/page.tsx`, replace:
+
+```typescript
+{[0, 1, 2, 3].map((index) => (
+  <li
+    key={index}
+    className="rounded-xl border border-border bg-muted px-4 py-3 text-sm font-medium"
+  >
+    {t(`hero.preview.items.${index}`)}
+  </li>
+))}
+```
+
+with stable metadata:
+
+```typescript
+const HERO_PREVIEW_ITEMS = [
+  { key: "page-structure", messageIndex: 0 },
+  { key: "replacement-surface", messageIndex: 1 },
+  { key: "inquiry-path", messageIndex: 2 },
+  { key: "cloudflare-launch", messageIndex: 3 },
+] as const;
+```
+
+and:
+
+```typescript
+{HERO_PREVIEW_ITEMS.map((item) => (
+  <li
+    key={item.key}
+    className="rounded-xl border border-border bg-muted px-4 py-3 text-sm font-medium"
+  >
+    {t(`hero.preview.items.${item.messageIndex}`)}
+  </li>
+))}
+```
+
+- [ ] **Step 4: Verify the focused page test**
+
+Run:
+
+```bash
+pnpm exec vitest run 'src/app/[locale]/__tests__/page.test.tsx'
+```
+
+Expected: PASS.
+
+### Task 14: Production accessibility wave A - cookie preference labels
+
+**Files:**
+- Modify: `/Users/Data/workspace/showcase-website-starter/src/components/cookie/cookie-banner.tsx`
+- Test: `/Users/Data/workspace/showcase-website-starter/src/components/cookie/__tests__/cookie-banner.test.tsx`
+
+**Scope:**
+
+Only fix the `label-has-associated-control` warning in cookie category toggles. Do not change cookie copy, translation keys, preference state, focus trap, or button behavior. Do not use `aria-label` as a shortcut because it can hide whether the visible text is actually connected to the checkbox.
+
+- [ ] **Step 1: Add an accessibility behavior test**
+
+In `/Users/Data/workspace/showcase-website-starter/src/components/cookie/__tests__/cookie-banner.test.tsx`, add a test under the `accessibility` block:
+
+```typescript
+it("associates cookie category labels with their checkboxes", () => {
+  render(<CookieBanner />);
+
+  fireEvent.click(screen.getByRole("button", { name: "Manage" }));
+
+  expect(screen.getByLabelText("Necessary")).toBeDisabled();
+  expect(screen.getByLabelText("Analytics")).not.toBeChecked();
+  expect(screen.getByLabelText("Marketing")).not.toBeChecked();
+});
+```
+
+- [ ] **Step 2: Run the focused test before implementation**
+
+Run:
+
+```bash
+pnpm exec vitest run src/components/cookie/__tests__/cookie-banner.test.tsx
+```
+
+Expected: PASS or FAIL only if the label association is already broken. Continue only after the test proves the current behavior.
+
+- [ ] **Step 3: Connect the checkbox to visible text with explicit IDs**
+
+In `/Users/Data/workspace/showcase-website-starter/src/components/cookie/cookie-banner.tsx`, keep the existing `id` and add visible-text IDs:
+
+```typescript
+const labelId = `${id}-label`;
+const descriptionId = `${id}-description`;
+```
+
+Render the checkbox with explicit visible-text associations while keeping the wrapping label so the whole category card remains clickable:
+
+```tsx
+<label className={cn(...)}>
+  <input
+    id={id}
+    type="checkbox"
+    checked={checked}
+    disabled={disabled}
+    onChange={(e) => onChange?.(e.target.checked)}
+    aria-labelledby={labelId}
+    aria-describedby={descriptionId}
+    className="mt-0.5 size-4 rounded border-input accent-primary disabled:cursor-not-allowed disabled:opacity-50"
+  />
+  <span className="flex-1 space-y-0.5">
+    <span
+      id={labelId}
+      className="block text-xs leading-none font-medium text-foreground"
+    >
+      {label}
+    </span>
+    <span
+      id={descriptionId}
+      className="block text-xs text-muted-foreground"
+    >
+      {description}
+    </span>
+  </span>
+</label>
+```
+
+This keeps the accessible name tied to visible text, avoids `aria-label` drift, preserves the full-card click target, and satisfies React Doctor where the original dynamic wrapping label was still reported as lacking accessible text.
+
+- [ ] **Step 4: Verify cookie behavior**
+
+Run:
+
+```bash
+pnpm exec vitest run src/components/cookie/__tests__/cookie-banner.test.tsx
+```
+
+Expected: PASS.
+
+### Task 15: Production form render helper wave A
+
+**Files:**
+- Modify: `/Users/Data/workspace/showcase-website-starter/src/components/forms/contact-form-fields.tsx`
+- Test: `/Users/Data/workspace/showcase-website-starter/src/components/forms/__tests__/contact-form-fields.test.tsx`
+- Test: `/Users/Data/workspace/showcase-website-starter/src/components/forms/__tests__/contact-form-fields-core.test.tsx`
+
+**Scope:**
+
+Only move pure render helpers out of the `FormFields` component. Do not change form fields, field names, translation keys, required flags, placeholders, or submission semantics.
+
+- [ ] **Step 1: Add behavior tests for optional marker and placeholders**
+
+In `/Users/Data/workspace/showcase-website-starter/src/components/forms/__tests__/contact-form-fields.test.tsx`, import `FormFields` and add tests that render the full component:
+
+```typescript
+it("renders optional markers for optional configured fields", () => {
+  render(<FormFields {...defaultProps} />);
+
+  expect(screen.getByText("optional")).toBeInTheDocument();
+  expect(screen.getByLabelText(/company/i)).not.toHaveAttribute("required");
+});
+
+it("keeps translated placeholders on configured fields", () => {
+  render(<FormFields {...defaultProps} />);
+
+  expect(screen.getByLabelText(/email/i)).toHaveAttribute("placeholder", "emailPlaceholder");
+  expect(screen.getByLabelText(/message/i)).toHaveAttribute("placeholder", "messagePlaceholder");
+});
+```
+
+- [ ] **Step 2: Run the focused form tests before implementation**
+
+Run:
+
+```bash
+pnpm exec vitest run src/components/forms/__tests__/contact-form-fields.test.tsx src/components/forms/__tests__/contact-form-fields-core.test.tsx
+```
+
+Expected: PASS. These are characterization tests for visible labels, placeholders, and form semantics.
+
+- [ ] **Step 3: Move pure helpers out of the component**
+
+In `/Users/Data/workspace/showcase-website-starter/src/components/forms/contact-form-fields.tsx`, move these helper definitions above `FormFields`:
+
+```typescript
+function getFieldLabelClass(field: ContactFormFieldDescriptor): string {
+  return ["text-sm", field.required ? FORM_FIELD_REQUIRED_CLASS_NAME : ""]
+    .filter(Boolean)
+    .join(" ");
+}
+
+function getFieldPlaceholder(
+  field: ContactFormFieldDescriptor,
+  t: (key: string) => string,
+): string | undefined {
+  return field.placeholderKey ? t(field.placeholderKey) : undefined;
+}
+```
+
+Then replace component-local calls:
+
+```typescript
+renderLabelClass(field)
+renderPlaceholder(field)
+```
+
+with:
+
+```typescript
+getFieldLabelClass(field)
+getFieldPlaceholder(field, t)
+```
+
+- [ ] **Step 4: Verify form behavior**
+
+Run:
+
+```bash
+pnpm exec vitest run src/components/forms/__tests__/contact-form-fields.test.tsx src/components/forms/__tests__/contact-form-fields-core.test.tsx
+```
+
+Expected: PASS.
+
+### Task 16: Phase 2 wave A verification and baseline refresh
+
+**Files:**
+- Modify only if counts changed: `/Users/Data/workspace/showcase-website-starter/docs/quality/react-doctor-baseline.md`
+- Generated and not committed: `/tmp/showcase-react-doctor-current.json`
+- Generated and ignored: `/Users/Data/workspace/showcase-website-starter/reports/quality/react-doctor-classified.json`
+
+- [ ] **Step 1: Run focused verification**
+
+Run:
+
+```bash
+pnpm exec vitest run 'src/app/[locale]/__tests__/page.test.tsx' src/components/cookie/__tests__/cookie-banner.test.tsx src/components/forms/__tests__/contact-form-fields.test.tsx src/components/forms/__tests__/contact-form-fields-core.test.tsx
+```
+
+Expected: PASS.
+
+- [ ] **Step 2: Run project quality gates**
+
+Run:
+
+```bash
 pnpm lint:check
 pnpm type-check
-pnpm test
+pnpm react:doctor
+```
+
+Expected:
+
+- lint passes
+- type-check passes
+- React Doctor exits 0
+- warning count decreases or stays within the expected backlog shape
+
+- [ ] **Step 3: Refresh classified report**
+
+Run:
+
+```bash
 pnpm exec react-doctor . --offline --json --fail-on none > /tmp/showcase-react-doctor-current.json
 pnpm react:doctor:classify
 jq '.summary, .byBucket' reports/quality/react-doctor-classified.json
@@ -1250,11 +1552,401 @@ jq '.summary, .byBucket' reports/quality/react-doctor-classified.json
 
 Expected:
 
+- `errors` remains 0
+- `confirmed-real` decreases for fixed production warnings
+- raw warning gate remains non-blocking
+
+- [ ] **Step 4: Do not upgrade the warning gate**
+
+Confirm that `/Users/Data/workspace/showcase-website-starter/package.json` still contains:
+
+```json
+"react:doctor": "react-doctor . --offline --fail-on error"
+```
+
+Do not change it to `--fail-on warning`.
+
+---
+
+## Phase 3: Production signal refinement wave B
+
+### Task 17: Production render memo wave B - stable default arrays
+
+**Files:**
+- Modify: `/Users/Data/workspace/showcase-website-starter/src/components/grid/grid-frame.tsx`
+- Modify: `/Users/Data/workspace/showcase-website-starter/src/components/grid/grid-section.tsx`
+- Modify: `/Users/Data/workspace/showcase-website-starter/src/components/grid/grid-system.tsx`
+- Modify: `/Users/Data/workspace/showcase-website-starter/src/components/layout/header.tsx`
+- Test: `/Users/Data/workspace/showcase-website-starter/src/components/grid/__tests__/grid-frame.test.tsx`
+- Test: `/Users/Data/workspace/showcase-website-starter/src/components/grid/__tests__/grid-section.test.tsx`
+- Test: `/Users/Data/workspace/showcase-website-starter/src/components/grid/__tests__/grid-system.test.tsx`
+- Test: `/Users/Data/workspace/showcase-website-starter/src/components/layout/__tests__/header.test.tsx`
+
+**Scope:**
+
+Only fix `rerender-memo-with-default-value` warnings by replacing default `[]`
+parameter values with stable module-level empty arrays. Do not change grid
+visuals, header navigation items, responsive behavior, or mobile/language
+islands.
+
+- [x] **Step 1: Characterize existing behavior**
+
+Run:
+
+```bash
+pnpm exec vitest run src/components/grid/__tests__/grid-frame.test.tsx src/components/grid/__tests__/grid-section.test.tsx src/components/grid/__tests__/grid-system.test.tsx src/components/layout/__tests__/header.test.tsx
+```
+
+Expected: PASS.
+
+- [x] **Step 2: Replace default empty arrays with stable constants**
+
+Use module-level constants for empty crosshairs, guides, and main nav items.
+
+- [x] **Step 3: Add a small default behavior test**
+
+Add a `GridSection` test proving no decorative guide cells render when guides
+are not provided.
+
+- [x] **Step 4: Verify wave B behavior**
+
+Latest focused run passed 4 files and 37 tests.
+
+### Task 18: Lazy island state false-positive classification
+
+**Files:**
+- Modify: `/Users/Data/workspace/showcase-website-starter/scripts/quality/react-doctor-classify.mjs`
+- Modify: `/Users/Data/workspace/showcase-website-starter/tests/unit/scripts/react-doctor-classify.test.ts`
+- Modify: `/Users/Data/workspace/showcase-website-starter/docs/quality/react-doctor-exceptions.md`
+- Modify: `/Users/Data/workspace/showcase-website-starter/docs/quality/react-doctor-baseline.md`
+- Modify: `/Users/Data/workspace/showcase-website-starter/docs/quality/react-doctor-policy.md`
+
+**Scope:**
+
+Do not change lazy island implementation. The `rerender-state-only-in-handlers`
+findings in these files are false positives because the state is read by
+early-return/render gates and changing it to `ref` would break lazy mount:
+
+- `src/components/cookie/lazy-cookie-consent-island.tsx`
+- `src/components/ui/lazy-theme-switcher.tsx`
+- `src/components/layout/header-client.tsx`
+
+- [x] **Step 1: Run independent read-only review**
+
+A reviewer subagent confirmed all five findings are false positives and do not
+need extra behavior tests. Existing tests prove idle-before/after rendering and
+click-before/after lazy activation.
+
+- [x] **Step 2: Classify these findings as project exceptions**
+
+Add file/rule exceptions for `rerender-state-only-in-handlers` in the
+classifier, with a regression test.
+
+- [x] **Step 3: Record exception proof**
+
+Document why ref conversion would break the render trigger in
+`docs/quality/react-doctor-exceptions.md`.
+
+- [x] **Step 4: Refresh current baseline**
+
+Latest classified baseline after wave B:
+
+```text
+total: 459
+errors: 0
+warnings: 459
+test-fixture-noise: 301
+low-value-style: 83
+confirmed-real: 15
+project-exception: 21
+needs-manual-proof: 39
+```
+
+### Task 19: Production confirmed-real closure wave C
+
+**Files:**
+- Modify: `/Users/Data/workspace/showcase-website-starter/playwright.config.ts`
+- Modify: `/Users/Data/workspace/showcase-website-starter/mdx-components.tsx`
+- Modify: `/Users/Data/workspace/showcase-website-starter/src/app/[locale]/products/[market]/page.tsx`
+- Modify: `/Users/Data/workspace/showcase-website-starter/src/components/sections/hero-section.tsx`
+- Modify: `/Users/Data/workspace/showcase-website-starter/src/config/contact-form-config.ts`
+- Modify: `/Users/Data/workspace/showcase-website-starter/src/config/cors.ts`
+- Modify: `/Users/Data/workspace/showcase-website-starter/src/config/security.ts`
+- Modify: `/Users/Data/workspace/showcase-website-starter/src/config/single-site-page-expression.ts`
+- Modify: `/Users/Data/workspace/showcase-website-starter/src/lib/content-parser.ts`
+- Modify: `/Users/Data/workspace/showcase-website-starter/src/lib/cookie-consent/context.tsx`
+- Modify: `/Users/Data/workspace/showcase-website-starter/src/lib/security/turnstile-config.ts`
+- Modify: `/Users/Data/workspace/showcase-website-starter/scripts/quality/react-doctor-classify.mjs`
+- Modify: `/Users/Data/workspace/showcase-website-starter/tests/unit/scripts/react-doctor-classify.test.ts`
+- Modify: `/Users/Data/workspace/showcase-website-starter/docs/quality/react-doctor-exceptions.md`
+- Modify: `/Users/Data/workspace/showcase-website-starter/docs/quality/react-doctor-baseline.md`
+- Modify: `/Users/Data/workspace/showcase-website-starter/docs/quality/react-doctor-policy.md`
+
+**Scope:**
+
+Close the remaining production `confirmed-real` bucket without changing CI to
+raw warning blocking. Only apply small behavior-preserving refactors and record
+proof-heavy findings as proof lanes or exceptions.
+
+- [x] **Step 1: Fix low-risk iteration findings**
+
+Replace local `map().filter()` / `filter().map()` / `map().filter(Boolean)`
+patterns with single-pass loops or `flatMap()` where tests cover the behavior:
+
+- hero proof item view model
+- market family navigation view model
+- contact form field descriptors
+- CSP directive serialization
+- standard market slug filtering
+- content file filtering
+- Playwright locale parsing
+- CORS origin parsing
+- Turnstile host/action parsing
+
+- [x] **Step 2: Keep sanitizer string scans in a proof lane**
+
+Classify `src/lib/security-validation.ts` `js-set-map-lookups` as
+`needs-manual-proof`. The reported code is `String.indexOf()` inside an HTML
+sanitizer tag-stripping loop, not array membership. Rewriting needs sanitizer
+security proof.
+
+- [x] **Step 3: Apply small React 19 and MDX cleanup**
+
+- Migrate cookie consent context reads from `useContext()` to React 19 `use()`.
+- Replace the MDX blockquote thick left border with a tokenized subtle quote
+  box.
+
+- [x] **Step 4: Keep Turnstile loading state as an exception**
+
+Classify `src/components/security/turnstile.tsx`
+`rendering-usetransition-loading` as a project exception because the loading
+state mirrors an external Cloudflare widget lifecycle, not a React transition.
+
+- [x] **Step 5: Refresh current classified baseline**
+
+Latest classified baseline after wave C:
+
+```text
+total: 447
+errors: 0
+warnings: 447
+test-fixture-noise: 301
+low-value-style: 83
+confirmed-real: 0
+project-exception: 22
+needs-manual-proof: 41
+```
+
+### Task 20: Scripts proof lane and classifier calibration wave D
+
+**Files:**
+- Modify: `/Users/Data/workspace/showcase-website-starter/scripts/starter-checks.js`
+- Modify: `/Users/Data/workspace/showcase-website-starter/scripts/quality/react-doctor-classify.mjs`
+- Modify: `/Users/Data/workspace/showcase-website-starter/tests/unit/scripts/react-doctor-classify.test.ts`
+- Modify: `/Users/Data/workspace/showcase-website-starter/docs/quality/react-doctor-baseline.md`
+- Modify: `/Users/Data/workspace/showcase-website-starter/docs/quality/react-doctor-exceptions.md`
+- Modify: `/Users/Data/workspace/showcase-website-starter/docs/quality/react-doctor-policy.md`
+
+**Scope:**
+
+Only clean low-risk `scripts/starter-checks.js` findings that have focused
+script tests or direct guardrail commands. Do not parallelize Cloudflare smoke
+or deploy probes. Do not rewrite sanitizer internals.
+
+- [x] **Step 1: Clean low-risk parser and list transformations**
+
+Replaced local `map().filter(Boolean)`, `filter().map()`, repeated component
+governance filters, and immutable sort patterns in the quality script where
+tests or generated-output hashes could prove the behavior stayed stable.
+
+- [x] **Step 2: Verify script behavior**
+
+Focused verification passed:
+
+```text
+tests/unit/scripts/content-slug-sync.test.ts
+tests/unit/scripts/mdx-slug-sync.test.ts
+tests/unit/scripts/check-eslint-disable-usage.test.ts
+tests/unit/scripts/client-boundary-budget.test.ts
+tests/unit/scripts/component-governance-check.test.ts
+tests/architecture/component-governance.test.ts
+tests/unit/scripts/proof-lane-contract.test.ts
+```
+
+Direct guardrail commands passed:
+
+```text
+node scripts/starter-checks.js content-slugs --quiet
+node scripts/starter-checks.js eslint-disable
+node scripts/starter-checks.js content-manifest
+node scripts/starter-checks.js component-governance
+node scripts/starter-checks.js client-boundary
+```
+
+`content-manifest` regenerated byte-identical outputs for:
+
+```text
+reports/content-manifest.json
+src/lib/mdx-importers.generated.ts
+src/lib/content-manifest.generated.ts
+```
+
+- [x] **Step 3: Classify remaining quality script warnings**
+
+Remaining `scripts/starter-checks.js` warnings are not treated as confirmed
+bugs:
+
+- `js-set-map-lookups`: React Doctor is reporting `String.indexOf()` and
+  `String.includes()` over file contents, docs, workflow snippets, and response
+  bodies as if they were array lookup loops.
+- async/sequential await rules: Cloudflare smoke and deployed-smoke probes
+  intentionally preserve request order, retry timing, shared retry-event
+  reporting, and readable failure logs.
+
+- [x] **Step 4: Keep sanitizer scans as the only proof lane**
+
+The only remaining `needs-manual-proof` warnings are:
+
+```text
+src/lib/security-validation.ts js-set-map-lookups x2
+```
+
+They stay in a security proof lane because `stripTag()` scans strings inside an
+HTML sanitizer. Rewriting needs focused sanitizer cases for nested tags, missing
+closing tags, mixed casing, and attacker-controlled payloads.
+
+- [x] **Step 5: Refresh current classified baseline**
+
+Latest classified baseline after wave D:
+
+```text
+total: 428
+errors: 0
+warnings: 428
+test-fixture-noise: 301
+low-value-style: 83
+confirmed-real: 0
+project-exception: 42
+needs-manual-proof: 2
+score: 72 / 100
+```
+
+### Task 21: Security proof lane and native zero-warning calibration
+
+**Files:**
+- Create: `/Users/Data/workspace/showcase-website-starter/react-doctor.config.json`
+- Modify: `/Users/Data/workspace/showcase-website-starter/src/lib/security-validation.ts`
+- Modify: `/Users/Data/workspace/showcase-website-starter/src/lib/__tests__/security-validation.test.ts`
+- Modify: `/Users/Data/workspace/showcase-website-starter/docs/quality/react-doctor-baseline.md`
+- Modify: `/Users/Data/workspace/showcase-website-starter/docs/quality/react-doctor-policy.md`
+- Modify: `/Users/Data/workspace/showcase-website-starter/docs/quality/react-doctor-exceptions.md`
+- Modify: `/Users/Data/workspace/showcase-website-starter/package.json`
+- Modify: `/Users/Data/workspace/showcase-website-starter/.github/workflows/ci.yml`
+- Create: `/Users/Data/workspace/showcase-website-starter/scripts/quality/react-doctor-raw-governance.mjs`
+
+**Scope:**
+
+Reach native React Doctor `0 warning / 0 error` without broad warning
+blocking and without hiding untriaged diagnostics. Every historical diagnostic
+must either be fixed or represented by a narrow file/rule override that is
+backed by the classifier and exception docs.
+
+- [x] **Step 1: Prove and fix sanitizer warning instead of suppressing it**
+
+Added tests for:
+
+- mixed-case `script` and `iframe` tags
+- unsafe tags with attributes
+- missing closing tags
+- nested script payloads
+
+The nested script test failed against the old implementation because payload
+text could leak after the first closing tag. The implementation was then
+changed to an explicit scanner that tracks nested unsafe tags and no longer
+uses the `indexOf()` pattern React Doctor reported.
+
+- [x] **Step 2: Confirm sanitizer warnings disappear**
+
+Fresh classification after the sanitizer fix:
+
+```text
+total: 426
+errors: 0
+warnings: 426
+unresolved: 0
+needs-manual-proof: 0
+```
+
+- [x] **Step 3: Add native React Doctor config**
+
+Created `react-doctor.config.json` using only `ignore.overrides`.
+
+Rules:
+
+- no global `ignore.rules`
+- no whole-directory `ignore.files`
+- each override is a narrow file/rule combination
+- historical warnings remain documented in the classifier output, policy, and
+  exception registry
+
+- [x] **Step 4: Add raw governance guard**
+
+Added `pnpm react:doctor:raw-governance` and wired it into CI.
+
+This guard runs React Doctor through a temporary root config without project
+overrides, classifies the pre-suppression diagnostics, and verifies:
+
+- all raw diagnostics still have disposition, owner, and reason
+- `unresolved` remains 0
+- `react-doctor.config.json` has no global `ignore.rules`
+- `react-doctor.config.json` has no whole-file `ignore.files`
+- each configured file/rule suppression exactly matches the current raw
+  diagnostic file/rule set
+
+- [x] **Step 5: Verify native React Doctor zero**
+
+`pnpm react:doctor` now loads `react-doctor.config.json` and reports:
+
+```text
+No issues found!
+100 / 100 Great
+```
+
+Fresh JSON summary:
+
+```text
+errorCount: 0
+warningCount: 0
+affectedFileCount: 0
+totalDiagnosticCount: 0
+score: 100
+scoreLabel: Great
+```
+
+---
+
+## Final verification for the whole governance program
+
+Run these commands before claiming the governance plan is implemented:
+
+```bash
+pnpm react:doctor
+pnpm react:doctor:governance
+pnpm react:doctor:raw-governance
+pnpm lint:check
+pnpm type-check
+pnpm test
+```
+
+Expected:
+
 - `pnpm react:doctor` exits 0.
+- `pnpm react:doctor:governance` exits 0 with native post-config 0 diagnostics.
+- `pnpm react:doctor:raw-governance` exits 0 with pre-config raw diagnostics fully classified, 0 unresolved, and exact config coverage.
 - `pnpm lint:check` exits 0.
 - `pnpm type-check` exits 0.
 - `pnpm test` exits 0.
-- classified report exists.
+- classified reports exist in the system temp directory and `reports/quality/react-doctor-classified.json`.
 - `blocking-error` is 0.
 - warning gate is not upgraded to raw `--fail-on warning`.
 

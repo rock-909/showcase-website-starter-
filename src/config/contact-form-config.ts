@@ -242,10 +242,12 @@ function shouldRenderField(
 export function buildFormFieldsFromConfig(
   config: ContactFormConfig,
 ): ContactFormFieldDescriptor[] {
-  return CONTACT_FORM_FIELD_KEYS.map((key) => {
-    return config.fields[key];
-  })
-    .filter((field) => shouldRenderField(field, config.features))
+  const fields = CONTACT_FORM_FIELD_KEYS.flatMap((key) => {
+    const field = config.fields[key];
+    return shouldRenderField(field, config.features) ? [field] : [];
+  });
+
+  return fields
     .sort((a, b) => a.order - b.order)
     .map((field) => ({
       // nosemgrep: object-injection-sink-spread-operator

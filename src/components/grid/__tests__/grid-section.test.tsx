@@ -75,6 +75,16 @@ describe("GridSection", () => {
     const section = container.querySelector("section");
     expect(section).not.toHaveClass("border-t", "border-b", "border-y");
   });
+
+  it("renders no decorative guide cells when none are provided", () => {
+    const { container } = render(
+      <GridSection columns={3} rows={1}>
+        <div>Content</div>
+      </GridSection>,
+    );
+
+    expect(container.querySelectorAll("[aria-hidden='true']")).toHaveLength(0);
+  });
 });
 
 describe("heroGuides", () => {

@@ -9,7 +9,7 @@ Use this skill after React/Next.js changes and before saying the work is done.
 
 ## Required command
 
-Run the project-pinned CI gate:
+Run the project-pinned error gate:
 
 ```bash
 pnpm react:doctor
@@ -17,12 +17,27 @@ pnpm react:doctor
 
 This is blocking. React Doctor errors must be fixed before completion.
 
+## Governance gate
+
+When the task targets React Doctor warning cleanup or repo quality governance,
+also run both governance gates:
+
+```bash
+pnpm react:doctor:governance
+pnpm react:doctor:raw-governance
+```
+
+The native governance gate confirms the post-config scan has no unresolved
+diagnostics. The raw governance gate scans through a temporary root config
+without project overrides, then verifies every raw warning still has a
+disposition, owner, reason, and exact file/rule suppression coverage.
+
 ## Full report
 
 For cleanup, audit, or triage work, generate the JSON report:
 
 ```bash
-pnpm react:doctor:report
+pnpm react:doctor:classify
 ```
 
 ## Project rules

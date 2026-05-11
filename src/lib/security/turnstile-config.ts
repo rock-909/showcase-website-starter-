@@ -9,10 +9,10 @@ function parseConfiguredHosts(): string[] {
   const hosts = env.TURNSTILE_ALLOWED_HOSTS;
   if (!hosts) return [];
 
-  return hosts
-    .split(",")
-    .map((value: string) => value.trim().toLowerCase())
-    .filter(Boolean);
+  return hosts.split(",").flatMap((value: string) => {
+    const normalized = value.trim().toLowerCase();
+    return normalized ? [normalized] : [];
+  });
 }
 
 /**
@@ -46,6 +46,10 @@ function getAllowedTurnstileHostsFromConfig(): string[] {
   return configured.length > 0 ? configured : deriveFallbackHosts();
 }
 
+function getAllowedTurnstileHostsSet(): Set<string> {
+  return new Set(getAllowedTurnstileHostsFromConfig());
+}
+
 /**
  * Return the list of hostnames that are allowed to appear in Turnstile verification responses.
  */
@@ -60,7 +64,7 @@ export function isAllowedTurnstileHostname(hostname?: string | null): boolean {
   if (!hostname) return false;
 
   const normalized = hostname.toLowerCase();
-  return getAllowedTurnstileHosts().includes(normalized);
+  return getAllowedTurnstileHostsSet().has(normalized);
 }
 
 /**
@@ -72,6 +76,7 @@ const DEFAULT_ALLOWED_ACTIONS = [
   "newsletter_subscribe",
   "product_inquiry",
 ] as const;
+const DEFAULT_ALLOWED_ACTIONS_SET = new Set<string>(DEFAULT_ALLOWED_ACTIONS);
 
 function parseConfiguredActions(): string[] {
   const configuredActions = env.TURNSTILE_ALLOWED_ACTIONS;
@@ -79,15 +84,22 @@ function parseConfiguredActions(): string[] {
     return [];
   }
 
-  return configuredActions
-    .split(",")
-    .map((value) => value.trim())
-    .filter(Boolean);
+  return configuredActions.split(",").flatMap((value) => {
+    const normalized = value.trim();
+    return normalized ? [normalized] : [];
+  });
 }
 
 function getAllowedTurnstileActionsFromConfig(): string[] {
   const configured = parseConfiguredActions();
   return configured.length > 0 ? configured : [...DEFAULT_ALLOWED_ACTIONS];
+}
+
+function getAllowedTurnstileActionsSet(): Set<string> {
+  const configured = parseConfiguredActions();
+  return configured.length > 0
+    ? new Set(configured)
+    : DEFAULT_ALLOWED_ACTIONS_SET;
 }
 
 /**
@@ -114,5 +126,5 @@ export function isAllowedTurnstileAction(action?: string | null): boolean {
     return false;
   }
 
-  return getAllowedTurnstileActions().includes(action.trim());
+  return getAllowedTurnstileActionsSet().has(action.trim());
 }

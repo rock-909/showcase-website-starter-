@@ -294,9 +294,31 @@ describe("security-validation", () => {
       );
     });
 
+    it("should remove script tags with mixed casing, attributes, and missing closing tags", () => {
+      expect(
+        sanitizeHtml('safe<ScRiPt type="text/javascript">evil()</sCrIpT>text'),
+      ).toBe("safetext");
+      expect(sanitizeHtml('before<script src="evil.js">after')).toBe("before");
+    });
+
+    it("should remove nested script tags without preserving attacker payloads", () => {
+      expect(
+        sanitizeHtml(
+          "before<script>one<script>two</script>three</script>after",
+        ),
+      ).toBe("beforeafter");
+    });
+
     it("should remove iframe tags", () => {
       expect(sanitizeHtml('<iframe src="evil.com"></iframe>')).toBe("");
       expect(sanitizeHtml("test<iframe></iframe>content")).toBe("testcontent");
+    });
+
+    it("should remove iframe tags with mixed casing, attributes, and missing closing tags", () => {
+      expect(sanitizeHtml('safe<IFRAME src="evil.com">bad</iframe>text')).toBe(
+        "safetext",
+      );
+      expect(sanitizeHtml('before<iframe src="evil.com">after')).toBe("before");
     });
 
     it("should remove event handlers", () => {

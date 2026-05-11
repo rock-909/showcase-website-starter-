@@ -187,17 +187,85 @@ export function sanitizeHtml(html: string): string {
   }
 
   // 移除特定标签（非正则实现，避免不安全正则）
-  const stripTag = (input: string, tag: "script" | "iframe"): string => {
-    let out = input;
-    let lower = out.toLowerCase();
-    let start = lower.indexOf(`<${tag}`);
-    while (start !== -1) {
-      const end = lower.indexOf(`</${tag}>`, start);
-      const endIdx = end === -1 ? out.length : end + tag.length + 3; // include closing tag
-      out = out.slice(0, start) + out.slice(endIdx);
-      lower = out.toLowerCase();
-      start = lower.indexOf(`<${tag}`);
+  const isTagBoundary = (input: string, boundaryIndex: number): boolean => {
+    const character = input[boundaryIndex];
+    return (
+      character === undefined ||
+      character === ">" ||
+      character === "/" ||
+      /\s/u.test(character)
+    );
+  };
+
+  const findTagEnd = (input: string, start: number): number => {
+    for (let current = start; current < input.length; current += 1) {
+      if (input[current] === ">") {
+        return current + 1;
+      }
     }
+    return input.length;
+  };
+
+  const isOpeningTagAt = (
+    input: string,
+    start: number,
+    tag: "script" | "iframe",
+  ): boolean =>
+    input.startsWith(`<${tag}`, start) &&
+    isTagBoundary(input, start + tag.length + 1);
+
+  const isClosingTagAt = (
+    input: string,
+    start: number,
+    tag: "script" | "iframe",
+  ): boolean =>
+    input.startsWith(`</${tag}`, start) &&
+    isTagBoundary(input, start + tag.length + 2);
+
+  const findUnsafeTagEnd = (
+    input: string,
+    start: number,
+    tag: "script" | "iframe",
+  ): number => {
+    const lower = input.toLowerCase();
+    let current = findTagEnd(input, start);
+    let depth = 1;
+
+    while (current < input.length) {
+      if (isOpeningTagAt(lower, current, tag)) {
+        depth += 1;
+        current = findTagEnd(input, current);
+        continue;
+      }
+
+      if (isClosingTagAt(lower, current, tag)) {
+        depth -= 1;
+        current = findTagEnd(input, current);
+        if (depth === ZERO) return current;
+        continue;
+      }
+
+      current += 1;
+    }
+
+    return input.length;
+  };
+
+  const stripTag = (input: string, tag: "script" | "iframe"): string => {
+    const lower = input.toLowerCase();
+    let out = "";
+    let current = ZERO;
+
+    while (current < input.length) {
+      if (isOpeningTagAt(lower, current, tag)) {
+        current = findUnsafeTagEnd(input, current, tag);
+        continue;
+      }
+
+      out += input[current] ?? "";
+      current += 1;
+    }
+
     return out;
   };
 

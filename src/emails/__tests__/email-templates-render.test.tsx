@@ -37,6 +37,18 @@ describe("contact email templates", () => {
       expect(text).toContain("showcase offer example quote");
       expect(text).toContain("Need a distributor quote.");
     });
+
+    it("preserves duplicate and empty message lines", async () => {
+      const text = await render(
+        <ContactFormEmail
+          {...contactEmailData}
+          message={"Repeat line\n\nRepeat line"}
+        />,
+        { plainText: true },
+      );
+
+      expect(text.match(/Repeat line/g)).toHaveLength(2);
+    });
   });
 
   describe("ConfirmationEmail", () => {

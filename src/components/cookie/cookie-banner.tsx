@@ -411,10 +411,11 @@ function CategoryToggle({
   onChange,
 }: CategoryToggleProps) {
   const id = `cookie-${label.toLowerCase().replace(/\s+/g, "-")}`;
+  const labelId = `${id}-label`;
+  const descriptionId = `${id}-description`;
 
   return (
     <label
-      htmlFor={id}
       className={cn(
         "flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors",
         disabled ? "cursor-not-allowed bg-muted/50" : "hover:bg-muted/50",
@@ -427,14 +428,24 @@ function CategoryToggle({
         checked={checked}
         disabled={disabled}
         onChange={(e) => onChange?.(e.target.checked)}
+        aria-labelledby={labelId}
+        aria-describedby={descriptionId}
         className="mt-0.5 size-4 rounded border-input accent-primary disabled:cursor-not-allowed disabled:opacity-50"
       />
-      <div className="flex-1 space-y-0.5">
-        <p className="text-xs leading-none font-medium text-foreground">
+      <span className="flex-1 space-y-0.5">
+        <span
+          id={labelId}
+          className="block text-xs leading-none font-medium text-foreground"
+        >
           {label}
-        </p>
-        <p className="text-xs text-muted-foreground">{description}</p>
-      </div>
+        </span>
+        <span
+          id={descriptionId}
+          className="block text-xs text-muted-foreground"
+        >
+          {description}
+        </span>
+      </span>
     </label>
   );
 }

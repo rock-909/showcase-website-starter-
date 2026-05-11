@@ -24,6 +24,12 @@ import { Button } from "@/components/ui/button";
  */
 
 // Simplified header props interface
+interface HeaderNavItem {
+  key: string;
+  href: string;
+  label: string;
+}
+
 interface HeaderProps {
   className?: string;
   variant?: "default" | "minimal" | "transparent";
@@ -33,12 +39,10 @@ interface HeaderProps {
   openMenuLabel?: string;
   closeMenuLabel?: string;
   mobileLanguageLabel?: string;
-  mainNavItems?: Array<{
-    key: string;
-    href: string;
-    label: string;
-  }>;
+  mainNavItems?: HeaderNavItem[];
 }
+
+const EMPTY_MAIN_NAV_ITEMS: HeaderNavItem[] = [];
 
 function getHeaderState(
   variant: HeaderProps["variant"],
@@ -63,7 +67,7 @@ export function Header({
   openMenuLabel = "Open navigation menu",
   closeMenuLabel = "Close navigation menu",
   mobileLanguageLabel = "Language",
-  mainNavItems = [],
+  mainNavItems = EMPTY_MAIN_NAV_ITEMS,
 }: HeaderProps) {
   const { isSticky, isMinimal, isTransparent, isModernNav, showTestIds } =
     getHeaderState(variant, sticky, locale);

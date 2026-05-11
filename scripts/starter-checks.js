@@ -485,14 +485,18 @@ function parseContentSlugArgs(args) {
       options.collections = arg
         .split("=")[1]
         .split(",")
-        .map((item) => item.trim())
-        .filter(Boolean);
+        .flatMap((item) => {
+          const trimmed = item.trim();
+          return trimmed ? [trimmed] : [];
+        });
     } else if (arg.startsWith("--locales=")) {
       options.locales = arg
         .split("=")[1]
         .split(",")
-        .map((item) => item.trim())
-        .filter(Boolean);
+        .flatMap((item) => {
+          const trimmed = item.trim();
+          return trimmed ? [trimmed] : [];
+        });
     }
   }
 
@@ -1003,10 +1007,13 @@ function generateImportersCode(entries) {
 
 function generateManifestTsCode(manifest) {
   const entriesJson = JSON.stringify(manifest.entries, null, 2);
+  const entryIndexes = new Map(
+    manifest.entries.map((entry, index) => [entry, index]),
+  );
   const byKeyIndex = {};
 
   for (const [key, entry] of Object.entries(manifest.byKey)) {
-    byKeyIndex[key] = manifest.entries.indexOf(entry);
+    byKeyIndex[key] = entryIndexes.get(entry);
   }
 
   const byKeyIndexJson = JSON.stringify(byKeyIndex, null, 2);
@@ -1462,10 +1469,10 @@ function getRepoFiles() {
         stdio: ["ignore", "pipe", "ignore"],
       },
     );
-    return output
-      .split("\n")
-      .map((line) => line.trim())
-      .filter(Boolean);
+    return output.split("\n").flatMap((line) => {
+      const trimmed = line.trim();
+      return trimmed ? [trimmed] : [];
+    });
   } catch (error) {
     console.error("[eslint-disable-check] Failed to list git files:", error);
     process.exit(1);
@@ -1589,10 +1596,10 @@ function parseDisableDirective(line, directive) {
   const reasonIdx = rest.indexOf("--");
   const rulesText = (reasonIdx === -1 ? rest : rest.slice(0, reasonIdx)).trim();
   const reason = (reasonIdx === -1 ? "" : rest.slice(reasonIdx + 2)).trim();
-  const rules = rulesText
-    .split(",")
-    .map((rule) => rule.trim())
-    .filter(Boolean);
+  const rules = rulesText.split(",").flatMap((rule) => {
+    const trimmed = rule.trim();
+    return trimmed ? [trimmed] : [];
+  });
 
   return { rules, reason };
 }
@@ -1796,23 +1803,37 @@ function walkFiles(rootDir, relativeRoot) {
 }
 
 function getScannedSourceFiles(rootDir) {
-  return [COMPONENT_GOVERNANCE_COMPONENTS_ROOT, COMPONENT_GOVERNANCE_APP_ROOT]
-    .flatMap((root) => walkFiles(rootDir, root))
-    .filter((file) => COMPONENT_GOVERNANCE_SOURCE_FILE_PATTERN.test(file))
-    .filter((file) => !COMPONENT_GOVERNANCE_EXCLUDED_FILE_PATTERN.test(file));
+  const files = [];
+
+  for (const root of [
+    COMPONENT_GOVERNANCE_COMPONENTS_ROOT,
+    COMPONENT_GOVERNANCE_APP_ROOT,
+  ]) {
+    for (const file of walkFiles(rootDir, root)) {
+      if (!COMPONENT_GOVERNANCE_SOURCE_FILE_PATTERN.test(file)) continue;
+      if (COMPONENT_GOVERNANCE_EXCLUDED_FILE_PATTERN.test(file)) continue;
+      files.push(file);
+    }
+  }
+
+  return files;
 }
 
 function getUiPrimitiveNames(rootDir) {
-  return walkFiles(rootDir, COMPONENT_GOVERNANCE_UI_ROOT)
-    .filter((file) => path.dirname(file) === COMPONENT_GOVERNANCE_UI_ROOT)
-    .filter((file) => COMPONENT_GOVERNANCE_UI_PRIMITIVE_FILE_PATTERN.test(file))
-    .filter((file) => !COMPONENT_GOVERNANCE_EXCLUDED_FILE_PATTERN.test(file))
-    .map((file) =>
+  const primitiveNames = [];
+
+  for (const file of walkFiles(rootDir, COMPONENT_GOVERNANCE_UI_ROOT)) {
+    if (path.dirname(file) !== COMPONENT_GOVERNANCE_UI_ROOT) continue;
+    if (!COMPONENT_GOVERNANCE_UI_PRIMITIVE_FILE_PATTERN.test(file)) continue;
+    if (COMPONENT_GOVERNANCE_EXCLUDED_FILE_PATTERN.test(file)) continue;
+    primitiveNames.push(
       path
         .basename(file)
         .replace(COMPONENT_GOVERNANCE_UI_PRIMITIVE_FILE_PATTERN, ""),
-    )
-    .sort();
+    );
+  }
+
+  return primitiveNames.sort();
 }
 
 function createFinding(file, kind, detail, line = 1) {
@@ -2671,12 +2692,16 @@ function hasTopLevelUseClientDirective(source) {
 }
 
 function collectClientBoundaryFiles(rootDir = ROOT) {
-  return collectSourceFiles(rootDir)
-    .filter((filePath) =>
-      hasTopLevelUseClientDirective(fs.readFileSync(filePath, "utf8")),
-    )
-    .map((filePath) => toRepoPath(rootDir, filePath))
-    .sort((left, right) => left.localeCompare(right));
+  const clientBoundaries = [];
+
+  for (const filePath of collectSourceFiles(rootDir)) {
+    if (!hasTopLevelUseClientDirective(fs.readFileSync(filePath, "utf8"))) {
+      continue;
+    }
+    clientBoundaries.push(toRepoPath(rootDir, filePath));
+  }
+
+  return clientBoundaries.sort((left, right) => left.localeCompare(right));
 }
 
 function createBudgetError(kind, message) {
@@ -2731,7 +2756,7 @@ function readBudget(rootDir) {
       budget: {
         version: parsed.version,
         maxClientBoundaries: parsed.maxClientBoundaries,
-        allowedClientBoundaries: [...parsed.allowedClientBoundaries].sort(
+        allowedClientBoundaries: parsed.allowedClientBoundaries.toSorted(
           (left, right) => left.localeCompare(right),
         ),
       },
@@ -2754,25 +2779,35 @@ function writeClientBoundaryReport(rootDir, payload) {
 
 function createUnexpectedBoundaryErrors(clientBoundaries, budget) {
   const allowed = new Set(budget.allowedClientBoundaries);
-  return clientBoundaries
-    .filter((file) => !allowed.has(file))
-    .map((file) => ({
+
+  const errors = [];
+  for (const file of clientBoundaries) {
+    if (allowed.has(file)) continue;
+    errors.push({
       kind: "unexpected-client-boundary",
       file,
       message: "Client boundary is not listed in the committed budget.",
-    }));
+    });
+  }
+
+  return errors;
 }
 
 function createStaleBoundaryErrors(clientBoundaries, budget) {
   const actual = new Set(clientBoundaries);
-  return budget.allowedClientBoundaries
-    .filter((file) => !actual.has(file))
-    .map((file) => ({
+
+  const errors = [];
+  for (const file of budget.allowedClientBoundaries) {
+    if (actual.has(file)) continue;
+    errors.push({
       kind: "stale-client-boundary",
       file,
       message:
         "Client boundary is listed in the committed budget but is not detected in src.",
-    }));
+    });
+  }
+
+  return errors;
 }
 
 function createBudgetExceededError(clientBoundaries, budget) {
@@ -3719,9 +3754,10 @@ function normalizeSetCookieFlags(cookieHeader) {
   return cookieHeader
     .split(";")
     .slice(1)
-    .map((part) => part.trim().toLowerCase())
-    .filter((part) => !part.startsWith("expires="))
-    .filter(Boolean)
+    .flatMap((part) => {
+      const flag = part.trim().toLowerCase();
+      return flag && !flag.startsWith("expires=") ? [flag] : [];
+    })
     .sort();
 }
 

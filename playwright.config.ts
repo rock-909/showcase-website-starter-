@@ -12,8 +12,10 @@ const isDaily = process.env.CI_DAILY === "true";
 
 const supportedLocales = (process.env.NEXT_PUBLIC_SUPPORTED_LOCALES || "en")
   .split(",")
-  .map((locale) => locale.trim())
-  .filter(Boolean);
+  .flatMap((locale) => {
+    const normalized = locale.trim();
+    return normalized ? [normalized] : [];
+  });
 const defaultLocale =
   process.env.NEXT_PUBLIC_DEFAULT_LOCALE?.trim() || supportedLocales[0] || "en";
 
