@@ -14,6 +14,142 @@ const VALIDATION_CONSTANTS = {
   MAX_EMAIL_LENGTH: INPUT_VALIDATION_CONSTANTS.EMAIL_MAX_LENGTH,
 } as const;
 
+interface UnsafeTagScan {
+  readonly input: string;
+  readonly lower: string;
+  readonly tag: "script" | "iframe";
+}
+
+interface UnsafeTagState {
+  readonly current: number;
+  readonly depth: number;
+  readonly quote: '"' | "'" | "`" | null;
+}
+
+function isTagBoundary(input: string, boundaryIndex: number): boolean {
+  const character = input[boundaryIndex];
+  return (
+    character === undefined ||
+    character === ">" ||
+    character === "/" ||
+    /\s/u.test(character)
+  );
+}
+
+function findTagEnd(input: string, start: number): number {
+  for (let current = start; current < input.length; current += 1) {
+    if (input[current] === ">") {
+      return current + 1;
+    }
+  }
+  return input.length;
+}
+
+function isOpeningTagAt(
+  input: string,
+  start: number,
+  tag: "script" | "iframe",
+): boolean {
+  return (
+    input.startsWith(`<${tag}`, start) &&
+    isTagBoundary(input, start + tag.length + 1)
+  );
+}
+
+function isClosingTagAt(
+  input: string,
+  start: number,
+  tag: "script" | "iframe",
+): boolean {
+  return (
+    input.startsWith(`</${tag}`, start) &&
+    isTagBoundary(input, start + tag.length + 2)
+  );
+}
+
+function updateQuoteState(
+  quote: '"' | "'" | "`" | null,
+  character: string | undefined,
+  previousCharacter: string | undefined,
+): '"' | "'" | "`" | null {
+  if (
+    (character === '"' || character === "'" || character === "`") &&
+    previousCharacter !== "\\"
+  ) {
+    return quote === character ? null : (quote ?? character);
+  }
+
+  return quote;
+}
+
+function scanUnsafeTagStep(
+  scan: UnsafeTagScan,
+  state: UnsafeTagState,
+): UnsafeTagState {
+  const { input, lower, tag } = scan;
+  const { current, depth, quote } = state;
+  const character = input[current];
+  const previousCharacter = current > ZERO ? input[current - 1] : undefined;
+  const nextQuote = updateQuoteState(quote, character, previousCharacter);
+
+  if (nextQuote !== quote) {
+    return { current: current + 1, depth, quote: nextQuote };
+  }
+
+  if (quote === null && isOpeningTagAt(lower, current, tag)) {
+    return {
+      current: findTagEnd(input, current),
+      depth: depth + 1,
+      quote,
+    };
+  }
+
+  if (isClosingTagAt(lower, current, tag)) {
+    return {
+      current: findTagEnd(input, current),
+      depth: depth - 1,
+      quote,
+    };
+  }
+
+  return { current: current + 1, depth, quote };
+}
+
+function findUnsafeTagEnd(scan: UnsafeTagScan, start: number): number {
+  const { input } = scan;
+  let state: UnsafeTagState = {
+    current: findTagEnd(input, start),
+    depth: 1,
+    quote: null,
+  };
+
+  while (state.current < input.length) {
+    state = scanUnsafeTagStep(scan, state);
+    if (state.depth === ZERO) return state.current;
+  }
+
+  return input.length;
+}
+
+function stripUnsafeTag(input: string, tag: "script" | "iframe"): string {
+  const lower = input.toLowerCase();
+  const scan = { input, lower, tag };
+  const out: string[] = [];
+  let current = ZERO;
+
+  while (current < input.length) {
+    if (isOpeningTagAt(lower, current, tag)) {
+      current = findUnsafeTagEnd(scan, current);
+      continue;
+    }
+
+    out.push(input[current] ?? "");
+    current += 1;
+  }
+
+  return out.join("");
+}
+
 /**
  * Sanitize plain text input for general use
  * Removes XSS vectors while preserving safe text content
@@ -186,93 +322,10 @@ export function sanitizeHtml(html: string): string {
     return "";
   }
 
-  // 移除特定标签（非正则实现，避免不安全正则）
-  const isTagBoundary = (input: string, boundaryIndex: number): boolean => {
-    const character = input[boundaryIndex];
-    return (
-      character === undefined ||
-      character === ">" ||
-      character === "/" ||
-      /\s/u.test(character)
-    );
-  };
-
-  const findTagEnd = (input: string, start: number): number => {
-    for (let current = start; current < input.length; current += 1) {
-      if (input[current] === ">") {
-        return current + 1;
-      }
-    }
-    return input.length;
-  };
-
-  const isOpeningTagAt = (
-    input: string,
-    start: number,
-    tag: "script" | "iframe",
-  ): boolean =>
-    input.startsWith(`<${tag}`, start) &&
-    isTagBoundary(input, start + tag.length + 1);
-
-  const isClosingTagAt = (
-    input: string,
-    start: number,
-    tag: "script" | "iframe",
-  ): boolean =>
-    input.startsWith(`</${tag}`, start) &&
-    isTagBoundary(input, start + tag.length + 2);
-
-  const findUnsafeTagEnd = (
-    input: string,
-    start: number,
-    tag: "script" | "iframe",
-  ): number => {
-    const lower = input.toLowerCase();
-    let current = findTagEnd(input, start);
-    let depth = 1;
-
-    while (current < input.length) {
-      if (isOpeningTagAt(lower, current, tag)) {
-        depth += 1;
-        current = findTagEnd(input, current);
-        continue;
-      }
-
-      if (isClosingTagAt(lower, current, tag)) {
-        depth -= 1;
-        current = findTagEnd(input, current);
-        if (depth === ZERO) return current;
-        continue;
-      }
-
-      current += 1;
-    }
-
-    return input.length;
-  };
-
-  const stripTag = (input: string, tag: "script" | "iframe"): string => {
-    const lower = input.toLowerCase();
-    let out = "";
-    let current = ZERO;
-
-    while (current < input.length) {
-      if (isOpeningTagAt(lower, current, tag)) {
-        current = findUnsafeTagEnd(input, current, tag);
-        continue;
-      }
-
-      out += input[current] ?? "";
-      current += 1;
-    }
-
-    return out;
-  };
-
-  let sanitized = stripTag(html, "script");
-  sanitized = stripTag(sanitized, "iframe");
+  let sanitized = stripUnsafeTag(html, "script");
+  sanitized = stripUnsafeTag(sanitized, "iframe");
   sanitized = sanitized
-    .replace(/on\w+\s*=\s*["'][^"']*["']/gi, "") // 移除事件处理属性
+    .replace(/on\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, "") // 移除事件处理属性
     .replace(/javascript:/gi, "")
     .replace(/data:/gi, "")
     .trim();

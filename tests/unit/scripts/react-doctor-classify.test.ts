@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
+  assertDiagnosticCountBaseline,
   assertGovernance,
   assertSuppressionCoverage,
+  buildDiagnosticCountBaseline,
   classifyDiagnostics,
 } from "../../../scripts/quality/react-doctor-classify.mjs";
 
@@ -196,9 +198,9 @@ describe("react doctor classifier", () => {
     expect(result.byBucket["blocking-error"]).toBe(1);
     expect(result.byBucket["project-exception"]).toBe(8);
     expect(result.byBucket["test-fixture-noise"]).toBe(1);
-    expect(result.byBucket["needs-manual-proof"]).toBe(4);
+    expect(result.byBucket["needs-manual-proof"]).toBe(1);
     expect(result.byBucket["low-value-style"]).toBe(4);
-    expect(result.byBucket["confirmed-real"]).toBe(2);
+    expect(result.byBucket["confirmed-real"]).toBe(5);
     expect(result.byBucket["delete-after-proof"]).toBeUndefined();
   });
 
@@ -243,11 +245,11 @@ describe("react doctor classifier", () => {
   it("summarizes unresolved diagnostics separately from raw warnings", () => {
     const result = classifyDiagnostics(diagnostics);
 
-    expect(result.summary.unresolved).toBe(3);
+    expect(result.summary.unresolved).toBe(6);
     expect(result.byDisposition).toEqual({
-      fix: 3,
+      fix: 6,
       "exempt-after-proof": 9,
-      "temporarily-retain": 8,
+      "temporarily-retain": 5,
     });
   });
 
@@ -255,7 +257,7 @@ describe("react doctor classifier", () => {
     const result = classifyDiagnostics(diagnostics);
 
     expect(() => assertGovernance(result)).toThrow(
-      "React Doctor governance has 3 unresolved diagnostics",
+      "React Doctor governance has 6 unresolved diagnostics",
     );
   });
 
@@ -263,6 +265,9 @@ describe("react doctor classifier", () => {
     const governedDiagnostics = diagnostics.filter(
       (diagnostic) =>
         diagnostic.severity !== "error" &&
+        diagnostic.filePath !== "src/app/[locale]/blog/[slug]/page.tsx" &&
+        diagnostic.filePath !== "src/emails/ContactFormEmail.tsx" &&
+        diagnostic.filePath !== "src/lib/security-validation.ts" &&
         diagnostic.filePath !== "src/components/product-list.tsx" &&
         diagnostic.filePath !== "src/components/legacy-unused.tsx",
     );
@@ -286,7 +291,7 @@ describe("react doctor classifier", () => {
     });
   });
 
-  it("keeps proven Suspense-covered analytics as an exception while leaving blog notFound for proof", () => {
+  it("keeps proven Suspense-covered analytics as an exception while treating returning blog notFound diagnostics as regressions", () => {
     const result = classifyDiagnostics(diagnostics);
     const analytics = result.diagnostics.find(
       (diagnostic) =>
@@ -303,7 +308,7 @@ describe("react doctor classifier", () => {
       rule: "nextjs-no-use-search-params-without-suspense",
     });
     expect(blogNotFound).toMatchObject({
-      bucket: "needs-manual-proof",
+      bucket: "confirmed-real",
       rule: "nextjs-no-redirect-in-try-catch",
     });
   });
@@ -334,7 +339,7 @@ describe("react doctor classifier", () => {
       rule: "no-array-index-as-key",
     });
     expect(emailLineKey).toMatchObject({
-      bucket: "needs-manual-proof",
+      bucket: "confirmed-real",
       rule: "no-array-index-as-key",
     });
     expect(legalContentRender).toMatchObject({
@@ -379,7 +384,7 @@ describe("react doctor classifier", () => {
     });
   });
 
-  it("routes security sanitizer string scans into a proof lane", () => {
+  it("treats returning sanitizer string scans as regressions after the proof lane", () => {
     const result = classifyDiagnostics(diagnostics);
     const sanitizerScan = result.diagnostics.find(
       (diagnostic) =>
@@ -388,7 +393,7 @@ describe("react doctor classifier", () => {
     );
 
     expect(sanitizerScan).toMatchObject({
-      bucket: "needs-manual-proof",
+      bucket: "confirmed-real",
       rule: "js-set-map-lookups",
     });
   });
@@ -444,6 +449,44 @@ describe("react doctor classifier", () => {
     expect(() => assertSuppressionCoverage(result, config)).toThrow(
       "React Doctor suppression config does not match",
     );
+  });
+
+  it("tracks raw diagnostic counts separately from file and rule suppression coverage", () => {
+    const governedDiagnostics = diagnostics.filter(
+      (diagnostic) =>
+        diagnostic.severity !== "error" &&
+        diagnostic.filePath !== "src/components/product-list.tsx" &&
+        diagnostic.filePath !== "src/components/legacy-unused.tsx",
+    );
+    const firstDiagnostic = governedDiagnostics[0];
+    if (!firstDiagnostic) {
+      throw new Error("Expected governed diagnostics fixture to be non-empty");
+    }
+    const extraDiagnostic = {
+      ...firstDiagnostic,
+      line: 999,
+      message: "Second diagnostic for the same file and rule",
+    };
+    const result = classifyDiagnostics([
+      ...governedDiagnostics,
+      extraDiagnostic,
+    ]);
+    const config = {
+      ignore: {
+        overrides: governedDiagnostics.map((diagnostic) => ({
+          files: [diagnostic.filePath],
+          rules: [`${diagnostic.plugin}/${diagnostic.rule}`],
+        })),
+      },
+    };
+
+    expect(() => assertSuppressionCoverage(result, config)).not.toThrow();
+    expect(() =>
+      assertDiagnosticCountBaseline(
+        result,
+        buildDiagnosticCountBaseline(classifyDiagnostics(governedDiagnostics)),
+      ),
+    ).toThrow("React Doctor raw diagnostic count baseline does not match");
   });
 
   it("rejects broad suppression config shapes", () => {

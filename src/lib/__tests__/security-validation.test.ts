@@ -309,6 +309,12 @@ describe("security-validation", () => {
       ).toBe("beforeafter");
     });
 
+    it("should not treat script text literals as nested tags", () => {
+      expect(
+        sanitizeHtml('before<script>const x = "<script>";</script>after'),
+      ).toBe("beforeafter");
+    });
+
     it("should remove iframe tags", () => {
       expect(sanitizeHtml('<iframe src="evil.com"></iframe>')).toBe("");
       expect(sanitizeHtml("test<iframe></iframe>content")).toBe("testcontent");
@@ -326,6 +332,8 @@ describe("security-validation", () => {
       expect(sanitizeHtml('<div onclick="evil()">text</div>')).toBe(
         "<div >text</div>",
       );
+      expect(sanitizeHtml("<img onerror=alert(1)>")).toBe("<img >");
+      expect(sanitizeHtml("<svg onload=alert(1)>")).toBe("<svg >");
     });
 
     it("should remove javascript: protocol", () => {

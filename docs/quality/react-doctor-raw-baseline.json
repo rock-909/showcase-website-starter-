@@ -1,0 +1,1084 @@
+{
+  "diagnostics": [
+    {
+      "filePath": "mdx-components.tsx",
+      "rule": "react-doctor/design-no-bold-heading",
+      "count": 1
+    },
+    {
+      "filePath": "scripts/starter-checks.js",
+      "rule": "react-doctor/async-await-in-loop",
+      "count": 2
+    },
+    {
+      "filePath": "scripts/starter-checks.js",
+      "rule": "react-doctor/async-parallel",
+      "count": 1
+    },
+    {
+      "filePath": "scripts/starter-checks.js",
+      "rule": "react-doctor/js-set-map-lookups",
+      "count": 14
+    },
+    {
+      "filePath": "scripts/starter-checks.js",
+      "rule": "react-doctor/server-sequential-independent-await",
+      "count": 3
+    },
+    {
+      "filePath": "src/app/__tests__/actions.test.ts",
+      "rule": "react-doctor/server-sequential-independent-await",
+      "count": 2
+    },
+    {
+      "filePath": "src/app/__tests__/contact-integration.test.ts",
+      "rule": "react-doctor/server-sequential-independent-await",
+      "count": 1
+    },
+    {
+      "filePath": "src/app/[locale]/[...rest]/page.tsx",
+      "rule": "react-doctor/nextjs-missing-metadata",
+      "count": 1
+    },
+    {
+      "filePath": "src/app/[locale]/about/page.tsx",
+      "rule": "react-doctor/no-array-index-as-key",
+      "count": 1
+    },
+    {
+      "filePath": "src/app/[locale]/capabilities/page.tsx",
+      "rule": "react-doctor/design-no-bold-heading",
+      "count": 1
+    },
+    {
+      "filePath": "src/app/[locale]/capabilities/page.tsx",
+      "rule": "react-doctor/no-array-index-as-key",
+      "count": 1
+    },
+    {
+      "filePath": "src/app/[locale]/capabilities/page.tsx",
+      "rule": "react-doctor/no-render-in-render",
+      "count": 1
+    },
+    {
+      "filePath": "src/app/[locale]/contact/__tests__/page-i18n-basic.test.tsx",
+      "rule": "react-doctor/server-sequential-independent-await",
+      "count": 2
+    },
+    {
+      "filePath": "src/app/[locale]/contact/__tests__/page.test.tsx",
+      "rule": "react-doctor/server-sequential-independent-await",
+      "count": 1
+    },
+    {
+      "filePath": "src/app/[locale]/contact/contact-form-static-fallback.tsx",
+      "rule": "react-doctor/design-no-redundant-size-axes",
+      "count": 1
+    },
+    {
+      "filePath": "src/app/[locale]/contact/contact-form-static-fallback.tsx",
+      "rule": "react-doctor/design-no-space-on-flex-children",
+      "count": 1
+    },
+    {
+      "filePath": "src/app/[locale]/contact/contact-page-sections.tsx",
+      "rule": "react-doctor/design-no-redundant-size-axes",
+      "count": 4
+    },
+    {
+      "filePath": "src/app/[locale]/contact/contact-page-sections.tsx",
+      "rule": "react-doctor/design-no-space-on-flex-children",
+      "count": 2
+    },
+    {
+      "filePath": "src/app/[locale]/contact/page.tsx",
+      "rule": "react-doctor/no-render-in-render",
+      "count": 1
+    },
+    {
+      "filePath": "src/app/[locale]/custom-project-support/page.tsx",
+      "rule": "react-doctor/design-no-bold-heading",
+      "count": 3
+    },
+    {
+      "filePath": "src/app/[locale]/custom-project-support/page.tsx",
+      "rule": "react-doctor/design-no-redundant-size-axes",
+      "count": 1
+    },
+    {
+      "filePath": "src/app/[locale]/custom-project-support/page.tsx",
+      "rule": "react-doctor/no-array-index-as-key",
+      "count": 1
+    },
+    {
+      "filePath": "src/app/[locale]/how-it-works/page.tsx",
+      "rule": "react-doctor/design-no-bold-heading",
+      "count": 1
+    },
+    {
+      "filePath": "src/app/[locale]/how-it-works/page.tsx",
+      "rule": "react-doctor/no-array-index-as-key",
+      "count": 1
+    },
+    {
+      "filePath": "src/app/[locale]/how-it-works/page.tsx",
+      "rule": "react-doctor/no-render-in-render",
+      "count": 1
+    },
+    {
+      "filePath": "src/app/[locale]/layout.tsx",
+      "rule": "react-doctor/nextjs-no-native-script",
+      "count": 1
+    },
+    {
+      "filePath": "src/app/[locale]/page.tsx",
+      "rule": "react-doctor/design-no-bold-heading",
+      "count": 5
+    },
+    {
+      "filePath": "src/app/[locale]/privacy/page.tsx",
+      "rule": "react-doctor/no-array-index-as-key",
+      "count": 1
+    },
+    {
+      "filePath": "src/app/[locale]/products/__tests__/products-page.test.tsx",
+      "rule": "react-doctor/nextjs-no-img-element",
+      "count": 1
+    },
+    {
+      "filePath": "src/app/[locale]/products/page.tsx",
+      "rule": "react-doctor/design-no-bold-heading",
+      "count": 4
+    },
+    {
+      "filePath": "src/app/[locale]/terms/page.tsx",
+      "rule": "react-doctor/no-array-index-as-key",
+      "count": 1
+    },
+    {
+      "filePath": "src/app/api/csp-report/__tests__/route-get-options.test.ts",
+      "rule": "react-doctor/server-sequential-independent-await",
+      "count": 2
+    },
+    {
+      "filePath": "src/app/api/csp-report/__tests__/route-post.test.ts",
+      "rule": "react-doctor/async-await-in-loop",
+      "count": 1
+    },
+    {
+      "filePath": "src/app/api/csp-report/__tests__/route.test.ts",
+      "rule": "react-doctor/async-await-in-loop",
+      "count": 1
+    },
+    {
+      "filePath": "src/app/api/inquiry/__tests__/route.test.ts",
+      "rule": "react-doctor/async-await-in-loop",
+      "count": 2
+    },
+    {
+      "filePath": "src/app/api/inquiry/__tests__/route.test.ts",
+      "rule": "react-doctor/server-sequential-independent-await",
+      "count": 2
+    },
+    {
+      "filePath": "src/app/global-error.tsx",
+      "rule": "react-doctor/design-no-bold-heading",
+      "count": 1
+    },
+    {
+      "filePath": "src/app/ops/traffic/access/__tests__/route.test.ts",
+      "rule": "react-doctor/async-await-in-loop",
+      "count": 2
+    },
+    {
+      "filePath": "src/app/ops/traffic/page.tsx",
+      "rule": "react-doctor/design-no-bold-heading",
+      "count": 3
+    },
+    {
+      "filePath": "src/components/contact/contact-form-island-view.stories.tsx",
+      "rule": "react-doctor/design-no-three-period-ellipsis",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/contact/contact-form-island.stories.tsx",
+      "rule": "react-doctor/design-no-three-period-ellipsis",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/cookie/lazy-cookie-consent-island.tsx",
+      "rule": "react-doctor/rerender-state-only-in-handlers",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/forms/__tests__/contact-form-submission.test.tsx",
+      "rule": "react-doctor/server-sequential-independent-await",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/forms/contact-form-fields.tsx",
+      "rule": "react-doctor/design-no-space-on-flex-children",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/forms/fields/checkbox-fields.tsx",
+      "rule": "react-doctor/design-no-redundant-size-axes",
+      "count": 2
+    },
+    {
+      "filePath": "src/components/forms/fields/checkbox-fields.tsx",
+      "rule": "react-doctor/design-no-space-on-flex-children",
+      "count": 2
+    },
+    {
+      "filePath": "src/components/grid/grid-frame.tsx",
+      "rule": "react-doctor/no-array-index-as-key",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/grid/grid-system.tsx",
+      "rule": "react-doctor/no-array-index-as-key",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/layout/__tests__/mobile-navigation-basic.test.tsx",
+      "rule": "react-doctor/no-generic-handler-names",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/layout/__tests__/mobile-navigation-edge-cases-advanced.test.tsx",
+      "rule": "react-doctor/no-array-index-as-key",
+      "count": 3
+    },
+    {
+      "filePath": "src/components/layout/__tests__/mobile-navigation-items-accessibility-core.test.tsx",
+      "rule": "react-doctor/no-generic-handler-names",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/layout/__tests__/mobile-navigation-responsive-basic.test.tsx",
+      "rule": "react-doctor/no-generic-handler-names",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/layout/__tests__/mobile-navigation-responsive-edge-cases.test.tsx",
+      "rule": "react-doctor/no-generic-handler-names",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/layout/__tests__/mobile-navigation.test.tsx",
+      "rule": "jsx-a11y/click-events-have-key-events",
+      "count": 2
+    },
+    {
+      "filePath": "src/components/layout/__tests__/mobile-navigation.test.tsx",
+      "rule": "jsx-a11y/no-static-element-interactions",
+      "count": 3
+    },
+    {
+      "filePath": "src/components/layout/header-client.tsx",
+      "rule": "react-doctor/rerender-state-only-in-handlers",
+      "count": 2
+    },
+    {
+      "filePath": "src/components/layout/header-language-menu.tsx",
+      "rule": "react-doctor/design-no-redundant-size-axes",
+      "count": 3
+    },
+    {
+      "filePath": "src/components/layout/header.tsx",
+      "rule": "react-doctor/design-no-redundant-size-axes",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/layout/logo.tsx",
+      "rule": "react-doctor/nextjs-no-img-element",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/layout/mobile-navigation-interactive.tsx",
+      "rule": "react-doctor/design-no-redundant-size-axes",
+      "count": 4
+    },
+    {
+      "filePath": "src/components/monitoring/enterprise-analytics-island.tsx",
+      "rule": "react-doctor/nextjs-no-use-search-params-without-suspense",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/products/__tests__/family-section.test.tsx",
+      "rule": "react-doctor/nextjs-no-img-element",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/products/__tests__/market-series-card.test.tsx",
+      "rule": "react-doctor/nextjs-no-img-element",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/products/family-section.tsx",
+      "rule": "react-doctor/design-no-redundant-size-axes",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/sections/__tests__/faq-section.test.tsx",
+      "rule": "react/no-danger",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/sections/chain-section-view.tsx",
+      "rule": "react-doctor/design-no-redundant-size-axes",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/sections/final-cta-view.tsx",
+      "rule": "react-doctor/design-no-bold-heading",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/sections/hero-section-view.tsx",
+      "rule": "react-doctor/design-no-bold-heading",
+      "count": 2
+    },
+    {
+      "filePath": "src/components/sections/products-section-view.tsx",
+      "rule": "react-doctor/design-no-redundant-size-axes",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/sections/resources-section-view.tsx",
+      "rule": "react-doctor/design-no-redundant-size-axes",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/sections/sample-cta-view.tsx",
+      "rule": "react-doctor/design-no-bold-heading",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/sections/sample-cta-view.tsx",
+      "rule": "react-doctor/design-no-redundant-size-axes",
+      "count": 2
+    },
+    {
+      "filePath": "src/components/sections/scenarios-section-view.tsx",
+      "rule": "react-doctor/design-no-bold-heading",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/security/turnstile.tsx",
+      "rule": "effect/no-event-handler",
+      "count": 2
+    },
+    {
+      "filePath": "src/components/security/turnstile.tsx",
+      "rule": "react-doctor/no-prop-callback-in-effect",
+      "count": 2
+    },
+    {
+      "filePath": "src/components/security/turnstile.tsx",
+      "rule": "react-doctor/rendering-usetransition-loading",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/seo/__tests__/json-ld-script.test.ts",
+      "rule": "react-doctor/js-combine-iterations",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/seo/json-ld-script.tsx",
+      "rule": "react/no-danger",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/badge-accessibility-interactions.test.tsx",
+      "rule": "react-doctor/design-no-redundant-size-axes",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/badge-accessibility-interactions.test.tsx",
+      "rule": "react-doctor/no-generic-handler-names",
+      "count": 3
+    },
+    {
+      "filePath": "src/components/ui/__tests__/badge-basic-rendering.test.tsx",
+      "rule": "react-doctor/design-no-default-tailwind-palette",
+      "count": 2
+    },
+    {
+      "filePath": "src/components/ui/__tests__/badge-basic-variants.test.tsx",
+      "rule": "react-doctor/no-array-index-as-key",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/badge-basic-variants.test.tsx",
+      "rule": "react-doctor/no-generic-handler-names",
+      "count": 3
+    },
+    {
+      "filePath": "src/components/ui/__tests__/badge-content-basic.test.tsx",
+      "rule": "react-doctor/no-array-index-as-key",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/badge-custom-props-core.test.tsx",
+      "rule": "react-doctor/no-generic-handler-names",
+      "count": 4
+    },
+    {
+      "filePath": "src/components/ui/__tests__/badge-custom-props.test.tsx",
+      "rule": "jsx-a11y/click-events-have-key-events",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/badge-custom-props.test.tsx",
+      "rule": "jsx-a11y/no-static-element-interactions",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/badge-custom-props.test.tsx",
+      "rule": "react-doctor/no-generic-handler-names",
+      "count": 2
+    },
+    {
+      "filePath": "src/components/ui/__tests__/card-accessibility-features-core.test.tsx",
+      "rule": "jsx-a11y/anchor-is-valid",
+      "count": 2
+    },
+    {
+      "filePath": "src/components/ui/__tests__/card-accessibility-features-core.test.tsx",
+      "rule": "react-doctor/nextjs-no-img-element",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/card-accessibility-features.test.tsx",
+      "rule": "jsx-a11y/anchor-is-valid",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/card-accessibility-features.test.tsx",
+      "rule": "react-doctor/nextjs-no-img-element",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/card-integration-scenarios.test.tsx",
+      "rule": "react-doctor/design-no-space-on-flex-children",
+      "count": 2
+    },
+    {
+      "filePath": "src/components/ui/__tests__/card-integration-scenarios.test.tsx",
+      "rule": "react-doctor/design-no-three-period-ellipsis",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/card-integration-scenarios.test.tsx",
+      "rule": "react-doctor/design-no-vague-button-label",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/card-integration-scenarios.test.tsx",
+      "rule": "react-doctor/nextjs-no-a-element",
+      "count": 3
+    },
+    {
+      "filePath": "src/components/ui/__tests__/card-structure-components.test.tsx",
+      "rule": "react-doctor/nextjs-no-img-element",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/dropdown-menu-complex.test.tsx",
+      "rule": "react-doctor/design-no-three-period-ellipsis",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/input-file-edge-cases.test.tsx",
+      "rule": "react-doctor/design-no-default-tailwind-palette",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/input-file-edge-cases.test.tsx",
+      "rule": "react-doctor/no-cascading-set-state",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/input-props-events.test.tsx",
+      "rule": "jsx-a11y/no-autofocus",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/input-props-events.test.tsx",
+      "rule": "jsx-a11y/tabindex-no-positive",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/input-states-accessibility.test.tsx",
+      "rule": "jsx-a11y/label-has-associated-control",
+      "count": 2
+    },
+    {
+      "filePath": "src/components/ui/__tests__/input-states-accessibility.test.tsx",
+      "rule": "react-doctor/design-no-vague-button-label",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/input.test.tsx",
+      "rule": "react-doctor/no-generic-handler-names",
+      "count": 6
+    },
+    {
+      "filePath": "src/components/ui/__tests__/label-component-composition.test.tsx",
+      "rule": "react-doctor/design-no-vague-button-label",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/label-component-composition.test.tsx",
+      "rule": "react-doctor/no-react19-deprecated-apis",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/label-edge-cases-basic.test.tsx",
+      "rule": "react-doctor/async-await-in-loop",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/label-edge-cases-basic.test.tsx",
+      "rule": "react-doctor/no-array-index-as-key",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/label-edge-cases.test.tsx",
+      "rule": "react-doctor/async-await-in-loop",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/label-event-handling-basic.test.tsx",
+      "rule": "jsx-a11y/click-events-have-key-events",
+      "count": 3
+    },
+    {
+      "filePath": "src/components/ui/__tests__/label-event-handling-basic.test.tsx",
+      "rule": "jsx-a11y/no-static-element-interactions",
+      "count": 3
+    },
+    {
+      "filePath": "src/components/ui/__tests__/label-event-handling-basic.test.tsx",
+      "rule": "react-doctor/no-generic-handler-names",
+      "count": 4
+    },
+    {
+      "filePath": "src/components/ui/__tests__/label-event-handling.test.tsx",
+      "rule": "jsx-a11y/click-events-have-key-events",
+      "count": 3
+    },
+    {
+      "filePath": "src/components/ui/__tests__/label-event-handling.test.tsx",
+      "rule": "jsx-a11y/no-static-element-interactions",
+      "count": 3
+    },
+    {
+      "filePath": "src/components/ui/__tests__/label-event-handling.test.tsx",
+      "rule": "react-doctor/no-generic-handler-names",
+      "count": 4
+    },
+    {
+      "filePath": "src/components/ui/__tests__/label-events.test.tsx",
+      "rule": "react-doctor/async-await-in-loop",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/label-events.test.tsx",
+      "rule": "react-doctor/design-no-default-tailwind-palette",
+      "count": 2
+    },
+    {
+      "filePath": "src/components/ui/__tests__/label-form-advanced-integration-core.test.tsx",
+      "rule": "react-doctor/design-no-vague-button-label",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/label-form-advanced-integration-core.test.tsx",
+      "rule": "react-doctor/rerender-functional-setstate",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/label-form-advanced-integration.test.tsx",
+      "rule": "react-doctor/design-no-vague-button-label",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/label-form-association.test.tsx",
+      "rule": "react-doctor/async-await-in-loop",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/label-form-association.test.tsx",
+      "rule": "react-doctor/no-react19-deprecated-apis",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/label-form-basic-integration-core.test.tsx",
+      "rule": "react-doctor/design-no-vague-button-label",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/label-form-basic-integration-essential.test.tsx",
+      "rule": "react-doctor/design-no-vague-button-label",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/label-form-basic-integration.test.tsx",
+      "rule": "react-doctor/design-no-vague-button-label",
+      "count": 2
+    },
+    {
+      "filePath": "src/components/ui/__tests__/label-form-integration.test.tsx",
+      "rule": "react-doctor/design-no-vague-button-label",
+      "count": 3
+    },
+    {
+      "filePath": "src/components/ui/__tests__/label-responsive-basic.test.tsx",
+      "rule": "react-doctor/design-no-default-tailwind-palette",
+      "count": 8
+    },
+    {
+      "filePath": "src/components/ui/__tests__/label-responsive-behavior.test.tsx",
+      "rule": "react-doctor/design-no-default-tailwind-palette",
+      "count": 8
+    },
+    {
+      "filePath": "src/components/ui/__tests__/label-state-management-core.test.tsx",
+      "rule": "jsx-a11y/anchor-is-valid",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/label-state-management-core.test.tsx",
+      "rule": "react-doctor/design-no-default-tailwind-palette",
+      "count": 2
+    },
+    {
+      "filePath": "src/components/ui/__tests__/label-state-management-core.test.tsx",
+      "rule": "react-doctor/design-no-three-period-ellipsis",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/label-state-management.test.tsx",
+      "rule": "jsx-a11y/anchor-is-valid",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/label-state-management.test.tsx",
+      "rule": "react-doctor/design-no-default-tailwind-palette",
+      "count": 2
+    },
+    {
+      "filePath": "src/components/ui/__tests__/label-state-management.test.tsx",
+      "rule": "react-doctor/design-no-three-period-ellipsis",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/label.test.tsx",
+      "rule": "react-doctor/design-no-vague-button-label",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/label.test.tsx",
+      "rule": "react-doctor/no-generic-handler-names",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/separator.test.tsx",
+      "rule": "react-doctor/design-no-default-tailwind-palette",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/sheet-content.test.tsx",
+      "rule": "react-doctor/async-await-in-loop",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/sheet-edge-cases.test.tsx",
+      "rule": "react-doctor/async-await-in-loop",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/social-icons-accessibility-integration.test.tsx",
+      "rule": "react-doctor/async-await-in-loop",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/social-icons-accessibility-integration.test.tsx",
+      "rule": "react-doctor/design-no-default-tailwind-palette",
+      "count": 2
+    },
+    {
+      "filePath": "src/components/ui/__tests__/social-icons-accessibility-integration.test.tsx",
+      "rule": "react-doctor/design-no-space-on-flex-children",
+      "count": 2
+    },
+    {
+      "filePath": "src/components/ui/__tests__/social-icons-accessibility-integration.test.tsx",
+      "rule": "react-doctor/no-array-index-as-key",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/social-icons-basic.test.tsx",
+      "rule": "react-doctor/design-no-default-tailwind-palette",
+      "count": 2
+    },
+    {
+      "filePath": "src/components/ui/__tests__/social-icons-basic.test.tsx",
+      "rule": "react-doctor/design-no-redundant-size-axes",
+      "count": 3
+    },
+    {
+      "filePath": "src/components/ui/__tests__/social-icons-integration-scenarios-basic-core.test.tsx",
+      "rule": "react-doctor/design-no-default-tailwind-palette",
+      "count": 2
+    },
+    {
+      "filePath": "src/components/ui/__tests__/social-icons-integration-scenarios-basic-core.test.tsx",
+      "rule": "react-doctor/design-no-space-on-flex-children",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/social-icons-integration-scenarios-basic.test.tsx",
+      "rule": "react-doctor/design-no-default-tailwind-palette",
+      "count": 2
+    },
+    {
+      "filePath": "src/components/ui/__tests__/social-icons-integration-scenarios-basic.test.tsx",
+      "rule": "react-doctor/design-no-space-on-flex-children",
+      "count": 2
+    },
+    {
+      "filePath": "src/components/ui/__tests__/social-icons-integration-scenarios-basic.test.tsx",
+      "rule": "react-doctor/no-array-index-as-key",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/social-icons-integration-scenarios.test.tsx",
+      "rule": "react-doctor/design-no-default-tailwind-palette",
+      "count": 2
+    },
+    {
+      "filePath": "src/components/ui/__tests__/social-icons-integration-scenarios.test.tsx",
+      "rule": "react-doctor/design-no-space-on-flex-children",
+      "count": 2
+    },
+    {
+      "filePath": "src/components/ui/__tests__/social-icons-integration-scenarios.test.tsx",
+      "rule": "react-doctor/design-no-three-period-ellipsis",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/social-icons-integration-scenarios.test.tsx",
+      "rule": "react-doctor/no-array-index-as-key",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/social-icons-mapper-links.test.tsx",
+      "rule": "react-doctor/design-no-redundant-size-axes",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/__tests__/social-icons-mapper.test.tsx",
+      "rule": "react-doctor/design-no-redundant-size-axes",
+      "count": 2
+    },
+    {
+      "filePath": "src/components/ui/accordion.tsx",
+      "rule": "react-doctor/no-react19-deprecated-apis",
+      "count": 3
+    },
+    {
+      "filePath": "src/components/ui/badge.tsx",
+      "rule": "react-doctor/no-react19-deprecated-apis",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/lazy-theme-switcher.tsx",
+      "rule": "react-doctor/rerender-state-only-in-handlers",
+      "count": 2
+    },
+    {
+      "filePath": "src/components/ui/section-head.tsx",
+      "rule": "react-doctor/design-no-bold-heading",
+      "count": 2
+    },
+    {
+      "filePath": "src/components/ui/separator.tsx",
+      "rule": "react-doctor/no-react19-deprecated-apis",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/textarea.tsx",
+      "rule": "react-doctor/no-react19-deprecated-apis",
+      "count": 1
+    },
+    {
+      "filePath": "src/components/ui/theme-switcher-highlight.stories.tsx",
+      "rule": "react-doctor/design-no-redundant-size-axes",
+      "count": 9
+    },
+    {
+      "filePath": "src/components/ui/theme-switcher.tsx",
+      "rule": "react-doctor/design-no-redundant-size-axes",
+      "count": 3
+    },
+    {
+      "filePath": "src/config/__tests__/single-site-seo.test.ts",
+      "rule": "react-doctor/js-tosorted-immutable",
+      "count": 1
+    },
+    {
+      "filePath": "src/config/__tests__/site-facts.test.ts",
+      "rule": "react-doctor/js-combine-iterations",
+      "count": 1
+    },
+    {
+      "filePath": "src/config/__tests__/standards-consistency.test.ts",
+      "rule": "react-doctor/js-combine-iterations",
+      "count": 2
+    },
+    {
+      "filePath": "src/config/paths/__tests__/site-config.test.ts",
+      "rule": "react-doctor/js-index-maps",
+      "count": 1
+    },
+    {
+      "filePath": "src/config/paths/__tests__/site-config.test.ts",
+      "rule": "react-doctor/js-set-map-lookups",
+      "count": 2
+    },
+    {
+      "filePath": "src/constants/__tests__/index.test.ts",
+      "rule": "react-doctor/async-await-in-loop",
+      "count": 1
+    },
+    {
+      "filePath": "src/constants/__tests__/index.test.ts",
+      "rule": "react-doctor/no-dynamic-import-path",
+      "count": 1
+    },
+    {
+      "filePath": "src/constants/product-specs/__tests__/market-spec-registry.test.ts",
+      "rule": "react-doctor/js-tosorted-immutable",
+      "count": 2
+    },
+    {
+      "filePath": "src/lib/__tests__/load-messages.fallback.test.ts",
+      "rule": "react-doctor/server-sequential-independent-await",
+      "count": 2
+    },
+    {
+      "filePath": "src/lib/__tests__/security-crypto.test.ts",
+      "rule": "react-doctor/server-sequential-independent-await",
+      "count": 10
+    },
+    {
+      "filePath": "src/lib/__tests__/structured-data.test.ts",
+      "rule": "react-doctor/async-await-in-loop",
+      "count": 3
+    },
+    {
+      "filePath": "src/lib/api/safe-parse-json.ts",
+      "rule": "react-doctor/async-await-in-loop",
+      "count": 1
+    },
+    {
+      "filePath": "src/lib/cloudflare/__tests__/analytics-cache.test.ts",
+      "rule": "react-doctor/server-sequential-independent-await",
+      "count": 1
+    },
+    {
+      "filePath": "src/lib/i18n/__tests__/client-messages.test.ts",
+      "rule": "react-doctor/js-tosorted-immutable",
+      "count": 1
+    },
+    {
+      "filePath": "src/lib/security/__tests__/distributed-rate-limit.test.ts",
+      "rule": "react-doctor/async-await-in-loop",
+      "count": 11
+    },
+    {
+      "filePath": "src/lib/security/__tests__/distributed-rate-limit.test.ts",
+      "rule": "react-doctor/server-sequential-independent-await",
+      "count": 2
+    },
+    {
+      "filePath": "src/lib/security/__tests__/rate-limit-key-strategies.test.ts",
+      "rule": "react-doctor/async-await-in-loop",
+      "count": 1
+    },
+    {
+      "filePath": "src/lib/security/__tests__/rate-limit-key-strategies.test.ts",
+      "rule": "react-doctor/server-sequential-independent-await",
+      "count": 15
+    },
+    {
+      "filePath": "src/stories/color-directions.stories.tsx",
+      "rule": "react-doctor/design-no-bold-heading",
+      "count": 3
+    },
+    {
+      "filePath": "src/stories/color-directions.stories.tsx",
+      "rule": "react-doctor/design-no-redundant-size-axes",
+      "count": 1
+    },
+    {
+      "filePath": "src/test/i18n-validation.ts",
+      "rule": "react-doctor/async-await-in-loop",
+      "count": 1
+    },
+    {
+      "filePath": "src/test/i18n-validation.ts",
+      "rule": "react-doctor/no-dynamic-import-path",
+      "count": 1
+    },
+    {
+      "filePath": "tests/architecture/component-governance.test.ts",
+      "rule": "react-doctor/js-combine-iterations",
+      "count": 12
+    },
+    {
+      "filePath": "tests/architecture/design-token-contract.test.ts",
+      "rule": "react-doctor/js-set-map-lookups",
+      "count": 6
+    },
+    {
+      "filePath": "tests/architecture/design-token-contract.test.ts",
+      "rule": "react-doctor/no-secrets-in-client-code",
+      "count": 2
+    },
+    {
+      "filePath": "tests/architecture/env-boundary.test.ts",
+      "rule": "react-doctor/js-set-map-lookups",
+      "count": 1
+    },
+    {
+      "filePath": "tests/architecture/generic-numeric-constants.test.ts",
+      "rule": "react-doctor/js-combine-iterations",
+      "count": 1
+    },
+    {
+      "filePath": "tests/architecture/lib-facade-boundary.test.ts",
+      "rule": "react-doctor/js-combine-iterations",
+      "count": 4
+    },
+    {
+      "filePath": "tests/architecture/lib-facade-boundary.test.ts",
+      "rule": "react-doctor/js-set-map-lookups",
+      "count": 1
+    },
+    {
+      "filePath": "tests/e2e/contact-form-smoke.spec.ts",
+      "rule": "react-doctor/async-await-in-loop",
+      "count": 1
+    },
+    {
+      "filePath": "tests/e2e/contact-form-smoke.spec.ts",
+      "rule": "react-doctor/js-flatmap-filter",
+      "count": 1
+    },
+    {
+      "filePath": "tests/e2e/global-setup.ts",
+      "rule": "react-doctor/async-parallel",
+      "count": 1
+    },
+    {
+      "filePath": "tests/e2e/global-setup.ts",
+      "rule": "react-doctor/js-flatmap-filter",
+      "count": 1
+    },
+    {
+      "filePath": "tests/e2e/homepage.spec.ts",
+      "rule": "react-doctor/async-await-in-loop",
+      "count": 1
+    },
+    {
+      "filePath": "tests/e2e/i18n-redirect-validation.spec.ts",
+      "rule": "react-doctor/async-await-in-loop",
+      "count": 1
+    },
+    {
+      "filePath": "tests/e2e/i18n.spec.ts",
+      "rule": "react-doctor/async-await-in-loop",
+      "count": 2
+    },
+    {
+      "filePath": "tests/e2e/navigation.spec.ts",
+      "rule": "react-doctor/async-await-in-loop",
+      "count": 6
+    },
+    {
+      "filePath": "tests/e2e/no-js-html-contract.spec.ts",
+      "rule": "react-doctor/async-await-in-loop",
+      "count": 1
+    },
+    {
+      "filePath": "tests/e2e/safe-navigation.spec.ts",
+      "rule": "react-doctor/async-await-in-loop",
+      "count": 3
+    },
+    {
+      "filePath": "tests/e2e/test-environment-setup.ts",
+      "rule": "react-doctor/async-await-in-loop",
+      "count": 3
+    },
+    {
+      "filePath": "tests/e2e/test-environment-setup.ts",
+      "rule": "react-doctor/async-parallel",
+      "count": 1
+    },
+    {
+      "filePath": "tests/e2e/user-journeys.spec.ts",
+      "rule": "react-doctor/async-await-in-loop",
+      "count": 2
+    },
+    {
+      "filePath": "tests/integration/api/lead-family-protection.test.ts",
+      "rule": "react-doctor/server-sequential-independent-await",
+      "count": 3
+    },
+    {
+      "filePath": "tests/integration/api/subscribe.test.ts",
+      "rule": "react-doctor/server-sequential-independent-await",
+      "count": 1
+    },
+    {
+      "filePath": "tests/integration/components/header.test.tsx",
+      "rule": "react-doctor/nextjs-no-a-element",
+      "count": 1
+    },
+    {
+      "filePath": "tests/unit/content-page-placeholders.test.ts",
+      "rule": "react-doctor/js-combine-iterations",
+      "count": 1
+    },
+    {
+      "filePath": "tests/unit/middleware.test.ts",
+      "rule": "react-doctor/server-sequential-independent-await",
+      "count": 1
+    },
+    {
+      "filePath": "tests/unit/scripts/content-slug-sync.test.ts",
+      "rule": "react-doctor/server-sequential-independent-await",
+      "count": 1
+    },
+    {
+      "filePath": "tests/unit/scripts/current-truth-docs.test.ts",
+      "rule": "react-doctor/js-combine-iterations",
+      "count": 2
+    },
+    {
+      "filePath": "tests/unit/scripts/proof-lane-contract.test.ts",
+      "rule": "react-doctor/js-combine-iterations",
+      "count": 2
+    },
+    {
+      "filePath": "tests/unit/scripts/route-mode-snapshot.test.ts",
+      "rule": "react-doctor/js-combine-iterations",
+      "count": 2
+    }
+  ]
+}

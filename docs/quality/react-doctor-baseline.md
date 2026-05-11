@@ -91,7 +91,9 @@ retained with an owner and reason before merge.
 
 The raw governance baseline is intentionally non-zero before config suppression:
 `426` diagnostics, `0` unresolved, and `216` exact file/rule suppression pairs.
-If either side changes, `pnpm react:doctor:raw-governance` must fail until the
-new warning is fixed or assigned an explicit governance outcome.
+`docs/quality/react-doctor-raw-baseline.json` also records per-file/per-rule
+diagnostic counts so same-file same-rule growth is visible. If either side
+changes, `pnpm react:doctor:raw-governance` must fail until the new warning is
+fixed or assigned an explicit governance outcome.
 
 Do not switch to `--fail-on warning` until false positives, dead-code candidates, and test fixture noise are triaged.
