@@ -95,7 +95,7 @@ function MobileNavigationFallback({
       data-testid="header-mobile-navigation-fallback"
     >
       <summary
-        className="relative inline-flex h-9 w-9 cursor-pointer list-none items-center justify-center rounded-[6px] text-foreground transition-colors duration-150 hover:bg-accent [&::-webkit-details-marker]:hidden"
+        className="relative inline-flex size-9 cursor-pointer list-none items-center justify-center rounded-[6px] text-foreground transition-colors duration-150 hover:bg-accent [&::-webkit-details-marker]:hidden"
         aria-label={openMenuLabel}
         aria-controls="mobile-navigation"
         aria-haspopup="dialog"
@@ -104,7 +104,7 @@ function MobileNavigationFallback({
       >
         <svg
           aria-hidden="true"
-          className="h-5 w-5"
+          className="size-5"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -203,7 +203,7 @@ export function LanguageToggleIsland({ locale }: LanguageToggleIslandProps) {
     >
       <svg
         aria-hidden="true"
-        className="h-3.5 w-3.5 text-muted-foreground"
+        className="size-3.5 text-muted-foreground"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -224,7 +224,7 @@ export function LanguageToggleIsland({ locale }: LanguageToggleIslandProps) {
       </span>
       <svg
         aria-hidden="true"
-        className="h-3.5 w-3.5 text-muted-foreground"
+        className="size-3.5 text-muted-foreground"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"

@@ -110,6 +110,35 @@ describe("AttributionBootstrap", () => {
     await waitFor(() => expect(loadModule).toHaveBeenCalledTimes(1));
   });
 
+  it("registers and removes attribution flush listeners", async () => {
+    const module = await import("../attribution-bootstrap");
+    const flushPendingAttribution = vi.fn();
+    const addEventListener = vi.spyOn(window, "addEventListener");
+    const removeEventListener = vi.spyOn(window, "removeEventListener");
+
+    const removeFlushListeners = module.registerAttributionFlushListeners(
+      flushPendingAttribution,
+    );
+    removeFlushListeners();
+
+    expect(addEventListener).toHaveBeenCalledWith(
+      "storage",
+      flushPendingAttribution,
+    );
+    expect(addEventListener).toHaveBeenCalledWith(
+      "visibilitychange",
+      flushPendingAttribution,
+    );
+    expect(removeEventListener).toHaveBeenCalledWith(
+      "storage",
+      flushPendingAttribution,
+    );
+    expect(removeEventListener).toHaveBeenCalledWith(
+      "visibilitychange",
+      flushPendingAttribution,
+    );
+  });
+
   it("flushes pending attribution through the real consent event path", async () => {
     setMarketingConsent(false);
     window.location.search = "?utm_source=google&gclid=abc123";

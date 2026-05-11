@@ -208,7 +208,8 @@ describe("contact-field-validators", () => {
     );
     const boundaryMessage = `Subject must be between ${CONTACT_FORM_VALIDATION_CONSTANTS.SUBJECT_MIN_LENGTH} and ${CONTACT_FORM_VALIDATION_CONSTANTS.SUBJECT_MAX_LENGTH} characters`;
 
-    expect(schema.parse("")).toBe("");
+    expect(schema.parse("")).toBeUndefined();
+    expect(schema.parse("   ")).toBeUndefined();
     expect(schema.parse(minSubject)).toBe(minSubject);
     expect(schema.parse(maxSubject)).toBe(maxSubject);
 

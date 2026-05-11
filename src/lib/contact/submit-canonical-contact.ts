@@ -136,6 +136,14 @@ function isRequiredMinimum(issue: ZodIssue): boolean {
   );
 }
 
+function isMissingRequiredInvalidType(issue: ZodIssue): boolean {
+  return (
+    issue.code === "invalid_type" &&
+    (issue.input === undefined ||
+      issue.message.toLowerCase().includes("received undefined"))
+  );
+}
+
 function handleCustomIssue(baseKey: string, issue: ZodIssue): string {
   const message = issue.message?.toLowerCase?.() ?? "";
 
@@ -180,7 +188,9 @@ function mapZodIssueToErrorKey(issue: ZodIssue): string {
     case "custom":
       return handleCustomIssue(baseKey, issue);
     case "invalid_type":
-      return `${baseKey}.invalid`;
+      return isMissingRequiredInvalidType(issue)
+        ? `${baseKey}.required`
+        : `${baseKey}.invalid`;
     default:
       return handleCustomIssue(baseKey, issue);
   }

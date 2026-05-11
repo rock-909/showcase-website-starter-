@@ -205,10 +205,16 @@ describe("Input - States & Accessibility", () => {
 
     it("supports aria-expanded for combobox inputs", () => {
       render(
-        <Input role="combobox" aria-expanded="false" data-testid="input" />,
+        <Input
+          role="combobox"
+          aria-controls="input-options"
+          aria-expanded="false"
+          data-testid="input"
+        />,
       );
 
       const input = screen.getByTestId("input");
+      expect(input).toHaveAttribute("aria-controls", "input-options");
       expect(input).toHaveAttribute("aria-expanded", "false");
     });
 

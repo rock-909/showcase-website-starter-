@@ -49,6 +49,8 @@ Cloudflare platform detection uses `DEPLOYMENT_PLATFORM=cloudflare` as the canon
 
 Generated warning baseline lives in `docs/quality/cloudflare-warning-baseline.md` and `docs/quality/storybook-warning-baseline.md`. A known warning baseline is not a pass/fail claim; it prevents old generated warnings from hiding new warning categories.
 
+React Doctor runs as an error-level quality gate: error blocks CI; warning is backlog. React Doctor warnings are classified under `docs/quality/react-doctor-policy.md` and known project exceptions are recorded in `docs/quality/react-doctor-exceptions.md`. Do not treat the warning count as a count of real production bugs.
+
 ## 四层证明口径
 
 | 层级 | 目的 | 典型证明 | 不能证明什么 |

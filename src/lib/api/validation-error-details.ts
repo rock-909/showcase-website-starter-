@@ -32,6 +32,14 @@ function isMissingRequiredInvalidType(issue: ZodIssue): boolean {
   );
 }
 
+function isBlankRequiredIssue(issue: ZodIssue): boolean {
+  return (
+    "input" in issue &&
+    typeof issue.input === "string" &&
+    issue.input.trim().length === 0
+  );
+}
+
 export function mapZodIssueToValidationDetail(
   issue: ZodIssue,
   fieldKeys: ValidationFieldErrorKeys,
@@ -40,7 +48,7 @@ export function mapZodIssueToValidationDetail(
 
   switch (issue.code) {
     case "too_small":
-      return isRequiredMinimum(issue)
+      return isRequiredMinimum(issue) || isBlankRequiredIssue(issue)
         ? `${baseKey}.required`
         : `${baseKey}.tooShort`;
     case "too_big":
@@ -62,9 +70,15 @@ export function mapZodIssuesToValidationDetails(
   issues: readonly ZodIssue[],
   fieldKeys: ValidationFieldErrorKeys,
 ): string[] {
-  return Array.from(
+  const details = Array.from(
     new Set(
       issues.map((issue) => mapZodIssueToValidationDetail(issue, fieldKeys)),
     ),
   );
+
+  return details.filter((detail) => {
+    if (!detail.endsWith(".invalid")) return true;
+    const baseKey = detail.slice(0, -".invalid".length);
+    return !details.includes(`${baseKey}.required`);
+  });
 }

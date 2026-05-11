@@ -4,6 +4,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { LocaleParam } from "@/app/[locale]/generate-static-params";
 import ProductsPage from "../page";
 
+const { mockBuildCatalogBreadcrumbJsonLd, mockGetTranslations } = vi.hoisted(
+  () => ({
+    mockBuildCatalogBreadcrumbJsonLd: vi.fn(),
+    mockGetTranslations: vi.fn(),
+  }),
+);
+
 const mockTranslations = {
   "overview.title": "Starter product capabilities",
   "overview.description":
@@ -60,10 +67,7 @@ const mockTranslations = {
 } as const;
 
 vi.mock("next-intl/server", () => ({
-  getTranslations: vi.fn(
-    async () => (key: string) =>
-      mockTranslations[key as keyof typeof mockTranslations] || key,
-  ),
+  getTranslations: mockGetTranslations,
   setRequestLocale: vi.fn(),
 }));
 
@@ -88,11 +92,7 @@ vi.mock("@/i18n/routing", () => ({
 
 vi.mock("@/components/products/catalog-breadcrumb", () => ({
   CatalogBreadcrumb: () => <nav data-testid="breadcrumb">Products</nav>,
-  buildCatalogBreadcrumbJsonLd: vi.fn(async () => ({
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [],
-  })),
+  buildCatalogBreadcrumbJsonLd: mockBuildCatalogBreadcrumbJsonLd,
 }));
 
 vi.mock("@/components/seo", () => ({
@@ -131,12 +131,35 @@ async function renderAsyncComponent(
   return render(resolved);
 }
 
+function createDeferred<T>() {
+  let resolve!: (value: T | PromiseLike<T>) => void;
+  const promise = new Promise<T>((settle) => {
+    resolve = settle;
+  });
+
+  return { promise, resolve };
+}
+
+async function flushPendingMicrotasks() {
+  await Promise.resolve();
+  await Promise.resolve();
+}
+
 describe("Feature: Product Overview Page", () => {
   const mockParams: LocaleParam = { locale: "en" };
   const RETIRED_BENDING_MACHINES_PATH = "/capabilities/bending-machines";
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockGetTranslations.mockImplementation(
+      async () => (key: string) =>
+        mockTranslations[key as keyof typeof mockTranslations] || key,
+    );
+    mockBuildCatalogBreadcrumbJsonLd.mockResolvedValue({
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [],
+    });
   });
 
   describe("Scenario 2.1: Visitor sees starter result capabilities", () => {
@@ -281,6 +304,38 @@ describe("Feature: Product Overview Page", () => {
       );
 
       expect(screen.getByText("Showcase-site foundation")).toBeInTheDocument();
+    });
+  });
+
+  describe("Scenario 2.6: Independent server work starts together", () => {
+    it("starts translations and breadcrumb schema generation before either result resolves", async () => {
+      const translations = createDeferred<(key: string) => string>();
+      const breadcrumbSchema = createDeferred<Record<string, unknown>>();
+      mockGetTranslations.mockReturnValueOnce(translations.promise);
+      mockBuildCatalogBreadcrumbJsonLd.mockReturnValueOnce(
+        breadcrumbSchema.promise,
+      );
+
+      const page = ProductsPage({ params: Promise.resolve(mockParams) });
+
+      await flushPendingMicrotasks();
+
+      expect(mockGetTranslations).toHaveBeenCalledWith({
+        locale: "en",
+        namespace: "catalog",
+      });
+      expect(mockBuildCatalogBreadcrumbJsonLd).toHaveBeenCalledWith({});
+
+      translations.resolve(
+        (key: string) =>
+          mockTranslations[key as keyof typeof mockTranslations] || key,
+      );
+      breadcrumbSchema.resolve({
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [],
+      });
+      await page;
     });
   });
 });

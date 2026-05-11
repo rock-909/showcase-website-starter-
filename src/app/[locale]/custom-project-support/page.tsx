@@ -203,8 +203,10 @@ function CtaSection({
 async function CustomProjectSupportContent({ locale }: { locale: string }) {
   setRequestLocale(locale);
 
-  const t = await getTranslations({ locale, namespace: "customProject" });
-  const page = await getPageBySlug("custom-project-support", locale as Locale);
+  const [t, page] = await Promise.all([
+    getTranslations({ locale, namespace: "customProject" }),
+    getPageBySlug("custom-project-support", locale as Locale),
+  ]);
   const faqItems: FaqItem[] = extractFaqFromMetadata(page.metadata).map(
     (item) => ({
       ...item,

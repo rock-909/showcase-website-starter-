@@ -64,8 +64,10 @@ export async function generateMetadata({
 export default async function ProductsPage({ params }: ProductsPageProps) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations({ locale, namespace: "catalog" });
-  const breadcrumbSchema = await buildCatalogBreadcrumbJsonLd({});
+  const [t, breadcrumbSchema] = await Promise.all([
+    getTranslations({ locale, namespace: "catalog" }),
+    buildCatalogBreadcrumbJsonLd({}),
+  ]);
 
   return (
     <div className="mx-auto max-w-[1080px] px-6 py-8 md:py-12">

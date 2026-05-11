@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useSyncExternalStore } from "react";
 import { Monitor, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
@@ -24,13 +24,22 @@ const themes = [
   },
 ];
 
+const unsubscribeHydration = () => undefined;
+const subscribeHydration = () => unsubscribeHydration;
+const getClientHydrationSnapshot = () => true;
+const getServerHydrationSnapshot = () => false;
+
 export type ThemeSwitcherProps = React.HTMLAttributes<HTMLDivElement> & {
   className?: string;
 };
 
 export const ThemeSwitcher = ({ className, ...rest }: ThemeSwitcherProps) => {
   const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const isHydrated = useSyncExternalStore(
+    subscribeHydration,
+    getClientHydrationSnapshot,
+    getServerHydrationSnapshot,
+  );
   const dataTestId = (rest as Record<string, unknown>)["data-testid"] as
     | string
     | undefined;
@@ -42,15 +51,8 @@ export const ThemeSwitcher = ({ className, ...rest }: ThemeSwitcherProps) => {
     [setTheme],
   );
 
-  // 使用 useEffect 确保只在客户端渲染后才显示组件
-  // 这是 next-themes 推荐的模式，用于避免 SSR 水合不匹配
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- next-themes official pattern for SSR hydration safety
-    setMounted(true);
-  }, []);
-
   // 服务端和客户端首次渲染都返回骨架屏，避免水合不匹配
-  if (!mounted) {
+  if (!isHydrated) {
     return (
       <div
         className={cn(

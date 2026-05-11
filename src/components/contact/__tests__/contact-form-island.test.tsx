@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import { readFileSync } from "node:fs";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -69,6 +70,16 @@ describe("ContactFormIsland", () => {
     vi.unstubAllGlobals();
     vi.stubGlobal("reportError", reportError);
     reportError.mockClear();
+  });
+
+  it("models async loading with one reducer state transition", () => {
+    const source = readFileSync(
+      "src/components/contact/contact-form-island.tsx",
+      "utf8",
+    );
+
+    expect(source).toContain("useReducer");
+    expect(source).not.toContain("setLoadState");
   });
 
   it("shows the loading fallback until the real form loads", async () => {

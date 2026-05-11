@@ -177,6 +177,26 @@ describe("/api/contact route", () => {
     });
   });
 
+  it("returns required contact details when canonical submission reports missing fields", async () => {
+    vi.mocked(submitCanonicalContactSubmission).mockResolvedValueOnce({
+      success: false,
+      errorCode: API_ERROR_CODES.CONTACT_VALIDATION_FAILED,
+      error: "Validation failed",
+      details: ["errors.message.required", "errors.acceptPrivacy.required"],
+      data: null,
+    });
+
+    const response = await POST(createContactRequest(createValidContactBody()));
+    const data = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(data).toEqual({
+      success: false,
+      errorCode: API_ERROR_CODES.CONTACT_VALIDATION_FAILED,
+      details: ["errors.message.required", "errors.acceptPrivacy.required"],
+    });
+  });
+
   it("returns body-size error before canonical contact submission", async () => {
     const response = await POST(
       new NextRequest("http://localhost:3000/api/contact", {

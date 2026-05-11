@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useReducer, type ReactNode } from "react";
 
 import {
   ContactFormIslandView,
@@ -18,6 +18,17 @@ interface ContactFormIslandProps {
   retryLabel: string;
 }
 
+interface ContactFormIslandState {
+  attempt: number;
+  loadState: ContactFormLoadState;
+}
+
+type ContactFormIslandAction =
+  | { type: "loading" }
+  | { type: "loaded"; contactForm: LoadedContactForm }
+  | { type: "failed" }
+  | { type: "retry" };
+
 const defaultLoadContactForm = async (): Promise<LoadedContactForm> => {
   const contactFormModule =
     await import("@/components/forms/contact-form-container");
@@ -34,48 +45,72 @@ function reportContactFormLoadError(error: unknown) {
   );
 }
 
+function contactFormIslandReducer(
+  state: ContactFormIslandState,
+  action: ContactFormIslandAction,
+): ContactFormIslandState {
+  switch (action.type) {
+    case "loading":
+      return state.loadState.status === "loading"
+        ? state
+        : { ...state, loadState: { status: "loading" } };
+    case "loaded":
+      return {
+        ...state,
+        loadState: { ...action.contactForm, status: "loaded" },
+      };
+    case "failed":
+      return { ...state, loadState: { status: "failed" } };
+    case "retry":
+      return {
+        attempt: state.attempt + 1,
+        loadState: { status: "loading" },
+      };
+    default:
+      return state;
+  }
+}
+
 export function ContactFormIsland({
   errorMessage,
   fallback,
   retryLabel,
 }: ContactFormIslandProps) {
-  const [loadState, setLoadState] = useState<ContactFormLoadState>({
-    status: "loading",
+  const [state, dispatch] = useReducer(contactFormIslandReducer, {
+    attempt: 0,
+    loadState: { status: "loading" },
   });
-  const [loadAttempt, setLoadAttempt] = useState(0);
 
   useEffect(() => {
     let isMounted = true;
 
     async function load() {
-      setLoadState((state) =>
-        state.status === "loading" ? state : { status: "loading" },
-      );
+      dispatch({ type: "loading" });
       const contactForm = await defaultLoadContactForm();
       if (isMounted) {
-        setLoadState({ ...contactForm, status: "loaded" });
+        dispatch({ type: "loaded", contactForm });
       }
     }
 
     load().catch((error: unknown) => {
       reportContactFormLoadError(error);
       if (isMounted) {
-        setLoadState({ status: "failed" });
+        dispatch({ type: "failed" });
       }
     });
 
     return () => {
       isMounted = false;
     };
-  }, [loadAttempt]);
+  }, [state.attempt]);
 
   return (
     <ContactFormIslandView
       errorMessage={errorMessage}
       fallback={fallback}
       retryLabel={retryLabel}
-      loadState={loadState}
-      onRetry={() => setLoadAttempt((attempt) => attempt + 1)}
+      loadState={state.loadState}
+      onRetry={() => dispatch({ type: "retry" })}
     />
   );
 }

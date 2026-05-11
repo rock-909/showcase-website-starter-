@@ -45,7 +45,7 @@ const DEFAULT_PREVIEW_TITLE_ID = "hero-preview-title";
 function HeroEyebrow({ text }: { text: string }) {
   return (
     <div className="hero-stagger-1 flex items-center gap-2">
-      <span className="h-2 w-2 rounded-full bg-primary" aria-hidden="true" />
+      <span className="size-2 rounded-full bg-primary" aria-hidden="true" />
       <span className="text-[13px] font-semibold uppercase tracking-[0.04em] text-primary">
         {text}
       </span>
@@ -70,7 +70,7 @@ function HeroVisual({
         <span className="rounded-full bg-muted px-3 py-1 text-xs font-semibold uppercase tracking-[0.04em] text-primary">
           {preview.label}
         </span>
-        <span className="h-2.5 w-2.5 rounded-full bg-primary" aria-hidden />
+        <span className="size-2.5 rounded-full bg-primary" aria-hidden />
       </div>
 
       <div className="mt-5">

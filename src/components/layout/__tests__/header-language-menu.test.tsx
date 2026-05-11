@@ -36,6 +36,16 @@ describe("HeaderLanguageMenu", () => {
     expect(source).not.toContain("next/navigation");
   });
 
+  it("treats initialOpen as a mount-only initial value", () => {
+    const source = readFileSync(
+      "src/components/layout/header-language-menu.tsx",
+      "utf8",
+    );
+
+    expect(source).not.toContain("useState(initialOpen)");
+    expect(source).toContain("useState(() => initialOpen)");
+  });
+
   it("mounts open and builds locale links from the current pathname", () => {
     render(<HeaderLanguageMenu initialOpen locale="en" />);
 

@@ -39,11 +39,14 @@ jobs:
       - name: 安装依赖
         run: pnpm install --frozen-lockfile
 
-      - name: TypeScript 检查
-        run: pnpm type-check
-
       - name: ESLint 检查
         run: pnpm lint:check
+
+      - name: React Doctor
+        run: pnpm react:doctor
+
+      - name: TypeScript 检查
+        run: pnpm type-check
 
       - name: 品牌替换检查
         run: pnpm brand:check
