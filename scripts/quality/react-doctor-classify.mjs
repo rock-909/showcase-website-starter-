@@ -162,6 +162,12 @@ function isTestFile(filePath) {
   return TEST_FILE_PATTERN.test(filePath);
 }
 
+function getRuleIdentifier(diagnostic) {
+  return diagnostic.plugin
+    ? `${diagnostic.plugin}/${diagnostic.rule}`
+    : diagnostic.rule;
+}
+
 function findProjectException(diagnostic) {
   return PROJECT_EXCEPTIONS.find(
     (exception) =>
@@ -400,6 +406,33 @@ export function classifyDiagnostics(diagnostics) {
 }
 
 export function assertGovernance(result) {
+  const missingGovernanceFields = result.diagnostics.filter(
+    (diagnostic) =>
+      !diagnostic.disposition ||
+      !diagnostic.owner ||
+      !diagnostic.bucketReason,
+  );
+
+  if (missingGovernanceFields.length > 0) {
+    const preview = missingGovernanceFields
+      .slice(0, 10)
+      .map(
+        (diagnostic) =>
+          `- ${diagnostic.filePath}:${diagnostic.line} ${diagnostic.rule}`,
+      )
+      .join("\n");
+
+    throw new Error(
+      [
+        `React Doctor governance has ${missingGovernanceFields.length} diagnostics without disposition, owner, or reason.`,
+        "Every diagnostic must have an explicit governance outcome before merge.",
+        preview,
+      ]
+        .filter(Boolean)
+        .join("\n"),
+    );
+  }
+
   if (result.summary.unresolved === 0) {
     return;
   }
@@ -426,6 +459,85 @@ export function assertGovernance(result) {
   );
 }
 
+function pairKey(filePath, ruleIdentifier) {
+  return `${filePath}\u0000${ruleIdentifier}`;
+}
+
+function formatPair(key) {
+  const [filePath, ruleIdentifier] = key.split("\u0000");
+  return `${filePath} ${ruleIdentifier}`;
+}
+
+export function assertSuppressionCoverage(result, config) {
+  const ignore = config.ignore ?? {};
+  const globalRules = Array.isArray(ignore.rules) ? ignore.rules : [];
+  const globalFiles = Array.isArray(ignore.files) ? ignore.files : [];
+
+  if (globalRules.length > 0) {
+    throw new Error(
+      "React Doctor config uses ignore.rules. Use narrow ignore.overrides instead.",
+    );
+  }
+
+  if (globalFiles.length > 0) {
+    throw new Error(
+      "React Doctor config uses ignore.files. Use narrow ignore.overrides instead.",
+    );
+  }
+
+  const rawPairs = new Set(
+    result.diagnostics.map((diagnostic) =>
+      pairKey(diagnostic.filePath, getRuleIdentifier(diagnostic)),
+    ),
+  );
+  const overridePairs = new Set();
+
+  for (const [index, override] of (ignore.overrides ?? []).entries()) {
+    if (!Array.isArray(override.files) || override.files.length === 0) {
+      throw new Error(
+        `React Doctor config ignore.overrides[${index}] has no file list.`,
+      );
+    }
+
+    if (!Array.isArray(override.rules) || override.rules.length === 0) {
+      throw new Error(
+        `React Doctor config ignore.overrides[${index}] suppresses whole files. Add explicit rules.`,
+      );
+    }
+
+    for (const filePath of override.files) {
+      for (const ruleIdentifier of override.rules) {
+        overridePairs.add(pairKey(filePath, ruleIdentifier));
+      }
+    }
+  }
+
+  const missingPairs = [...rawPairs].filter((key) => !overridePairs.has(key));
+  const stalePairs = [...overridePairs].filter((key) => !rawPairs.has(key));
+
+  if (missingPairs.length > 0 || stalePairs.length > 0) {
+    const missingPreview = missingPairs
+      .slice(0, 10)
+      .map(formatPair)
+      .join("\n");
+    const stalePreview = stalePairs.slice(0, 10).map(formatPair).join("\n");
+
+    throw new Error(
+      [
+        "React Doctor suppression config does not match the pre-config diagnostic set.",
+        missingPairs.length > 0
+          ? `Missing overrides (${missingPairs.length}):\n${missingPreview}`
+          : "",
+        stalePairs.length > 0
+          ? `Stale overrides (${stalePairs.length}):\n${stalePreview}`
+          : "",
+      ]
+        .filter(Boolean)
+        .join("\n"),
+    );
+  }
+}
+
 function loadReport(reportPath) {
   return JSON.parse(fs.readFileSync(reportPath, "utf8"));
 }
@@ -439,8 +551,12 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const reportPath = process.argv[2];
   const args = process.argv.slice(3);
   const check = args.includes("--check");
+  const configArgPrefix = "--suppression-config=";
+  const suppressionConfigPath = args
+    .find((arg) => arg.startsWith(configArgPrefix))
+    ?.slice(configArgPrefix.length);
   const outputPath =
-    args.find((arg) => !arg.startsWith("--")) ??
+    args.find((arg) => !arg.startsWith("--") && arg !== suppressionConfigPath) ??
     "reports/quality/react-doctor-classified.json";
 
   if (!reportPath) {
@@ -460,6 +576,10 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 
   if (check) {
     assertGovernance(result);
+    if (suppressionConfigPath) {
+      assertSuppressionCoverage(result, loadReport(suppressionConfigPath));
+      console.log("[react-doctor-classify] suppression coverage check passed");
+    }
     console.log("[react-doctor-classify] governance check passed");
   }
 }

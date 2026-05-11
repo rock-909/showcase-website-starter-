@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   assertGovernance,
+  assertSuppressionCoverage,
   classifyDiagnostics,
 } from "../../../scripts/quality/react-doctor-classify.mjs";
 
@@ -404,5 +405,64 @@ describe("react doctor classifier", () => {
       bucket: "project-exception",
       rule: "rendering-usetransition-loading",
     });
+  });
+
+  it("proves suppression config matches the classified raw file/rule pairs", () => {
+    const governedDiagnostics = diagnostics.filter(
+      (diagnostic) =>
+        diagnostic.severity !== "error" &&
+        diagnostic.filePath !== "src/components/product-list.tsx" &&
+        diagnostic.filePath !== "src/components/legacy-unused.tsx",
+    );
+    const result = classifyDiagnostics(governedDiagnostics);
+    const config = {
+      ignore: {
+        overrides: governedDiagnostics.map((diagnostic) => ({
+          files: [diagnostic.filePath],
+          rules: [`${diagnostic.plugin}/${diagnostic.rule}`],
+        })),
+      },
+    };
+
+    expect(() => assertSuppressionCoverage(result, config)).not.toThrow();
+  });
+
+  it("rejects suppression config that misses current raw diagnostics", () => {
+    const governedDiagnostics = diagnostics.filter(
+      (diagnostic) =>
+        diagnostic.severity !== "error" &&
+        diagnostic.filePath !== "src/components/product-list.tsx" &&
+        diagnostic.filePath !== "src/components/legacy-unused.tsx",
+    );
+    const result = classifyDiagnostics(governedDiagnostics);
+    const config = {
+      ignore: {
+        overrides: [],
+      },
+    };
+
+    expect(() => assertSuppressionCoverage(result, config)).toThrow(
+      "React Doctor suppression config does not match",
+    );
+  });
+
+  it("rejects broad suppression config shapes", () => {
+    const result = classifyDiagnostics([]);
+
+    expect(() =>
+      assertSuppressionCoverage(result, {
+        ignore: { rules: ["react/no-danger"] },
+      }),
+    ).toThrow("ignore.rules");
+    expect(() =>
+      assertSuppressionCoverage(result, {
+        ignore: { files: ["src/components/example.tsx"] },
+      }),
+    ).toThrow("ignore.files");
+    expect(() =>
+      assertSuppressionCoverage(result, {
+        ignore: { overrides: [{ files: ["src/components/example.tsx"] }] },
+      }),
+    ).toThrow("suppresses whole files");
   });
 });

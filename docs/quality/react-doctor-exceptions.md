@@ -47,12 +47,13 @@ This file records accepted React Doctor warning exceptions. Each exception needs
   - `src/components/cookie/cookie-consent-island.tsx` wraps `<EnterpriseAnalyticsIsland />` in `<Suspense fallback={null}>`.
 - Recheck when: `EnterpriseAnalyticsIsland` is rendered from another parent, the lazy import moves, or the Suspense boundary is removed.
 
-### Blog not-found catch boundary
+### Blog not-found catch boundary - resolved by proof lane
 
 - File: `src/app/[locale]/blog/[slug]/page.tsx`
 - Rule: `nextjs-no-redirect-in-try-catch`
-- Bucket: `needs-manual-proof`
-- Reason: `notFound()` currently lives only in the `catch` branch of `loadArticle()`, after `getStarterBlogArticle()` throws for missing starter articles. This is not accepted as a project exception yet because Next.js controlled errors in broader try/catch blocks can require `unstable_rethrow()`.
+- Bucket: resolved
+- Disposition: `fix`
+- Reason: `notFound()` used to live in the `catch` branch of `loadArticle()`. The proof lane moved missing-article handling out of the catch boundary, so this diagnostic no longer exists in the raw baseline.
 - Recheck when: `loadArticle()` starts catching framework-controlled errors, the article loader becomes async, or `notFound()` moves inside a broader `try` block.
 
 ### Stream reader loop
@@ -139,15 +140,16 @@ value or proof-heavy warnings as if they were buyer-facing bugs.
 - Reason: Crosshairs are decorative CSS positions, not business records. If they need stable identity later, add explicit crosshair IDs rather than inventing keys from style objects.
 - Recheck when: crosshairs become interactive, reorderable, or data-driven.
 
-### User text line index keys in emails
+### User text line index keys in emails - resolved by proof lane
 
 - Files:
   - `src/emails/ContactFormEmail.tsx`
   - `src/emails/ProductInquiryEmail.tsx`
 - Rule: `no-array-index-as-key`
-- Bucket: `needs-manual-proof`
-- Reason: The lines come from user-entered text split by newline. Replacing index keys safely needs proof for duplicate lines, empty lines, and email render output.
-- Recheck when: email templates are refactored or line identity/offset metadata is introduced.
+- Bucket: resolved
+- Disposition: `fix`
+- Reason: The proof lane introduced stable email line keys with render tests for user text output. These diagnostics no longer exist in the raw baseline.
+- Recheck when: email templates are refactored or line identity/offset metadata changes.
 
 ### Pure content render helper calls
 
@@ -160,7 +162,7 @@ value or proof-heavy warnings as if they were buyer-facing bugs.
 - Reason: `renderLegalContent(page.content)` is a pure content renderer. Extracting a wrapper component is structural cleanup, not a proven behavior risk.
 - Recheck when: the renderer gains local state, effects, client behavior, or per-render identity-sensitive children.
 
-### Quality script performance suggestions
+### Quality script performance suggestions - resolved by scripts proof lane
 
 - File: `scripts/starter-checks.js`
 - Rules:
@@ -168,8 +170,8 @@ value or proof-heavy warnings as if they were buyer-facing bugs.
   - `js-flatmap-filter`
   - `js-set-map-lookups`
   - `js-tosorted-immutable`
-- Bucket: `needs-manual-proof`
-- Reason: The starter quality script is a large guardrail script where iteration order, diagnostics grouping, and stable output matter more than micro-optimization. Rewrite only inside a dedicated scripts proof lane.
+- Bucket: resolved or `project-exception`
+- Reason: Low-risk array iteration findings were fixed inside the scripts proof lane. The remaining raw `scripts/starter-checks.js` findings are string/document scans or ordered Cloudflare smoke probes and are documented as project exceptions below.
 - Recheck when: `starter-checks.js` is refactored, script runtime becomes a real bottleneck, or a focused behavior snapshot is added for the affected checks.
 
 ### Quality script string and documentation scans
@@ -194,10 +196,16 @@ value or proof-heavy warnings as if they were buyer-facing bugs.
 - Reason: The remaining async findings are smoke/proof code where request order, retry timing, shared retry-event reporting, and readable failure logs are part of the diagnostic contract. Running every probe concurrently could hide ordering information and make failure output harder to interpret.
 - Recheck when: Cloudflare smoke tests get explicit concurrency tests, independent per-path retry collectors, and stable output snapshots.
 
-### HTML sanitizer string scans
+### HTML sanitizer string scans - resolved by proof lane
 
 - File: `src/lib/security-validation.ts`
 - Rule: `js-set-map-lookups`
-- Bucket: `needs-manual-proof`
-- Reason: React Doctor reports `String.indexOf()` inside the `stripTag()` loop. This is a security sanitizer path, not an array membership loop. Rewriting it for a performance rule needs focused sanitizer proof for nested tags, missing closing tags, mixed casing, and attacker-controlled payloads.
-- Recheck when: `sanitizeHtml()` is replaced by a proper sanitizer library, or a dedicated security-validation proof lane rewrites tag stripping behavior.
+- Bucket: resolved
+- Disposition: `fix`
+- Reason: React Doctor originally reported `String.indexOf()` inside the `stripTag()` loop. The warning was not suppressed because the code was security-sensitive.
+- Proof:
+  - Added sanitizer tests for mixed-case `script` and `iframe` tags.
+  - Added tests for missing closing tags.
+  - Added a nested `script` payload test that initially exposed payload leakage.
+  - Replaced the old `indexOf()` stripping loop with an explicit tag scanner that tracks nested unsafe tags.
+- Recheck when: `sanitizeHtml()` is replaced by a proper sanitizer library, unsafe tag handling changes, or additional HTML tags become part of the sanitizer contract.

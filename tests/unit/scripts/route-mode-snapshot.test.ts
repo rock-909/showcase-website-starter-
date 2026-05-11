@@ -28,7 +28,7 @@ describe("route mode snapshot parser", () => {
     ]);
   });
 
-  it("keeps route-mode snapshot as the only extra scripts helper", () => {
+  it("keeps scripts helper inventory explicit", () => {
     const scriptsDir = path.join(REPO_ROOT, "scripts");
     const scriptFiles = fs
       .readdirSync(scriptsDir, { recursive: true, withFileTypes: true })
@@ -41,6 +41,7 @@ describe("route mode snapshot parser", () => {
 
     expect(scriptFiles).toEqual([
       "scripts/quality/react-doctor-classify.mjs",
+      "scripts/quality/react-doctor-raw-governance.mjs",
       "scripts/quality/route-mode-snapshot.mjs",
       "scripts/starter-checks.js",
     ]);

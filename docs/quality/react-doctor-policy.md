@@ -5,9 +5,18 @@ React Doctor is an error-level gate in this starter.
 ## Gate policy
 
 - `error` blocks CI.
-- `warning` is backlog.
-- Do not use `--fail-on warning` until warnings are classified, exceptions are documented, and test fixture noise is isolated.
+- `warning` is backlog until classified.
+- React Doctor native scan should stay at `0 warning / 0 error` after project
+  calibration.
+- `react-doctor.config.json` may suppress only narrow file/rule combinations
+  that are backed by this policy, the exception registry, or the classified
+  governance report.
+- Do not add broad `ignore.rules` or whole-directory `ignore.files` entries for
+  convenience.
 - CI also runs the classified governance gate. The classified gate blocks on any `blocking-error` or `confirmed-real` diagnostic that has not been fixed or otherwise classified with owner and reason.
+- CI also runs a raw-governance gate against the pre-suppression diagnostics.
+  That gate verifies the native suppression config still matches the current
+  raw file/rule set and does not use global rule or whole-file ignores.
 
 ## Buckets
 
@@ -41,20 +50,20 @@ Every raw warning must have exactly one actionable disposition:
 | `exempt-after-proof` | The warning is a documented exception or test/support fixture signal. | `quality-governance` or `test-governance` |
 | `temporarily-retain` | The warning needs a dedicated proof lane or is low-value style cleanup. | `proof-lane` or `quality-governance` |
 
-At the current baseline, `fix` and `delete-after-proof` are zero. If a future
-React Doctor run produces either bucket, the classified governance gate should
-fail until the item is repaired, removed after proof, or reclassified with
-owner and reason.
+At the current calibrated baseline, native React Doctor reports zero issues.
+Historical diagnostics are represented by narrow project config overrides and
+the governance docs. If a future raw React Doctor run produces a diagnostic
+outside that config, the raw-governance gate should fail until the item is
+repaired, removed after proof, or reclassified with owner and reason.
 
 ## Current known shape
 
 The initial integrated scan had 516 warnings and 0 errors.
 
-After the first production repair waves and classifier calibration, the current
-classified backlog has 0 `confirmed-real` warnings and 0 unresolved warnings.
-This still does not mean raw warnings are ready to block CI, because test
-fixture noise, proof-heavy items, project exceptions, and low-value style
-cleanup remain.
+After the production repair waves, sanitizer proof lane, and config
+calibration, the native scan is 0 warning / 0 error. The historical backlog is
+still documented so future agents understand why each suppressed file/rule pair
+is not a hidden bug.
 
 Most warning volume is not production behavior:
 
@@ -70,15 +79,19 @@ Most warning volume is not production behavior:
 - quality script warnings are handled in a separate proof lane before any
   rewrite; string/document scans and ordered Cloudflare smoke probes are
   documented exceptions, not batch performance cleanup targets
-- the remaining sanitizer warnings stay in `needs-manual-proof` until a
-  dedicated security proof lane covers nested tags, missing closing tags,
-  mixed casing, and attacker-controlled payloads
+- sanitizer warnings were fixed after a dedicated security proof lane covered
+  nested tags, missing closing tags, mixed casing, and attacker-controlled
+  payloads
 
 ## Warning gate decision
 
-Warning-level CI blocking is deferred until project exceptions are stable, proof lanes are resolved or separately gated, and test fixture noise is excluded from release blocking.
+Raw warning-level CI blocking is still not used, because warning handling is
+owned by a calibrated config plus raw governance classification. The effective
+target is nevertheless native React Doctor 0 warning / 0 error.
 
-Do not change the CI gate to `--fail-on warning`. If warning enforcement is added later, it should be a separate classified gate that targets only production `confirmed-real` warnings after the proof lanes are stable.
+Do not change the CI gate to `--fail-on warning` unless the team intentionally
+decides that the current `react-doctor.config.json` should be treated as the
+canonical suppression baseline for warning-level blocking.
 
 ## Rules of repair
 

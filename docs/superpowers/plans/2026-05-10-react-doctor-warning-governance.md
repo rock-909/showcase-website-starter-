@@ -1831,6 +1831,98 @@ needs-manual-proof: 2
 score: 72 / 100
 ```
 
+### Task 21: Security proof lane and native zero-warning calibration
+
+**Files:**
+- Create: `/Users/Data/workspace/showcase-website-starter/react-doctor.config.json`
+- Modify: `/Users/Data/workspace/showcase-website-starter/src/lib/security-validation.ts`
+- Modify: `/Users/Data/workspace/showcase-website-starter/src/lib/__tests__/security-validation.test.ts`
+- Modify: `/Users/Data/workspace/showcase-website-starter/docs/quality/react-doctor-baseline.md`
+- Modify: `/Users/Data/workspace/showcase-website-starter/docs/quality/react-doctor-policy.md`
+- Modify: `/Users/Data/workspace/showcase-website-starter/docs/quality/react-doctor-exceptions.md`
+- Modify: `/Users/Data/workspace/showcase-website-starter/package.json`
+- Modify: `/Users/Data/workspace/showcase-website-starter/.github/workflows/ci.yml`
+- Create: `/Users/Data/workspace/showcase-website-starter/scripts/quality/react-doctor-raw-governance.mjs`
+
+**Scope:**
+
+Reach native React Doctor `0 warning / 0 error` without broad warning
+blocking and without hiding untriaged diagnostics. Every historical diagnostic
+must either be fixed or represented by a narrow file/rule override that is
+backed by the classifier and exception docs.
+
+- [x] **Step 1: Prove and fix sanitizer warning instead of suppressing it**
+
+Added tests for:
+
+- mixed-case `script` and `iframe` tags
+- unsafe tags with attributes
+- missing closing tags
+- nested script payloads
+
+The nested script test failed against the old implementation because payload
+text could leak after the first closing tag. The implementation was then
+changed to an explicit scanner that tracks nested unsafe tags and no longer
+uses the `indexOf()` pattern React Doctor reported.
+
+- [x] **Step 2: Confirm sanitizer warnings disappear**
+
+Fresh classification after the sanitizer fix:
+
+```text
+total: 426
+errors: 0
+warnings: 426
+unresolved: 0
+needs-manual-proof: 0
+```
+
+- [x] **Step 3: Add native React Doctor config**
+
+Created `react-doctor.config.json` using only `ignore.overrides`.
+
+Rules:
+
+- no global `ignore.rules`
+- no whole-directory `ignore.files`
+- each override is a narrow file/rule combination
+- historical warnings remain documented in the classifier output, policy, and
+  exception registry
+
+- [x] **Step 4: Add raw governance guard**
+
+Added `pnpm react:doctor:raw-governance` and wired it into CI.
+
+This guard runs React Doctor through a temporary root config without project
+overrides, classifies the pre-suppression diagnostics, and verifies:
+
+- all raw diagnostics still have disposition, owner, and reason
+- `unresolved` remains 0
+- `react-doctor.config.json` has no global `ignore.rules`
+- `react-doctor.config.json` has no whole-file `ignore.files`
+- each configured file/rule suppression exactly matches the current raw
+  diagnostic file/rule set
+
+- [x] **Step 5: Verify native React Doctor zero**
+
+`pnpm react:doctor` now loads `react-doctor.config.json` and reports:
+
+```text
+No issues found!
+100 / 100 Great
+```
+
+Fresh JSON summary:
+
+```text
+errorCount: 0
+warningCount: 0
+affectedFileCount: 0
+totalDiagnosticCount: 0
+score: 100
+scoreLabel: Great
+```
+
 ---
 
 ## Final verification for the whole governance program
@@ -1839,21 +1931,22 @@ Run these commands before claiming the governance plan is implemented:
 
 ```bash
 pnpm react:doctor
+pnpm react:doctor:governance
+pnpm react:doctor:raw-governance
 pnpm lint:check
 pnpm type-check
 pnpm test
-pnpm exec react-doctor . --offline --json --fail-on none > /tmp/showcase-react-doctor-current.json
-pnpm react:doctor:classify
-jq '.summary, .byBucket' reports/quality/react-doctor-classified.json
 ```
 
 Expected:
 
 - `pnpm react:doctor` exits 0.
+- `pnpm react:doctor:governance` exits 0 with native post-config 0 diagnostics.
+- `pnpm react:doctor:raw-governance` exits 0 with pre-config raw diagnostics fully classified, 0 unresolved, and exact config coverage.
 - `pnpm lint:check` exits 0.
 - `pnpm type-check` exits 0.
 - `pnpm test` exits 0.
-- classified report exists.
+- classified reports exist in the system temp directory and `reports/quality/react-doctor-classified.json`.
 - `blocking-error` is 0.
 - warning gate is not upgraded to raw `--fail-on warning`.
 

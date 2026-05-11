@@ -18,6 +18,7 @@
     "react:doctor:report": "react-doctor . --offline --json --fail-on none",
     "react:doctor:classify": "react-doctor . --offline --json --fail-on none > /tmp/showcase-react-doctor-current.json && node scripts/quality/react-doctor-classify.mjs /tmp/showcase-react-doctor-current.json reports/quality/react-doctor-classified.json",
     "react:doctor:governance": "react-doctor . --offline --json --fail-on none > /tmp/showcase-react-doctor-current.json && node scripts/quality/react-doctor-classify.mjs /tmp/showcase-react-doctor-current.json reports/quality/react-doctor-classified.json --check",
+    "react:doctor:raw-governance": "node scripts/quality/react-doctor-raw-governance.mjs",
     "release:verify": "node scripts/starter-checks.js release-verify",
     "website:check": "pnpm type-check && pnpm lint:check && pnpm test && pnpm build",
     "website:build:cf": "pnpm exec opennextjs-cloudflare build --noMinify",

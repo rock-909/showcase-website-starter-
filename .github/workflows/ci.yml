@@ -48,6 +48,9 @@ jobs:
       - name: React Doctor governance
         run: pnpm react:doctor:governance
 
+      - name: React Doctor raw governance
+        run: pnpm react:doctor:raw-governance
+
       - name: TypeScript 检查
         run: pnpm type-check
 

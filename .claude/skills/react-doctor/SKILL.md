@@ -20,16 +20,17 @@ This is blocking. React Doctor errors must be fixed before completion.
 ## Governance gate
 
 When the task targets React Doctor warning cleanup or repo quality governance,
-also run the classified governance gate:
+also run both governance gates:
 
 ```bash
 pnpm react:doctor:governance
+pnpm react:doctor:raw-governance
 ```
 
-This does not blindly fail on raw warnings. It fails only when a diagnostic is
-still unresolved after classification. Every warning must be mapped to fix,
-delete-after-proof, exempt-after-proof, or temporarily-retain with owner and
-reason.
+The native governance gate confirms the post-config scan has no unresolved
+diagnostics. The raw governance gate scans through a temporary root config
+without project overrides, then verifies every raw warning still has a
+disposition, owner, reason, and exact file/rule suppression coverage.
 
 ## Full report
 
