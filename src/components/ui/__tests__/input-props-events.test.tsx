@@ -189,98 +189,100 @@ describe("Input - Props & Events", () => {
 
   describe("Event Handling", () => {
     it("handles onChange events", async () => {
-      const handleChange = vi.fn();
-      render(<Input onChange={handleChange} data-testid="input" />);
+      const typeInputFixture = vi.fn();
+      render(<Input onChange={typeInputFixture} data-testid="input" />);
 
       const input = screen.getByTestId("input");
       await user.type(input, "test");
 
-      expect(handleChange).toHaveBeenCalled();
-      expect(handleChange).toHaveBeenCalledTimes(4); // One for each character
+      expect(typeInputFixture).toHaveBeenCalled();
+      expect(typeInputFixture).toHaveBeenCalledTimes(4); // One for each character
     });
 
     it("handles onFocus events", async () => {
-      const handleFocus = vi.fn();
-      render(<Input onFocus={handleFocus} data-testid="input" />);
+      const focusInputFixture = vi.fn();
+      render(<Input onFocus={focusInputFixture} data-testid="input" />);
 
       const input = screen.getByTestId("input");
       await user.click(input);
 
-      expect(handleFocus).toHaveBeenCalledTimes(1);
+      expect(focusInputFixture).toHaveBeenCalledTimes(1);
     });
 
     it("handles onBlur events", async () => {
-      const handleBlur = vi.fn();
-      render(<Input onBlur={handleBlur} data-testid="input" />);
+      const blurInputFixture = vi.fn();
+      render(<Input onBlur={blurInputFixture} data-testid="input" />);
 
       const input = screen.getByTestId("input");
       await user.click(input);
       await user.tab();
 
-      expect(handleBlur).toHaveBeenCalledTimes(1);
+      expect(blurInputFixture).toHaveBeenCalledTimes(1);
     });
 
     it("handles onKeyDown events", async () => {
-      const handleKeyDown = vi.fn();
-      render(<Input onKeyDown={handleKeyDown} data-testid="input" />);
+      const pressEnterFixture = vi.fn();
+      render(<Input onKeyDown={pressEnterFixture} data-testid="input" />);
 
       const input = screen.getByTestId("input");
       input.focus();
       await user.keyboard("{Enter}");
 
-      expect(handleKeyDown).toHaveBeenCalled();
+      expect(pressEnterFixture).toHaveBeenCalled();
     });
 
     it("handles onKeyUp events", async () => {
-      const handleKeyUp = vi.fn();
-      render(<Input onKeyUp={handleKeyUp} data-testid="input" />);
+      const releaseInputKeyFixture = vi.fn();
+      render(<Input onKeyUp={releaseInputKeyFixture} data-testid="input" />);
 
       const input = screen.getByTestId("input");
       input.focus();
       await user.keyboard("a");
 
-      expect(handleKeyUp).toHaveBeenCalled();
+      expect(releaseInputKeyFixture).toHaveBeenCalled();
     });
 
     it("handles onKeyPress events", async () => {
-      const handleKeyPress = vi.fn();
-      render(<Input onKeyPress={handleKeyPress} data-testid="input" />);
+      const pressInputKeyFixture = vi.fn();
+      render(<Input onKeyPress={pressInputKeyFixture} data-testid="input" />);
 
       const input = screen.getByTestId("input");
       input.focus();
       await user.keyboard("a");
 
-      expect(handleKeyPress).toHaveBeenCalled();
+      expect(pressInputKeyFixture).toHaveBeenCalled();
     });
 
     it("handles _onClick events", async () => {
-      const handleClick = vi.fn();
-      render(<Input onClick={handleClick} data-testid="input" />);
+      const clickInputFixture = vi.fn();
+      render(<Input onClick={clickInputFixture} data-testid="input" />);
 
       const input = screen.getByTestId("input");
       await user.click(input);
 
-      expect(handleClick).toHaveBeenCalledTimes(1);
+      expect(clickInputFixture).toHaveBeenCalledTimes(1);
     });
 
     it("handles onDoubleClick events", async () => {
-      const handleDoubleClick = vi.fn();
-      render(<Input onDoubleClick={handleDoubleClick} data-testid="input" />);
+      const doubleClickInputFixture = vi.fn();
+      render(
+        <Input onDoubleClick={doubleClickInputFixture} data-testid="input" />,
+      );
 
       const input = screen.getByTestId("input");
       await user.dblClick(input);
 
-      expect(handleDoubleClick).toHaveBeenCalledTimes(1);
+      expect(doubleClickInputFixture).toHaveBeenCalledTimes(1);
     });
 
     it("handles mouse events", async () => {
-      const handleMouseEnter = vi.fn();
-      const handleMouseLeave = vi.fn();
+      const hoverInputFixture = vi.fn();
+      const unhoverInputFixture = vi.fn();
 
       render(
         <Input
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
+          onMouseEnter={hoverInputFixture}
+          onMouseLeave={unhoverInputFixture}
           data-testid="input"
         />,
       );
@@ -288,20 +290,20 @@ describe("Input - Props & Events", () => {
       const input = screen.getByTestId("input");
 
       await user.hover(input);
-      expect(handleMouseEnter).toHaveBeenCalled();
+      expect(hoverInputFixture).toHaveBeenCalled();
 
       await user.unhover(input);
-      expect(handleMouseLeave).toHaveBeenCalled();
+      expect(unhoverInputFixture).toHaveBeenCalled();
     });
 
     it("handles input events with correct values", async () => {
-      const handleChange = vi.fn();
-      render(<Input onChange={handleChange} data-testid="input" />);
+      const changeInputFixture = vi.fn();
+      render(<Input onChange={changeInputFixture} data-testid="input" />);
 
       const input = screen.getByTestId("input");
       await user.type(input, "hello");
 
-      const calls = handleChange.mock.calls;
+      const calls = changeInputFixture.mock.calls;
       expect(calls.length).toBeGreaterThan(0);
       // Check that the final value is correct
       const lastCall = calls[calls.length - 1];
@@ -309,14 +311,14 @@ describe("Input - Props & Events", () => {
     });
 
     it("prevents events when disabled", async () => {
-      const handleChange = vi.fn();
-      const handleClick = vi.fn();
+      const disabledChangeFixture = vi.fn();
+      const disabledClickFixture = vi.fn();
 
       render(
         <Input
           disabled
-          onChange={handleChange}
-          onClick={handleClick}
+          onChange={disabledChangeFixture}
+          onClick={disabledClickFixture}
           data-testid="input"
         />,
       );
@@ -324,19 +326,19 @@ describe("Input - Props & Events", () => {
       const input = screen.getByTestId("input");
 
       await user.click(input);
-      expect(handleClick).not.toHaveBeenCalled();
+      expect(disabledClickFixture).not.toHaveBeenCalled();
 
       // Disabled inputs don'_t receive typing events
       await user.type(input, "test");
-      expect(handleChange).not.toHaveBeenCalled();
+      expect(disabledChangeFixture).not.toHaveBeenCalled();
     });
 
     it("handles custom event handlers", async () => {
-      const customHandler = vi.fn();
+      const recordTypedValueFixture = vi.fn();
 
       render(
         <Input
-          onChange={(e) => customHandler(e.target.value)}
+          onChange={(e) => recordTypedValueFixture(e.target.value)}
           data-testid="input"
         />,
       );
@@ -344,23 +346,25 @@ describe("Input - Props & Events", () => {
       const input = screen.getByTestId("input");
       await user.type(input, "test");
 
-      expect(customHandler).toHaveBeenCalledWith("t");
-      expect(customHandler).toHaveBeenCalledWith("te");
-      expect(customHandler).toHaveBeenCalledWith("tes");
-      expect(customHandler).toHaveBeenCalledWith("test");
+      expect(recordTypedValueFixture).toHaveBeenCalledWith("t");
+      expect(recordTypedValueFixture).toHaveBeenCalledWith("te");
+      expect(recordTypedValueFixture).toHaveBeenCalledWith("tes");
+      expect(recordTypedValueFixture).toHaveBeenCalledWith("test");
     });
 
     it("handles multiple event handlers", async () => {
-      const handler1 = vi.fn();
-      const handler2 = vi.fn();
+      const recordPrimaryChangeFixture = vi.fn();
+      const recordSecondaryChangeFixture = vi.fn();
 
       const MultiHandlerInput = () => {
-        const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-          handler1(e.target.value);
-          handler2(e.target.value);
+        const changeBothInputFixtures = (
+          e: React.ChangeEvent<HTMLInputElement>,
+        ) => {
+          recordPrimaryChangeFixture(e.target.value);
+          recordSecondaryChangeFixture(e.target.value);
         };
 
-        return <Input onChange={handleChange} data-testid="input" />;
+        return <Input onChange={changeBothInputFixtures} data-testid="input" />;
       };
 
       render(<MultiHandlerInput />);
@@ -368,44 +372,72 @@ describe("Input - Props & Events", () => {
       const input = screen.getByTestId("input");
       await user.type(input, "a");
 
-      expect(handler1).toHaveBeenCalledWith("a");
-      expect(handler2).toHaveBeenCalledWith("a");
+      expect(recordPrimaryChangeFixture).toHaveBeenCalledWith("a");
+      expect(recordSecondaryChangeFixture).toHaveBeenCalledWith("a");
     });
 
     it("handles event propagation", async () => {
-      const parentClick = vi.fn();
-      const inputClick = vi.fn();
+      const activateInputGroupFixture = vi.fn();
+      const clickInputFixture = vi.fn();
+      const activateInputGroupFromKeyboard = (
+        event: React.KeyboardEvent<HTMLElement>,
+      ) => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+
+        event.preventDefault();
+        activateInputGroupFixture();
+      };
 
       render(
-        <div onClick={parentClick}>
-          <Input onClick={inputClick} data-testid="input" />
-        </div>,
+        <section
+          aria-label="Input group"
+          onClick={activateInputGroupFixture}
+          onKeyDown={activateInputGroupFromKeyboard}
+          role="button"
+          tabIndex={0}
+        >
+          <Input onClick={clickInputFixture} data-testid="input" />
+        </section>,
       );
 
       const input = screen.getByTestId("input");
       await user.click(input);
 
-      expect(inputClick).toHaveBeenCalled();
-      expect(parentClick).toHaveBeenCalled();
+      expect(clickInputFixture).toHaveBeenCalled();
+      expect(activateInputGroupFixture).toHaveBeenCalled();
     });
 
     it("handles event prevention", async () => {
-      const parentClick = vi.fn();
-      const inputClick = vi.fn((e: React.MouseEvent) => {
+      const activateInputGroupFixture = vi.fn();
+      const clickInputFixture = vi.fn((e: React.MouseEvent) => {
         e.stopPropagation();
       });
+      const activateInputGroupFromKeyboard = (
+        event: React.KeyboardEvent<HTMLElement>,
+      ) => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+
+        event.preventDefault();
+        activateInputGroupFixture();
+      };
 
       render(
-        <div onClick={parentClick}>
-          <Input onClick={inputClick} data-testid="input" />
-        </div>,
+        <section
+          aria-label="Input group"
+          onClick={activateInputGroupFixture}
+          onKeyDown={activateInputGroupFromKeyboard}
+          role="button"
+          tabIndex={0}
+        >
+          <Input onClick={clickInputFixture} data-testid="input" />
+        </section>,
       );
 
       const input = screen.getByTestId("input");
       await user.click(input);
 
-      expect(inputClick).toHaveBeenCalled();
-      expect(parentClick).not.toHaveBeenCalled();
+      expect(clickInputFixture).toHaveBeenCalled();
+      expect(activateInputGroupFixture).not.toHaveBeenCalled();
     });
   });
 });
