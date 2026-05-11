@@ -171,17 +171,17 @@ describe("Button Component", () => {
         <Button
           type="submit"
           disabled
-          aria-label="Submit form"
+          aria-label="Send message"
           data-testid="submit-button"
         >
-          Submit
+          Send message
         </Button>,
       );
 
       const button = screen.getByRole("button");
       expect(button).toHaveAttribute("type", "submit");
       expect(button).toBeDisabled();
-      expect(button).toHaveAttribute("aria-label", "Submit form");
+      expect(button).toHaveAttribute("aria-label", "Send message");
       expect(button).toHaveAttribute("data-testid", "submit-button");
     });
 
@@ -199,19 +199,19 @@ describe("Button Component", () => {
 
   describe("Event Handling", () => {
     it("handles click events", () => {
-      const handleClick = vi.fn();
-      render(<Button onClick={handleClick}>Click me</Button>);
+      const activateButtonFixture = vi.fn();
+      render(<Button onClick={activateButtonFixture}>Click me</Button>);
 
       const button = screen.getByRole("button");
       fireEvent.click(button);
 
-      expect(handleClick).toHaveBeenCalledTimes(1);
+      expect(activateButtonFixture).toHaveBeenCalledTimes(1);
     });
 
     it("does not trigger click when disabled", () => {
-      const handleClick = vi.fn();
+      const attemptDisabledButtonActivation = vi.fn();
       render(
-        <Button onClick={handleClick} disabled>
+        <Button onClick={attemptDisabledButtonActivation} disabled>
           Disabled
         </Button>,
       );
@@ -219,7 +219,7 @@ describe("Button Component", () => {
       const button = screen.getByRole("button");
       fireEvent.click(button);
 
-      expect(handleClick).not.toHaveBeenCalled();
+      expect(attemptDisabledButtonActivation).not.toHaveBeenCalled();
     });
 
     it("handles keyboard events", () => {

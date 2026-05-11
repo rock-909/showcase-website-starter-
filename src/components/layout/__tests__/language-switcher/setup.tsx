@@ -69,9 +69,18 @@ vi.mock("@/components/ui/dropdown-menu", () => ({
     onOpenChange?: (open: boolean) => void;
   }) => (
     <div
+      aria-expanded={open}
       data-testid="dropdown-menu"
       data-open={open}
       onClick={() => onOpenChange?.(!open)}
+      onKeyDown={(event: React.KeyboardEvent<HTMLDivElement>) => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+
+        event.preventDefault();
+        onOpenChange?.(!open);
+      }}
+      role="button"
+      tabIndex={0}
     >
       {children}
     </div>
@@ -117,9 +126,15 @@ vi.mock("@/components/ui/dropdown-menu", () => ({
     onClick?: () => void;
     [key: string]: any;
   }) => (
-    <div data-testid="dropdown-item" onClick={onClick} {...props}>
+    <button
+      data-testid="dropdown-item"
+      onClick={onClick}
+      role="menuitem"
+      type="button"
+      {...props}
+    >
       {children}
-    </div>
+    </button>
   ),
 }));
 

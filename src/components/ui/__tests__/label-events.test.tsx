@@ -28,9 +28,9 @@ describe("Label Events & States Tests - Index", () => {
 
   describe("Basic Event Handling", () => {
     it("handles click events", async () => {
-      const handleClick = vi.fn();
+      const selectLabelFixture = vi.fn();
       render(
-        <Label onClick={handleClick} data-testid="clickable-label">
+        <Label onClick={selectLabelFixture} data-testid="clickable-label">
           Clickable Label
         </Label>,
       );
@@ -38,14 +38,14 @@ describe("Label Events & States Tests - Index", () => {
       const label = screen.getByTestId("clickable-label");
       await user.click(label);
 
-      expect(handleClick).toHaveBeenCalledTimes(1);
+      expect(selectLabelFixture).toHaveBeenCalledTimes(1);
     });
 
     it("handles double click events", async () => {
-      const handleDoubleClick = vi.fn();
+      const inspectLabelFixture = vi.fn();
       render(
         <Label
-          onDoubleClick={handleDoubleClick}
+          onDoubleClick={inspectLabelFixture}
           data-testid="double-click-label"
         >
           Double Click Label
@@ -55,17 +55,17 @@ describe("Label Events & States Tests - Index", () => {
       const label = screen.getByTestId("double-click-label");
       await user.dblClick(label);
 
-      expect(handleDoubleClick).toHaveBeenCalledTimes(1);
+      expect(inspectLabelFixture).toHaveBeenCalledTimes(1);
     });
 
     it("handles mouse events", async () => {
-      const handleMouseEnter = vi.fn();
-      const handleMouseLeave = vi.fn();
+      const previewLabelFixture = vi.fn();
+      const dismissLabelPreviewFixture = vi.fn();
 
       render(
         <Label
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
+          onMouseEnter={previewLabelFixture}
+          onMouseLeave={dismissLabelPreviewFixture}
           data-testid="mouse-events-label"
         >
           Mouse Events Label
@@ -75,21 +75,21 @@ describe("Label Events & States Tests - Index", () => {
       const label = screen.getByTestId("mouse-events-label");
 
       await user.hover(label);
-      expect(handleMouseEnter).toHaveBeenCalled();
+      expect(previewLabelFixture).toHaveBeenCalled();
 
       await user.unhover(label);
-      expect(handleMouseLeave).toHaveBeenCalled();
+      expect(dismissLabelPreviewFixture).toHaveBeenCalled();
     });
 
     it("handles focus events", async () => {
-      const handleFocus = vi.fn();
-      const handleBlur = vi.fn();
+      const focusLabelFixture = vi.fn();
+      const blurLabelFixture = vi.fn();
 
       render(
         <Label
           tabIndex={0}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
+          onFocus={focusLabelFixture}
+          onBlur={blurLabelFixture}
           data-testid="focus-label"
         >
           Focus Label
@@ -99,41 +99,66 @@ describe("Label Events & States Tests - Index", () => {
       const label = screen.getByTestId("focus-label");
 
       await user.click(label);
-      expect(handleFocus).toHaveBeenCalled();
+      expect(focusLabelFixture).toHaveBeenCalled();
 
       await user.tab();
-      expect(handleBlur).toHaveBeenCalled();
+      expect(blurLabelFixture).toHaveBeenCalled();
     });
 
     it("handles event with associated input", async () => {
-      const handleLabelClick = vi.fn();
-      const handleInputFocus = vi.fn();
+      const selectAssociatedInputLabelFixture = vi.fn();
+      const focusAssociatedInputFixture = vi.fn();
 
       render(
         <div>
-          <Label htmlFor="event-input" onClick={handleLabelClick}>
+          <Label
+            htmlFor="event-input"
+            onClick={selectAssociatedInputLabelFixture}
+          >
             Event Label
           </Label>
-          <input id="event-input" type="text" onFocus={handleInputFocus} />
+          <input
+            id="event-input"
+            type="text"
+            onFocus={focusAssociatedInputFixture}
+          />
         </div>,
       );
 
       const label = screen.getByText("Event Label");
       await user.click(label);
 
-      expect(handleLabelClick).toHaveBeenCalled();
-      expect(handleInputFocus).toHaveBeenCalled();
+      expect(selectAssociatedInputLabelFixture).toHaveBeenCalled();
+      expect(focusAssociatedInputFixture).toHaveBeenCalled();
     });
 
     it("prevents event propagation when needed", async () => {
-      const parentClick = vi.fn();
-      const labelClick = vi.fn((_e: React.MouseEvent) => {
-        _e.stopPropagation();
-      });
+      const activateParentFixture = vi.fn();
+      const stopLabelActivationPropagationFixture = vi.fn(
+        (event: React.MouseEvent) => {
+          event.stopPropagation();
+        },
+      );
+      const activateParentFixtureFromKeyboard = (
+        event: React.KeyboardEvent<HTMLDivElement>,
+      ) => {
+        if (event.key === "Enter" || event.key === " ") {
+          activateParentFixture();
+        }
+      };
 
       render(
-        <div onClick={parentClick}>
-          <Label onClick={labelClick} data-testid="stop-propagation">
+        <div
+          aria-label="Label activation fixture"
+          role="button"
+          tabIndex={0}
+          onClick={activateParentFixture}
+          onKeyDown={activateParentFixtureFromKeyboard}
+        >
+          <Label
+            onClick={stopLabelActivationPropagationFixture}
+            data-testid="stop-propagation"
+          >
             Stop Propagation
           </Label>
         </div>,
@@ -142,18 +167,18 @@ describe("Label Events & States Tests - Index", () => {
       const label = screen.getByTestId("stop-propagation");
       await user.click(label);
 
-      expect(labelClick).toHaveBeenCalled();
-      expect(parentClick).not.toHaveBeenCalled();
+      expect(stopLabelActivationPropagationFixture).toHaveBeenCalled();
+      expect(activateParentFixture).not.toHaveBeenCalled();
     });
 
     it("handles custom event handlers", async () => {
-      const customHandler = vi.fn();
+      const recordCustomLabelEventFixture = vi.fn();
 
       render(
         <Label
           data-testid="custom-event"
-          onClick={(e: any) => {
-            customHandler(e.type, e.target);
+          onClick={(event: React.MouseEvent<HTMLLabelElement>) => {
+            recordCustomLabelEventFixture(event.type, event.currentTarget);
           }}
         >
           Custom Event
@@ -163,7 +188,10 @@ describe("Label Events & States Tests - Index", () => {
       const label = screen.getByTestId("custom-event");
       await user.click(label);
 
-      expect(customHandler).toHaveBeenCalledWith("click", label);
+      expect(recordCustomLabelEventFixture).toHaveBeenCalledWith(
+        "click",
+        label,
+      );
     });
   });
 
