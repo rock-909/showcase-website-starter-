@@ -104,7 +104,7 @@ function scanUnsafeTagStep(
     };
   }
 
-  if (isClosingTagAt(lower, current, tag)) {
+  if (quote === null && isClosingTagAt(lower, current, tag)) {
     return {
       current: findTagEnd(input, current),
       depth: depth - 1,

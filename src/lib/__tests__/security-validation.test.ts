@@ -313,6 +313,11 @@ describe("security-validation", () => {
       expect(
         sanitizeHtml('before<script>const x = "<script>";</script>after'),
       ).toBe("beforeafter");
+      expect(
+        sanitizeHtml(
+          'before<script>const x = "</script><script>alert(1)</script>";</script>after',
+        ),
+      ).toBe("beforeafter");
     });
 
     it("should remove iframe tags", () => {
