@@ -142,6 +142,29 @@ describe("processLead", () => {
     );
   });
 
+  it("omits blank contact subject from Airtable and owner email", async () => {
+    mockCreateLead.mockResolvedValue({ id: "record-no-subject" });
+    mockSendContactFormEmail.mockResolvedValue("email-no-subject");
+
+    const result = await processLead({
+      ...validContactLead,
+      subject: "   ",
+    });
+
+    expect(result.success).toBe(true);
+    expect(mockCreateLead).toHaveBeenCalledWith(
+      LEAD_TYPES.CONTACT,
+      expect.not.objectContaining({
+        subject: expect.any(String),
+      }),
+    );
+    expect(mockSendContactFormEmail).toHaveBeenCalledWith(
+      expect.not.objectContaining({
+        subject: expect.any(String),
+      }),
+    );
+  });
+
   it("fails contact lead and does not send email when Airtable fails", async () => {
     mockCreateLead.mockRejectedValue(new Error("Airtable failed"));
 

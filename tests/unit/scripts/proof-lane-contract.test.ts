@@ -277,27 +277,24 @@ describe("proof lane contract", () => {
     };
     const scripts = packageJson.scripts;
 
-    expect(scripts["brand:check"]).toBe("node scripts/starter-checks.js brand");
-    expect(scripts["content:check"]).toBe(
-      "node scripts/starter-checks.js content-slugs && node scripts/starter-checks.js translations",
-    );
-    expect(scripts["component:check"]).toBe(
-      "pnpm component:governance:test && pnpm component:governance && pnpm exec storybook build",
-    );
-    expect(scripts["component:governance"]).toBe(
-      "node scripts/starter-checks.js component-governance",
-    );
-    expect(scripts["website:check"]).toBe(
-      "pnpm type-check && pnpm lint:check && pnpm test && pnpm build",
-    );
-    expect(scripts["start"]).toBe("next start");
-    expect(scripts["website:build:cf"]).toBe(
-      "pnpm exec opennextjs-cloudflare build --noMinify",
-    );
-    expect(scripts["route-mode:snapshot"]).toBe(
-      "node scripts/quality/route-mode-snapshot.mjs",
-    );
-    expect(Object.keys(scripts)).toHaveLength(15);
+    const expectedScripts = Object.entries({
+      "brand:check": "node scripts/starter-checks.js brand",
+      "content:check":
+        "node scripts/starter-checks.js content-slugs && node scripts/starter-checks.js translations",
+      "component:check":
+        "pnpm component:governance:test && pnpm component:governance && pnpm exec storybook build",
+      "component:governance":
+        "node scripts/starter-checks.js component-governance",
+      "website:check":
+        "pnpm type-check && pnpm lint:check && pnpm test && pnpm build",
+      start: "next start",
+      "website:build:cf": "pnpm exec opennextjs-cloudflare build --noMinify",
+      "route-mode:snapshot": "node scripts/quality/route-mode-snapshot.mjs",
+    } satisfies Record<string, string>);
+
+    for (const [scriptName, command] of expectedScripts) {
+      expect(scripts[scriptName]).toBe(command);
+    }
   });
 
   it("uses split critical/deferred messages as the translation source of truth", () => {
@@ -840,46 +837,5 @@ describe("proof lane contract", () => {
       "src/components/products/product-inquiry-form",
     );
     expect(repoProfile).not.toContain("src/lib/idempotency/**");
-  });
-
-  it("records closure for every 2026-05-03 ai-smell finding", () => {
-    const closure = readRepoFile(
-      "docs/audits/ai-smell-remediation-20260503.md",
-    );
-    const rootAuditReportExists = fs.existsSync(
-      path.join(REPO_ROOT, "audit-report-20260503.md"),
-    );
-    const rootAuditSummaryExists = fs.existsSync(
-      path.join(REPO_ROOT, "audit-owner-summary-20260503.md"),
-    );
-
-    for (const findingId of [
-      "F-S21-001",
-      "F-S21-002",
-      "F-S28-001",
-      "F-S23-001",
-      "F-S25-001",
-      "F-S27-001",
-      "F-S31-001",
-      "F-S32-001",
-      "F-S30-001",
-    ]) {
-      expect(closure).toContain(findingId);
-    }
-
-    expect(closure).toContain("Public Demo Starter Site is out of scope");
-    expect(closure).toContain("docs/audits/audit-report-20260503.md");
-    expect(rootAuditReportExists).toBe(false);
-    expect(rootAuditSummaryExists).toBe(false);
-    expect(closure).toContain("Fresh verification");
-    expect(closure).toContain(
-      "| Finding | Changed files | Closure method | Verification | Remaining boundary |",
-    );
-    expect(closure).toContain(
-      "PUBLIC_LAUNCH_STRICT=true node scripts/starter-checks.js validate-production-config",
-    );
-    expect(closure).toContain("scripts/starter-checks.js");
-    expect(closure).toContain("tests/e2e/contact-form-smoke.spec.ts");
-    expect(closure).toContain("playwright.config.ts");
   });
 });

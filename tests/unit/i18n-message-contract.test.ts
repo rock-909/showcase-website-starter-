@@ -37,6 +37,14 @@ const INQUIRY_API_VALIDATION_DETAIL_KEYS = [
   "errors.requirements.tooLong",
 ] as const;
 
+const CONTACT_API_VALIDATION_DETAIL_KEYS = [
+  "errors.message.required",
+  "errors.message.tooShort",
+  "errors.message.tooLong",
+  "errors.subject.length",
+  "errors.acceptPrivacy.required",
+] as const;
+
 function isJsonObject(value: unknown): value is JsonObject {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -85,6 +93,22 @@ describe("real i18n runtime message contract", () => {
     "keeps inquiry API validation detail keys in the real %s contact form bundle",
     (_locale, messages) => {
       for (const detailKey of INQUIRY_API_VALIDATION_DETAIL_KEYS) {
+        const keyPath = `contact.form.${detailKey}`;
+        const value = getMessageValue(messages, keyPath);
+
+        expect(typeof value, keyPath).toBe("string");
+        expect(String(value).trim(), keyPath).not.toBe("");
+      }
+    },
+  );
+
+  it.each([
+    ["en", mergeMessages(enCriticalMessages, enDeferredMessages)],
+    ["zh", mergeMessages(zhCriticalMessages, zhDeferredMessages)],
+  ] as const)(
+    "keeps contact API validation detail keys in the real %s contact form bundle",
+    (_locale, messages) => {
+      for (const detailKey of CONTACT_API_VALIDATION_DETAIL_KEYS) {
         const keyPath = `contact.form.${detailKey}`;
         const value = getMessageValue(messages, keyPath);
 

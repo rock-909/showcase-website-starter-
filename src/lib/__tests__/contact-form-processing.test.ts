@@ -3,7 +3,10 @@ import { API_ERROR_CODES } from "@/constants/api-error-codes";
 import {
   type ContactFormWithToken,
   submitCanonicalContactSubmission,
+  validateContactSubmissionPayload,
 } from "@/lib/contact/submit-canonical-contact";
+
+vi.unmock("zod");
 
 const mockProcessLead = vi.hoisted(() => vi.fn());
 
@@ -66,6 +69,44 @@ describe("canonical contact submission", () => {
         subject: "Custom project setup",
       }),
       {},
+    );
+  });
+
+  it("omits blank subject text before sending contact data to the lead pipeline", async () => {
+    mockProcessLead.mockResolvedValueOnce({
+      success: true,
+      emailSent: true,
+      ownerNotified: true,
+      recordCreated: true,
+      referenceId: "ref-no-subject",
+    });
+
+    await submitCanonicalContactSubmission(createContactFormData("   "), {
+      clientIP: "203.0.113.10",
+    });
+
+    expect(mockProcessLead).toHaveBeenCalledWith(
+      expect.not.objectContaining({
+        subject: expect.any(String),
+      }),
+      {},
+    );
+  });
+
+  it("maps missing required contact fields to required detail keys", () => {
+    const payload: Partial<ContactFormWithToken> =
+      createContactFormData("Product inquiry");
+    delete payload.message;
+    delete payload.acceptPrivacy;
+
+    const result = validateContactSubmissionPayload(payload);
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        success: false,
+        errorCode: API_ERROR_CODES.CONTACT_VALIDATION_FAILED,
+        details: ["errors.message.required", "errors.acceptPrivacy.required"],
+      }),
     );
   });
 

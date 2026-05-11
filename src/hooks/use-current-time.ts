@@ -7,9 +7,13 @@
  * @see https://react.dev/learn/keeping-components-pure#detecting-impure-calculations-with-strict-mode
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useReducer } from "react";
 
 const DEFAULT_INTERVAL = 1000; // 1 second
+
+function currentTimeReducer(): number {
+  return Date.now();
+}
 
 /**
  * Custom hook for getting current time that updates at specified interval
@@ -34,7 +38,11 @@ export function useCurrentTime(
   enabled: boolean = true,
 ): number {
   // Initialize with current time (lazy initialization to avoid SSR issues)
-  const [time, setTime] = useState<number>(() => Date.now());
+  const [time, dispatchCurrentTime] = useReducer(
+    currentTimeReducer,
+    undefined,
+    Date.now,
+  );
 
   useEffect(() => {
     if (!enabled) {
@@ -43,12 +51,10 @@ export function useCurrentTime(
 
     // Re-sync as soon as the timer becomes active so consumers do not wait for
     // the first interval tick.
-    queueMicrotask(() => {
-      setTime(Date.now());
-    });
+    dispatchCurrentTime();
 
     const id = setInterval(() => {
-      setTime(Date.now());
+      dispatchCurrentTime();
     }, updateInterval);
 
     return () => clearInterval(id);

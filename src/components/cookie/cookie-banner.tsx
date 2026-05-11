@@ -10,7 +10,13 @@
  * - Responsive design (bottom bar on mobile, floating on desktop)
  * - CSS variable coordination with floating elements (--cookie-banner-height)
  */
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useEffectEvent,
+  useRef,
+  useState,
+} from "react";
 import { Link } from "@/i18n/routing";
 import { X } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -134,6 +140,7 @@ export function CookieBanner({ className }: CookieBannerProps) {
     setShowPreferences(false);
     requestAnimationFrame(() => manageButtonRef.current?.focus());
   }, []);
+  const closePreferencesPanelFromEffect = useEffectEvent(closePreferencesPanel);
   const openPreferencesPanel = useCallback(() => {
     setShowPreferences(true);
     requestAnimationFrame(() => closeButtonRef.current?.focus());
@@ -162,7 +169,7 @@ export function CookieBanner({ className }: CookieBannerProps) {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
-        closePreferencesPanel();
+        closePreferencesPanelFromEffect();
         return;
       }
 
@@ -178,7 +185,7 @@ export function CookieBanner({ className }: CookieBannerProps) {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [closePreferencesPanel, showPreferences]);
+  }, [showPreferences]);
 
   // Don't render until hydrated or if already consented
   if (!ready || hasConsented) {
@@ -343,10 +350,10 @@ function PreferencesPanel({
           variant="ghost"
           size="icon"
           onClick={onClose}
-          className="h-8 w-8 shrink-0"
+          className="size-8 shrink-0"
           aria-label={t("close")}
         >
-          <X className="h-4 w-4" />
+          <X className="size-4" />
         </Button>
       </div>
 
@@ -420,7 +427,7 @@ function CategoryToggle({
         checked={checked}
         disabled={disabled}
         onChange={(e) => onChange?.(e.target.checked)}
-        className="mt-0.5 h-4 w-4 rounded border-input accent-primary disabled:cursor-not-allowed disabled:opacity-50"
+        className="mt-0.5 size-4 rounded border-input accent-primary disabled:cursor-not-allowed disabled:opacity-50"
       />
       <div className="flex-1 space-y-0.5">
         <p className="text-xs leading-none font-medium text-foreground">

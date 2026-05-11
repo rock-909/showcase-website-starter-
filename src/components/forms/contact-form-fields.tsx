@@ -163,7 +163,7 @@ export const FormFields = memo(({ t, isPending }: FormFieldsProps) => {
                   type="checkbox"
                   disabled={isPending}
                   required={field.required}
-                  className="h-4 w-4 rounded border border-input"
+                  className="size-4 rounded border border-input"
                 />
                 <Label htmlFor={field.key} className={renderLabelClass(field)}>
                   {t(field.labelKey)}

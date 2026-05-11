@@ -3,7 +3,32 @@ import { screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderAsyncPage } from "@/testing/render-async-page";
 
-const mockGetTranslations = vi.fn();
+const { mockGetPageBySlug, mockGetTranslations } = vi.hoisted(() => ({
+  mockGetPageBySlug: vi.fn(),
+  mockGetTranslations: vi.fn(),
+}));
+
+const pageContent = {
+  metadata: {
+    title: "Custom Project Support",
+    description: "Custom project support description.",
+    slug: "custom-project-support",
+    publishedAt: "2024-01-01",
+    faq: [],
+  },
+  content: "",
+  slug: "custom-project-support",
+  filePath: "content/pages/en/custom-project-support.mdx",
+};
+
+const zhPageContent = {
+  ...pageContent,
+  metadata: {
+    ...pageContent.metadata,
+    title: "定制项目支持",
+  },
+  filePath: "content/pages/zh/custom-project-support.mdx",
+};
 
 vi.mock("react", async () => {
   const actual = await vi.importActual<typeof React>("react");
@@ -44,11 +69,34 @@ vi.mock("@/components/sections/faq-section", () => ({
   FaqSection: () => <section data-testid="faq-section">FAQ</section>,
 }));
 
+vi.mock("@/lib/content-query/queries", () => ({
+  getPageBySlug: mockGetPageBySlug,
+}));
+
+function createDeferred<T>() {
+  let resolve!: (value: T | PromiseLike<T>) => void;
+  const promise = new Promise<T>((settle) => {
+    resolve = settle;
+  });
+
+  return { promise, resolve };
+}
+
+async function flushPendingMicrotasks() {
+  await Promise.resolve();
+  await Promise.resolve();
+}
+
 describe("Feature: Custom Project Support Page", () => {
   beforeEach(() => {
     vi.resetModules();
     mockGetTranslations.mockReset();
     mockGetTranslations.mockResolvedValue((key: string) => key);
+    mockGetPageBySlug.mockReset();
+    mockGetPageBySlug.mockImplementation(
+      async (_slug: string, locale: string) =>
+        locale === "zh" ? zhPageContent : pageContent,
+    );
   });
 
   async function renderPage(locale = "en") {
@@ -116,5 +164,33 @@ describe("Feature: Custom Project Support Page", () => {
       params: Promise.resolve({ locale: "en" }),
     });
     expect(result).toBeInstanceOf(Promise);
+  });
+
+  it("starts translations and content loading before either result resolves", async () => {
+    const translations = createDeferred<(key: string) => string>();
+    const page = createDeferred<typeof pageContent>();
+    mockGetTranslations.mockReturnValueOnce(translations.promise);
+    mockGetPageBySlug.mockReturnValueOnce(page.promise);
+
+    const mod = await import("../page");
+    const element = await mod.default({
+      params: Promise.resolve({ locale: "en" }),
+    });
+    const rendered = renderAsyncPage(element as React.JSX.Element);
+
+    await flushPendingMicrotasks();
+
+    expect(mockGetTranslations).toHaveBeenCalledWith({
+      locale: "en",
+      namespace: "customProject",
+    });
+    expect(mockGetPageBySlug).toHaveBeenCalledWith(
+      "custom-project-support",
+      "en",
+    );
+
+    translations.resolve((key: string) => key);
+    page.resolve(pageContent);
+    await rendered;
   });
 });

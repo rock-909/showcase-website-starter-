@@ -313,6 +313,62 @@ describe("/api/inquiry route", () => {
       expect(processLead).not.toHaveBeenCalled();
     });
 
+    it("should treat blank required inquiry fields as required before turnstile and lead processing", async () => {
+      const blankRequiredFieldCases = [
+        {
+          field: "fullName",
+          expectedDetails: ["errors.fullName.required"],
+        },
+        {
+          field: "email",
+          expectedDetails: ["errors.email.required"],
+        },
+        {
+          field: "productSlug",
+          expectedDetails: ["errors.productSlug.required"],
+        },
+        {
+          field: "productName",
+          expectedDetails: ["errors.productName.required"],
+        },
+        {
+          field: "quantity",
+          expectedDetails: ["errors.quantity.required"],
+        },
+      ] as const;
+
+      const results = [];
+
+      for (const { field, expectedDetails } of blankRequiredFieldCases) {
+        const request = createInquiryRequest(
+          JSON.stringify({ ...validInquiryData, [field]: "   " }),
+        );
+
+        const response = await POST(request);
+        const data = await response.json();
+
+        results.push({
+          status: response.status,
+          data,
+          expectedDetails,
+        });
+      }
+
+      expect(results).toEqual(
+        blankRequiredFieldCases.map(({ expectedDetails }) => ({
+          status: 400,
+          data: {
+            success: false,
+            errorCode: API_ERROR_CODES.INQUIRY_VALIDATION_FAILED,
+            details: expectedDetails,
+          },
+          expectedDetails,
+        })),
+      );
+      expect(verifyTurnstileDetailed).not.toHaveBeenCalled();
+      expect(processLead).not.toHaveBeenCalled();
+    });
+
     it("should reject a missing product identity before lead processing", async () => {
       const request = createInquiryRequest(
         JSON.stringify({

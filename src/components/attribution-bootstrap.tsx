@@ -10,6 +10,7 @@ type AttributionModule = Pick<
   "flushPendingAttribution" | "storeAttributionData"
 >;
 type AttributionModuleLoader = () => Promise<AttributionModule>;
+type AttributionFlushHandler = AttributionModule["flushPendingAttribution"];
 
 interface AttributionBootstrapProps {
   loadModule?: AttributionModuleLoader;
@@ -21,6 +22,20 @@ export function loadAttributionModule() {
 
 export function shouldLoadAttribution(search: string) {
   return ATTRIBUTION_PARAM_PATTERN.test(search);
+}
+
+export function registerAttributionFlushListeners(
+  flushPendingAttribution: AttributionFlushHandler,
+) {
+  for (const eventName of ATTRIBUTION_FLUSH_EVENTS) {
+    window.addEventListener(eventName, flushPendingAttribution);
+  }
+
+  return () => {
+    for (const eventName of ATTRIBUTION_FLUSH_EVENTS) {
+      window.removeEventListener(eventName, flushPendingAttribution);
+    }
+  };
 }
 
 export function AttributionBootstrap({
@@ -38,16 +53,9 @@ export function AttributionBootstrap({
       .then(({ flushPendingAttribution, storeAttributionData }) => {
         if (!cancelled) {
           storeAttributionData();
-
-          for (const eventName of ATTRIBUTION_FLUSH_EVENTS) {
-            window.addEventListener(eventName, flushPendingAttribution);
-          }
-
-          removeFlushListeners = () => {
-            for (const eventName of ATTRIBUTION_FLUSH_EVENTS) {
-              window.removeEventListener(eventName, flushPendingAttribution);
-            }
-          };
+          removeFlushListeners = registerAttributionFlushListeners(
+            flushPendingAttribution,
+          );
         }
       })
       .catch(() => undefined);

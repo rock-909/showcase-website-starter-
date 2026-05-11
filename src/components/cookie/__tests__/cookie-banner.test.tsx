@@ -2,6 +2,7 @@
  * @vitest-environment jsdom
  * Tests for CookieBanner component
  */
+import { readFileSync } from "node:fs";
 import {
   fireEvent,
   render,
@@ -85,6 +86,18 @@ describe("CookieBanner", () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+  });
+
+  it("keeps the global keydown listener stable with useEffectEvent", () => {
+    const source = readFileSync(
+      "src/components/cookie/cookie-banner.tsx",
+      "utf8",
+    );
+
+    expect(source).toContain("useEffectEvent");
+    expect(source).not.toContain(
+      "}, [closePreferencesPanel, showPreferences]);",
+    );
   });
 
   describe("visibility", () => {

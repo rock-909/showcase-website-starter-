@@ -16,6 +16,13 @@ describe("ThemeSwitcher", () => {
     expect(source).not.toContain("next/dynamic");
   });
 
+  it("does not initialize hydration state from an effect", () => {
+    const source = readFileSync("src/components/ui/theme-switcher.tsx", "utf8");
+
+    expect(source).toContain("useSyncExternalStore");
+    expect(source).not.toContain("setMounted");
+  });
+
   it("renders the active theme highlight without a second dynamic boundary", async () => {
     const mockSetTheme = vi.fn();
     vi.mocked(useTheme).mockReturnValue({

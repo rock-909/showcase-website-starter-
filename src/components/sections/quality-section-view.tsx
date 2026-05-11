@@ -80,7 +80,7 @@ function CommitmentList({ items }: { items: QualityCommitmentItem[] }) {
             key={item.key}
             className="flex items-start gap-4 bg-card px-6 py-5 transition-colors duration-150 hover:bg-[var(--primary-50)]"
           >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--primary-light)] text-primary">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-[var(--primary-light)] text-primary">
               <Icon size={20} />
             </div>
             <div>
@@ -103,7 +103,7 @@ function CertificationBlock({ content }: { content: QualitySectionContent }) {
         {content.certificationsTitle}
       </h3>
       <div className="flex items-center gap-3 rounded-lg border bg-card px-4 py-3">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10">
+        <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10">
           <StaticCheckIcon size={16} className="text-primary" />
         </div>
         <div>
@@ -165,7 +165,7 @@ function ProofBlock({ content }: { content: QualitySectionContent }) {
     <div className="mt-8 rounded-lg border bg-card px-5 py-4">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
             <StaticBuildingIcon size={18} />
           </div>
           <div>

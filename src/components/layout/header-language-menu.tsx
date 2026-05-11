@@ -241,7 +241,7 @@ export function HeaderLanguageMenu({
   const triggerId = `${menuBaseId}-trigger`;
   const menuId = `${menuBaseId}-menu`;
   const [pathname, setPathname] = useState(getCurrentBrowserPathname);
-  const [isOpen, setIsOpen] = useState(initialOpen);
+  const [isOpen, setIsOpen] = useState(() => initialOpen);
   const closeMenu = useCallback(() => setIsOpen(false), []);
   const toggleMenu = useCallback(() => {
     const nextIsOpen = !isOpen;

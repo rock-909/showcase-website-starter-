@@ -70,7 +70,7 @@ function isValidProductQuantity(value: unknown): value is string | number {
  * Base lead fields shared across all lead types
  */
 const baseLeadFields = {
-  email: z.string().email().max(MAX_LEAD_EMAIL_LENGTH),
+  email: z.string().trim().min(ONE).email().max(MAX_LEAD_EMAIL_LENGTH),
   company: sanitizedString().max(MAX_LEAD_COMPANY_LENGTH).optional(),
   marketingConsent: z.boolean().optional().default(false),
 };
@@ -78,7 +78,10 @@ const baseLeadFields = {
 const productQuantitySchema: z.ZodType<string | number> = z
   .any()
   .transform((value, context) => {
-    if (value === undefined) {
+    if (
+      value === undefined ||
+      (typeof value === "string" && value.trim().length === 0)
+    ) {
       context.addIssue({
         code: "too_small",
         minimum: ONE,
@@ -103,8 +106,14 @@ export const contactLeadSchema = z.object({
   type: z.literal(LEAD_TYPES.CONTACT),
   fullName: sanitizedString().min(ONE).max(MAX_LEAD_NAME_LENGTH),
   subject: sanitizedString()
-    .min(MIN_LEAD_SUBJECT_LENGTH)
-    .max(MAX_LEAD_SUBJECT_LENGTH)
+    .transform((value) => (value.length === 0 ? undefined : value))
+    .refine(
+      (value) =>
+        value === undefined ||
+        (value.length >= MIN_LEAD_SUBJECT_LENGTH &&
+          value.length <= MAX_LEAD_SUBJECT_LENGTH),
+      `Subject must be between ${MIN_LEAD_SUBJECT_LENGTH} and ${MAX_LEAD_SUBJECT_LENGTH} characters`,
+    )
     .optional(),
   message: sanitizedString()
     .min(MIN_LEAD_MESSAGE_LENGTH)

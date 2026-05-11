@@ -119,12 +119,17 @@ export function phone({ field }: ContactFormFieldValidatorContext) {
 export function subject({ field }: ContactFormFieldValidatorContext) {
   const { SUBJECT_MIN_LENGTH, SUBJECT_MAX_LENGTH } =
     CONTACT_FORM_VALIDATION_CONSTANTS;
-  const schema = z.string().refine((value) => {
-    if (!value) return true;
-    return (
-      value.length >= SUBJECT_MIN_LENGTH && value.length <= SUBJECT_MAX_LENGTH
+  const schema = z
+    .string()
+    .transform((value) => value.trim())
+    .transform((value) => (value.length === 0 ? undefined : value))
+    .refine(
+      (value) =>
+        value === undefined ||
+        (value.length >= SUBJECT_MIN_LENGTH &&
+          value.length <= SUBJECT_MAX_LENGTH),
+      `Subject must be between ${SUBJECT_MIN_LENGTH} and ${SUBJECT_MAX_LENGTH} characters`,
     );
-  }, `Subject must be between ${SUBJECT_MIN_LENGTH} and ${SUBJECT_MAX_LENGTH} characters`);
 
   return applyOptionality(schema, field);
 }

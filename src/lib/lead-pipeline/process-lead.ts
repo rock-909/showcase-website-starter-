@@ -77,7 +77,8 @@ function createProcessingFailureResult(referenceId?: string): LeadResult {
 function createOptionalSubject(
   subject: string | undefined,
 ): { subject: string } | Record<string, never> {
-  return subject ? { subject } : {};
+  const trimmedSubject = subject?.trim();
+  return trimmedSubject ? { subject: trimmedSubject } : {};
 }
 
 function createContactEmailData(lead: ContactLeadInput): EmailTemplateData {
