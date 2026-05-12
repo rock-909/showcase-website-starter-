@@ -96,6 +96,18 @@ scripts/
 
 第一波不要碰 `release-verify`、Cloudflare proof、部署 smoke 或 owner launch proof 相关命令。
 
+## Phase 2 extraction status
+
+`content-slugs` is the first Phase 2 extraction target.
+
+Expected post-extraction state:
+
+- `node scripts/starter-checks.js content-slugs` remains the public command.
+- Core slug-sync logic lives in `scripts/quality/checks/content-slugs.js`.
+- `scripts/starter-checks.js` remains the compatibility router and legacy export facade.
+- `pnpm content:check` still runs `content-slugs` before `translations`.
+- `reports/content-slug-sync-report.json` remains the JSON report path for `--json`.
+
 ## Required compatibility proof
 
 每次提取都必须证明老命令仍可用：
