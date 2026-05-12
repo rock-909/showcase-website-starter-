@@ -1,3 +1,5 @@
+import { SINGLE_SITE_CONFIG, SINGLE_SITE_FACTS } from "@/config/single-site";
+
 export interface WebsiteProfile {
   readonly name: string;
   readonly legalName: string;
@@ -14,16 +16,16 @@ export interface WebsiteProfile {
 }
 
 export const websiteProfile: WebsiteProfile = {
-  name: "Showcase Website Starter",
-  legalName: "Showcase Website Starter",
+  name: SINGLE_SITE_CONFIG.name,
+  legalName: SINGLE_SITE_FACTS.company.name,
   tagline: "Public demo starter for launch-ready showcase websites.",
   domain: "example.com",
-  email: "starter-contact@example.com",
+  email: SINGLE_SITE_FACTS.contact.email,
   phone: "+1 000 000 0000",
   address: "Replace before launch",
   foundedYear: 2020,
   socialLinks: {
-    linkedin: "https://www.linkedin.com/company/example",
-    x: "https://x.com/example",
+    linkedin: SINGLE_SITE_FACTS.social.linkedin ?? "",
+    x: SINGLE_SITE_FACTS.social.twitter ?? "",
   },
 };

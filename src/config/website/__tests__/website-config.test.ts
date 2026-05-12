@@ -54,6 +54,12 @@ describe("website config", () => {
     expect(websiteSeo.ogImage).toBe(SINGLE_SITE_FACTS.brandAssets.ogImage);
   });
 
+  it("keeps starter URL placeholders static and derived from the website profile", () => {
+    expect(websiteProfile.domain).toBe("example.com");
+    expect(websiteSeo.siteUrl).toBe("https://example.com");
+    expect(websiteSeo.siteUrl).toBe(`https://${websiteProfile.domain}`);
+  });
+
   it("keeps contact recipient and fallback emails aligned", () => {
     expect(websiteContact.recipientEmail).toBe(SINGLE_SITE_FACTS.contact.email);
     expect(websiteContact.fallbackEmail).toBe(SINGLE_SITE_FACTS.contact.email);
