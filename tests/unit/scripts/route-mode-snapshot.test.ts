@@ -40,6 +40,10 @@ describe("route mode snapshot parser", () => {
       .sort();
 
     expect(scriptFiles).toEqual([
+      "scripts/quality/checks/brand.js",
+      "scripts/quality/checks/client-boundary.js",
+      "scripts/quality/checks/content-slugs.js",
+      "scripts/quality/checks/eslint-disable.js",
       "scripts/quality/react-doctor-classify.mjs",
       "scripts/quality/route-mode-snapshot.mjs",
       "scripts/starter-checks.js",

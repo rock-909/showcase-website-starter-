@@ -10,6 +10,8 @@ node scripts/starter-checks.js <command>
 
 后续就算内部拆成多个文件，也不能随便改命令名、参数习惯或退出码含义。派生项目、CI、文档和 owner runbook 都可能已经依赖这些命令。
 
+Phase 2 extracted commands: content-slugs, eslint-disable, client-boundary, brand. Public command compatibility remains `node scripts/starter-checks.js <command>`.
+
 ## Current command surface
 
 | 命令 | 当前职责 | 适合第一波拆分吗 |
