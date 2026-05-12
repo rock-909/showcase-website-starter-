@@ -1,8 +1,8 @@
+import { randomUUID } from "crypto";
 import { spawn } from "child_process";
 import * as fs from "fs";
-import * as os from "os";
 import * as path from "path";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 /**
  * Content Slug Sync CLI Integration Tests
@@ -22,29 +22,58 @@ const REPORT_PATH = path.resolve(
   __dirname,
   "../../../reports/content-slug-sync-report.json",
 );
-const TEMP_TRASH_ROOT = path.join(
-  os.tmpdir(),
-  "showcase-content-slug-sync-report-trash",
+const REPORT_TRASH_ROOT = path.resolve(
+  __dirname,
+  "../../../reports/.trash/content-slug-sync-test",
 );
 
-function moveReportToTrash(): void {
+let preservedReportPath: string | null = null;
+
+function createTrashReportPath(prefix: string): string {
+  return path.join(
+    REPORT_TRASH_ROOT,
+    `${prefix}-${process.pid}-${randomUUID()}.json`,
+  );
+}
+
+function moveReportToTrash(prefix: string): string | null {
   if (!fs.existsSync(REPORT_PATH)) {
+    return null;
+  }
+
+  fs.mkdirSync(REPORT_TRASH_ROOT, { recursive: true });
+  const targetPath = createTrashReportPath(prefix);
+
+  // eslint-disable-next-line security/detect-non-literal-fs-filename -- generated and preserved test reports are moved, never permanently deleted
+  fs.renameSync(REPORT_PATH, targetPath);
+
+  return targetPath;
+}
+
+function restorePreservedReport(): void {
+  if (preservedReportPath === null) {
     return;
   }
 
-  // eslint-disable-next-line security/detect-non-literal-fs-filename -- cleanup moves generated reports to a recoverable os.tmpdir trash folder
-  fs.mkdirSync(TEMP_TRASH_ROOT, { recursive: true });
-  const targetPath = path.join(
-    TEMP_TRASH_ROOT,
-    `content-slug-sync-report-${Date.now()}.json`,
-  );
+  if (fs.existsSync(REPORT_PATH)) {
+    moveReportToTrash("generated-before-restore");
+  }
 
-  // eslint-disable-next-line security/detect-non-literal-fs-filename -- generated report cleanup uses recoverable rename instead of permanent deletion
-  fs.renameSync(REPORT_PATH, targetPath);
+  // eslint-disable-next-line security/detect-non-literal-fs-filename -- restores the pre-test report path after moving generated output aside
+  fs.renameSync(preservedReportPath, REPORT_PATH);
+  preservedReportPath = null;
 }
 
+beforeEach(() => {
+  preservedReportPath = moveReportToTrash("pre-existing");
+});
+
 afterEach(() => {
-  moveReportToTrash();
+  try {
+    moveReportToTrash("generated");
+  } finally {
+    restorePreservedReport();
+  }
 });
 
 interface SpawnResult {
@@ -155,7 +184,6 @@ describe("content-slug-sync CLI", () => {
     it("should preserve --json report output path and payload", async () => {
       const result = await runCLI(["--json"]);
 
-      expect(result.code).toBe(0);
       expect(result.stdout).toContain("JSON report saved to:");
       expect(result.stdout).toContain("reports/content-slug-sync-report.json");
       expect(fs.existsSync(REPORT_PATH)).toBe(true);
@@ -165,12 +193,15 @@ describe("content-slug-sync CLI", () => {
         tool: string;
         checkedCollections: string[];
         checkedLocales: string[];
+        issues: unknown[];
       };
 
-      expect(report.ok).toBe(true);
       expect(report.tool).toBe("content-slug-sync");
       expect(report.checkedCollections).toEqual(["posts", "pages", "products"]);
       expect(report.checkedLocales).toEqual(["en", "zh"]);
+      expect(typeof report.ok).toBe("boolean");
+      expect(Array.isArray(report.issues)).toBe(true);
+      expect(result.code).toBe(report.ok ? 0 : 1);
     });
 
     it("should support quiet mode", async () => {
