@@ -103,7 +103,7 @@
 - **Playwright 1.59.1**
 - **@axe-core/playwright 4.11.3**
 - **axe-core 4.11.4**
-- **Lighthouse CI**
+- **Lighthouse CI**：手动可选性能检查，不接入默认 CI 或 git hook；入口是 `pnpm build && pnpm website:lighthouse`
   - `@lhci/cli 0.15.1`
   - `lighthouse 12.8.2`
 
@@ -119,8 +119,8 @@
 - **prettier-plugin-tailwindcss 0.8.0**
 - **@ianvs/prettier-plugin-sort-imports 4.7.1**
 - **dependency-cruiser 17.4.0**：依赖边界检查
-- **knip 6.12.1**：未使用代码扫描
-- **Stryker 9.6.1**：变异测试工具，主要覆盖 lead/security/form-schema 高风险逻辑
+- **knip**：不作为 starter 内置 proof lane；如派生项目需要，可单独安装并维护自己的配置
+- **Stryker**：不作为 starter 内置 proof lane；变异测试属于派生项目可选的高成本专项检查
 - **commitlint 20.5.3**
 - **lefthook 2.1.6**
 

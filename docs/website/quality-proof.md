@@ -40,6 +40,19 @@ Local release proof is not public launch proof. Public launch still requires `PU
 
 它不证明每一个业务区块、页面区块、表单组合都有 Storybook 覆盖。业务/page-level stories 是 starter 的示例和评审辅助，可以逐步增加，但不作为派生项目的硬门禁。
 
+### Optional Lighthouse proof boundary
+
+Lighthouse is a bundled manual performance check, not a default CI gate and not a git-hook task.
+
+Use it only when a local production build is available:
+
+```bash
+pnpm build
+pnpm website:lighthouse
+```
+
+This command uses `lighthouserc.js` and `@lhci/cli`. It can help review Core Web Vitals and payload signals on local rendered pages, but it does not replace deployed smoke tests, real-device review, or owner launch signoff.
+
 ### Semgrep proof boundary
 
 Semgrep local CLI may be unavailable on a developer machine. When local `pnpm exec semgrep --config semgrep.yml src` returns `Command "semgrep" not found`, record the lane as blocked locally, not passed. CI owns the canonical blocking Semgrep scan through `semgrep scan --error --severity ERROR --config semgrep.yml src` in the official `semgrep/semgrep` container. INFO/WARNING heuristic findings are review signals, not CI blockers.

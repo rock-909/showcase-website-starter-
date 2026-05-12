@@ -129,9 +129,9 @@ pre-push:
     performance-test:
       run: |
         if [ -n "$CI" ]; then
-          echo "Performance monitoring via Lighthouse CI - see lighthouserc.js"
+          echo "Lighthouse is not run from git hooks. Optional manual check: pnpm build && pnpm website:lighthouse"
         else
-          echo "⏭️  跳过性能测试 (仅 CI 环境运行)"
+          echo "⏭️  跳过性能测试 (不接入 git hook；需要时手动运行 pnpm build && pnpm website:lighthouse)"
         fi
       fail_text: '性能测试失败 - 包大小或性能指标超出限制'
 

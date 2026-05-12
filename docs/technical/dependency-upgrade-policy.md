@@ -253,7 +253,7 @@ pnpm why basic-ftp lodash-es path-to-regexp happy-dom vite minimatch brace-expan
 
 - `pnpm build` 通过
 - `pnpm website:build:cf` 通过
-- `pnpm exec knip -c knip.jsonc --dependencies --files` 通过
+- `pnpm website:lighthouse` 是可选手动性能证明，不属于默认升级门禁
 - `pnpm outdated --format json` 不再出现 deprecated `critters`
 
 ### tech check
