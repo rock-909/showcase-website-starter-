@@ -50,6 +50,16 @@ local deploy-artifact proof.
 Never run `pnpm build` and `pnpm website:build:cf` in parallel. They both write to
 `.next`.
 
+## Build ownership
+
+- `pnpm website:build:cf` is the public Cloudflare build command.
+- OpenNext worker minification stays disabled in `open-next.config.ts` until
+  native build and preview have fresh proof.
+- Wrangler-level minification in `wrangler.jsonc` may stay enabled; do not
+  treat it as proof that OpenNext split-function minification is safe.
+- Use `DEPLOYMENT_PLATFORM=cloudflare` as the canonical Cloudflare signal.
+  `DEPLOY_TARGET=cloudflare` is legacy compatibility only.
+
 ## Runtime entry
 
 Keep `src/middleware.ts` as the runtime entrypoint.
@@ -88,6 +98,10 @@ middleware-provided trusted IP headers.
 
 - Do not add `cacheTag()`, `revalidateTag()`, or `revalidatePath()` to
   production code without a new Cloudflare proof plan.
+- Do not add `cacheHandlers`, `cacheHandler`, R2-backed cache, or external
+  cache storage as a starter default.
+- New `"use cache"` boundaries must stay narrow and explain why rebuild/redeploy
+  is not enough.
 - Content updates flow through rebuild/redeploy unless a future CMS integration
   proves a different path.
 - `wrangler.jsonc` must not add `r2_buckets`, `d1_databases`, or

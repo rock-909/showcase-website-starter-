@@ -38,6 +38,9 @@ explicit `undefined`.
 
 - Use the `@/` alias for app imports.
 - Avoid deep relative imports except within the same small module folder.
+- Treat boundary-safe modules as part of the import contract. Middleware,
+  route handlers, and server-only modules must not import browser-only helpers
+  through convenience barrels.
 - Keep import order readable:
   1. React
   2. Next.js
@@ -63,6 +66,15 @@ sanitizers are server-use helpers and must not be called from Client Components.
 
 No bare `console.*` in production code unless the file is explicitly a logger,
 script, or test utility.
+
+## Runtime assumptions
+
+- Use Web standard APIs where they work across Next.js, Cloudflare, Vitest, and
+  browser code.
+- Node-only APIs belong behind explicit server/runtime boundaries.
+- Do not add webpack-only behavior to application code. The current Next.js path
+  is Turbopack-first; webpack configuration is a fallback boundary, not the
+  source of truth for normal app behavior.
 
 ## User-facing text
 
