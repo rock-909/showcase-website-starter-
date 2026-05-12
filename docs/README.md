@@ -14,7 +14,7 @@
 - `integrations.md`：后续可能引入的插件、组件、集成清单
 - `design-truth.md`：当前设计真相文档
 
-## 2026-05-08 技术栈升级后的文档边界
+## 2026-05-12 技术栈升级后的文档边界
 
 本轮依赖同步后，当前版本真相只看 `package.json`、lockfile、`AGENTS.md` / `CLAUDE.md` 和 `docs/technical/tech-stack.md`。不要把历史执行计划里的旧版本号当成当前状态。
 
@@ -25,8 +25,8 @@
 
 当前核心版本快照：
 
-- Next.js 16.2.6 / React 19.2.6 / TypeScript 6.0.3 / Tailwind CSS 4.2.4 / next-intl 4.11.0
-- @opennextjs/cloudflare 1.19.8 / Wrangler 4.90.0 / workerd 1.20260507.1
+- Next.js 16.2.6 / React 19.2.6 / TypeScript 6.0.3 / Tailwind CSS 4.3.0 / next-intl 4.11.2
+- @opennextjs/cloudflare 1.19.9 / Wrangler 4.90.0 / workerd 1.20260507.1
 - Node 24.15.0 是本地和 CI proof baseline；`@types/node` 保持 24.x，不跟 Node 25 current 线
 - `eslint-plugin-react-you-might-not-need-an-effect` 已同步到 0.10.1
 

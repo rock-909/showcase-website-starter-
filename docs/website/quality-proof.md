@@ -1,5 +1,8 @@
 # 质量证明指南
 
+质量检查脚本的拆分计划记录在 `docs/website/starter-checks-split-plan.md`。
+现在所有 `node scripts/starter-checks.js <command>` 公开命令都是兼容面；后续内部即使拆文件，也不能随便换命令名、参数习惯或证明口径。
+
 这份文档说明新项目从 starter 派生后，怎样证明“网站真的适合继续推进”，而不是只看构建或测试绿灯。
 
 核心原则：

@@ -4,8 +4,10 @@ import yaml from "js-yaml";
 
 interface WorkflowStep {
   readonly name?: string;
+  readonly uses?: string;
   readonly run?: string;
   readonly env?: Record<string, string>;
+  readonly with?: Record<string, unknown>;
 }
 
 interface WorkflowJob {
@@ -91,6 +93,32 @@ describe("CI preview environment contract", () => {
     expect(ciWorkflow).toContain("pnpm website:build:cf");
     expect(cloudflareWorkflow).toContain("workflow_dispatch:");
     expect(cloudflareWorkflow).toContain("pnpm release:verify");
+  });
+
+  it("lets pnpm/action-setup use the packageManager version instead of a stale CI pin", () => {
+    const packageJson = JSON.parse(readFileSync("package.json", "utf8")) as {
+      readonly packageManager?: string;
+    };
+    const workflows: readonly WorkflowPath[] = [
+      ".github/workflows/ci.yml",
+      ".github/workflows/cloudflare-deploy.yml",
+    ];
+
+    expect(packageJson.packageManager).toBe("pnpm@11.1.0");
+
+    for (const workflowPath of workflows) {
+      const workflow = yaml.load(readWorkflowText(workflowPath)) as Workflow;
+      const pnpmSetupSteps = Object.values(workflow.jobs ?? {}).flatMap((job) =>
+        (job.steps ?? []).filter(
+          (step) => step.uses === "pnpm/action-setup@v5",
+        ),
+      );
+
+      expect(pnpmSetupSteps.length, workflowPath).toBeGreaterThan(0);
+      for (const step of pnpmSetupSteps) {
+        expect(step.with?.version, workflowPath).toBeUndefined();
+      }
+    }
   });
 
   it("removes old standalone quality and uplink workflows", () => {

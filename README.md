@@ -29,13 +29,13 @@ pnpm website:build:cf
 - Next.js 16.2.6 App Router
 - React 19.2.6
 - TypeScript 6.0.3
-- Tailwind CSS 4.2.4
-- next-intl 4.11.0
+- Tailwind CSS 4.3.0
+- next-intl 4.11.2
 - MDX 内容页
 - Radix / shadcn-style UI
 - Storybook
 - Vitest / Playwright
-- Cloudflare / OpenNext 1.19.8 / Wrangler 4.90.0
+- Cloudflare / OpenNext 1.19.9 / Wrangler 4.90.0
 
 完整版本清单见 `docs/technical/tech-stack.md`；升级边界和暂不跟随项见 `docs/technical/dependency-upgrade-policy.md`。
 
