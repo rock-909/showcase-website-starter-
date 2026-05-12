@@ -190,13 +190,17 @@ describe("content-slug-sync CLI", () => {
 
       const report = JSON.parse(fs.readFileSync(REPORT_PATH, "utf8")) as {
         ok: boolean;
+        timestamp: string;
         tool: string;
+        version: string;
         checkedCollections: string[];
         checkedLocales: string[];
         issues: unknown[];
       };
 
       expect(report.tool).toBe("content-slug-sync");
+      expect(report.version).toBe("1.0.0");
+      expect(Number.isNaN(Date.parse(report.timestamp))).toBe(false);
       expect(report.checkedCollections).toEqual(["posts", "pages", "products"]);
       expect(report.checkedLocales).toEqual(["en", "zh"]);
       expect(typeof report.ok).toBe("boolean");
