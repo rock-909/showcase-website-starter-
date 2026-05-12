@@ -13,9 +13,9 @@ These surfaces deserve first-pass attention because they are closest to business
    - `src/app/api/contact/**`
    - `src/app/api/inquiry/route.ts`
    - `src/app/api/subscribe/route.ts`
-   - `src/app/api/verify-turnstile/route.ts`
-   - `src/components/forms/**`
    - `src/lib/actions/contact.ts`
+   - `src/app/api/verify-turnstile/**`
+   - `src/components/forms/**`
    - `src/lib/lead-pipeline/{lead-schema,process-lead,utils}.ts`
 
 2. **Idempotency / anti-abuse / trust boundary**
@@ -54,7 +54,7 @@ These surfaces deserve first-pass attention because they are closest to business
    - `src/config/single-site-page-expression.ts`
    - `src/config/single-site-product-catalog.ts`
    - `src/constants/product-specs/**`
-   - `scripts/starter-checks.js content-readiness`
+   - `scripts/starter-checks.js`
 
 ## 2. Known noise (classify before judging repo health)
 

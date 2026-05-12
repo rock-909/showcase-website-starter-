@@ -16,12 +16,14 @@ These surfaces deserve first-pass attention because they are closest to business
    - `src/lib/actions/contact.ts`
    - `src/app/api/verify-turnstile/**`
    - `src/components/forms/**`
+   - `src/lib/lead-pipeline/{lead-schema,process-lead,utils}.ts`
 
 2. **Idempotency / anti-abuse / trust boundary**
    - `src/lib/security/**`
    - `src/lib/security/turnstile.ts`
    - `src/lib/api/lead-route-response.ts`
-   - `src/lib/lead-pipeline/{lead-schema,process-lead,utils}.ts`
+   - `tests/integration/api/lead-family-protection.test.ts`
+   - `tests/integration/api/lead-family-contract.test.ts`
 
 3. **Locale / message / metadata truth**
    - `src/middleware.ts`

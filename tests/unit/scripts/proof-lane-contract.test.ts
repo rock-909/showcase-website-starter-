@@ -837,36 +837,47 @@ describe("proof lane contract", () => {
   });
 
   it("keeps ai-smell repo profile pointed at current critical surfaces", () => {
-    const repoProfile = readRepoFile(
+    const codexRepoProfile = readRepoFile(
       ".codex/skills/ai-smell-audit/references/repo-profile.md",
     );
+    const claudeRepoProfile = readRepoFile(
+      ".claude/skills/ai-smell-audit/references/repo-profile.md",
+    );
 
-    expect(repoProfile).toContain("src/app/api/contact/**");
-    expect(repoProfile).toContain("src/lib/actions/contact.ts");
-    expect(repoProfile).toContain("src/app/api/inquiry/route.ts");
-    expect(repoProfile).toContain("src/app/api/subscribe/route.ts");
-    expect(repoProfile).toContain("src/app/api/verify-turnstile/route.ts");
-    expect(repoProfile).toContain("src/lib/security/turnstile.ts");
-    expect(repoProfile).toContain(
-      "src/lib/lead-pipeline/{lead-schema,process-lead,utils}.ts",
-    );
-    expect(repoProfile).toContain("src/config/single-site-product-catalog.ts");
-    expect(repoProfile).toContain("src/config/single-site-seo.ts");
-    expect(repoProfile).toContain("src/config/single-site-navigation.ts");
-    expect(repoProfile).toContain("src/config/single-site-links.ts");
-    expect(repoProfile).toContain("src/config/single-site-page-expression.ts");
-    expect(repoProfile).toContain("src/constants/product-specs/**");
-    expect(repoProfile).toContain("tests/e2e/contact-form-smoke.spec.ts");
-    expect(repoProfile).toContain("tests/e2e/smoke/post-deploy-form.spec.ts");
-    expect(repoProfile).toContain("playwright.config.ts");
-    expect(repoProfile).toContain("docs/website/quality-proof.md");
-    expect(repoProfile).not.toContain("src/app/actions.ts");
-    expect(repoProfile).not.toContain(
-      "src/components/products/product-inquiry-form",
-    );
-    expect(repoProfile).not.toContain("src/config/website/**");
-    expect(repoProfile).not.toContain("src/lib/load-messages*");
-    expect(repoProfile).not.toContain("src/lib/turnstile.ts");
-    expect(repoProfile).not.toContain("src/lib/idempotency/**");
+    expect(claudeRepoProfile).toBe(codexRepoProfile);
+
+    for (const repoProfile of [codexRepoProfile, claudeRepoProfile]) {
+      expect(repoProfile).toContain("src/app/api/contact/**");
+      expect(repoProfile).toContain("src/lib/actions/contact.ts");
+      expect(repoProfile).toContain("src/app/api/inquiry/route.ts");
+      expect(repoProfile).toContain("src/app/api/subscribe/route.ts");
+      expect(repoProfile).toContain("src/app/api/verify-turnstile/**");
+      expect(repoProfile).toContain("src/lib/security/turnstile.ts");
+      expect(repoProfile).toContain(
+        "src/lib/lead-pipeline/{lead-schema,process-lead,utils}.ts",
+      );
+      expect(repoProfile).toContain(
+        "src/config/single-site-product-catalog.ts",
+      );
+      expect(repoProfile).toContain("src/config/single-site-seo.ts");
+      expect(repoProfile).toContain("src/config/single-site-navigation.ts");
+      expect(repoProfile).toContain("src/config/single-site-links.ts");
+      expect(repoProfile).toContain(
+        "src/config/single-site-page-expression.ts",
+      );
+      expect(repoProfile).toContain("src/constants/product-specs/**");
+      expect(repoProfile).toContain("tests/e2e/contact-form-smoke.spec.ts");
+      expect(repoProfile).toContain("tests/e2e/smoke/post-deploy-form.spec.ts");
+      expect(repoProfile).toContain("playwright.config.ts");
+      expect(repoProfile).toContain("docs/website/quality-proof.md");
+      expect(repoProfile).not.toContain("src/app/actions.ts");
+      expect(repoProfile).not.toContain(
+        "src/components/products/product-inquiry-form",
+      );
+      expect(repoProfile).not.toContain("src/config/website/**");
+      expect(repoProfile).not.toContain("src/lib/load-messages*");
+      expect(repoProfile).not.toContain("src/lib/turnstile.ts");
+      expect(repoProfile).not.toContain("src/lib/idempotency/**");
+    }
   });
 });
