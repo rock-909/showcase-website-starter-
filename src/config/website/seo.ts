@@ -9,10 +9,10 @@ export interface WebsiteSeo {
 }
 
 export const websiteSeo: WebsiteSeo = {
-  defaultTitle: `${websiteProfile.name} | Public Demo Starter Site`,
+  defaultTitle: `${websiteProfile.name} - Public Demo Starter Site`,
   titleTemplate: `%s | ${websiteProfile.name}`,
   defaultDescription:
-    "A public demo starter site for company presentation, product or service pages, inquiry conversion, and Cloudflare deployment.",
+    "A public demo starter site for teams that need a deployable showcase website foundation before they have a real website.",
   siteUrl: `https://${websiteProfile.domain}`,
   ogImage: "/images/og-image.jpg",
 };
