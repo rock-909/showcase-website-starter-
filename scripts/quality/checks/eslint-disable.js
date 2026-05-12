@@ -63,7 +63,6 @@ function isTestFile(filePath) {
   if (filePath.includes("/__tests__/")) return true;
   if (/\.(test|spec)\.(ts|tsx|js|jsx)$/.test(filePath)) return true;
   if (filePath.startsWith("src/types/test-")) return true;
-  if (filePath.startsWith("src/constants/test-")) return true;
 
   return false;
 }

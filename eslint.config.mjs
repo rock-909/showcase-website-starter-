@@ -694,7 +694,6 @@ export default [
       // 开发者工具（应用渐进式标准）
       "src/app/**/diagnostics/**/*.{ts,tsx}",
       "src/components/examples/ui-showcase/**/*.{ts,tsx}",
-      "src/constants/test-*.ts",
     ],
     plugins: {
       security,
