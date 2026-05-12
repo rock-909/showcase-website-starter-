@@ -118,6 +118,7 @@ describe("content-slug-sync CLI", () => {
       expect(result.stdout).toContain("--json");
       expect(result.stdout).toContain("--collections");
       expect(result.stdout).toContain("--locales");
+      expect(result.stdout).toContain("--strict-frontmatter");
     });
 
     it("should display help with -h", async () => {
@@ -179,6 +180,22 @@ describe("content-slug-sync CLI", () => {
       expect(result.code).toBeDefined();
       // Should produce MDX Slug Sync output header
       expect(result.stdout).toContain("MDX Slug Sync Validation");
+    });
+
+    it("should keep default validation independent from strict frontmatter failures", async () => {
+      const result = await runCLI([]);
+
+      expect(result.code).toBe(0);
+      expect(result.stdout).toContain("MDX Slug Sync Validation");
+      expect(result.stdout).not.toContain("Frontmatter/SEO Contract");
+    });
+
+    it("should fail strict frontmatter validation on current starter OG images", async () => {
+      const result = await runCLI(["--strict-frontmatter"]);
+
+      expect(result.code).toBe(1);
+      expect(result.stdout).toContain("Frontmatter/SEO Contract Validation");
+      expect(result.stdout).toContain("Starter OG Images");
     });
 
     it("should preserve --json report output path and payload", async () => {
