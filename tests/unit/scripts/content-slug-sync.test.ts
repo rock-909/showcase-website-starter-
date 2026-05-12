@@ -1,6 +1,8 @@
 import { spawn } from "child_process";
+import * as fs from "fs";
+import * as os from "os";
 import * as path from "path";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 
 /**
  * Content Slug Sync CLI Integration Tests
@@ -16,6 +18,34 @@ import { describe, expect, it } from "vitest";
  */
 
 const CLI_PATH = path.resolve(__dirname, "../../../scripts/starter-checks.js");
+const REPORT_PATH = path.resolve(
+  __dirname,
+  "../../../reports/content-slug-sync-report.json",
+);
+const TEMP_TRASH_ROOT = path.join(
+  os.tmpdir(),
+  "showcase-content-slug-sync-report-trash",
+);
+
+function moveReportToTrash(): void {
+  if (!fs.existsSync(REPORT_PATH)) {
+    return;
+  }
+
+  // eslint-disable-next-line security/detect-non-literal-fs-filename -- cleanup moves generated reports to a recoverable os.tmpdir trash folder
+  fs.mkdirSync(TEMP_TRASH_ROOT, { recursive: true });
+  const targetPath = path.join(
+    TEMP_TRASH_ROOT,
+    `content-slug-sync-report-${Date.now()}.json`,
+  );
+
+  // eslint-disable-next-line security/detect-non-literal-fs-filename -- generated report cleanup uses recoverable rename instead of permanent deletion
+  fs.renameSync(REPORT_PATH, targetPath);
+}
+
+afterEach(() => {
+  moveReportToTrash();
+});
 
 interface SpawnResult {
   code: number | null;
@@ -120,6 +150,27 @@ describe("content-slug-sync CLI", () => {
       expect(result.code).toBeDefined();
       // Should produce MDX Slug Sync output header
       expect(result.stdout).toContain("MDX Slug Sync Validation");
+    });
+
+    it("should preserve --json report output path and payload", async () => {
+      const result = await runCLI(["--json"]);
+
+      expect(result.code).toBe(0);
+      expect(result.stdout).toContain("JSON report saved to:");
+      expect(result.stdout).toContain("reports/content-slug-sync-report.json");
+      expect(fs.existsSync(REPORT_PATH)).toBe(true);
+
+      const report = JSON.parse(fs.readFileSync(REPORT_PATH, "utf8")) as {
+        ok: boolean;
+        tool: string;
+        checkedCollections: string[];
+        checkedLocales: string[];
+      };
+
+      expect(report.ok).toBe(true);
+      expect(report.tool).toBe("content-slug-sync");
+      expect(report.checkedCollections).toEqual(["posts", "pages", "products"]);
+      expect(report.checkedLocales).toEqual(["en", "zh"]);
     });
 
     it("should support quiet mode", async () => {
