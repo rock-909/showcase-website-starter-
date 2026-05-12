@@ -17,13 +17,13 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
  * - success: All files properly paired with matching slugs
  */
 
-// Import the module under test
+// Import the focused module under test.
 const {
   validateMdxSlugSync,
   buildKey,
   parseFrontmatter,
   validateCollectionPair,
-} = require("../../../scripts/starter-checks.js");
+} = require("../../../scripts/quality/checks/content-slugs.js");
 
 interface SlugSyncIssue {
   type: "missing_pair" | "slug_mismatch" | "parse_error";
