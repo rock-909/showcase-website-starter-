@@ -30,6 +30,7 @@
 | Cloudflare analytics | `CLOUDFLARE_ZONE_ID`, `CLOUDFLARE_ANALYTICS_API_TOKEN`, `CLOUDFLARE_ANALYTICS_HOSTNAME`, `OPS_DASHBOARD_ACCESS_KEY` | 使用 `/ops/traffic` owner dashboard 时需要；当前 client launch strict gate 也要求 owner dashboard hostname、zone 和访问保护已配置。 |
 | Distributed rate limit | `RATE_LIMIT_PEPPER`, `RATE_LIMIT_PEPPER_PREVIOUS`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `KV_REST_API_URL`, `KV_REST_API_TOKEN` | 预览或生产环境需要稳定限流时需要。`RATE_LIMIT_PEPPER_PREVIOUS` 是限流 pepper 轮换时保留的旧值/上一版值，必须 server-only。当前 production strict gate 要求 Upstash Redis；KV-only 不能当作生产替代方案。 |
 | Cloudflare / Next compatibility | `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY`, `CF_PAGES`, `DEPLOY_TARGET`, `CI`, `GITHUB_TOKEN` | 普通项目 owner 可以先不管；发布、CI 或 Cloudflare proof 时再处理。 |
+| Tooling / proof-only | `CLOUDFLARE_PREVIEW_BASE_URL`, `DEPLOY_SMOKE_BASE_URL`, `DEPLOY_SMOKE_HEADER_NAME`, `DEPLOY_SMOKE_HEADER_VALUE`, `POST_DEPLOY_TEST`, `PLAYWRIGHT_BASE_URL`, `STAGING_URL`, `BASE_URL`, `CI_DAILY`, `CI_FLAKE_SAMPLING` | 只给本地预览、deployed smoke、Playwright 和 CI proof 使用；不是普通网站运行时 schema。 |
 | Security headers | `SECURITY_HEADERS_ENABLED`, `CSP_REPORT_URI`, `CORS_ALLOWED_ORIGINS` | 安全 header、CSP report 或跨域策略需要调整时使用。 |
 
 ## Preview / production 必须注意
@@ -69,7 +70,7 @@
 
 ```bash
 pnpm type-check
-pnpm test -- tests/architecture/env-boundary.test.ts
+pnpm test -- tests/architecture/env-boundary.test.ts tests/architecture/env-example-parity.test.ts
 ```
 
 发布前仍以 `docs/website/quality-proof.md` 里的 proof surface 为准。

@@ -27,6 +27,7 @@ const {
   validateContentFrontmatterContract,
   validateCollectionPair,
   validateMdxSlugSync,
+  writeContentSlugJsonReport,
 } = require("../../../scripts/quality/checks/content-slugs.js");
 const starterChecksFacade = require("../../../scripts/starter-checks.js");
 
@@ -297,6 +298,23 @@ describe("content-slug-sync core", () => {
       expect(result.issues).toHaveLength(0);
       expect(result.pairCount).toBe(1);
     });
+
+    it("returns slug issues in stable collection path order", () => {
+      createMdxFile("posts", "en", "b-post.mdx", { slug: "b-en" });
+      createMdxFile("posts", "zh", "b-post.mdx", { slug: "b-zh" });
+      createMdxFile("posts", "en", "a-post.mdx", { slug: "a-en" });
+      createMdxFile("posts", "zh", "a-post.mdx", { slug: "a-zh" });
+
+      const result: SlugSyncResult = validateMdxSlugSync({
+        rootDir: tmpDir,
+        collections: ["posts"],
+        locales: ["en", "zh"],
+      });
+
+      expect(
+        result.issues.map((issue) => path.basename(issue.basePath ?? "")),
+      ).toEqual(["a-post.mdx", "b-post.mdx"]);
+    });
   });
 
   describe("validateContentFrontmatterContract", () => {
@@ -461,6 +479,57 @@ describe("content-slug-sync core", () => {
         ]),
       );
       expect(result.stats.starterOgImages).toBe(1);
+    });
+
+    it("passes strict mode when pages use project-specific OG images", () => {
+      createMdxFile("pages", "en", "about.mdx", createValidPageFrontmatter());
+
+      const result: FrontmatterContractResult =
+        validateContentFrontmatterContract({
+          rootDir: tmpDir,
+          collections: ["pages"],
+          locales: ["en"],
+          strictFrontmatter: true,
+        });
+
+      expect(result.ok).toBe(true);
+      expect(result.stats.starterOgImages).toBe(0);
+    });
+  });
+
+  describe("writeContentSlugJsonReport", () => {
+    it("writes JSON reports inside the provided root directory", () => {
+      const result: SlugSyncResult = {
+        ok: true,
+        checkedCollections: ["pages"],
+        checkedLocales: ["en", "zh"],
+        issues: [],
+        stats: {
+          totalFiles: 0,
+          totalPairs: 0,
+          missingPairs: 0,
+          slugMismatches: 0,
+          parseErrors: 0,
+        },
+      };
+
+      writeContentSlugJsonReport(result, tmpDir);
+
+      const reportPath = path.join(
+        tmpDir,
+        "reports",
+        "content-slug-sync-report.json",
+      );
+      expect(fs.existsSync(reportPath)).toBe(true);
+
+      const report = JSON.parse(fs.readFileSync(reportPath, "utf8")) as {
+        checkedCollections: string[];
+        checkedLocales: string[];
+        issues: unknown[];
+      };
+      expect(report.checkedCollections).toEqual(["pages"]);
+      expect(report.checkedLocales).toEqual(["en", "zh"]);
+      expect(report.issues).toEqual([]);
     });
   });
 

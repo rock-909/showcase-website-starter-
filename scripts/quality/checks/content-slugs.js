@@ -73,14 +73,14 @@ function collectPairs(rootDir, collection, baseLocale, targetLocale) {
   );
   const pairMap = new Map();
 
-  for (const filePath of glob.sync(basePattern)) {
+  for (const filePath of glob.sync(basePattern).sort()) {
     const key = buildKey(rootDir, filePath, collection, baseLocale);
     const entry = pairMap.get(key) || {};
     entry.basePath = filePath;
     pairMap.set(key, entry);
   }
 
-  for (const filePath of glob.sync(targetPattern)) {
+  for (const filePath of glob.sync(targetPattern).sort()) {
     const key = buildKey(rootDir, filePath, collection, targetLocale);
     const entry = pairMap.get(key) || {};
     entry.targetPath = filePath;
@@ -95,7 +95,11 @@ function validateCollectionPair(rootDir, collection, baseLocale, targetLocale) {
   const pairMap = collectPairs(rootDir, collection, baseLocale, targetLocale);
   let fileCount = 0;
 
-  for (const [, { basePath, targetPath }] of pairMap) {
+  const orderedPairs = [...pairMap.entries()].sort(([keyA], [keyB]) =>
+    keyA.localeCompare(keyB),
+  );
+
+  for (const [, { basePath, targetPath }] of orderedPairs) {
     fileCount += (basePath ? 1 : 0) + (targetPath ? 1 : 0);
 
     if (!basePath || !targetPath) {

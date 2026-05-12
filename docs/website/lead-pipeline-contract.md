@@ -105,13 +105,14 @@ Not allowed in public responses:
 When changing lead routes, lead schemas, or `processLead`, run the focused lead proof first:
 
 ```bash
-pnpm exec vitest run tests/integration/api/lead-family-contract.test.ts tests/integration/api/lead-family-protection.test.ts src/lib/lead-pipeline/__tests__/lead-schema.test.ts src/lib/lead-pipeline/__tests__/process-lead.test.ts src/app/api/contact/__tests__/route.test.ts src/app/api/inquiry/__tests__/route.test.ts src/app/api/subscribe/__tests__/route.test.ts
+pnpm exec vitest run tests/integration/api/lead-family-contract.test.ts tests/integration/api/lead-family-protection.test.ts tests/integration/api/subscribe.test.ts src/lib/lead-pipeline/__tests__/lead-schema.test.ts src/lib/lead-pipeline/__tests__/process-lead.test.ts src/app/api/contact/__tests__/route.test.ts src/app/api/inquiry/__tests__/route.test.ts src/app/api/subscribe/__tests__/route.test.ts
 ```
 
 The focused proof includes:
 
 - `tests/integration/api/lead-family-contract.test.ts`
 - `tests/integration/api/lead-family-protection.test.ts`
+- `tests/integration/api/subscribe.test.ts`
 - `src/lib/lead-pipeline/__tests__/lead-schema.test.ts`
 - `src/lib/lead-pipeline/__tests__/process-lead.test.ts`
 - `src/app/api/contact/__tests__/route.test.ts`

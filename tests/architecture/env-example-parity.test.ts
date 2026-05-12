@@ -1,10 +1,13 @@
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync, statSync } from "node:fs";
+import { join } from "node:path";
+import ts from "typescript";
 import { describe, expect, it } from "vitest";
 
 const ENV_SOURCE_PATH = "src/lib/env.ts";
 const ENV_EXAMPLE_PATH = ".env.example";
 const ENV_DOC_PATH = "docs/website/env 设置.md";
 const DEPLOY_DOC_PATH = "docs/website/部署设置.md";
+const QUALITY_PROOF_DOC_PATH = "docs/website/quality-proof.md";
 const SENSITIVE_ENV_KEY_PATTERN =
   /(?:_API_KEY|_TOKEN|_SECRET(?:_KEY)?|_ACCESS_KEY|_ENCRYPTION_KEY|_PEPPER(?:_PREVIOUS)?)$/u;
 const SENSITIVE_ENV_KEYS = [
@@ -31,54 +34,157 @@ const DEPLOYMENT_CRITICAL_ENV_KEYS = [
   "CLOUDFLARE_ANALYTICS_HOSTNAME",
   "OPS_DASHBOARD_ACCESS_KEY",
 ] as const;
-const TOOLING_ONLY_ENV_KEYS = new Set(["CLOUDFLARE_API_TOKEN"]);
+const TOOLING_PROOF_ENV_KEYS = [
+  "BASE_URL",
+  "CI_DAILY",
+  "CI_FLAKE_SAMPLING",
+  "CLOUDFLARE_PREVIEW_BASE_URL",
+  "DEPLOY_SMOKE_BASE_URL",
+  "DEPLOY_SMOKE_HEADER_NAME",
+  "DEPLOY_SMOKE_HEADER_VALUE",
+  "PLAYWRIGHT_BASE_URL",
+  "POST_DEPLOY_TEST",
+  "STAGING_URL",
+] as const;
+const NON_RUNTIME_EXAMPLE_ENV_KEYS = new Set([
+  "CLOUDFLARE_API_TOKEN",
+  ...TOOLING_PROOF_ENV_KEYS,
+]);
 const FRAMEWORK_MANAGED_RUNTIME_KEYS = new Set(["NEXT_PHASE", "NODE_ENV"]);
+const TEST_INTERNAL_ENV_KEYS = new Set(["VITEST", "VITEST_WORKER_ID"]);
+const TOOLING_ENV_USAGE_ROOTS = [
+  "scripts/starter-checks.js",
+  "playwright.config.ts",
+  "tests/e2e",
+] as const;
 
 function readRepoFile(repoPath: string) {
   // eslint-disable-next-line security/detect-non-literal-fs-filename -- architecture test reads fixed repo-local files
   return readFileSync(repoPath, "utf8");
 }
 
-function extractObjectBlock(source: string, marker: string) {
-  const start = source.indexOf(marker);
-  expect(start, `${marker} should exist`).toBeGreaterThanOrEqual(0);
+function collectFiles(repoPath: string): string[] {
+  // eslint-disable-next-line security/detect-non-literal-fs-filename -- architecture test recursively scans fixed repo-local tooling roots
+  const stats = statSync(repoPath);
 
-  const openingBrace = source.indexOf("{", start);
-  expect(
-    openingBrace,
-    `${marker} should have an object body`,
-  ).toBeGreaterThanOrEqual(0);
-
-  let depth = 0;
-  for (let index = openingBrace; index < source.length; index += 1) {
-    const char = source[index];
-
-    if (char === "{") {
-      depth += 1;
-    }
-
-    if (char === "}") {
-      depth -= 1;
-    }
-
-    if (depth === 0) {
-      return source.slice(openingBrace, index + 1);
-    }
+  if (stats.isFile()) {
+    return [repoPath];
   }
 
-  throw new Error(`Unable to find closing brace for ${marker}`);
+  // eslint-disable-next-line security/detect-non-literal-fs-filename -- architecture test recursively scans fixed repo-local tooling roots
+  return readdirSync(repoPath)
+    .flatMap((entry) => collectFiles(join(repoPath, entry)))
+    .filter((filePath) => /\.(?:js|mjs|ts|tsx)$/u.test(filePath));
 }
 
-function extractSchemaKeys(source: string, marker: string) {
-  const block = extractObjectBlock(source, marker);
-  return [...block.matchAll(/^\s{2}([A-Z0-9_]+):/gmu)].map((match) => match[1]);
+function createSourceFile(source: string) {
+  return ts.createSourceFile(
+    ENV_SOURCE_PATH,
+    source,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TS,
+  );
+}
+
+function getPropertyName(name: ts.PropertyName): string | null {
+  if (ts.isIdentifier(name) || ts.isStringLiteral(name)) {
+    return name.text;
+  }
+
+  if (ts.isNumericLiteral(name)) {
+    return name.text;
+  }
+
+  return null;
+}
+
+function findObjectLiteral(source: string, variableName: string) {
+  const sourceFile = createSourceFile(source);
+  let objectLiteral: ts.ObjectLiteralExpression | null = null;
+
+  function visit(node: ts.Node): void {
+    if (
+      ts.isVariableDeclaration(node) &&
+      ts.isIdentifier(node.name) &&
+      node.name.text === variableName &&
+      node.initializer &&
+      ts.isObjectLiteralExpression(node.initializer)
+    ) {
+      objectLiteral = node.initializer;
+      return;
+    }
+
+    ts.forEachChild(node, visit);
+  }
+
+  visit(sourceFile);
+
+  expect(objectLiteral, `${variableName} should be an object literal`).not.toBe(
+    null,
+  );
+
+  return objectLiteral;
+}
+
+function extractObjectLiteralKeys(source: string, variableName: string) {
+  const objectLiteral = findObjectLiteral(source, variableName);
+
+  return objectLiteral.properties.flatMap((property) => {
+    if (!ts.isPropertyAssignment(property)) {
+      return [];
+    }
+
+    const key = getPropertyName(property.name);
+    return key ? [key] : [];
+  });
 }
 
 function extractRuntimeEnvKeys(source: string) {
-  const block = extractObjectBlock(source, "export const runtimeEnv = {");
-  return [...block.matchAll(/^\s{2}([A-Z0-9_]+):\s*process\.env\.\1\b/gmu)].map(
-    (match) => match[1],
-  );
+  const objectLiteral = findObjectLiteral(source, "runtimeEnv");
+
+  return objectLiteral.properties.flatMap((property) => {
+    if (
+      !ts.isPropertyAssignment(property) ||
+      !ts.isPropertyAccessExpression(property.initializer)
+    ) {
+      return [];
+    }
+
+    const key = getPropertyName(property.name);
+    const envKey = property.initializer.name.text;
+    const envObject = property.initializer.expression;
+
+    if (
+      !key ||
+      key !== envKey ||
+      !ts.isPropertyAccessExpression(envObject) ||
+      envObject.name.text !== "env" ||
+      !ts.isIdentifier(envObject.expression) ||
+      envObject.expression.text !== "process"
+    ) {
+      return [];
+    }
+
+    return [key];
+  });
+}
+
+function extractProcessEnvKeys(source: string) {
+  return [
+    ...source.matchAll(
+      /process\.env(?:\.([A-Z0-9_]+)|\[['"]([A-Z0-9_]+)['"]\])/gu,
+    ),
+  ]
+    .map((match) => match[1] ?? match[2])
+    .filter((key): key is string => Boolean(key));
+}
+
+function getSchemaKeys(envSource: string) {
+  return new Set([
+    ...extractObjectLiteralKeys(envSource, "serverEnvSchema"),
+    ...extractObjectLiteralKeys(envSource, "clientEnvSchema"),
+  ]);
 }
 
 function parseEnvExample(source: string) {
@@ -110,16 +216,15 @@ describe(".env.example parity", () => {
   it("keeps env example aligned with the central runtime env contract", () => {
     const envSource = readRepoFile(ENV_SOURCE_PATH);
     const envExample = parseEnvExample(readRepoFile(ENV_EXAMPLE_PATH));
-    const schemaKeys = new Set([
-      ...extractSchemaKeys(envSource, "export const serverEnvSchema = {"),
-      ...extractSchemaKeys(envSource, "export const clientEnvSchema = {"),
-    ]);
+    const schemaKeys = getSchemaKeys(envSource);
     const runtimeKeys = new Set(extractRuntimeEnvKeys(envSource));
 
     expect([...schemaKeys].sort()).toEqual([...runtimeKeys].sort());
 
     const documentedRuntimeKeys = new Set(
-      [...envExample.keys()].filter((key) => !TOOLING_ONLY_ENV_KEYS.has(key)),
+      [...envExample.keys()].filter(
+        (key) => !NON_RUNTIME_EXAMPLE_ENV_KEYS.has(key),
+      ),
     );
     const missingFromExample = [...schemaKeys]
       .filter((key) => !FRAMEWORK_MANAGED_RUNTIME_KEYS.has(key))
@@ -127,13 +232,43 @@ describe(".env.example parity", () => {
       .sort();
     const unknownExampleKeys = [...envExample.keys()]
       .filter((key) => !schemaKeys.has(key))
-      .filter((key) => !TOOLING_ONLY_ENV_KEYS.has(key))
+      .filter((key) => !NON_RUNTIME_EXAMPLE_ENV_KEYS.has(key))
       .sort();
 
     expect(missingFromExample).toEqual([]);
     expect(unknownExampleKeys).toEqual([]);
     expect(envExample.get("CLOUDFLARE_API_TOKEN")).toBeDefined();
     expect(schemaKeys.has("CLOUDFLARE_API_TOKEN")).toBe(false);
+  });
+
+  it("documents tooling and proof env keys used outside the runtime schema", () => {
+    const envSource = readRepoFile(ENV_SOURCE_PATH);
+    const schemaKeys = getSchemaKeys(envSource);
+    const envExample = parseEnvExample(readRepoFile(ENV_EXAMPLE_PATH));
+    const envGuide = readRepoFile(ENV_DOC_PATH);
+    const qualityProofGuide = readRepoFile(QUALITY_PROOF_DOC_PATH);
+    const discoveredToolingKeys = [
+      ...new Set(
+        TOOLING_ENV_USAGE_ROOTS.flatMap((root) =>
+          collectFiles(root).flatMap((filePath) =>
+            extractProcessEnvKeys(readRepoFile(filePath)),
+          ),
+        )
+          .filter((key) => !schemaKeys.has(key))
+          .filter((key) => !TEST_INTERNAL_ENV_KEYS.has(key)),
+      ),
+    ].sort();
+
+    expect(discoveredToolingKeys).toEqual([...TOOLING_PROOF_ENV_KEYS].sort());
+
+    for (const key of TOOLING_PROOF_ENV_KEYS) {
+      expect(
+        envExample.has(key) ||
+          envGuide.includes(key) ||
+          qualityProofGuide.includes(key),
+        `${key} should be documented in .env.example, ${ENV_DOC_PATH}, or ${QUALITY_PROOF_DOC_PATH}`,
+      ).toBe(true);
+    }
   });
 
   it("keeps dangerous or behavior-sensitive defaults safe", () => {
