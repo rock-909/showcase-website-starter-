@@ -11,8 +11,11 @@ export interface SiteMessageValues {
 }
 
 export function getSiteMessageValues(): SiteMessageValues {
-  const currentYear = String(new Date().getFullYear());
   const companyName = SINGLE_SITE_FACTS.company.name;
+  const currentYear = String(
+    SINGLE_SITE_FACTS.company.established +
+      SINGLE_SITE_FACTS.company.yearsInBusiness,
+  );
 
   return {
     siteName: SINGLE_SITE_CONFIG.name,

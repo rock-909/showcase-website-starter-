@@ -240,7 +240,10 @@ describe("load-messages runtime gating", () => {
     const { loadCriticalMessages } = await import("@/lib/i18n/load-messages");
     const { SINGLE_SITE_CONFIG, SINGLE_SITE_FACTS } =
       await import("@/config/single-site");
-    const currentYear = String(new Date().getFullYear());
+    const currentYear = String(
+      SINGLE_SITE_FACTS.company.established +
+        SINGLE_SITE_FACTS.company.yearsInBusiness,
+    );
     const expectedEnCopyright = `(c) ${currentYear} ${SINGLE_SITE_FACTS.company.name}. All rights reserved.`;
     const expectedZhCopyright = `(c) ${currentYear} ${SINGLE_SITE_FACTS.company.name}。保留所有权利。`;
 
