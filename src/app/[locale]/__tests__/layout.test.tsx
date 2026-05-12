@@ -1,7 +1,7 @@
 import type React from "react";
 import { cleanup, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { renderAsyncPage } from "@/testing/render-async-page";
+import { renderAsyncPage } from "@/test/render-async-page";
 import LocaleLayout, { generateMetadata } from "../layout";
 
 // Mock dependencies using vi.hoisted - must be before module imports

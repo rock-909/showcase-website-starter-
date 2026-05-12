@@ -3,7 +3,7 @@ import { render, screen, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { setRequestLocale } from "next-intl/server";
 import ContactPage, { generateMetadata } from "@/app/[locale]/contact/page";
-import { renderAsyncPage } from "@/testing/render-async-page";
+import { renderAsyncPage } from "@/test/render-async-page";
 
 const { mockGetContactCopyFromMessages } = vi.hoisted(() => ({
   mockGetContactCopyFromMessages: vi.fn(),

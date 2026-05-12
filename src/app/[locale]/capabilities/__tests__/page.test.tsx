@@ -1,6 +1,6 @@
 import { screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { renderAsyncPage } from "@/testing/render-async-page";
+import { renderAsyncPage } from "@/test/render-async-page";
 import { getContentEntry } from "@/lib/content-manifest";
 import { getPageBySlug } from "@/lib/content-query/queries";
 import CapabilitiesPage, { generateMetadata } from "../page";
