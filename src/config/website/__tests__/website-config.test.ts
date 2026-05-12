@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { SINGLE_SITE_CONFIG, SINGLE_SITE_FACTS } from "@/config/single-site";
 import {
@@ -58,6 +58,38 @@ describe("website config", () => {
     expect(websiteProfile.domain).toBe("example.com");
     expect(websiteSeo.siteUrl).toBe("https://example.com");
     expect(websiteSeo.siteUrl).toBe(`https://${websiteProfile.domain}`);
+  });
+
+  it("keeps starter URL placeholders independent from runtime baseUrl overrides", async () => {
+    try {
+      vi.resetModules();
+      vi.doMock("@/lib/env", () => ({
+        env: {
+          NEXT_PUBLIC_SITE_URL: "https://runtime.example.test",
+          NEXT_PUBLIC_BASE_URL: "https://fallback.example.test",
+        },
+      }));
+
+      const [
+        { SINGLE_SITE_CONFIG: overriddenSiteConfig },
+        { websiteProfile: overriddenWebsiteProfile },
+        { websiteSeo: overriddenWebsiteSeo },
+      ] = await Promise.all([
+        import("@/config/single-site"),
+        import("@/config/website/profile"),
+        import("@/config/website/seo"),
+      ]);
+
+      expect(overriddenSiteConfig.baseUrl).toBe("https://runtime.example.test");
+      expect(overriddenWebsiteProfile.domain).toBe("example.com");
+      expect(overriddenWebsiteSeo.siteUrl).toBe("https://example.com");
+      expect(overriddenWebsiteSeo.siteUrl).toBe(
+        `https://${overriddenWebsiteProfile.domain}`,
+      );
+    } finally {
+      vi.doUnmock("@/lib/env");
+      vi.resetModules();
+    }
   });
 
   it("keeps contact recipient and fallback emails aligned", () => {
