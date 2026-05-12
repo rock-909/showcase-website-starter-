@@ -58,9 +58,9 @@ const siteFactSnapshotYear = 2026;
 /**
  * Single-site canonical source for the current cutover phase.
  */
-export const SINGLE_SITE_KEY = "showcase" as const;
+const singleSiteKey = "showcase" as const;
 export const SINGLE_SITE_DEFINITION: SiteDefinition = {
-  key: SINGLE_SITE_KEY,
+  key: singleSiteKey,
   config: {
     baseUrl,
     name: "Showcase Website Starter",
