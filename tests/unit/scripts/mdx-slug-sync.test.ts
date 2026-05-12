@@ -19,11 +19,29 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 // Import the focused module under test.
 const {
-  validateMdxSlugSync,
   buildKey,
+  collectPairs,
+  parseContentSlugArgs,
   parseFrontmatter,
+  runContentSlugCheck,
   validateCollectionPair,
+  validateMdxSlugSync,
 } = require("../../../scripts/quality/checks/content-slugs.js");
+const starterChecksFacade = require("../../../scripts/starter-checks.js");
+
+describe("content-slug-sync legacy facade", () => {
+  it("keeps starter-checks exports wired to the focused module", () => {
+    expect(starterChecksFacade.buildKey).toBe(buildKey);
+    expect(starterChecksFacade.collectPairs).toBe(collectPairs);
+    expect(starterChecksFacade.parseArgs).toBe(parseContentSlugArgs);
+    expect(starterChecksFacade.parseFrontmatter).toBe(parseFrontmatter);
+    expect(starterChecksFacade.runContentSlugCheck).toBe(runContentSlugCheck);
+    expect(starterChecksFacade.validateCollectionPair).toBe(
+      validateCollectionPair,
+    );
+    expect(starterChecksFacade.validateMdxSlugSync).toBe(validateMdxSlugSync);
+  });
+});
 
 interface SlugSyncIssue {
   type: "missing_pair" | "slug_mismatch" | "parse_error";
