@@ -24,7 +24,7 @@ import {
   withErrorHandling,
   type ServerAction,
   type ServerActionResult,
-} from "@/lib/server-action-utils";
+} from "@/lib/actions/server-action-utils";
 
 /**
  * 联系表单提交结果类型

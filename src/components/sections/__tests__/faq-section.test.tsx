@@ -4,7 +4,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("@/lib/load-messages", () => ({
+vi.mock("@/lib/i18n/load-messages", () => ({
   loadCompleteMessages: vi.fn(() =>
     Promise.resolve({
       faq: {

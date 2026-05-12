@@ -32,7 +32,7 @@ vi.mock("@/lib/security/turnstile-config", () => ({
   isAllowedTurnstileAction: (a?: string) => a === "contact",
 }));
 
-vi.mock("@/lib/turnstile", () => ({
+vi.mock("@/lib/security/turnstile", () => ({
   verifyTurnstileDetailed: mockVerifyTurnstileDetailed,
 }));
 

@@ -10,7 +10,7 @@ import {
   sanitizeUrl,
   validateCharacters,
   validateInputLength,
-} from "../security-validation";
+} from "@/lib/security/validation";
 
 describe("security-validation", () => {
   describe("sanitizePlainText", () => {

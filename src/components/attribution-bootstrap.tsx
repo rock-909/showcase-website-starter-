@@ -6,7 +6,7 @@ const ATTRIBUTION_PARAM_PATTERN = /(?:^|[?&])(utm_|gclid=|fbclid=|msclkid=)/i;
 const ATTRIBUTION_FLUSH_EVENTS = ["storage", "visibilitychange"] as const;
 
 type AttributionModule = Pick<
-  typeof import("@/lib/utm"),
+  typeof import("@/lib/marketing/utm"),
   "flushPendingAttribution" | "storeAttributionData"
 >;
 type AttributionModuleLoader = () => Promise<AttributionModule>;
@@ -17,7 +17,7 @@ interface AttributionBootstrapProps {
 }
 
 export function loadAttributionModule() {
-  return import("@/lib/utm");
+  return import("@/lib/marketing/utm");
 }
 
 export function shouldLoadAttribution(search: string) {

@@ -14,7 +14,7 @@
 import { NextRequest } from "next/server";
 import { getRuntimeEnvString, isRuntimeProduction } from "@/lib/env";
 import { logger } from "@/lib/logger";
-import { generateHMAC } from "@/lib/security-crypto";
+import { generateHMAC } from "@/lib/security/crypto";
 import { getClientIP } from "@/lib/security/client-ip";
 
 /** Key strategy function signature */

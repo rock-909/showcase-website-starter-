@@ -2,7 +2,7 @@ import { memo } from "react";
 import { API_ERROR_CODES } from "@/constants/api-error-codes";
 import { type FormSubmissionStatus } from "@/lib/forms/form-submission-status";
 import { translateApiError } from "@/lib/api/translate-error-code";
-import { type ServerActionResult } from "@/lib/server-action-utils";
+import { type ServerActionResult } from "@/lib/actions/server-action-utils";
 import { type ContactFormResult } from "@/components/forms/use-contact-form";
 import { FORM_STATUS_CLASS_NAMES } from "@/components/forms/form-status-styles";
 

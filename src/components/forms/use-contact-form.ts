@@ -1,9 +1,9 @@
 import { useState, useTransition } from "react";
 import { logger } from "@/lib/logger";
-import { appendAttributionToFormData } from "@/lib/utm";
+import { appendAttributionToFormData } from "@/lib/marketing/utm";
 import { useRateLimit } from "@/components/forms/use-rate-limit";
 import { type FormSubmissionStatus } from "@/lib/forms/form-submission-status";
-import { type ServerActionResult } from "@/lib/server-action-utils";
+import { type ServerActionResult } from "@/lib/actions/server-action-utils";
 
 export interface ContactFormResult {
   referenceId?: string | null;

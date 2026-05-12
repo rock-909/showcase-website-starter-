@@ -23,7 +23,7 @@ vi.mock("@/lib/security/distributed-rate-limit", () => ({
   createRateLimitHeaders: vi.fn(() => new Headers()),
 }));
 
-vi.mock("@/lib/turnstile", () => ({
+vi.mock("@/lib/security/turnstile", () => ({
   verifyTurnstile: vi.fn(async () => true),
   verifyTurnstileDetailed: vi.fn(async () => ({ success: true })),
 }));

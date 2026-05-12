@@ -1,9 +1,9 @@
 import { getRequestConfig } from "next-intl/server";
-import { I18nPerformanceMonitor } from "@/lib/i18n-performance";
+import { I18nPerformanceMonitor } from "@/lib/i18n/performance";
 import {
   loadCompleteMessages,
   loadCompleteMessagesFromSource,
-} from "@/lib/load-messages";
+} from "@/lib/i18n/load-messages";
 import {
   getLocaleCurrency,
   getLocaleTimeZone,

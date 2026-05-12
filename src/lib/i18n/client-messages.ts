@@ -2,7 +2,7 @@ import { type Locale } from "@/i18n/routing";
 import {
   loadCriticalMessages,
   loadDeferredMessages,
-} from "@/lib/load-messages";
+} from "@/lib/i18n/load-messages";
 import { mergeObjects } from "@/lib/merge-objects";
 
 type Messages = Record<string, unknown>;

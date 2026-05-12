@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { generateHMAC } from "@/lib/security-crypto";
+import { generateHMAC } from "@/lib/security/crypto";
 import {
   extractBearerToken,
   getApiKeyPriorityKey,

@@ -2,7 +2,10 @@ import { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { API_ERROR_CODES } from "@/constants/api-error-codes";
 import { processLead } from "@/lib/lead-pipeline/process-lead";
-import { verifyTurnstile, verifyTurnstileDetailed } from "@/lib/turnstile";
+import {
+  verifyTurnstile,
+  verifyTurnstileDetailed,
+} from "@/lib/security/turnstile";
 import { OPTIONS, POST } from "../route";
 
 vi.unmock("zod");
@@ -42,7 +45,7 @@ vi.mock("@/lib/lead-pipeline/process-lead", () => ({
   ),
 }));
 
-vi.mock("@/lib/turnstile", () => ({
+vi.mock("@/lib/security/turnstile", () => ({
   verifyTurnstile: vi.fn(() => Promise.resolve(true)),
   verifyTurnstileDetailed: vi.fn(() => Promise.resolve({ success: true })),
 }));

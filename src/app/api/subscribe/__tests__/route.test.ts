@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { API_ERROR_CODES } from "@/constants/api-error-codes";
 import { processLead } from "@/lib/lead-pipeline/process-lead";
-import { verifyTurnstileDetailed } from "@/lib/turnstile";
+import { verifyTurnstileDetailed } from "@/lib/security/turnstile";
 import { OPTIONS, POST } from "../route";
 
 vi.unmock("zod");
@@ -17,7 +17,7 @@ vi.mock("@/lib/security/distributed-rate-limit", () => ({
   createRateLimitHeaders: vi.fn(() => new Headers()),
 }));
 
-vi.mock("@/lib/turnstile", () => ({
+vi.mock("@/lib/security/turnstile", () => ({
   verifyTurnstile: vi.fn(async () => true),
   verifyTurnstileDetailed: vi.fn(async () => ({ success: true })),
 }));

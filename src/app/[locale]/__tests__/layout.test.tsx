@@ -67,7 +67,7 @@ vi.mock("@/app/[locale]/layout-fonts", () => ({
   getFontClassNames: () => "font-class",
 }));
 
-vi.mock("@/lib/load-messages", () => ({
+vi.mock("@/lib/i18n/load-messages", () => ({
   loadCompleteMessages: vi.fn(async () => ({ common: { ok: "OK" } })),
 }));
 

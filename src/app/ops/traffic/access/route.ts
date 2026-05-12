@@ -12,7 +12,7 @@ import {
   OPS_TRAFFIC_ACCESS_COOKIE_MAX_AGE_SECONDS,
   OPS_TRAFFIC_ACCESS_COOKIE_NAME,
 } from "@/lib/ops/access-cookie";
-import { constantTimeCompare } from "@/lib/security-crypto";
+import { constantTimeCompare } from "@/lib/security/crypto";
 import { getIPKey } from "@/lib/security/rate-limit-key-strategies";
 
 const SEE_OTHER_STATUS = 303;

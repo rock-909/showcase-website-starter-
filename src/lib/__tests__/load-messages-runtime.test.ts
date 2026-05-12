@@ -37,7 +37,7 @@ describe("load-messages runtime gating", () => {
       isRuntimeCloudflare: () => false,
     }));
 
-    const { loadCriticalMessages } = await import("@/lib/load-messages");
+    const { loadCriticalMessages } = await import("@/lib/i18n/load-messages");
 
     await loadCriticalMessages("en");
 
@@ -58,7 +58,7 @@ describe("load-messages runtime gating", () => {
       isRuntimeCloudflare: () => false,
     }));
 
-    const { loadDeferredMessages } = await import("@/lib/load-messages");
+    const { loadDeferredMessages } = await import("@/lib/i18n/load-messages");
 
     await loadDeferredMessages("zh");
 
@@ -79,7 +79,7 @@ describe("load-messages runtime gating", () => {
       isRuntimeCloudflare: () => false,
     }));
 
-    const { loadCriticalMessages } = await import("@/lib/load-messages");
+    const { loadCriticalMessages } = await import("@/lib/i18n/load-messages");
 
     await loadCriticalMessages("en");
 
@@ -103,7 +103,7 @@ describe("load-messages runtime gating", () => {
       isRuntimeCloudflare: () => false,
     }));
 
-    const { loadDeferredMessages } = await import("@/lib/load-messages");
+    const { loadDeferredMessages } = await import("@/lib/i18n/load-messages");
 
     await loadDeferredMessages("zh");
 
@@ -127,7 +127,7 @@ describe("load-messages runtime gating", () => {
       isRuntimeCloudflare: () => true,
     }));
 
-    const { loadCriticalMessages } = await import("@/lib/load-messages");
+    const { loadCriticalMessages } = await import("@/lib/i18n/load-messages");
 
     await loadCriticalMessages("en");
 

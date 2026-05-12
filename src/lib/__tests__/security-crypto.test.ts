@@ -13,7 +13,7 @@ import {
   sha512Hash,
   verifyHMAC,
   verifyPassword,
-} from "../security-crypto";
+} from "@/lib/security/crypto";
 
 describe("security-crypto", () => {
   beforeEach(() => {

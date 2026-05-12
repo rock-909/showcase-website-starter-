@@ -4,7 +4,7 @@
  */
 
 import { z } from "zod";
-import { sanitizePlainText } from "@/lib/security-validation";
+import { sanitizePlainText } from "@/lib/security/validation";
 import {
   MAX_LEAD_COMPANY_LENGTH,
   MAX_LEAD_EMAIL_LENGTH,

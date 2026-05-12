@@ -11,7 +11,7 @@ import {
   type FormValidationResult,
   type ServerActionError,
   type ServerActionResult,
-} from "../server-action-utils";
+} from "@/lib/actions/server-action-utils";
 
 describe("server-action-utils", () => {
   describe("createErrorResult", () => {

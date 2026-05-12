@@ -14,7 +14,7 @@ vi.mock("@/lib/lead-pipeline/process-lead", () => ({
   processLead: mockProcessLead,
 }));
 
-vi.mock("@/lib/turnstile", () => ({
+vi.mock("@/lib/security/turnstile", () => ({
   verifyTurnstileDetailed: vi.fn(() => Promise.resolve({ success: true })),
 }));
 

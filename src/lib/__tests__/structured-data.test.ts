@@ -28,7 +28,7 @@ vi.mock("next-intl/server", () => ({
   getTranslations: mockGetTranslations,
 }));
 
-vi.mock("@/lib/i18n-performance", () => ({
+vi.mock("@/lib/i18n/performance", () => ({
   I18nPerformanceMonitor: {
     getInstance: () => ({
       trackTranslationUsage: vi.fn(),
