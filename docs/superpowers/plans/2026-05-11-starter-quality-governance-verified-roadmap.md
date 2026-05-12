@@ -157,6 +157,15 @@ Expected: commit contains only audit archive moves.
 
 ### Task W1-2: Slim React Doctor governance to the useful gate
 
+> **Current contract after W1-2:** React Doctor keeps only the blocking gate
+> `pnpm react:doctor` and the manual JSON report command
+> `pnpm react:doctor:report`. Any `react:doctor:classify`,
+> `react:doctor:governance`, `react:doctor:raw-governance`,
+> `react-doctor-raw-governance`, or `react-doctor-raw-baseline` text in this
+> W1-2 section is an obsolete contract that this task removes, not a command a
+> later agent should run. There is no separate governance/raw-governance CI
+> layer after W1-2; warning classification is human backlog/reference work.
+
 **Files:**
 - Modify: `package.json`
 - Modify: `.github/workflows/ci.yml`

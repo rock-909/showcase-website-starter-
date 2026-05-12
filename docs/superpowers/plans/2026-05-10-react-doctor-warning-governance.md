@@ -1,5 +1,17 @@
 # React Doctor Warning Governance Implementation Plan
 
+> **SUPERSEDED / HISTORICAL ONLY**
+>
+> This 2026-05-10 plan is preserved as historical context. It was superseded by
+> `docs/superpowers/plans/2026-05-11-starter-quality-governance-verified-roadmap.md`,
+> specifically W1-2. The current React Doctor contract keeps only
+> `pnpm react:doctor` as the blocking gate and `pnpm react:doctor:report` as the
+> manual JSON report command. Historical commands such as
+> `react:doctor:classify`, `react:doctor:governance`, and
+> `react:doctor:raw-governance` in this file must not be used as current
+> execution commands. There is no separate governance/raw-governance CI layer
+> after W1-2; warning classification is human backlog/reference work.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Turn React Doctor warnings from a 516-item raw backlog into a stable, classified, low-noise quality system that can guide repair without blocking CI on weak signals.
@@ -614,6 +626,11 @@ git commit -m "chore: classify react doctor warnings"
 
 ### Task 5: Add a non-blocking analysis script
 
+> **Historical/superseded note:** The `react:doctor:classify` command examples
+> in this task are from the old warning-governance design. After W1-2, this is
+> not a current package script or execution command; use
+> `pnpm react:doctor:report` for a manual JSON report.
+
 **Files:**
 - Modify: `/Users/Data/workspace/showcase-website-starter/package.json`
 - Test: `/Users/Data/workspace/showcase-website-starter/tests/unit/scripts/proof-lane-contract.test.ts`
@@ -1174,6 +1191,10 @@ git commit -m "test: reduce react doctor fixture noise"
 ---
 
 ### Task 12: Gate upgrade decision
+
+> **Historical/superseded note:** The `react:doctor:classify` command examples
+> below belong to the old warning-governance design. After W1-2, classification
+> is manual backlog/reference work, not a CI gate.
 
 **Files:**
 - Modify: `/Users/Data/workspace/showcase-website-starter/docs/quality/react-doctor-policy.md`
@@ -1833,6 +1854,11 @@ score: 72 / 100
 
 ### Task 21: Security proof lane and native zero-warning calibration
 
+> **Historical/superseded note:** This task describes the old
+> raw-governance layer. W1-2 removes that layer. Mentions of
+> `react-doctor-raw-governance`, `react:doctor:governance`, and
+> `react:doctor:raw-governance` below are historical only, not current commands.
+
 **Files:**
 - Create: `/Users/Data/workspace/showcase-website-starter/react-doctor.config.json`
 - Modify: `/Users/Data/workspace/showcase-website-starter/src/lib/security-validation.ts`
@@ -1926,6 +1952,10 @@ scoreLabel: Great
 ---
 
 ## Final verification for the whole governance program
+
+> **Historical/superseded note:** This final verification block belongs to the
+> old 2026-05-10 governance program. After W1-2, do not run the removed
+> governance/raw-governance commands as current verification.
 
 Run these commands before claiming the governance plan is implemented:
 
