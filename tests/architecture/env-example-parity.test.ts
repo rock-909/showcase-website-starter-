@@ -5,6 +5,8 @@ const ENV_SOURCE_PATH = "src/lib/env.ts";
 const ENV_EXAMPLE_PATH = ".env.example";
 const ENV_DOC_PATH = "docs/website/env 设置.md";
 const DEPLOY_DOC_PATH = "docs/website/部署设置.md";
+const SENSITIVE_ENV_KEY_PATTERN =
+  /(?:_API_KEY|_TOKEN|_SECRET(?:_KEY)?|_ACCESS_KEY|_ENCRYPTION_KEY|_PEPPER(?:_PREVIOUS)?)$/u;
 const SENSITIVE_ENV_KEYS = [
   "RESEND_API_KEY",
   "AIRTABLE_API_KEY",
@@ -13,10 +15,12 @@ const SENSITIVE_ENV_KEYS = [
   "CLOUDFLARE_ANALYTICS_API_TOKEN",
   "NEXT_SERVER_ACTIONS_ENCRYPTION_KEY",
   "RATE_LIMIT_PEPPER",
+  "RATE_LIMIT_PEPPER_PREVIOUS",
   "UPSTASH_REDIS_REST_TOKEN",
   "KV_REST_API_TOKEN",
   "OPS_DASHBOARD_ACCESS_KEY",
 ] as const;
+// This is the adopter-facing deployment surface, not inferred from secret-like names.
 const DEPLOYMENT_CRITICAL_ENV_KEYS = [
   "CLOUDFLARE_ACCOUNT_ID",
   "CLOUDFLARE_API_TOKEN",
@@ -96,6 +100,12 @@ function parseEnvExample(source: string) {
   return values;
 }
 
+function getDiscoveredSensitiveEnvKeys(envExample: Map<string, string>) {
+  return [...envExample.keys()].filter((key) =>
+    SENSITIVE_ENV_KEY_PATTERN.test(key),
+  );
+}
+
 describe(".env.example parity", () => {
   it("keeps env example aligned with the central runtime env contract", () => {
     const envSource = readRepoFile(ENV_SOURCE_PATH);
@@ -140,8 +150,20 @@ describe(".env.example parity", () => {
   it("documents all sensitive example keys in the env guide", () => {
     const envExample = parseEnvExample(readRepoFile(ENV_EXAMPLE_PATH));
     const envGuide = readRepoFile(ENV_DOC_PATH);
+    const sensitiveEnvKeys = [
+      ...new Set([
+        ...SENSITIVE_ENV_KEYS,
+        ...getDiscoveredSensitiveEnvKeys(envExample),
+      ]),
+    ].sort();
+    const publicSensitiveKeys = [...envExample.keys()].filter(
+      (key) =>
+        key.startsWith("NEXT_PUBLIC_") && SENSITIVE_ENV_KEY_PATTERN.test(key),
+    );
 
-    for (const key of SENSITIVE_ENV_KEYS) {
+    expect(publicSensitiveKeys).toEqual([]);
+
+    for (const key of sensitiveEnvKeys) {
       expect(envExample.has(key), `${key} should remain in .env.example`).toBe(
         true,
       );

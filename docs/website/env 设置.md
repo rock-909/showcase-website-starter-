@@ -12,7 +12,7 @@
 ## 基本原则
 
 - `NEXT_PUBLIC_*` 会进入浏览器，不能放 secret。
-- API token、邮件密钥、Airtable token、Turnstile secret、Cloudflare analytics token 都必须保持 server-only。
+- API token、邮件密钥、Airtable token、Turnstile secret、Cloudflare analytics token、限流 pepper 都必须保持 server-only。
 - Turnstile 的 `site key` 可以公开给浏览器，`secret key` 绝不能公开。
 - 没有使用某个集成时，对应变量可以留空。
 - starter 可以在本地使用默认值；client launch 前必须按真实项目补齐部署、表单和 owner 可见性配置。
@@ -28,7 +28,7 @@
 | Airtable | `AIRTABLE_API_KEY`, `AIRTABLE_BASE_ID`, `AIRTABLE_TABLE_NAME` | 需要把线索存入 Airtable 时需要。 |
 | Cloudflare deploy tooling | `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN` | Wrangler dry-run、CI 或真实部署时需要；`CLOUDFLARE_API_TOKEN` 不是浏览器变量。 |
 | Cloudflare analytics | `CLOUDFLARE_ZONE_ID`, `CLOUDFLARE_ANALYTICS_API_TOKEN`, `CLOUDFLARE_ANALYTICS_HOSTNAME`, `OPS_DASHBOARD_ACCESS_KEY` | 使用 `/ops/traffic` owner dashboard 时需要；当前 client launch strict gate 也要求 owner dashboard hostname、zone 和访问保护已配置。 |
-| Distributed rate limit | `RATE_LIMIT_PEPPER`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `KV_REST_API_URL`, `KV_REST_API_TOKEN` | 预览或生产环境需要稳定限流时需要。当前 production strict gate 要求 Upstash Redis；KV-only 不能当作生产替代方案。 |
+| Distributed rate limit | `RATE_LIMIT_PEPPER`, `RATE_LIMIT_PEPPER_PREVIOUS`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `KV_REST_API_URL`, `KV_REST_API_TOKEN` | 预览或生产环境需要稳定限流时需要。`RATE_LIMIT_PEPPER_PREVIOUS` 是限流 pepper 轮换时保留的旧值/上一版值，必须 server-only。当前 production strict gate 要求 Upstash Redis；KV-only 不能当作生产替代方案。 |
 | Cloudflare / Next compatibility | `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY`, `CF_PAGES`, `DEPLOY_TARGET`, `CI`, `GITHUB_TOKEN` | 普通项目 owner 可以先不管；发布、CI 或 Cloudflare proof 时再处理。 |
 | Security headers | `SECURITY_HEADERS_ENABLED`, `CSP_REPORT_URI`, `CORS_ALLOWED_ORIGINS` | 安全 header、CSP report 或跨域策略需要调整时使用。 |
 
@@ -39,6 +39,8 @@
 `ALLOW_MEMORY_RATE_LIMIT=true` 只能用于本地开发兜底。preview / production 不要设成 `true`。
 
 当前生产验证要求配置 Upstash Redis：`UPSTASH_REDIS_REST_URL` 和 `UPSTASH_REDIS_REST_TOKEN`。`KV_REST_API_URL` / `KV_REST_API_TOKEN` 可以保留为兼容或后续治理输入，但不要把 KV-only 当作当前 production strict gate 可接受的限流方案。
+
+`RATE_LIMIT_PEPPER` 和 `RATE_LIMIT_PEPPER_PREVIOUS` 都是 server-only 值。轮换 pepper 时，新值放在 `RATE_LIMIT_PEPPER`，旧值/上一版值短期放在 `RATE_LIMIT_PEPPER_PREVIOUS`，不要写进 `NEXT_PUBLIC_*`。
 
 ## 可安全留空的集成
 
@@ -58,6 +60,7 @@
 - 不要把 `TURNSTILE_SECRET_KEY` 放进 `NEXT_PUBLIC_*`。
 - 不要把 `CLOUDFLARE_ANALYTICS_API_TOKEN` 放进 `NEXT_PUBLIC_*`。
 - 不要把 `CLOUDFLARE_API_TOKEN` 放进 `NEXT_PUBLIC_*`。
+- 不要把 `RATE_LIMIT_PEPPER` 或 `RATE_LIMIT_PEPPER_PREVIOUS` 放进 `NEXT_PUBLIC_*`。
 - 不要把 `.env.local`、`.dev.vars` 或真实 `.mcp.json` 提交入库。
 
 ## 验证
