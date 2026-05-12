@@ -3,6 +3,30 @@ import { describe, expect, it } from "vitest";
 
 const ENV_SOURCE_PATH = "src/lib/env.ts";
 const ENV_EXAMPLE_PATH = ".env.example";
+const ENV_DOC_PATH = "docs/website/env 设置.md";
+const DEPLOY_DOC_PATH = "docs/website/部署设置.md";
+const SENSITIVE_ENV_KEYS = [
+  "RESEND_API_KEY",
+  "AIRTABLE_API_KEY",
+  "TURNSTILE_SECRET_KEY",
+  "CLOUDFLARE_API_TOKEN",
+  "CLOUDFLARE_ANALYTICS_API_TOKEN",
+  "NEXT_SERVER_ACTIONS_ENCRYPTION_KEY",
+  "RATE_LIMIT_PEPPER",
+  "UPSTASH_REDIS_REST_TOKEN",
+  "KV_REST_API_TOKEN",
+  "OPS_DASHBOARD_ACCESS_KEY",
+] as const;
+const DEPLOYMENT_CRITICAL_ENV_KEYS = [
+  "CLOUDFLARE_ACCOUNT_ID",
+  "CLOUDFLARE_API_TOKEN",
+  "NEXT_SERVER_ACTIONS_ENCRYPTION_KEY",
+  "DEPLOYMENT_PLATFORM",
+  "DEPLOY_TARGET",
+  "CLOUDFLARE_ZONE_ID",
+  "CLOUDFLARE_ANALYTICS_HOSTNAME",
+  "OPS_DASHBOARD_ACCESS_KEY",
+] as const;
 const TOOLING_ONLY_ENV_KEYS = new Set(["CLOUDFLARE_API_TOKEN"]);
 const FRAMEWORK_MANAGED_RUNTIME_KEYS = new Set(["NEXT_PHASE", "NODE_ENV"]);
 
@@ -111,5 +135,39 @@ describe(".env.example parity", () => {
     expect(envExample.get("TURNSTILE_ALLOWED_ACTIONS")?.split(",")).toContain(
       "contact_form",
     );
+  });
+
+  it("documents all sensitive example keys in the env guide", () => {
+    const envExample = parseEnvExample(readRepoFile(ENV_EXAMPLE_PATH));
+    const envGuide = readRepoFile(ENV_DOC_PATH);
+
+    for (const key of SENSITIVE_ENV_KEYS) {
+      expect(envExample.has(key), `${key} should remain in .env.example`).toBe(
+        true,
+      );
+      expect(
+        envGuide,
+        `${key} should be mentioned in ${ENV_DOC_PATH}`,
+      ).toContain(key);
+      expect(
+        key.startsWith("NEXT_PUBLIC_"),
+        `${key} must stay server-only and must not be public`,
+      ).toBe(false);
+    }
+  });
+
+  it("documents deployment-critical keys in the deployment guide", () => {
+    const envExample = parseEnvExample(readRepoFile(ENV_EXAMPLE_PATH));
+    const deployGuide = readRepoFile(DEPLOY_DOC_PATH);
+
+    for (const key of DEPLOYMENT_CRITICAL_ENV_KEYS) {
+      expect(envExample.has(key), `${key} should remain in .env.example`).toBe(
+        true,
+      );
+      expect(
+        deployGuide,
+        `${key} should be mentioned in ${DEPLOY_DOC_PATH}`,
+      ).toContain(key);
+    }
   });
 });
