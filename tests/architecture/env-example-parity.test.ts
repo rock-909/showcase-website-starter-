@@ -82,19 +82,21 @@ describe(".env.example parity", () => {
     ]);
     const runtimeKeys = new Set(extractRuntimeEnvKeys(envSource));
 
-    expect([...schemaKeys].sort()).toEqual([...runtimeKeys].sort());
+    expect([...schemaKeys].toSorted()).toEqual([...runtimeKeys].toSorted());
 
     const documentedRuntimeKeys = new Set(
       [...envExample.keys()].filter((key) => !TOOLING_ONLY_ENV_KEYS.has(key)),
     );
     const missingFromExample = [...schemaKeys]
-      .filter((key) => !FRAMEWORK_MANAGED_RUNTIME_KEYS.has(key))
-      .filter((key) => !documentedRuntimeKeys.has(key))
-      .sort();
+      .filter(
+        (key) =>
+          !FRAMEWORK_MANAGED_RUNTIME_KEYS.has(key) &&
+          !documentedRuntimeKeys.has(key),
+      )
+      .toSorted();
     const unknownExampleKeys = [...envExample.keys()]
-      .filter((key) => !schemaKeys.has(key))
-      .filter((key) => !TOOLING_ONLY_ENV_KEYS.has(key))
-      .sort();
+      .filter((key) => !schemaKeys.has(key) && !TOOLING_ONLY_ENV_KEYS.has(key))
+      .toSorted();
 
     expect(missingFromExample).toEqual([]);
     expect(unknownExampleKeys).toEqual([]);
