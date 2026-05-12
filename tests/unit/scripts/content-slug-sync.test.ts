@@ -225,6 +225,33 @@ describe("content-slug-sync CLI", () => {
       expect(result.code).toBe(report.ok ? 0 : 1);
     });
 
+    it("should preserve legacy report fields when strict frontmatter writes json", async () => {
+      const result = await runCLI(["--json", "--strict-frontmatter"]);
+
+      expect(result.code).toBe(1);
+      expect(result.stdout).toContain("JSON report saved to:");
+      expect(fs.existsSync(REPORT_PATH)).toBe(true);
+
+      const report = JSON.parse(fs.readFileSync(REPORT_PATH, "utf8")) as {
+        issues: unknown[];
+        stats?: Record<string, unknown>;
+        slugSync?: unknown;
+        frontmatterContract?: {
+          stats?: {
+            starterOgImages?: number;
+          };
+        };
+      };
+
+      expect(Array.isArray(report.issues)).toBe(true);
+      expect(report.stats).toBeDefined();
+      expect(report.slugSync).toBeDefined();
+      expect(report.frontmatterContract).toBeDefined();
+      expect(
+        report.frontmatterContract?.stats?.starterOgImages,
+      ).toBeGreaterThan(0);
+    });
+
     it("should support quiet mode", async () => {
       const normalResult = await runCLI([]);
       const quietResult = await runCLI(["--quiet"]);

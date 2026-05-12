@@ -376,7 +376,7 @@ function validateContentFrontmatterContract(options) {
         locale,
         "**/*.mdx",
       );
-      for (const filePath of glob.sync(pattern)) {
+      for (const filePath of glob.sync(pattern).sort()) {
         totalFiles += 1;
         issues.push(
           ...validateFrontmatterFile({
@@ -644,6 +644,7 @@ function runContentSlugCheck(args = [], rootDir = process.cwd()) {
     printFrontmatterContractSummary(frontmatterResult, options);
 
     finalResult = {
+      ...result,
       ok: result.ok && frontmatterResult.ok,
       slugSync: result,
       frontmatterContract: frontmatterResult,
