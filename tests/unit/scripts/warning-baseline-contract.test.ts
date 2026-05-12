@@ -49,6 +49,25 @@ describe("generated warning baseline contract", () => {
     expect(readRepoFile("docs/quality/react-doctor-baseline.md")).toContain(
       "docs/quality/react-doctor-exceptions.md",
     );
+    expect(readRepoFile("docs/quality/react-doctor-baseline.md")).toContain(
+      "warningCount: 203",
+    );
+    expect(readRepoFile("docs/quality/react-doctor-baseline.md")).toContain(
+      "score: 97 / 100",
+    );
+    expect(readRepoFile("docs/quality/react-doctor-policy.md")).toContain(
+      "The calibrated gate target is `0 error`",
+    );
+    const retiredZeroWarningClaim = [
+      "native scan is",
+      "0",
+      "warning /",
+      "0",
+      "error",
+    ].join(" ");
+    expect(readRepoFile("docs/quality/react-doctor-policy.md")).not.toContain(
+      retiredZeroWarningClaim,
+    );
     expect(qualityProof).toContain("React Doctor");
     expect(qualityProof).toContain("error blocks CI");
     expect(qualityProof).toContain("warning is backlog");

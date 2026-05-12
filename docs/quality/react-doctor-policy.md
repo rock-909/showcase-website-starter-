@@ -5,9 +5,9 @@ React Doctor is an error-level gate in this starter.
 ## Gate policy
 
 - `error` blocks CI.
-- `warning` is backlog until classified.
-- React Doctor native scan should stay at `0 warning / 0 error` after project
-  calibration.
+- `warning` is backlog, not merge-blocking by default.
+- The calibrated gate target is `0 error`; warning-level dead-code output is a
+  review queue unless a finding has file-level runtime proof.
 - `react-doctor.config.json` may suppress only narrow file/rule combinations
   that are backed by this policy, the exception registry, or the classified
   historical warning review.
@@ -29,9 +29,9 @@ React Doctor is an error-level gate in this starter.
 | `test-fixture-noise` | Test or support fixture warning. | Do not block release. |
 | `low-value-style` | Style or micro-optimization. | Cleanup only after higher-value work. |
 
-## Calibrated zero-warning definition
+## Calibrated warning definition
 
-The long-term target remains React Doctor `0 warning / 0 error`, but the
+The long-term cleanup direction is still to reduce warning noise, but the
 project rule after calibration is stricter than a raw count and safer than
 blind cleanup:
 
@@ -50,21 +50,34 @@ Every raw warning must have exactly one actionable disposition:
 | `exempt-after-proof` | The warning is a documented exception or test/support fixture signal. | `quality-governance` or `test-governance` |
 | `temporarily-retain` | The warning needs a dedicated proof lane or is low-value style cleanup. | `proof-lane` or `quality-governance` |
 
-At the current calibrated baseline, native React Doctor reports zero issues.
-Historical diagnostics are represented by narrow project config overrides,
-the policy docs, and the exception registry. The old raw baseline is no longer
-tracked or enforced as a separate CI gate. If a future React Doctor report shows
-new meaningful diagnostics, repair, remove after proof, or reclassify them with
+At the current calibrated baseline, React Doctor reports zero errors and a
+dead-code warning backlog. The old raw baseline is no longer tracked or
+enforced as a separate CI gate. If a future React Doctor report shows new
+meaningful diagnostics, repair, remove after proof, or reclassify them with
 owner and reason.
 
 ## Current known shape
 
 The initial integrated scan had 516 warnings and 0 errors.
 
-After the production repair waves, sanitizer proof lane, and config
-calibration, the native scan is 0 warning / 0 error. The historical backlog is
-still documented so future agents understand why each suppressed file/rule pair
-is not a hidden bug.
+After the production repair waves, sanitizer proof lane, config calibration,
+and governance slimming, the native gate has 0 errors. The remaining current
+warnings are React Doctor's Knip-backed Dead Code category:
+
+```text
+total warnings: 203
+affected files: 81
+score: 97 / 100
+types: 102
+exports: 78
+files: 19
+duplicates: 4
+```
+
+These are backlog signals, not deletion instructions. Several file-level
+signals are retained project assets, such as `lighthouserc.js`,
+`open-next.config.ts`, Vitest stub aliases, and skill/dev helper scripts.
+Unused exports and types require owner/API-surface review before removal.
 
 Most warning volume is not production behavior:
 
@@ -87,12 +100,12 @@ Most warning volume is not production behavior:
 ## Warning gate decision
 
 Raw warning-level CI blocking is still not used, because warning handling is
-owned by a calibrated config plus human warning backlog review. The effective
-target is nevertheless native React Doctor 0 warning / 0 error.
+owned by focused proof lanes plus human warning backlog review. The effective
+merge target is React Doctor 0 error, with warning cleanup handled separately.
 
 Do not change the CI gate to `--fail-on warning` unless the team intentionally
-decides that the current `react-doctor.config.json` should be treated as the
-canonical suppression baseline for warning-level blocking.
+decides that the current warning backlog should be eliminated or explicitly
+suppressed as a canonical warning-level baseline.
 
 ## Rules of repair
 
