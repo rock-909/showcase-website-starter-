@@ -82,7 +82,7 @@ Field meaning:
 - `PublicStaticPageChangeFrequency`: local union in `src/config/pages.config.ts`; `single-site-seo.ts` may re-export a compatible public type, but `pages.config.ts` must not import from `single-site-seo.ts`.
 - `lastmod`: `mdx` when `content/pages/{locale}/*.mdx` frontmatter owns dates; `static` when a sidecar ISO date owns the page date.
 - `mdxCollection`: MDX collection and slug for MDX-driven pages; `null` for message/component-driven pages.
-- `routeOwner`: App Router file that renders the page, such as `src/app/[locale]/about/page.tsx`.
+- `routeOwner`: App Router file that renders the page, such as `src/app/[locale]/about/page.tsx`. Tests should check both the literal static-route shape and that the file exists.
 
 ## First migration target
 
@@ -107,6 +107,8 @@ Expected current shape:
 - Message/component-driven static public pages: `home`, `products`, `blog`.
 - Sitemap static public pages should continue to feed `SINGLE_SITE_PUBLIC_STATIC_PAGES`.
 - Static sidecar `lastmod` remains for non-MDX static public pages only.
+- MDX-backed pages must point to real `content/pages/en/<slug>.mdx` and `content/pages/zh/<slug>.mdx` files; pages with `mdxCollection: null` must not appear in the MDX date lookup.
+- Existing SEO fallback behavior must stay intact: unknown `PageType` inputs to `createPageSEOConfig` continue to fall back to the home SEO defaults instead of throwing.
 
 ## Out of scope for first implementation
 
@@ -133,9 +135,10 @@ Dynamic product market pages and blog article pages can get their own registry l
 
 - New static public page setup is documented as: add one `pages.config.ts` entry, add content/messages, add the route file, then run focused validation.
 - Existing `PageType` values for static public pages are represented in `src/config/pages.config.ts`.
+- Registry tests prove route owner files exist and dynamic route owners are not registered as static public pages.
 - `PATHS_CONFIG` and `SINGLE_SITE_PUBLIC_STATIC_PAGES` are derived from the registry or guarded to match it exactly.
 - `SINGLE_SITE_STATIC_PAGE_LASTMOD` keeps MDX pages out of static sidecar dates.
-- `baseConfigs` in `src/lib/seo-metadata.ts` is removed or replaced by registry-driven SEO defaults.
+- `baseConfigs` in `src/lib/seo-metadata.ts` is removed or replaced by registry-driven SEO defaults without breaking the unknown-page fallback to home; `src/lib/__tests__/seo-metadata.test.ts` stays in the focused validation set.
 - Dynamic product market pages and blog article pages remain outside the first implementation.
 
 ## Risks

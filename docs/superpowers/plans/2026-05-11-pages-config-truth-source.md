@@ -103,6 +103,8 @@ Current truth is split across:
 Create `src/config/__tests__/pages-config.test.ts`:
 
 ```ts
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { PATHS_CONFIG, type PageType } from "@/config/paths";
 import {
@@ -129,6 +131,16 @@ const EXPECTED_STATIC_PUBLIC_PAGE_TYPES = [
   "customProject",
 ] as const satisfies readonly PageType[];
 
+const REPO_ROOT = process.cwd();
+
+function repoFileExists(relativePath: string): boolean {
+  return existsSync(join(REPO_ROOT, relativePath));
+}
+
+function toExpectedStaticPath(path: string): string {
+  return path === "/" ? "" : path;
+}
+
 describe("pages.config static public page registry", () => {
   it("lists every current static public PageType once", () => {
     expect(PUBLIC_STATIC_PAGE_TYPES).toEqual(EXPECTED_STATIC_PUBLIC_PAGE_TYPES);
@@ -147,8 +159,9 @@ describe("pages.config static public page registry", () => {
       expect(definition.localizedPaths).toHaveProperty("zh");
       expect(definition.seoKey).toMatch(/^[a-z][a-zA-Z0-9.:-]*$/);
       expect(definition.routeOwner).toMatch(
-        /^src\/app\/\\[locale\\]\/(?:page|[a-z0-9-]+\/page)\\.tsx$/u,
+        /^src\/app\/\[locale\]\/(?:page|[a-z0-9-]+\/page)\.tsx$/u,
       );
+      expect(repoFileExists(definition.routeOwner)).toBe(true);
       expect(definition.sitemap.include).toBe(true);
       expect(definition.sitemap.priority).toBeGreaterThan(0);
       expect(definition.sitemap.priority).toBeLessThanOrEqual(1);
@@ -160,8 +173,8 @@ describe("pages.config static public page registry", () => {
     const definitionsByType = getStaticPageDefinitionsByType();
 
     for (const pageType of EXPECTED_STATIC_PUBLIC_PAGE_TYPES) {
-      expect(definitionsByType[pageType].pageType).toBe(pageType);
-      expect(getPublicStaticPageDefinition(pageType).pageType).toBe(pageType);
+      expect(definitionsByType[pageType]?.pageType).toBe(pageType);
+      expect(getPublicStaticPageDefinition(pageType)?.pageType).toBe(pageType);
     }
   });
 
@@ -214,6 +227,24 @@ describe("pages.config static public page registry", () => {
       "/custom-project-support": "custom-project-support",
     });
   });
+
+  it("keeps MDX-backed pages backed by real localized content files only", () => {
+    const mdxSlugsByPath = getMdxPageSlugByStaticPath();
+
+    for (const definition of PUBLIC_STATIC_PAGE_DEFINITIONS) {
+      const staticPath = toExpectedStaticPath(definition.localizedPaths.en);
+
+      if (definition.mdxCollection === null) {
+        expect(mdxSlugsByPath).not.toHaveProperty(staticPath);
+        continue;
+      }
+
+      const slug = definition.mdxCollection.slug;
+      expect(mdxSlugsByPath[staticPath]).toBe(slug);
+      expect(repoFileExists(`content/pages/en/${slug}.mdx`)).toBe(true);
+      expect(repoFileExists(`content/pages/zh/${slug}.mdx`)).toBe(true);
+    }
+  });
 });
 ```
 
@@ -222,10 +253,13 @@ describe("pages.config static public page registry", () => {
 Create `tests/architecture/static-public-pages-contract.test.ts`:
 
 ```ts
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { PUBLIC_STATIC_PAGE_TYPES } from "@/config/pages.config";
+import {
+  PUBLIC_STATIC_PAGE_DEFINITIONS,
+  PUBLIC_STATIC_PAGE_TYPES,
+} from "@/config/pages.config";
 import type { PageType } from "@/config/paths";
 
 const REPO_ROOT = process.cwd();
@@ -253,6 +287,17 @@ describe("static public pages architecture contract", () => {
 
     for (const pageType of disallowed) {
       expect(actual).not.toContain(pageType);
+    }
+  });
+
+  it("keeps route owners static, literal, and backed by real files", () => {
+    for (const definition of PUBLIC_STATIC_PAGE_DEFINITIONS) {
+      expect(definition.routeOwner).toMatch(
+        /^src\/app\/\[locale\]\/(?:page|[a-z0-9-]+\/page)\.tsx$/u,
+      );
+      expect(definition.routeOwner).not.toContain("[market]");
+      expect(definition.routeOwner).not.toContain("[slug]");
+      expect(existsSync(join(REPO_ROOT, definition.routeOwner))).toBe(true);
     }
   });
 
@@ -467,7 +512,7 @@ export const PUBLIC_STATIC_PAGE_TYPES = PUBLIC_STATIC_PAGE_DEFINITIONS.map(
 ) as readonly PageType[];
 
 export function getStaticPageDefinitionsByType(): Readonly<
-  Record<PageType, PublicStaticPageDefinition>
+  Partial<Record<PageType, PublicStaticPageDefinition>>
 > {
   return Object.freeze(
     Object.fromEntries(
@@ -476,12 +521,12 @@ export function getStaticPageDefinitionsByType(): Readonly<
         definition,
       ]),
     ),
-  ) as Record<PageType, PublicStaticPageDefinition>;
+  ) as Partial<Record<PageType, PublicStaticPageDefinition>>;
 }
 
 export function getPublicStaticPageDefinition(
   pageType: PageType,
-): PublicStaticPageDefinition {
+): PublicStaticPageDefinition | undefined {
   return getStaticPageDefinitionsByType()[pageType];
 }
 
@@ -660,7 +705,13 @@ Then define:
 
 ```ts
 function requireNavigationKey(pageType: "home" | "products" | "blog" | "about") {
-  const navigationKey = getPublicStaticPageDefinition(pageType).navigationKey;
+  const definition = getPublicStaticPageDefinition(pageType);
+
+  if (definition === undefined) {
+    throw new Error(`Missing static public page definition for: ${pageType}`);
+  }
+
+  const navigationKey = definition.navigationKey;
 
   if (navigationKey === null) {
     throw new Error(`Missing navigationKey for page type: ${pageType}`);
@@ -684,9 +735,12 @@ Expected: PASS. Existing expectations for `SINGLE_SITE_PUBLIC_STATIC_PAGES`, `PA
 
 ## Task 4: Derive MDX date lookup and SEO defaults from the registry
 
+This migration must preserve the current fallback behavior: `createPageSEOConfig("unknown" as PageType)` must still fall back to the home SEO defaults instead of throwing.
+
 **Files:**
 - Modify: `src/lib/content/page-dates.ts`
 - Modify: `src/lib/seo-metadata.ts`
+- Test: `src/lib/__tests__/seo-metadata.test.ts`
 - Test: route metadata tests under `src/app/[locale]/**/__tests__`
 
 - [ ] **Step 1: Derive MDX page slugs from `pages.config.ts`**
@@ -713,11 +767,21 @@ In `src/lib/seo-metadata.ts`, replace the local `baseConfigs` object inside `cre
 import { getPublicStaticPageDefinition } from "@/config/pages.config";
 ```
 
-Add this helper above `createPageSEOConfig`:
+Add this helper above `createPageSEOConfig`. The helper must tolerate lookup misses and fall back to home before reading `.seoKey`; do not assume `getPublicStaticPageDefinition(pageType)` always returns a definition:
 
 ```ts
 function createStaticPageSeoDefaults(pageType: PageType): SEOConfig {
-  const definition = getPublicStaticPageDefinition(pageType);
+  const definition =
+    getPublicStaticPageDefinition(pageType) ??
+    getPublicStaticPageDefinition("home");
+
+  if (definition === undefined) {
+    return {
+      type: "website",
+      keywords: [...SITE_CONFIG.seo.keywords, "B2B Solution"],
+      image: "/images/og-image.jpg",
+    };
+  }
 
   switch (definition.seoKey) {
     case "home":
@@ -796,17 +860,17 @@ export function createPageSEOConfig(
 }
 ```
 
-Remove the unused `hasOwn` import from `src/lib/seo-metadata.ts`.
+Remove the unused `hasOwn` import from `src/lib/seo-metadata.ts` only if the fallback no longer needs it.
 
 - [ ] **Step 3: Run SEO and route metadata tests**
 
 Run:
 
 ```bash
-pnpm exec vitest run src/config/__tests__/pages-config.test.ts src/config/__tests__/single-site-seo.test.ts 'src/app/[locale]/about/__tests__/page.test.tsx' 'src/app/[locale]/products/__tests__/page.test.tsx' 'src/app/[locale]/blog/__tests__/page.test.tsx'
+pnpm exec vitest run src/config/__tests__/pages-config.test.ts src/config/__tests__/single-site-seo.test.ts src/lib/__tests__/seo-metadata.test.ts 'src/app/[locale]/about/__tests__/page.test.tsx' 'src/app/[locale]/products/__tests__/page.test.tsx' 'src/app/[locale]/blog/__tests__/page.test.tsx'
 ```
 
-Expected: PASS. Metadata behavior should stay equivalent for static public pages.
+Expected: PASS. Metadata behavior should stay equivalent for static public pages, and the existing unknown page type fallback to home must remain covered.
 
 ## Task 5: Document the new static public page setup workflow
 
@@ -877,7 +941,7 @@ Expected: PASS.
 Run:
 
 ```bash
-pnpm exec vitest run src/config/__tests__/pages-config.test.ts src/config/__tests__/paths.test.ts src/config/__tests__/single-site-seo.test.ts tests/architecture/static-public-pages-contract.test.ts
+pnpm exec vitest run src/config/__tests__/pages-config.test.ts src/config/__tests__/paths.test.ts src/config/__tests__/single-site-seo.test.ts src/lib/__tests__/seo-metadata.test.ts tests/architecture/static-public-pages-contract.test.ts
 ```
 
 Expected: PASS.
@@ -926,7 +990,17 @@ Expected:
 - `src/config/pages.config.ts` has no `productMarket` or `blogArticle` entries.
 - Dynamic route files under `src/app/[locale]/products/[market]` and `src/app/[locale]/blog/[slug]` remain present and unchanged unless tests required import-only updates.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 6: Optional import-boundary scan**
+
+If dependency-cruiser is available in the project, run:
+
+```bash
+pnpm exec dependency-cruiser src --config .dependency-cruiser.js -T err
+```
+
+Expected: PASS. This is optional because the command/config may not exist in every checkout; do not make it a hard gate unless the dependency-cruiser setup is present.
+
+- [ ] **Step 7: Commit**
 
 Run:
 
