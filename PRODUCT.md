@@ -86,10 +86,11 @@ Starter content is intentionally replaceable.
 
 Use these as the default replacement surfaces:
 
-- Brand and company facts: `src/config/website/`
+- Brand and company facts: `src/config/single-site.ts`
 - Page prose and FAQ: `content/pages/{locale}/*.mdx`
 - Shared UI labels: `messages/{locale}/critical.json` and `messages/{locale}/deferred.json`
-- Product/service examples: typed config under `src/config/` and `src/constants/`
+- Navigation and page expression: `src/config/single-site-navigation.ts`, `src/config/single-site-links.ts`, and `src/config/single-site-page-expression.ts`
+- Product/service examples: `src/config/single-site-product-catalog.ts` and `src/constants/product-specs/**`
 - Images: `public/images/**`
 - Deployment and secrets: local environment files and Cloudflare settings
 

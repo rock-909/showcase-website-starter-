@@ -33,7 +33,6 @@ src/
 - app/[locale]/       # Localized App Router pages
 - app/api/            # Route handlers for inquiry, subscribe, Turnstile, CSP report, and health
 - components/         # UI components, sections, forms, product blocks, layout, and shared UI
-- config/website/     # Website replacement surface for new projects
 - config/             # Runtime and project configuration
 - constants/          # Shared constants and product specs
 - emails/             # Email templates and email-related code

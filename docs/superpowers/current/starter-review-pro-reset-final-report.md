@@ -209,7 +209,8 @@ Fresh boundary proof exists in `tests/architecture/env-boundary.test.ts`:
 
 - Reusable website starter structure remains:
   - `docs/website/**`
-  - `src/config/website/**`
+  - `src/config/single-site*.ts`
+  - `src/constants/product-specs/**`
   - `content/**`
   - `messages/{en,zh}/{critical,deferred}.json`
 - `.claude/skills/` and `.codex/skills/` remain.

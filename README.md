@@ -43,9 +43,11 @@ pnpm website:build:cf
 
 - 保留页面结构，不做空白站。
 - 示例内容只作为占位，不代表真实客户承诺。
-- 品牌事实优先放在 `src/config/website/`。
+- 品牌事实优先放在 `src/config/single-site.ts`。
 - 页面正文放在 `content/pages/{locale}/`。
-- UI 文案放在 `messages/{locale}/`。
+- UI 文案放在 `messages/{locale}/critical.json` 和 `messages/{locale}/deferred.json`。
+- 导航和页面表达放在 `src/config/single-site-navigation.ts`、`src/config/single-site-links.ts`、`src/config/single-site-page-expression.ts`。
+- 产品/服务事实放在 `src/config/single-site-product-catalog.ts` 和 `src/constants/product-specs/**`。
 - 真实密钥、部署私有配置和本地 MCP 配置不入库。
 
 ## AI 协作入口

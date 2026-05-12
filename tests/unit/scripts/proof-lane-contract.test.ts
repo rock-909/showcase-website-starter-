@@ -770,15 +770,15 @@ describe("proof lane contract", () => {
 
     for (const expectedSurface of [
       "src/config/single-site.ts",
-      "src/config/website/profile.ts",
-      "src/config/website/seo.ts",
       "src/config/single-site-seo.ts",
-      "src/config/website/products.ts",
+      "src/config/single-site-navigation.ts",
+      "src/config/single-site-links.ts",
+      "src/config/single-site-page-expression.ts",
       "src/config/single-site-product-catalog.ts",
       "src/constants/product-specs/**",
       "messages/{locale}/critical.json",
       "messages/{locale}/deferred.json",
-      "public/images/products/**",
+      "public/images/**",
       "content/pages/{locale}/about.mdx",
       "content/pages/{locale}/contact.mdx",
       "content/pages/{locale}/privacy.mdx",
@@ -788,25 +788,32 @@ describe("proof lane contract", () => {
     }
 
     expect(brandSettings).toContain("src/config/single-site.ts");
-    expect(brandSettings).toContain("src/config/website/profile.ts");
-    expect(brandSettings).toContain("src/config/website/seo.ts");
-    expect(brandSettings).toContain("镜像层");
+    expect(brandSettings).toContain("src/config/single-site-seo.ts");
+    expect(brandSettings).toContain("src/config/single-site-navigation.ts");
+    expect(brandSettings).toContain("src/config/single-site-links.ts");
+    expect(brandSettings).toContain(
+      "src/config/single-site-page-expression.ts",
+    );
     expect(brandSettings).not.toContain("品牌信息集中在 `src/config/website/`");
+    expect(brandSettings).not.toContain("src/config/website");
+    expect(brandSettings).not.toContain("镜像层");
 
     expect(replacementChecklist).toContain("client launch");
     expect(replacementChecklist).toContain("starter 示例");
     expect(replacementChecklist).toContain("SEO");
     expect(replacementChecklist).toContain("法务");
     expect(qualityProof).toContain("src/config/single-site.ts");
-    expect(qualityProof).toContain("src/config/website/profile.ts");
-    expect(qualityProof).toContain("src/config/website/seo.ts");
     expect(qualityProof).toContain("src/config/single-site-seo.ts");
+    expect(qualityProof).toContain("src/config/single-site-navigation.ts");
+    expect(qualityProof).toContain("src/config/single-site-links.ts");
+    expect(qualityProof).toContain("src/config/single-site-page-expression.ts");
     expect(qualityProof).toContain("src/config/single-site-product-catalog.ts");
-    expect(qualityProof).toContain("product specs");
+    expect(qualityProof).toContain("src/constants/product-specs/**");
     expect(qualityProof).toContain("catalog truth");
     expect(qualityProof).toContain("crawl / indexing truth");
     expect(qualityProof).toContain("canonical authoring source");
     expect(qualityProof).toContain("starter 示例可以存在于 starter 仓库");
+    expect(qualityProof).not.toContain("src/config/website");
     expect(qualityProof).toContain(
       "PUBLIC_LAUNCH_STRICT=true node scripts/starter-checks.js validate-production-config",
     );

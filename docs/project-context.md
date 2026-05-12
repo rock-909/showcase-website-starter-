@@ -44,10 +44,11 @@
 
 ## 内容替换位置
 
-- 品牌和公司事实：`src/config/website/`
+- 品牌和公司事实：`src/config/single-site.ts`
 - 页面正文：`content/pages/{locale}/*.mdx`
 - UI 文案：`messages/{locale}/critical.json` 和 `messages/{locale}/deferred.json`
-- 产品/服务示例：`src/config/`、`src/constants/`
+- 导航和页面表达：`src/config/single-site-navigation.ts`、`src/config/single-site-links.ts`、`src/config/single-site-page-expression.ts`
+- 产品/服务示例：`src/config/single-site-product-catalog.ts`、`src/constants/product-specs/**`
 - 图片：`public/images/**`
 - 新项目说明：`docs/website/`
 
@@ -55,5 +56,5 @@
 
 - 不要把示例内容当成真实客户承诺。
 - 不要恢复旧项目品牌、旧上线记录或旧工作流产物。
-- 如果用户给了真实业务素材，先更新 `src/config/website/` 和 `content/pages/{locale}/`，再改页面组件。
+- 如果用户给了真实业务素材，先更新 `src/config/single-site*.ts`、`src/constants/product-specs/**` 和 `content/pages/{locale}/`，再改页面组件。
 - 如果要沉淀长期规则，写入 `docs/website/`、`AGENTS.md`、`CLAUDE.md` 或 `.claude/rules/`，不要只写在聊天里。

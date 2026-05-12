@@ -1302,14 +1302,17 @@ const READINESS_SCAN_TARGETS = [
   },
   {
     root: "public/images",
-    extensions: new Set([".svg"]),
+    extensions: new Set([
+      ".avif",
+      ".gif",
+      ".jpg",
+      ".jpeg",
+      ".png",
+      ".svg",
+      ".webp",
+    ]),
     scanTextRules: false,
     scanPathRules: true,
-  },
-  {
-    root: "src/config/website",
-    extensions: new Set([".js", ".json", ".mjs", ".ts", ".tsx"]),
-    scanTextRules: true,
   },
   {
     root: "src/constants/product-specs",
@@ -1320,7 +1323,7 @@ const READINESS_SCAN_TARGETS = [
     root: "src/config",
     extensions: new Set([".ts"]),
     allowedPathPattern:
-      /^src\/config\/(?:single-site|single-site-seo|single-site-product-catalog)\.ts$/u,
+      /^src\/config\/(?:single-site|single-site-seo|single-site-navigation|single-site-links|single-site-page-expression|single-site-product-catalog)\.ts$/u,
     scanTextRules: true,
   },
 ];
@@ -1736,13 +1739,6 @@ function collectScanUnits(content, filePath) {
   }));
 }
 
-function isConfigRuntimeLogoReference(file, unit) {
-  return (
-    file.repoPath.startsWith("src/config/website/") &&
-    unit.value.trim() === LOGO_REFERENCE
-  );
-}
-
 function isContentRuntimeLogoReference(file, unit) {
   return (
     file.repoPath.startsWith("content/pages/") &&
@@ -1754,11 +1750,7 @@ function isContentRuntimeLogoReference(file, unit) {
 function findRuntimeLogoReferenceUnit(file, scanUnits) {
   if (file.scanPathRules) return undefined;
 
-  return scanUnits.find(
-    (unit) =>
-      isConfigRuntimeLogoReference(file, unit) ||
-      isContentRuntimeLogoReference(file, unit),
-  );
+  return scanUnits.find((unit) => isContentRuntimeLogoReference(file, unit));
 }
 
 function scanReadinessFile(rootDir, file) {
@@ -1863,6 +1855,8 @@ const TRUTH_DOC_CHECKS = [
     required: [
       "src/config/single-site-page-expression.ts",
       "src/config/single-site-seo.ts",
+      "src/config/single-site-product-catalog.ts",
+      "src/constants/product-specs/**",
       "messages/en/critical.json",
       "messages/en/deferred.json",
       "Browser contact route handler",
@@ -1879,6 +1873,8 @@ const TRUTH_DOC_CHECKS = [
     required: [
       "src/config/single-site-page-expression.ts",
       "src/config/single-site-seo.ts",
+      "src/config/single-site-product-catalog.ts",
+      "src/constants/product-specs/**",
       "Do not replace first",
       "Minimum proof after replacement",
     ],

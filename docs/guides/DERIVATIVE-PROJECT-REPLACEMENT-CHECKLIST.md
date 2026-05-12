@@ -7,9 +7,9 @@
 Company name, address, contact, established year, employee count, certifications,
 export countries, social media links, SEO defaults.
 
-### Step 2: Product Catalog — `single-site-product-catalog.ts`
+### Step 2: Product Catalog — `src/config/single-site-product-catalog.ts` + `src/constants/product-specs/**`
 
-Markets, families, product structure.
+Markets, families, product structure, specs, certifications, delivery terms, and product facts.
 
 ### Step 3: Page Assembly — `src/config/single-site-page-expression.ts`
 

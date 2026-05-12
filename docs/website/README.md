@@ -18,7 +18,7 @@
 
 - 项目名：`showcase-website-starter`
 - 文档目录：`docs/website/`
-- 网站配置：`src/config/website/`
+- 网站配置：`src/config/single-site*.ts`、`src/constants/product-specs/**`
 - 命令前缀：`website:*`、`brand:*`、`content:*`、`component:*`、`release:*`
 
 不要新增 `docs/template/` 或 `template:*` 命令。
