@@ -10,9 +10,11 @@
 2. `品牌设置.md`
 3. `内容设置.md`
 4. `部署设置.md`
-5. `quality-proof.md`
-6. `starter-positioning-decision.md`
-7. `AI工作流.md`
+5. `i18n设置.md`
+6. `lead-pipeline-contract.md`
+7. `quality-proof.md`
+8. `starter-positioning-decision.md`
+9. `AI工作流.md`
 
 ## 命名规则
 
