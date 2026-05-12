@@ -10,7 +10,7 @@ import {
   isValidURL,
   URLGenerator,
   urlGenerator,
-} from "@/services/url-generator";
+} from "@/lib/seo/url-generator";
 
 describe("URLGenerator", () => {
   let generator: URLGenerator;

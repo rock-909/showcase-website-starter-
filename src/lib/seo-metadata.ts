@@ -8,7 +8,7 @@ import { hasOwn } from "@/lib/security/object-guards";
 import {
   generateCanonicalURL,
   generateLanguageAlternates,
-} from "@/services/url-generator";
+} from "@/lib/seo/url-generator";
 
 // 重新导出类型以保持向后兼容
 export type { Locale, PageType } from "@/config/paths";

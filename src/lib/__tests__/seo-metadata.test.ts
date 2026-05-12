@@ -28,7 +28,7 @@ vi.mock("@/config/paths", () => ({
   },
 }));
 
-vi.mock("@/services/url-generator", () => ({
+vi.mock("@/lib/seo/url-generator", () => ({
   generateCanonicalURL: mockGenerateCanonicalURL,
   generateLanguageAlternates: mockGenerateLanguageAlternates,
 }));

@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 
 const CLEANUP_FILES = [
   "src/app/[locale]/contact/page.tsx",
-  "src/services/url-generator.ts",
+  "src/lib/seo/url-generator.ts",
   "src/i18n/request.ts",
   "src/lib/lead-pipeline/utils.ts",
 ];
