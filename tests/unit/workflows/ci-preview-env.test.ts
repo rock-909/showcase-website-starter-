@@ -62,17 +62,14 @@ describe("CI preview environment contract", () => {
     expect(workflowText).not.toContain("pnpm review:all-guardrails");
   });
 
-  it("keeps React Doctor raw governance wired after the classified governance gate", () => {
+  it("keeps React Doctor as an error-level gate without extra governance layers", () => {
     const workflow = readCiWorkflow();
     const qualitySteps = workflow.jobs?.quality?.steps ?? [];
     const stepRuns = qualitySteps.map((step) => step.run ?? "");
 
     expect(stepRuns).toContain("pnpm react:doctor");
-    expect(stepRuns).toContain("pnpm react:doctor:governance");
-    expect(stepRuns).toContain("pnpm react:doctor:raw-governance");
-    expect(
-      stepRuns.indexOf("pnpm react:doctor:raw-governance"),
-    ).toBeGreaterThan(stepRuns.indexOf("pnpm react:doctor:governance"));
+    expect(stepRuns).not.toContain("pnpm react:doctor:governance");
+    expect(stepRuns).not.toContain("pnpm react:doctor:raw-governance");
   });
 
   it("keeps only CI and Cloudflare workflow files", () => {

@@ -19,10 +19,10 @@ score: 100 / 100
 
 React Doctor now loads `react-doctor.config.json`, which records narrow
 file/rule overrides for warnings that already entered one of the accepted
-governance dispositions. CI also runs `pnpm react:doctor:raw-governance`,
-which scans through a temporary root config without these overrides, classifies
-the raw diagnostics, and checks that every configured suppression still matches
-the current raw file/rule set.
+dispositions. CI only runs the error-level gate (`pnpm react:doctor`).
+`pnpm react:doctor:report` remains available for a human JSON snapshot when
+someone wants to review warning backlog manually. Warning classification is
+human backlog/reference, not a separate CI governance layer.
 
 Pre-config classified backlog before native suppression:
 
@@ -89,11 +89,10 @@ The current native React Doctor baseline is zero issues. If new diagnostics appe
 they must be fixed, deleted after proof, exempted after proof, or temporarily
 retained with an owner and reason before merge.
 
-The raw governance baseline is intentionally non-zero before config suppression:
-`426` diagnostics, `0` unresolved, and `216` exact file/rule suppression pairs.
-`docs/quality/react-doctor-raw-baseline.json` also records per-file/per-rule
-diagnostic counts so same-file same-rule growth is visible. If either side
-changes, `pnpm react:doctor:raw-governance` must fail until the new warning is
-fixed or assigned an explicit governance outcome.
+The former raw baseline is no longer enforced as a separate CI layer. Do not
+claim raw React Doctor output is gate-kept by a tracked raw baseline file.
+If new diagnostics appear in the retained gate or manual report, fix them,
+delete after proof, exempt after proof, or temporarily retain them with an
+owner and reason before merge.
 
 Do not switch to `--fail-on warning` until false positives, dead-code candidates, and test fixture noise are triaged.

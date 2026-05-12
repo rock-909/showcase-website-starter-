@@ -10,7 +10,7 @@ function readRepoFile(relativePath: string) {
 }
 
 describe("generated warning baseline contract", () => {
-  it("keeps React Doctor governance scripts wired as warning baseline tooling", () => {
+  it("keeps React Doctor wired as an error gate plus manual JSON report", () => {
     const packageJson = JSON.parse(readRepoFile("package.json")) as {
       scripts: Record<string, string>;
     };
@@ -21,27 +21,10 @@ describe("generated warning baseline contract", () => {
     expect(packageJson.scripts["react:doctor:report"]).toBe(
       "react-doctor . --offline --json --fail-on none",
     );
-    expect(packageJson.scripts["react:doctor:classify"]).toBe(
-      "react-doctor . --offline --json --fail-on none > /tmp/showcase-react-doctor-current.json && node scripts/quality/react-doctor-classify.mjs /tmp/showcase-react-doctor-current.json reports/quality/react-doctor-classified.json",
-    );
-    expect(packageJson.scripts["react:doctor:governance"]).toBe(
-      "react-doctor . --offline --json --fail-on none > /tmp/showcase-react-doctor-current.json && node scripts/quality/react-doctor-classify.mjs /tmp/showcase-react-doctor-current.json reports/quality/react-doctor-classified.json --check",
-    );
-    expect(packageJson.scripts["react:doctor:raw-governance"]).toBe(
-      "node scripts/quality/react-doctor-raw-governance.mjs",
-    );
-  });
-
-  it("keeps raw React Doctor governance in audit mode with isolated temporary output", () => {
-    const rawGovernanceScript = readRepoFile(
-      "scripts/quality/react-doctor-raw-governance.mjs",
-    );
-
-    expect(rawGovernanceScript).toContain("fs.mkdtempSync");
-    expect(rawGovernanceScript).toContain("--no-respect-inline-disables");
-    expect(rawGovernanceScript).toContain("projects.flatMap");
-    expect(rawGovernanceScript).toContain(
-      "docs/quality/react-doctor-raw-baseline.json",
+    expect(packageJson.scripts).not.toHaveProperty("react:doctor:classify");
+    expect(packageJson.scripts).not.toHaveProperty("react:doctor:governance");
+    expect(packageJson.scripts).not.toHaveProperty(
+      "react:doctor:raw-governance",
     );
   });
 
@@ -69,5 +52,6 @@ describe("generated warning baseline contract", () => {
     expect(qualityProof).toContain("React Doctor");
     expect(qualityProof).toContain("error blocks CI");
     expect(qualityProof).toContain("warning is backlog");
+    expect(qualityProof).toContain("not a separate CI governance layer");
   });
 });

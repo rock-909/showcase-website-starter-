@@ -10,16 +10,13 @@ React Doctor is an error-level gate in this starter.
   calibration.
 - `react-doctor.config.json` may suppress only narrow file/rule combinations
   that are backed by this policy, the exception registry, or the classified
-  governance report.
+  historical warning review.
 - Do not add broad `ignore.rules` or whole-directory `ignore.files` entries for
   convenience.
-- CI also runs the classified governance gate. The classified gate blocks on any `blocking-error` or `confirmed-real` diagnostic that has not been fixed or otherwise classified with owner and reason.
-- CI also runs a raw-governance gate against the pre-suppression diagnostics.
-  That gate verifies the native suppression config still matches the current
-  raw file/rule set and does not use global rule or whole-file ignores.
-- Raw governance also compares pre-suppression diagnostic counts against
-  `docs/quality/react-doctor-raw-baseline.json` so a future warning with the
-  same file/rule pair is not silently swallowed by an existing narrow override.
+- CI does not run a separate classified or raw governance layer. Warning
+  classification is human backlog/reference work, not an extra CI gate.
+- `pnpm react:doctor:report` remains available when a human reviewer needs a
+  JSON snapshot for manual warning backlog review.
 
 ## Buckets
 
@@ -55,10 +52,10 @@ Every raw warning must have exactly one actionable disposition:
 
 At the current calibrated baseline, native React Doctor reports zero issues.
 Historical diagnostics are represented by narrow project config overrides,
-the governance docs, and the raw count baseline. If a future raw React Doctor
-run produces a diagnostic outside that config, or grows the count for an
-already-governed file/rule pair, the raw-governance gate should fail until the
-item is repaired, removed after proof, or reclassified with owner and reason.
+the policy docs, and the exception registry. The old raw baseline is no longer
+tracked or enforced as a separate CI gate. If a future React Doctor report shows
+new meaningful diagnostics, repair, remove after proof, or reclassify them with
+owner and reason.
 
 ## Current known shape
 
@@ -90,7 +87,7 @@ Most warning volume is not production behavior:
 ## Warning gate decision
 
 Raw warning-level CI blocking is still not used, because warning handling is
-owned by a calibrated config plus raw governance classification. The effective
+owned by a calibrated config plus human warning backlog review. The effective
 target is nevertheless native React Doctor 0 warning / 0 error.
 
 Do not change the CI gate to `--fail-on warning` unless the team intentionally
