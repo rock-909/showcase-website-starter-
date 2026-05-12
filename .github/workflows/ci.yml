@@ -26,8 +26,6 @@ jobs:
 
       - name: 设置 pnpm
         uses: pnpm/action-setup@v5
-        with:
-          version: 10.13.1
 
       - name: 设置 Node.js
         uses: actions/setup-node@v6
@@ -78,8 +76,6 @@ jobs:
 
       - name: 设置 pnpm
         uses: pnpm/action-setup@v5
-        with:
-          version: 10.13.1
 
       - name: 设置 Node.js
         uses: actions/setup-node@v6
@@ -112,8 +108,6 @@ jobs:
 
       - name: 设置 pnpm
         uses: pnpm/action-setup@v5
-        with:
-          version: 10.13.1
 
       - name: 设置 Node.js
         uses: actions/setup-node@v6
@@ -172,8 +166,6 @@ jobs:
 
       - name: 设置 pnpm
         uses: pnpm/action-setup@v5
-        with:
-          version: 10.13.1
 
       - name: 设置 Node.js
         uses: actions/setup-node@v6
