@@ -17,28 +17,19 @@ pnpm react:doctor
 
 This is blocking. React Doctor errors must be fixed before completion.
 
-## Governance gate
+## Warning review
 
-When the task targets React Doctor warning cleanup or repo quality governance,
-also run both governance gates:
+This repo no longer has a separate React Doctor governance or raw-governance CI
+layer. Warning classification is human backlog/reference work, not a CI gate.
 
-```bash
-pnpm react:doctor:governance
-pnpm react:doctor:raw-governance
-```
-
-The native governance gate confirms the post-config scan has no unresolved
-diagnostics. The raw governance gate scans through a temporary root config
-without project overrides, then verifies every raw warning still has a
-disposition, owner, reason, and exact file/rule suppression coverage.
-
-## Full report
-
-For cleanup, audit, or triage work, generate the JSON report:
+For cleanup, audit, or triage work, generate the manual JSON report:
 
 ```bash
-pnpm react:doctor:classify
+pnpm react:doctor:report
 ```
+
+Use the report to support human review. Do not present warning classification
+as an automated merge blocker unless the project contract changes again.
 
 ## Project rules
 
