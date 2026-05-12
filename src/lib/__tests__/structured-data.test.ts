@@ -246,16 +246,10 @@ describe("Structured Data Generation", () => {
           ),
       );
 
-      const organization = await generateLocalizedStructuredData(
-        "en",
-        "Organization",
-        {},
-      );
-      const website = await generateLocalizedStructuredData(
-        "en",
-        "WebSite",
-        {},
-      );
+      const [organization, website] = await Promise.all([
+        generateLocalizedStructuredData("en", "Organization", {}),
+        generateLocalizedStructuredData("en", "WebSite", {}),
+      ]);
 
       expect(organization.name).toBe(SINGLE_SITE_FACTS.company.name);
       expect(website.name).toBe(SINGLE_SITE_CONFIG.name);

@@ -56,6 +56,15 @@ const FORBIDDEN_BRAND_MARKERS = [
   "PVC conduit",
   "PETG pneumatic",
 ];
+const FORBIDDEN_BRAND_PATTERNS = FORBIDDEN_BRAND_MARKERS.map((marker) => {
+  const needle =
+    marker === marker.toLowerCase() ? marker.toLowerCase() : marker;
+
+  return {
+    marker,
+    pattern: new RegExp(escapeRegExp(needle), "g"),
+  };
+});
 const SELF_PATHS = new Set([
   "scripts/starter-checks.js",
   "scripts/quality/checks/brand.js",
@@ -102,27 +111,26 @@ function getLineNumber(content, index) {
   return content.slice(0, index).split("\n").length;
 }
 
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 function scanBrandFile(filePath) {
   const content = fs.readFileSync(filePath, "utf8");
   if (SELF_PATHS.has(toRepoPath(ROOT, filePath))) return [];
 
   const findings = [];
-  for (const marker of FORBIDDEN_BRAND_MARKERS) {
+  for (const { marker, pattern } of FORBIDDEN_BRAND_PATTERNS) {
     const haystack =
       marker === marker.toLowerCase() ? content.toLowerCase() : content;
-    const needle =
-      marker === marker.toLowerCase() ? marker.toLowerCase() : marker;
-    let searchIndex = 0;
 
-    while (true) {
-      const index = haystack.indexOf(needle, searchIndex);
-      if (index === -1) break;
+    for (const match of haystack.matchAll(pattern)) {
+      const index = match.index ?? 0;
       findings.push({
         file: toRepoPath(ROOT, filePath),
         line: getLineNumber(content, index),
         marker,
       });
-      searchIndex = index + needle.length;
     }
   }
 

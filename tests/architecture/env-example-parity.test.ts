@@ -94,22 +94,34 @@ describe(".env.example parity", () => {
     ]);
     const runtimeKeys = new Set(extractRuntimeEnvKeys(envSource));
 
-    expect([...schemaKeys].sort()).toEqual([...runtimeKeys].sort());
-
-    const documentedRuntimeKeys = new Set(
-      [...envExample.keys()].filter((key) => !TOOLING_ONLY_ENV_KEYS.has(key)),
+    expect(Array.from(schemaKeys).toSorted()).toEqual(
+      Array.from(runtimeKeys).toSorted(),
     );
-    const missingFromExample = [...schemaKeys]
-      .filter((key) => !FRAMEWORK_MANAGED_RUNTIME_KEYS.has(key))
-      .filter((key) => !documentedRuntimeKeys.has(key))
-      .sort();
-    const unknownExampleKeys = [...envExample.keys()]
-      .filter((key) => !schemaKeys.has(key))
-      .filter((key) => !TOOLING_ONLY_ENV_KEYS.has(key))
-      .sort();
 
-    expect(missingFromExample).toEqual([]);
-    expect(unknownExampleKeys).toEqual([]);
+    const documentedRuntimeKeys = new Set<string>();
+    const missingFromExample: string[] = [];
+    const unknownExampleKeys: string[] = [];
+
+    for (const key of envExample.keys()) {
+      if (!TOOLING_ONLY_ENV_KEYS.has(key)) {
+        documentedRuntimeKeys.add(key);
+      }
+      if (!schemaKeys.has(key) && !TOOLING_ONLY_ENV_KEYS.has(key)) {
+        unknownExampleKeys.push(key);
+      }
+    }
+
+    for (const key of schemaKeys) {
+      if (
+        !FRAMEWORK_MANAGED_RUNTIME_KEYS.has(key) &&
+        !documentedRuntimeKeys.has(key)
+      ) {
+        missingFromExample.push(key);
+      }
+    }
+
+    expect(missingFromExample.toSorted()).toEqual([]);
+    expect(unknownExampleKeys.toSorted()).toEqual([]);
     expect(envExample.get("CLOUDFLARE_API_TOKEN")).toBeDefined();
     expect(schemaKeys.has("CLOUDFLARE_API_TOKEN")).toBe(false);
   });

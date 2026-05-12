@@ -8,7 +8,19 @@ import enCriticalMessages from "@messages/en/critical.json";
 import zhCriticalMessages from "@messages/zh/critical.json";
 
 function sorted(values: readonly string[]): string[] {
-  return [...values].sort();
+  return values.toSorted();
+}
+
+function getCatalogFamilySlugs(marketSlug: string): string[] {
+  const familySlugs: string[] = [];
+
+  for (const family of PRODUCT_CATALOG.families) {
+    if (family.marketSlug === marketSlug) {
+      familySlugs.push(family.slug);
+    }
+  }
+
+  return familySlugs;
 }
 
 function getMessageValue(
@@ -68,9 +80,7 @@ describe("product market slug contract", () => {
 
   it("keeps each market family slug aligned with the matching market specs", () => {
     for (const market of PRODUCT_CATALOG.markets) {
-      const catalogFamilySlugs = PRODUCT_CATALOG.families
-        .filter((family) => family.marketSlug === market.slug)
-        .map((family) => family.slug);
+      const catalogFamilySlugs = getCatalogFamilySlugs(market.slug);
       const marketSpecs = getMarketSpecsBySlug(market.slug);
       expect(marketSpecs).toBeDefined();
       const specFamilySlugs =

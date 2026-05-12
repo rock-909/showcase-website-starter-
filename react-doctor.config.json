@@ -250,6 +250,7 @@
           "src/app/__tests__/contact-integration.test.ts",
           "src/app/api/csp-report/__tests__/route-get-options.test.ts",
           "src/app/api/inquiry/__tests__/route.test.ts",
+          "src/lib/__tests__/load-messages-runtime.test.ts",
           "src/components/forms/__tests__/contact-form-submission.test.tsx",
           "src/lib/__tests__/load-messages.fallback.test.ts",
           "src/lib/__tests__/security-crypto.test.ts",

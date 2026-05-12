@@ -237,9 +237,13 @@ describe("load-messages runtime gating", () => {
     }));
     vi.doMock("@/lib/env", () => createRuntimeEnvMock({ ci: true }));
 
-    const { loadCriticalMessages } = await import("@/lib/i18n/load-messages");
-    const { SINGLE_SITE_CONFIG, SINGLE_SITE_FACTS } =
-      await import("@/config/single-site");
+    const [
+      { loadCriticalMessages },
+      { SINGLE_SITE_CONFIG, SINGLE_SITE_FACTS },
+    ] = await Promise.all([
+      import("@/lib/i18n/load-messages"),
+      import("@/config/single-site"),
+    ]);
     const currentYear = String(
       SINGLE_SITE_FACTS.company.established +
         SINGLE_SITE_FACTS.company.yearsInBusiness,
@@ -247,8 +251,10 @@ describe("load-messages runtime gating", () => {
     const expectedEnCopyright = `(c) ${currentYear} ${SINGLE_SITE_FACTS.company.name}. All rights reserved.`;
     const expectedZhCopyright = `(c) ${currentYear} ${SINGLE_SITE_FACTS.company.name}。保留所有权利。`;
 
-    const enMessages = await loadCriticalMessages("en");
-    const zhMessages = await loadCriticalMessages("zh");
+    const [enMessages, zhMessages] = await Promise.all([
+      loadCriticalMessages("en"),
+      loadCriticalMessages("zh"),
+    ]);
     assertFactualCriticalMessages(enMessages);
     assertFactualCriticalMessages(zhMessages);
 
@@ -280,12 +286,17 @@ describe("load-messages runtime gating", () => {
     }));
     vi.doMock("@/lib/env", () => createRuntimeEnvMock({ ci: true }));
 
-    const { loadCompleteMessagesFromSource } =
-      await import("@/lib/i18n/load-messages");
-    const { SINGLE_SITE_CONFIG, SINGLE_SITE_FACTS } =
-      await import("@/config/single-site");
+    const [
+      { loadCompleteMessagesFromSource },
+      { SINGLE_SITE_CONFIG, SINGLE_SITE_FACTS },
+    ] = await Promise.all([
+      import("@/lib/i18n/load-messages"),
+      import("@/config/single-site"),
+    ]);
 
-    const messages = await loadCompleteMessagesFromSource("en");
+    const [messages] = await Promise.all([
+      loadCompleteMessagesFromSource("en"),
+    ]);
     assertFactualCompleteMessages(messages);
 
     expect(messages["structured-data"].organization.name).toBe(

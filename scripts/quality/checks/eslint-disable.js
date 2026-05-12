@@ -19,6 +19,7 @@ const STRUCTURAL_GUARDRAIL_RULES = new Set([
   "max-params",
   "max-statements",
 ]);
+const ESLINT_DIRECTIVE_PATTERN = /eslint-disable|eslint-enable/;
 
 function getRepoFiles() {
   try {
@@ -188,8 +189,8 @@ function analyzeSource(filePath, content, options = {}) {
 
   for (let i = 0; i < lines.length; i += 1) {
     const rawLine = lines[i] ?? "";
-    if (!rawLine.includes("eslint-disable")) continue;
-    if (rawLine.includes("eslint-enable")) continue;
+    const directiveMarker = ESLINT_DIRECTIVE_PATTERN.exec(rawLine)?.[0];
+    if (directiveMarker !== "eslint-disable") continue;
 
     const trimmed = rawLine.trim();
     const directiveText = extractDirectiveText(trimmed);
