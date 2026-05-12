@@ -177,6 +177,22 @@ Node 24 迁移验证重点：
 4. 完整 CI 必须在 Node 24 下通过。
 5. 只有当 CI、Cloudflare 构建链和项目运行时都明确支持 Node 25 时，才考虑 `@types/node 25.x`。
 
+### pnpm 11 / CI version source
+
+当前仓库采用：
+
+- `packageManager: pnpm@11.1.0`
+- `engines.pnpm: >=11.1.0 <12`
+- `pnpm-workspace.yaml` 里的 `packageManager: pnpm@11.1.0`
+
+CI 不再在 `pnpm/action-setup@v5` 里硬编码 `version`。让 action 读取 `package.json` 的 `packageManager` 是有意的：
+
+- 避免 GitHub Actions 配置和 `package.json` 出现两个 pnpm 真相源
+- 避免 `ERR_PNPM_BAD_PM_VERSION`
+- 避免 strict package-manager 检查下 CI 安装阶段提前失败
+
+如果以后升级 pnpm，只改项目真相源和 lockfile，再跑 workflow contract test；不要只在 CI 里临时改成另一个 10.x 或 11.x。
+
 ### `critters`
 
 `critters` 已从仓库移除，不替换成 `beasties`。
