@@ -96,13 +96,6 @@
         "rules": ["react-doctor/design-no-space-on-flex-children"]
       },
       {
-        "files": [
-          "src/components/contact/contact-form-island-view.stories.tsx",
-          "src/components/contact/contact-form-island.stories.tsx"
-        ],
-        "rules": ["react-doctor/design-no-three-period-ellipsis"]
-      },
-      {
         "files": ["src/components/ui/__tests__/label.test.tsx"],
         "rules": ["react-doctor/design-no-vague-button-label"]
       },
