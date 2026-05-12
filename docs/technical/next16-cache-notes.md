@@ -58,8 +58,8 @@
 
 - `src/i18n/request.ts`
 - `src/app/[locale]/layout.tsx`
-- `src/lib/load-messages.ts`
-- `src/lib/i18n-performance.ts`
+- `src/lib/i18n/load-messages.ts`
+- `src/lib/i18n/performance.ts`
 - 任何新引入 `"use cache"`、`cacheLife()`、`cacheTag()` 或运行时 tag invalidation 的函数
 
 ## 当前参考来源
