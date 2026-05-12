@@ -1,12 +1,20 @@
 "use client";
 
-import { useEffect, useReducer, type ReactNode } from "react";
-
 import {
-  ContactFormIslandView,
-  type ContactFormComponent,
-  type ContactFormLoadState,
-} from "@/components/contact/contact-form-island-view";
+  useEffect,
+  useReducer,
+  type ComponentType,
+  type ReactNode,
+} from "react";
+
+import { Button } from "@/components/ui/button";
+
+type ContactFormComponent = ComponentType;
+
+type ContactFormLoadState =
+  | { status: "loading" }
+  | { status: "failed" }
+  | { Component: ContactFormComponent; status: "loaded" };
 
 interface LoadedContactForm {
   Component: ContactFormComponent;
@@ -104,13 +112,31 @@ export function ContactFormIsland({
     };
   }, [state.attempt]);
 
-  return (
-    <ContactFormIslandView
-      errorMessage={errorMessage}
-      fallback={fallback}
-      retryLabel={retryLabel}
-      loadState={state.loadState}
-      onRetry={() => dispatch({ type: "retry" })}
-    />
-  );
+  if (state.loadState.status === "failed") {
+    return (
+      <div
+        className="rounded-lg border border-destructive/30 bg-destructive/5 p-6 text-sm text-destructive"
+        role="alert"
+      >
+        <p>{errorMessage}</p>
+        <Button
+          className="mt-4"
+          onClick={() => dispatch({ type: "retry" })}
+          size="sm"
+          type="button"
+          variant="outline"
+        >
+          {retryLabel}
+        </Button>
+      </div>
+    );
+  }
+
+  if (state.loadState.status === "loading") {
+    return <>{fallback}</>;
+  }
+
+  const { Component: LoadedContactFormComponent } = state.loadState;
+
+  return <LoadedContactFormComponent />;
 }
