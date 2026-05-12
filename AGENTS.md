@@ -41,7 +41,6 @@ src/
 - lib/                # Utilities, integrations, security, cache, content, forms, and lead pipeline
 - services/           # Service-layer modules
 - styles/             # Shared styles
-- templates/          # Reusable templates
 - test/, testing/     # Test fixtures, setup helpers, and test utilities
 - types/              # TypeScript definitions
 
