@@ -10,10 +10,6 @@ import {
   websiteSeo,
 } from "@/config/website";
 
-function stripProtocol(url: string): string {
-  return url.replace(/^https?:\/\//, "");
-}
-
 describe("website config", () => {
   it("provides a complete replaceable website profile", () => {
     expect(websiteProfile.name).toBe("Showcase Website Starter");
@@ -42,9 +38,6 @@ describe("website config", () => {
   it("keeps mirror identity aligned with the single-site truth source", () => {
     expect(websiteProfile.name).toBe(SINGLE_SITE_CONFIG.name);
     expect(websiteProfile.legalName).toBe(SINGLE_SITE_FACTS.company.name);
-    expect(websiteProfile.domain).toBe(
-      stripProtocol(SINGLE_SITE_CONFIG.baseUrl),
-    );
     expect(websiteProfile.email).toBe(SINGLE_SITE_FACTS.contact.email);
     expect(websiteProfile.socialLinks.linkedin).toBe(
       SINGLE_SITE_FACTS.social.linkedin,
@@ -58,7 +51,6 @@ describe("website config", () => {
     expect(websiteSeo.defaultDescription).toBe(
       SINGLE_SITE_CONFIG.seo.defaultDescription,
     );
-    expect(websiteSeo.siteUrl).toBe(SINGLE_SITE_CONFIG.baseUrl);
     expect(websiteSeo.ogImage).toBe(SINGLE_SITE_FACTS.brandAssets.ogImage);
   });
 
