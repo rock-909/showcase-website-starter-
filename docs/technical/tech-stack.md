@@ -105,7 +105,7 @@
 - **axe-core 4.11.4**
 - **Lighthouse CI**：手动可选性能检查，不接入默认 CI 或 git hook；入口是 `pnpm build && pnpm website:lighthouse`
   - `@lhci/cli 0.15.1`
-  - `lighthouse 12.8.2`
+  - `lighthouse 12.6.1`
 
 ### 静态质量工具
 
