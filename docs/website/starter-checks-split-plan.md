@@ -108,6 +108,12 @@ Expected post-extraction state:
 - `pnpm content:check` still runs `content-slugs` before `translations`.
 - `reports/content-slug-sync-report.json` remains the JSON report path for `--json`.
 
+Phase 2 remaining governance status:
+
+- `src/config/website/*` mirror fields are protected by focused tests for the fields that must not drift from `src/config/single-site.ts`.
+- `.env.example` remains checked against `src/lib/env.ts`, and sensitive/deployment-critical env keys must be mentioned in adopter-facing docs.
+- `content-slugs` now owns an optional `--strict-frontmatter` mode for MDX frontmatter and SEO field contract checks. This mode is not the default `pnpm content:check` behavior because current starter pages may intentionally keep starter OG images until a real derived project replaces assets.
+
 ## Required compatibility proof
 
 每次提取都必须证明老命令仍可用：
