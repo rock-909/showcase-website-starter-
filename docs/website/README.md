@@ -10,9 +10,17 @@
 2. `品牌设置.md`
 3. `内容设置.md`
 4. `部署设置.md`
-5. `quality-proof.md`
-6. `starter-positioning-decision.md`
-7. `AI工作流.md`
+5. `i18n设置.md`
+6. `lead-pipeline-contract.md`
+7. `quality-proof.md`
+8. `starter-positioning-decision.md`
+9. `AI工作流.md`
+
+其中：
+
+- `i18n设置.md` 说明多语言入口、翻译 JSON 和页面 MDX 的分工。
+- `lead-pipeline-contract.md` 说明联系表单、产品询盘和邮件订阅这三类线索怎么验证、怎么进入后端处理。
+- `quality-proof.md` 说明上线前怎么证明项目不只是“能 build”。
 
 ## 命名规则
 

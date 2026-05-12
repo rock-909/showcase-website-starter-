@@ -1,4 +1,4 @@
-import { websiteProfile } from "@/config/website/profile";
+import { SINGLE_SITE_FACTS } from "@/config/single-site";
 
 export interface WebsiteContactConfig {
   readonly recipientEmail: string;
@@ -7,7 +7,7 @@ export interface WebsiteContactConfig {
 }
 
 export const websiteContact: WebsiteContactConfig = {
-  recipientEmail: websiteProfile.email,
-  fallbackEmail: websiteProfile.email,
+  recipientEmail: SINGLE_SITE_FACTS.contact.email,
+  fallbackEmail: SINGLE_SITE_FACTS.contact.email,
   responseTimeLabel: "1 business day",
 };

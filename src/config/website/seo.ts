@@ -1,3 +1,4 @@
+import { SINGLE_SITE_CONFIG, SINGLE_SITE_FACTS } from "@/config/single-site";
 import { websiteProfile } from "@/config/website/profile";
 
 export interface WebsiteSeo {
@@ -9,10 +10,9 @@ export interface WebsiteSeo {
 }
 
 export const websiteSeo: WebsiteSeo = {
-  defaultTitle: `${websiteProfile.name} | Public Demo Starter Site`,
-  titleTemplate: `%s | ${websiteProfile.name}`,
-  defaultDescription:
-    "A public demo starter site for company presentation, product or service pages, inquiry conversion, and Cloudflare deployment.",
+  defaultTitle: SINGLE_SITE_CONFIG.seo.defaultTitle,
+  titleTemplate: SINGLE_SITE_CONFIG.seo.titleTemplate,
+  defaultDescription: SINGLE_SITE_CONFIG.seo.defaultDescription,
   siteUrl: `https://${websiteProfile.domain}`,
-  ogImage: "/images/og-image.jpg",
+  ogImage: SINGLE_SITE_FACTS.brandAssets.ogImage,
 };

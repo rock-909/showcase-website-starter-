@@ -23,6 +23,7 @@ const {
   parseContentSlugArgs,
   parseFrontmatter,
   runContentSlugCheck,
+  validateContentFrontmatterContract,
   validateCollectionPair,
   validateMdxSlugSync,
 } = require("./quality/checks/content-slugs");
@@ -4077,6 +4078,7 @@ module.exports = {
   runValidateProductionConfigCli,
   STRUCTURAL_GUARDRAIL_RULES,
   shouldValidateProductionRuntimeContract,
+  validateContentFrontmatterContract,
   validateCollectionPair,
   validateLocale,
   validateMdxSlugSync,

@@ -24,8 +24,10 @@ const {
   parseContentSlugArgs,
   parseFrontmatter,
   runContentSlugCheck,
+  validateContentFrontmatterContract,
   validateCollectionPair,
   validateMdxSlugSync,
+  writeContentSlugJsonReport,
 } = require("../../../scripts/quality/checks/content-slugs.js");
 const starterChecksFacade = require("../../../scripts/starter-checks.js");
 
@@ -36,6 +38,9 @@ describe("content-slug-sync legacy facade", () => {
     expect(starterChecksFacade.parseArgs).toBe(parseContentSlugArgs);
     expect(starterChecksFacade.parseFrontmatter).toBe(parseFrontmatter);
     expect(starterChecksFacade.runContentSlugCheck).toBe(runContentSlugCheck);
+    expect(starterChecksFacade.validateContentFrontmatterContract).toBe(
+      validateContentFrontmatterContract,
+    );
     expect(starterChecksFacade.validateCollectionPair).toBe(
       validateCollectionPair,
     );
@@ -67,6 +72,31 @@ interface SlugSyncResult {
     missingPairs: number;
     slugMismatches: number;
     parseErrors: number;
+  };
+}
+
+interface FrontmatterContractIssue {
+  type:
+    | "missing_field"
+    | "invalid_field"
+    | "missing_seo_field"
+    | "starter_og_image";
+  collection: string;
+  locale: string;
+  filePath: string;
+  field: string;
+  message: string;
+}
+
+interface FrontmatterContractResult {
+  ok: boolean;
+  issues: FrontmatterContractIssue[];
+  stats: {
+    totalFiles: number;
+    missingFields: number;
+    invalidFields: number;
+    missingSeoFields: number;
+    starterOgImages: number;
   };
 }
 
@@ -267,6 +297,239 @@ describe("content-slug-sync core", () => {
 
       expect(result.issues).toHaveLength(0);
       expect(result.pairCount).toBe(1);
+    });
+
+    it("returns slug issues in stable collection path order", () => {
+      createMdxFile("posts", "en", "b-post.mdx", { slug: "b-en" });
+      createMdxFile("posts", "zh", "b-post.mdx", { slug: "b-zh" });
+      createMdxFile("posts", "en", "a-post.mdx", { slug: "a-en" });
+      createMdxFile("posts", "zh", "a-post.mdx", { slug: "a-zh" });
+
+      const result: SlugSyncResult = validateMdxSlugSync({
+        rootDir: tmpDir,
+        collections: ["posts"],
+        locales: ["en", "zh"],
+      });
+
+      expect(
+        result.issues.map((issue) => path.basename(issue.basePath ?? "")),
+      ).toEqual(["a-post.mdx", "b-post.mdx"]);
+    });
+  });
+
+  describe("validateContentFrontmatterContract", () => {
+    function createValidPageFrontmatter(
+      overrides: Record<string, unknown> = {},
+    ): Record<string, unknown> {
+      return {
+        locale: "en",
+        title: "About",
+        description: "About page description",
+        slug: "about",
+        publishedAt: "2026-01-01",
+        updatedAt: "2026-01-02",
+        draft: false,
+        lastReviewed: "2026-01-03",
+        seo: {
+          title: "About SEO",
+          description: "About SEO description",
+          ogImage: "/images/custom-about.jpg",
+        },
+        ...overrides,
+      };
+    }
+
+    it("passes when required top-level frontmatter and seo fields are complete", () => {
+      createMdxFile("pages", "en", "about.mdx", createValidPageFrontmatter());
+
+      const result: FrontmatterContractResult =
+        validateContentFrontmatterContract({
+          rootDir: tmpDir,
+          collections: ["pages"],
+          locales: ["en"],
+          strictFrontmatter: true,
+        });
+
+      expect(result.ok).toBe(true);
+      expect(result.issues).toHaveLength(0);
+      expect(result.stats.totalFiles).toBe(1);
+    });
+
+    it("reports missing_field when a required top-level field is absent", () => {
+      const frontmatter = createValidPageFrontmatter();
+      delete frontmatter.title;
+      createMdxFile("pages", "en", "about.mdx", frontmatter);
+
+      const result: FrontmatterContractResult =
+        validateContentFrontmatterContract({
+          rootDir: tmpDir,
+          collections: ["pages"],
+          locales: ["en"],
+          strictFrontmatter: true,
+        });
+
+      expect(result.ok).toBe(false);
+      expect(result.issues).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            type: "missing_field",
+            field: "title",
+          }),
+        ]),
+      );
+      expect(result.stats.missingFields).toBe(1);
+    });
+
+    it("reports invalid_field for invalid locale, slug, date, and draft shapes", () => {
+      createMdxFile(
+        "pages",
+        "en",
+        "about.mdx",
+        createValidPageFrontmatter({
+          locale: "zh",
+          slug: "not-about",
+          publishedAt: "2026/01/01",
+          updatedAt: "January 2, 2026",
+          lastReviewed: "2026.01.03",
+          draft: "false",
+        }),
+      );
+
+      const result: FrontmatterContractResult =
+        validateContentFrontmatterContract({
+          rootDir: tmpDir,
+          collections: ["pages"],
+          locales: ["en"],
+          strictFrontmatter: true,
+        });
+
+      expect(result.ok).toBe(false);
+      expect(
+        result.issues.filter((issue) => issue.type === "invalid_field"),
+      ).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ field: "locale" }),
+          expect.objectContaining({ field: "slug" }),
+          expect.objectContaining({ field: "publishedAt" }),
+          expect.objectContaining({ field: "updatedAt" }),
+          expect.objectContaining({ field: "lastReviewed" }),
+          expect.objectContaining({ field: "draft" }),
+        ]),
+      );
+      expect(result.stats.invalidFields).toBe(6);
+    });
+
+    it("reports missing_seo_field when seo.title or seo.description is absent", () => {
+      createMdxFile("pages", "en", "about.mdx", {
+        ...createValidPageFrontmatter(),
+        seo: {
+          ogImage: "/images/custom-about.jpg",
+        },
+      });
+
+      const result: FrontmatterContractResult =
+        validateContentFrontmatterContract({
+          rootDir: tmpDir,
+          collections: ["pages"],
+          locales: ["en"],
+          strictFrontmatter: true,
+        });
+
+      expect(result.ok).toBe(false);
+      expect(result.issues).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            type: "missing_seo_field",
+            field: "seo.title",
+          }),
+          expect.objectContaining({
+            type: "missing_seo_field",
+            field: "seo.description",
+          }),
+        ]),
+      );
+      expect(result.stats.missingSeoFields).toBe(2);
+    });
+
+    it("reports starter_og_image for starter OG assets in strict mode", () => {
+      createMdxFile("pages", "en", "about.mdx", {
+        ...createValidPageFrontmatter(),
+        seo: {
+          title: "About SEO",
+          description: "About SEO description",
+          ogImage: "/images/about-og.jpg",
+        },
+      });
+
+      const result: FrontmatterContractResult =
+        validateContentFrontmatterContract({
+          rootDir: tmpDir,
+          collections: ["pages"],
+          locales: ["en"],
+          strictFrontmatter: true,
+        });
+
+      expect(result.ok).toBe(false);
+      expect(result.issues).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            type: "starter_og_image",
+            field: "seo.ogImage",
+          }),
+        ]),
+      );
+      expect(result.stats.starterOgImages).toBe(1);
+    });
+
+    it("passes strict mode when pages use project-specific OG images", () => {
+      createMdxFile("pages", "en", "about.mdx", createValidPageFrontmatter());
+
+      const result: FrontmatterContractResult =
+        validateContentFrontmatterContract({
+          rootDir: tmpDir,
+          collections: ["pages"],
+          locales: ["en"],
+          strictFrontmatter: true,
+        });
+
+      expect(result.ok).toBe(true);
+      expect(result.stats.starterOgImages).toBe(0);
+    });
+  });
+
+  describe("writeContentSlugJsonReport", () => {
+    it("writes JSON reports inside the provided root directory", () => {
+      const result: SlugSyncResult = {
+        ok: true,
+        checkedCollections: ["pages"],
+        checkedLocales: ["en", "zh"],
+        issues: [],
+        stats: {
+          totalFiles: 0,
+          totalPairs: 0,
+          missingPairs: 0,
+          slugMismatches: 0,
+          parseErrors: 0,
+        },
+      };
+
+      writeContentSlugJsonReport(result, tmpDir);
+
+      const reportPath = path.join(
+        tmpDir,
+        "reports",
+        "content-slug-sync-report.json",
+      );
+      expect(fs.existsSync(reportPath)).toBe(true);
+
+      const report = JSON.parse(fs.readFileSync(reportPath, "utf8")) as {
+        checkedCollections: string[];
+        checkedLocales: string[];
+        issues: unknown[];
+      };
+      expect(report.checkedCollections).toEqual(["pages"]);
+      expect(report.checkedLocales).toEqual(["en", "zh"]);
+      expect(report.issues).toEqual([]);
     });
   });
 
