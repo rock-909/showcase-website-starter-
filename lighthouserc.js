@@ -41,10 +41,10 @@ const allUrls = [
   "http://localhost:3000/en/blog",
   "http://localhost:3000/zh/blog",
   // Dynamic pages: test one product and one blog post per locale
-  "http://localhost:3000/en/products/industrial-control-panel",
-  "http://localhost:3000/zh/products/industrial-control-panel",
-  "http://localhost:3000/en/blog/welcome",
-  "http://localhost:3000/zh/blog/welcome",
+  "http://localhost:3000/en/products/north-america",
+  "http://localhost:3000/zh/products/north-america",
+  "http://localhost:3000/en/blog/prepare-before-launch",
+  "http://localhost:3000/zh/blog/prepare-before-launch",
 ];
 
 module.exports = {

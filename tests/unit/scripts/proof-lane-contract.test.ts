@@ -415,6 +415,23 @@ describe("proof lane contract", () => {
     );
   });
 
+  it("keeps manual Lighthouse proof URLs aligned with shipped dynamic routes", () => {
+    const lighthouseConfig = readRepoFile("lighthouserc.js");
+    const productCatalog = readRepoFile(
+      "src/config/single-site-product-catalog.ts",
+    );
+    const starterBlog = readRepoFile("src/lib/blog/starter-blog.ts");
+
+    expect(lighthouseConfig).toContain("/en/products/north-america");
+    expect(lighthouseConfig).toContain("/zh/products/north-america");
+    expect(lighthouseConfig).toContain("/en/blog/prepare-before-launch");
+    expect(lighthouseConfig).toContain("/zh/blog/prepare-before-launch");
+    expect(productCatalog).toContain('slug: "north-america"');
+    expect(starterBlog).toContain('slug: "prepare-before-launch"');
+    expect(lighthouseConfig).not.toContain("industrial-control-panel");
+    expect(lighthouseConfig).not.toContain("/blog/welcome");
+  });
+
   it("removes retired governance script files after public command pruning", () => {
     for (const relativePath of [
       "scripts/append-guardrail-summary.js",
