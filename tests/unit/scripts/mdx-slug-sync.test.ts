@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 /**
  * Content Slug Sync Core Logic Tests
  *
- * Tests for the core validation logic in scripts/starter-checks.js content-slugs
+ * Tests for the focused content-slugs module core validation logic.
  * Uses temporary directories to avoid dependency on real content files.
  *
  * Coverage:
