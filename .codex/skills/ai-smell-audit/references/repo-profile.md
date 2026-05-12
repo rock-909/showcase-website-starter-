@@ -19,9 +19,8 @@ These surfaces deserve first-pass attention because they are closest to business
    - `src/lib/lead-pipeline/{lead-schema,process-lead,utils}.ts`
 
 2. **Idempotency / anti-abuse / trust boundary**
-   - `src/lib/idempotency.ts`
    - `src/lib/security/**`
-   - `src/lib/turnstile.ts`
+   - `src/lib/security/turnstile.ts`
    - `src/lib/api/lead-route-response.ts`
    - `tests/integration/api/lead-family-protection.test.ts`
    - `tests/integration/api/lead-family-contract.test.ts`
@@ -29,7 +28,7 @@ These surfaces deserve first-pass attention because they are closest to business
 3. **Locale / message / metadata truth**
    - `src/middleware.ts`
    - `src/i18n/**`
-   - `src/lib/load-messages*`
+   - `src/lib/i18n/load-messages.ts`
    - `messages/**`
    - `src/app/[locale]/layout*`
    - `src/lib/structured-data.ts`
@@ -37,8 +36,6 @@ These surfaces deserve first-pass attention because they are closest to business
 4. **Cloudflare proof boundary**
    - `open-next.config.ts`
    - `wrangler.jsonc`
-   - `scripts/cloudflare/**`
-   - `scripts/deploy/**`
    - `scripts/starter-checks.js release-verify`
 
 5. **E2E / deployed proof boundary**
@@ -50,11 +47,14 @@ These surfaces deserve first-pass attention because they are closest to business
 6. **Starter / catalog launch truth**
    - `docs/website/新项目替换清单.md`
    - `docs/website/quality-proof.md`
-   - `src/config/website/**`
    - `src/config/single-site.ts`
+   - `src/config/single-site-seo.ts`
+   - `src/config/single-site-navigation.ts`
+   - `src/config/single-site-links.ts`
+   - `src/config/single-site-page-expression.ts`
    - `src/config/single-site-product-catalog.ts`
    - `src/constants/product-specs/**`
-   - `scripts/content-readiness-check.mjs`
+   - `scripts/starter-checks.js content-readiness`
 
 ## 2. Known noise (classify before judging repo health)
 
@@ -85,7 +85,7 @@ Prefer these truth sources before trusting comments, wrappers, or older docs:
 ### Runtime / locale / request truth
 - `src/middleware.ts`
 - `src/i18n/**`
-- `src/lib/load-messages*`
+- `src/lib/i18n/load-messages.ts`
 - `messages/{locale}/{critical,deferred}.json`
 
 ### Review / rule / quality truth
