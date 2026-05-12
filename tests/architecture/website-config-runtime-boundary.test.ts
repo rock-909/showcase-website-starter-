@@ -13,16 +13,8 @@ const RUNTIME_SOURCE_ROOTS = [
 ];
 
 const WEBSITE_CONFIG_PREFIX = "@/config/website";
-const IMPORT_MARKERS = [
-  'from "',
-  "from '",
-  'import "',
-  "import '",
-  'import("',
-  "import('",
-  'require("',
-  "require('",
-];
+const IMPORT_SPECIFIER_PATTERN =
+  /(?:from\s+["']|import\s*[(]?\s*["']|require\s*[(]\s*["'])([^"']+)["']/gu;
 
 function read(repoPath: string) {
   // eslint-disable-next-line security/detect-non-literal-fs-filename -- architecture test reads repo-local files from fixed scan roots
@@ -62,41 +54,14 @@ function walkSourceFiles(dir: string, results: string[] = []) {
 function findWebsiteConfigImports(source: string) {
   const specifiers: string[] = [];
 
-  for (const marker of IMPORT_MARKERS) {
-    let searchFrom = 0;
+  for (const match of source.matchAll(IMPORT_SPECIFIER_PATTERN)) {
+    const specifier = match[1];
 
-    while (searchFrom < source.length) {
-      const markerIndex = source.indexOf(marker, searchFrom);
-
-      if (markerIndex === -1) {
-        break;
-      }
-
-      const specifierStart = markerIndex + marker.length;
-      const quote = marker.at(-1);
-
-      if (quote === undefined) {
-        searchFrom = specifierStart;
-        continue;
-      }
-
-      const specifierEnd = source.indexOf(quote, specifierStart);
-
-      if (specifierEnd === -1) {
-        searchFrom = specifierStart;
-        continue;
-      }
-
-      const specifier = source.slice(specifierStart, specifierEnd);
-
-      if (
-        specifier === WEBSITE_CONFIG_PREFIX ||
-        specifier.startsWith(`${WEBSITE_CONFIG_PREFIX}/`)
-      ) {
-        specifiers.push(specifier);
-      }
-
-      searchFrom = specifierEnd + 1;
+    if (
+      specifier === WEBSITE_CONFIG_PREFIX ||
+      specifier.startsWith(`${WEBSITE_CONFIG_PREFIX}/`)
+    ) {
+      specifiers.push(specifier);
     }
   }
 
@@ -105,14 +70,18 @@ function findWebsiteConfigImports(source: string) {
 
 describe("website config runtime boundary", () => {
   it("keeps replacement website config out of runtime app dependencies", () => {
-    const offenders = RUNTIME_SOURCE_ROOTS.flatMap((root) =>
-      walkSourceFiles(root),
-    ).flatMap((repoPath) => {
-      const source = read(repoPath);
-      const imports = findWebsiteConfigImports(source);
+    const offenders: string[] = [];
 
-      return imports.map((specifier) => `${repoPath} -> ${specifier}`);
-    });
+    for (const root of RUNTIME_SOURCE_ROOTS) {
+      for (const repoPath of walkSourceFiles(root)) {
+        const source = read(repoPath);
+        const imports = findWebsiteConfigImports(source);
+
+        for (const specifier of imports) {
+          offenders.push(`${repoPath} -> ${specifier}`);
+        }
+      }
+    }
 
     expect(offenders).toEqual([]);
   });

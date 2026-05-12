@@ -95,7 +95,7 @@ function validateCollectionPair(rootDir, collection, baseLocale, targetLocale) {
   const pairMap = collectPairs(rootDir, collection, baseLocale, targetLocale);
   let fileCount = 0;
 
-  const orderedPairs = [...pairMap.entries()].sort(([keyA], [keyB]) =>
+  const orderedPairs = Array.from(pairMap.entries()).sort(([keyA], [keyB]) =>
     keyA.localeCompare(keyB),
   );
 

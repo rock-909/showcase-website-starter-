@@ -71,10 +71,18 @@ function collectFiles(repoPath: string): string[] {
     return [repoPath];
   }
 
+  const files: string[] = [];
+
   // eslint-disable-next-line security/detect-non-literal-fs-filename -- architecture test recursively scans fixed repo-local tooling roots
-  return readdirSync(repoPath)
-    .flatMap((entry) => collectFiles(join(repoPath, entry)))
-    .filter((filePath) => /\.(?:js|mjs|ts|tsx)$/u.test(filePath));
+  for (const entry of readdirSync(repoPath)) {
+    for (const filePath of collectFiles(join(repoPath, entry))) {
+      if (/\.(?:js|mjs|ts|tsx)$/u.test(filePath)) {
+        files.push(filePath);
+      }
+    }
+  }
+
+  return files;
 }
 
 function createSourceFile(source: string) {
@@ -171,13 +179,18 @@ function extractRuntimeEnvKeys(source: string) {
 }
 
 function extractProcessEnvKeys(source: string) {
-  return [
-    ...source.matchAll(
-      /process\.env(?:\.([A-Z0-9_]+)|\[['"]([A-Z0-9_]+)['"]\])/gu,
-    ),
-  ]
-    .map((match) => match[1] ?? match[2])
-    .filter((key): key is string => Boolean(key));
+  const keys: string[] = [];
+
+  for (const match of source.matchAll(
+    /process\.env(?:\.([A-Z0-9_]+)|\[['"]([A-Z0-9_]+)['"]\])/gu,
+  )) {
+    const key = match[1] ?? match[2];
+    if (key) {
+      keys.push(key);
+    }
+  }
+
+  return keys;
 }
 
 function getSchemaKeys(envSource: string) {
@@ -212,6 +225,20 @@ function getDiscoveredSensitiveEnvKeys(envExample: Map<string, string>) {
   );
 }
 
+function sortedStrings(values: Iterable<string>) {
+  return Array.from(values).sort();
+}
+
+function collectEnvKeyTokens(source: string) {
+  const tokens = new Set<string>();
+
+  for (const match of source.matchAll(/[A-Z][A-Z0-9_]+/gu)) {
+    tokens.add(match[0]);
+  }
+
+  return tokens;
+}
+
 describe(".env.example parity", () => {
   it("keeps env example aligned with the central runtime env contract", () => {
     const envSource = readRepoFile(ENV_SOURCE_PATH);
@@ -219,21 +246,33 @@ describe(".env.example parity", () => {
     const schemaKeys = getSchemaKeys(envSource);
     const runtimeKeys = new Set(extractRuntimeEnvKeys(envSource));
 
-    expect([...schemaKeys].sort()).toEqual([...runtimeKeys].sort());
+    expect(sortedStrings(schemaKeys)).toEqual(sortedStrings(runtimeKeys));
 
     const documentedRuntimeKeys = new Set(
       [...envExample.keys()].filter(
         (key) => !NON_RUNTIME_EXAMPLE_ENV_KEYS.has(key),
       ),
     );
-    const missingFromExample = [...schemaKeys]
-      .filter((key) => !FRAMEWORK_MANAGED_RUNTIME_KEYS.has(key))
-      .filter((key) => !documentedRuntimeKeys.has(key))
-      .sort();
-    const unknownExampleKeys = [...envExample.keys()]
-      .filter((key) => !schemaKeys.has(key))
-      .filter((key) => !NON_RUNTIME_EXAMPLE_ENV_KEYS.has(key))
-      .sort();
+    const missingFromExample: string[] = [];
+    const unknownExampleKeys: string[] = [];
+
+    for (const key of schemaKeys) {
+      if (
+        !FRAMEWORK_MANAGED_RUNTIME_KEYS.has(key) &&
+        !documentedRuntimeKeys.has(key)
+      ) {
+        missingFromExample.push(key);
+      }
+    }
+
+    for (const key of envExample.keys()) {
+      if (!schemaKeys.has(key) && !NON_RUNTIME_EXAMPLE_ENV_KEYS.has(key)) {
+        unknownExampleKeys.push(key);
+      }
+    }
+
+    missingFromExample.sort();
+    unknownExampleKeys.sort();
 
     expect(missingFromExample).toEqual([]);
     expect(unknownExampleKeys).toEqual([]);
@@ -247,25 +286,38 @@ describe(".env.example parity", () => {
     const envExample = parseEnvExample(readRepoFile(ENV_EXAMPLE_PATH));
     const envGuide = readRepoFile(ENV_DOC_PATH);
     const qualityProofGuide = readRepoFile(QUALITY_PROOF_DOC_PATH);
-    const discoveredToolingKeys = [
-      ...new Set(
-        TOOLING_ENV_USAGE_ROOTS.flatMap((root) =>
-          collectFiles(root).flatMap((filePath) =>
-            extractProcessEnvKeys(readRepoFile(filePath)),
-          ),
-        )
-          .filter((key) => !schemaKeys.has(key))
-          .filter((key) => !TEST_INTERNAL_ENV_KEYS.has(key)),
-      ),
-    ].sort();
+    const envGuideKeys = collectEnvKeyTokens(envGuide);
+    const qualityProofGuideKeys = collectEnvKeyTokens(qualityProofGuide);
+    const documentedToolingKeys = new Set<string>();
+    const discoveredToolingKeys = new Set<string>();
 
-    expect(discoveredToolingKeys).toEqual([...TOOLING_PROOF_ENV_KEYS].sort());
+    for (const key of TOOLING_PROOF_ENV_KEYS) {
+      if (
+        envExample.has(key) ||
+        envGuideKeys.has(key) ||
+        qualityProofGuideKeys.has(key)
+      ) {
+        documentedToolingKeys.add(key);
+      }
+    }
+
+    for (const root of TOOLING_ENV_USAGE_ROOTS) {
+      for (const filePath of collectFiles(root)) {
+        for (const key of extractProcessEnvKeys(readRepoFile(filePath))) {
+          if (!schemaKeys.has(key) && !TEST_INTERNAL_ENV_KEYS.has(key)) {
+            discoveredToolingKeys.add(key);
+          }
+        }
+      }
+    }
+
+    expect(sortedStrings(discoveredToolingKeys)).toEqual(
+      sortedStrings(TOOLING_PROOF_ENV_KEYS),
+    );
 
     for (const key of TOOLING_PROOF_ENV_KEYS) {
       expect(
-        envExample.has(key) ||
-          envGuide.includes(key) ||
-          qualityProofGuide.includes(key),
+        documentedToolingKeys.has(key),
         `${key} should be documented in .env.example, ${ENV_DOC_PATH}, or ${QUALITY_PROOF_DOC_PATH}`,
       ).toBe(true);
     }
@@ -285,12 +337,12 @@ describe(".env.example parity", () => {
   it("documents all sensitive example keys in the env guide", () => {
     const envExample = parseEnvExample(readRepoFile(ENV_EXAMPLE_PATH));
     const envGuide = readRepoFile(ENV_DOC_PATH);
-    const sensitiveEnvKeys = [
-      ...new Set([
+    const sensitiveEnvKeys = sortedStrings(
+      new Set([
         ...SENSITIVE_ENV_KEYS,
         ...getDiscoveredSensitiveEnvKeys(envExample),
       ]),
-    ].sort();
+    );
     const publicSensitiveKeys = [...envExample.keys()].filter(
       (key) =>
         key.startsWith("NEXT_PUBLIC_") && SENSITIVE_ENV_KEY_PATTERN.test(key),
