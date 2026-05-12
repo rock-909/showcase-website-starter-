@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { singleSiteProductCatalog as PRODUCT_CATALOG } from "@/config/single-site-product-catalog";
-import { MARKET_SPECS_BY_SLUG } from "@/constants/product-specs/market-spec-registry";
+import {
+  getMarketSpecsBySlug,
+  MARKET_SPECS_BY_SLUG,
+} from "@/constants/product-specs/market-spec-registry";
 import enCriticalMessages from "@messages/en/critical.json";
 import zhCriticalMessages from "@messages/zh/critical.json";
 
@@ -68,10 +71,10 @@ describe("product market slug contract", () => {
       const catalogFamilySlugs = PRODUCT_CATALOG.families
         .filter((family) => family.marketSlug === market.slug)
         .map((family) => family.slug);
+      const marketSpecs = getMarketSpecsBySlug(market.slug);
+      expect(marketSpecs).toBeDefined();
       const specFamilySlugs =
-        MARKET_SPECS_BY_SLUG[market.slug]?.families.map(
-          (family) => family.slug,
-        ) ?? [];
+        marketSpecs?.families.map((family) => family.slug) ?? [];
 
       expect(
         sorted(catalogFamilySlugs),

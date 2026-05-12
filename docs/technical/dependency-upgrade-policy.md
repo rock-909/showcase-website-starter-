@@ -135,7 +135,7 @@ ESLint 10 不能只改版本号。当前仓库采用：
 验证重点：
 
 - `next typegen && pnpm exec tsc --noEmit -p tsconfig.typecheck-source.json` 通过
-- `next typegen && pnpm exec tsc --noEmit -p tsconfig.test.json` 作为测试类型债的人工证明项运行
+- `next typegen && pnpm exec tsc --noEmit -p tsconfig.test.json` 作为保留测试 tsconfig 的证明命令，必须通过
 - `pnpm type-check` 通过
 - 与 Turnstile / IntersectionObserver 相关测试通过
 - `pnpm build` 和 `pnpm website:build:cf` 都要跑，因为 Next 文档明确生产构建会执行类型检查

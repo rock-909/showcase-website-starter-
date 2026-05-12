@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { API_ERROR_CODES } from "@/constants/api-error-codes";
 import { checkDistributedRateLimit } from "@/lib/security/distributed-rate-limit";
 import { contactFormAction } from "@/lib/actions/contact";
+import type { ContactFormWithToken } from "@/lib/contact/submit-canonical-contact";
 
 // Mock dependencies before imports
 vi.mock("@/lib/logger", () => ({
@@ -17,6 +18,20 @@ const mockHeadersGet = vi.fn<(key: string) => string | null>((key) => {
   if (key === "x-real-ip") return "192.168.1.101";
   return null;
 });
+
+const mockCanonicalContactData = {
+  fullName: "John Doe",
+  email: "john@example.com",
+  company: "",
+  phone: "+1234567890",
+  subject: "General Inquiry",
+  message: "Hello, this is a test message with enough length.",
+  acceptPrivacy: true,
+  marketingConsent: false,
+  website: "",
+  turnstileToken: "valid-token",
+  submittedAt: "2024-06-15T12:00:00.000Z",
+} satisfies ContactFormWithToken;
 
 vi.mock("next/headers", () => ({
   headers: vi.fn(() =>
@@ -50,8 +65,9 @@ vi.mock("@/lib/contact/submit-canonical-contact", async (importOriginal) => {
         success: true,
         error: null,
         details: null,
-        data: {},
+        data: mockCanonicalContactData,
         submissionResult: {
+          success: true,
           emailSent: true,
           ownerNotified: true,
           recordCreated: true,
@@ -305,8 +321,9 @@ describe("actions.ts", () => {
         success: true,
         error: null,
         details: null,
-        data: {},
+        data: mockCanonicalContactData,
         submissionResult: {
+          success: true,
           emailSent: false,
           ownerNotified: false,
           recordCreated: true,

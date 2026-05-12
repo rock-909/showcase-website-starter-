@@ -6,6 +6,14 @@ const ENV_EXAMPLE_PATH = ".env.example";
 const TOOLING_ONLY_ENV_KEYS = new Set(["CLOUDFLARE_API_TOKEN"]);
 const FRAMEWORK_MANAGED_RUNTIME_KEYS = new Set(["NEXT_PHASE", "NODE_ENV"]);
 
+function expectDefined<T>(value: T | undefined, label: string): T {
+  expect(value, label).toBeDefined();
+  if (value === undefined) {
+    throw new Error(`${label} should be defined`);
+  }
+  return value;
+}
+
 function readRepoFile(repoPath: string) {
   // eslint-disable-next-line security/detect-non-literal-fs-filename -- architecture test reads fixed repo-local files
   return readFileSync(repoPath, "utf8");
@@ -43,13 +51,15 @@ function extractObjectBlock(source: string, marker: string) {
 
 function extractSchemaKeys(source: string, marker: string) {
   const block = extractObjectBlock(source, marker);
-  return [...block.matchAll(/^\s{2}([A-Z0-9_]+):/gmu)].map((match) => match[1]);
+  return [...block.matchAll(/^\s{2}([A-Z0-9_]+):/gmu)].map((match) =>
+    expectDefined(match[1], "schema key"),
+  );
 }
 
 function extractRuntimeEnvKeys(source: string) {
   const block = extractObjectBlock(source, "export const runtimeEnv = {");
   return [...block.matchAll(/^\s{2}([A-Z0-9_]+):\s*process\.env\.\1\b/gmu)].map(
-    (match) => match[1],
+    (match) => expectDefined(match[1], "runtime env key"),
   );
 }
 
@@ -65,7 +75,9 @@ function parseEnvExample(source: string) {
 
     const match = /^([A-Z0-9_]+)=(.*)$/u.exec(trimmed);
     if (match) {
-      values.set(match[1], match[2] ?? "");
+      const key = expectDefined(match[1], ".env.example key");
+      const value = match[2] ?? "";
+      values.set(key, value);
     }
   }
 

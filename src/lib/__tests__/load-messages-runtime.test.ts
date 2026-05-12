@@ -86,6 +86,49 @@ interface FactualCompleteMessages
 const factualPlaceholderPattern =
   /\{(?:siteName|companyName|currentYear|copyright)\}/u;
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object";
+}
+
+function getPathValue(value: unknown, path: readonly string[]): unknown {
+  let current: unknown = value;
+
+  for (const segment of path) {
+    if (!isRecord(current)) {
+      return undefined;
+    }
+
+    current = current[segment];
+  }
+
+  return current;
+}
+
+function expectStringPath(value: unknown, path: readonly string[]): void {
+  expect(getPathValue(value, path), path.join(".")).toEqual(expect.any(String));
+}
+
+function assertFactualCriticalMessages(
+  value: unknown,
+): asserts value is FactualCriticalMessages {
+  expectStringPath(value, ["navigation", "siteName"]);
+  expectStringPath(value, ["home", "footer", "about", "title"]);
+  expectStringPath(value, ["home", "footer", "copyright"]);
+  expectStringPath(value, ["footer", "copyright"]);
+  expectStringPath(value, ["structured-data", "organization", "name"]);
+  expectStringPath(value, ["structured-data", "website", "name"]);
+  expectStringPath(value, ["structured-data", "article", "defaultAuthor"]);
+}
+
+function assertFactualCompleteMessages(
+  value: unknown,
+): asserts value is FactualCompleteMessages {
+  assertFactualCriticalMessages(value);
+  expectStringPath(value, ["organization", "name"]);
+  expectStringPath(value, ["website", "name"]);
+  expectStringPath(value, ["article", "defaultAuthor"]);
+}
+
 function readMessageJson(relativePath: string): unknown {
   // eslint-disable-next-line security/detect-non-literal-fs-filename -- test reads fixed repo message fixtures from explicit call sites
   return JSON.parse(readFileSync(join(process.cwd(), relativePath), "utf8"));
@@ -201,12 +244,10 @@ describe("load-messages runtime gating", () => {
     const expectedEnCopyright = `(c) ${currentYear} ${SINGLE_SITE_FACTS.company.name}. All rights reserved.`;
     const expectedZhCopyright = `(c) ${currentYear} ${SINGLE_SITE_FACTS.company.name}。保留所有权利。`;
 
-    const enMessages = (await loadCriticalMessages(
-      "en",
-    )) as FactualCriticalMessages;
-    const zhMessages = (await loadCriticalMessages(
-      "zh",
-    )) as FactualCriticalMessages;
+    const enMessages = await loadCriticalMessages("en");
+    const zhMessages = await loadCriticalMessages("zh");
+    assertFactualCriticalMessages(enMessages);
+    assertFactualCriticalMessages(zhMessages);
 
     expect(enMessages.navigation.siteName).toBe(SINGLE_SITE_CONFIG.name);
     expect(enMessages.home.footer.about.title).toBe(SINGLE_SITE_CONFIG.name);
@@ -241,9 +282,8 @@ describe("load-messages runtime gating", () => {
     const { SINGLE_SITE_CONFIG, SINGLE_SITE_FACTS } =
       await import("@/config/single-site");
 
-    const messages = (await loadCompleteMessagesFromSource(
-      "en",
-    )) as FactualCompleteMessages;
+    const messages = await loadCompleteMessagesFromSource("en");
+    assertFactualCompleteMessages(messages);
 
     expect(messages["structured-data"].organization.name).toBe(
       SINGLE_SITE_FACTS.company.name,
