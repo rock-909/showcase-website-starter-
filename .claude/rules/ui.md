@@ -43,6 +43,9 @@ Reusable UI primitives need Storybook stories for states that matter to review.
 Business/page-level Storybook coverage can grow over time and is not a blocker
 for unrelated starter reset work.
 
+Storybook uses the Vite builder. Do not add webpack-only Storybook assumptions
+or addons unless the change includes a current Storybook build proof.
+
 ## Design tokens
 
 Design values live in `src/app/globals.css`.
@@ -78,5 +81,11 @@ Use `cn()` from `@/lib/utils` for conditional classes.
 - Default to `next/image` for buyer-visible app images.
 - Native `<img>` is acceptable only when optimization is intentionally skipped
   or unsupported.
+- For above-the-fold images, prefer the current `next/image` preload model over
+  older `priority` examples.
+- Do not remove the Cloudflare `images.unoptimized` baseline or add a custom
+  image loader without a separate deployed Cloudflare image proof.
+- `next/font/local` is the safe default for branded fonts. Avoid adding runtime
+  font network dependencies for buyer-visible pages.
 - For `next/image`, `next/font`, and metadata APIs, check the installed Next.js
   docs before editing.

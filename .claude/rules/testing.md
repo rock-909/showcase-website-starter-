@@ -19,6 +19,7 @@ commands, or behavior proof.
 | Route/navigation/locale behavior | route-level integration or Playwright |
 | Schema validation | `vi.unmock("zod")` before assertions |
 | Component DOM/prop change | update paired test first |
+| Client Component, hook, or React behavior change | focused test + React Doctor when relevant |
 
 ## Default commands
 
@@ -32,6 +33,19 @@ that proves the changed behavior.
 
 Heavy mutation or broad review lanes are opt-in only. Do not treat them as
 default proof for ordinary starter work.
+
+## React quality gates
+
+React Doctor is part of the React quality signal, not a replacement for tests.
+
+- Use `pnpm react:doctor` for Client Component, hook, form interaction, and
+  render-flow changes when the change could affect React behavior.
+- Use `pnpm react:doctor:governance` when changing React Doctor policy,
+  classification, or known exception files.
+- React Doctor errors block the branch. Warnings are backlog unless the change
+  introduces or reclassifies them.
+- Do not hide warnings by broad exception rules; record narrow, named exceptions
+  in the policy files.
 
 ## Behavior contracts
 
