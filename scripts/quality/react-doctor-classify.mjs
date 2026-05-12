@@ -54,12 +54,6 @@ const PROJECT_EXCEPTIONS = [
     reason: "Request body stream reader must be read sequentially.",
   },
   {
-    filePath: "src/components/ui/accordion.tsx",
-    rule: "no-react19-deprecated-apis",
-    reason:
-      "Radix wrapper compatibility migration is a separate UI primitive wave.",
-  },
-  {
     filePath: "src/components/ui/textarea.tsx",
     rule: "no-react19-deprecated-apis",
     reason:
