@@ -257,7 +257,7 @@
   "emailPlaceholder": "your@email.com",
   "phone": "电话号码",
   "organization": {
-    "name": "Showcase Website Starter",
+    "name": "{companyName}",
     "description": "用于展示产品、服务、证据和询盘路径的可复用网站 starter",
     "phone": "请通过邮箱联系销售团队",
     "social": {
@@ -266,11 +266,11 @@
     }
   },
   "website": {
-    "name": "Showcase Website Starter",
+    "name": "{siteName}",
     "description": "用于展示产品、服务、证据和询盘路径的可复用网站 starter"
   },
   "article": {
-    "defaultAuthor": "Showcase Website Starter"
+    "defaultAuthor": "{companyName}"
   },
   "products": {
     "pageTitle": "产品中心",
