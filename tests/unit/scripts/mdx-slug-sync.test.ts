@@ -60,6 +60,12 @@ describe("content-slug-sync legacy facade", () => {
     expect(starterChecksFacade.generateContentManifest).toBeTypeOf("function");
     expect(starterChecksFacade.writeFileAtomic).toBeTypeOf("function");
   });
+
+  it("keeps report output out of the default freshness contract", () => {
+    const context = createContentManifestContext("/tmp/starter-project");
+
+    expect("reportOutput" in context).toBe(false);
+  });
 });
 
 interface SlugSyncIssue {
@@ -829,17 +835,12 @@ describe("content-slug-sync core", () => {
       });
 
       const context = createContentManifestContext(tmpDir);
-      fs.mkdirSync(path.dirname(context.reportOutput), { recursive: true });
       fs.mkdirSync(path.dirname(context.importersOutput), { recursive: true });
       fs.mkdirSync(path.dirname(context.manifestTsOutput), { recursive: true });
-      fs.writeFileSync(context.reportOutput, "stale report");
       fs.writeFileSync(context.importersOutput, "stale importers");
       fs.writeFileSync(context.manifestTsOutput, "stale manifest");
 
       expect(runContentManifestGenerator(context, { check: true })).toBe(false);
-      expect(fs.readFileSync(context.reportOutput, "utf8")).toBe(
-        "stale report",
-      );
       expect(fs.readFileSync(context.importersOutput, "utf8")).toBe(
         "stale importers",
       );
@@ -879,11 +880,6 @@ describe("content-slug-sync core", () => {
       const context = createContentManifestContext(tmpDir);
 
       expect(runContentManifestGenerator(context)).toBe(true);
-      expect(
-        fs
-          .readdirSync(path.dirname(context.reportOutput))
-          .some((file) => file.startsWith("content-manifest.json.tmp-")),
-      ).toBe(false);
       expect(
         fs
           .readdirSync(path.dirname(context.importersOutput))

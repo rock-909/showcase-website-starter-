@@ -369,7 +369,6 @@ function createContentManifestContext(rootDir = ROOT) {
   return {
     rootDir,
     contentDir: path.join(rootDir, "content"),
-    reportOutput: path.join(rootDir, "reports", "content-manifest.json"),
     importersOutput: path.join(
       rootDir,
       "src",
@@ -643,13 +642,11 @@ function runContentManifestGenerator(
   );
 
   const manifest = generateContentManifest(context);
-  const reportJson = JSON.stringify(manifest, null, 2);
   const importersCode = generateImportersCode(manifest.entries);
   const manifestTsCode = generateManifestTsCode(manifest);
 
   if (checkOnly) {
     const staleOutputs = [
-      [context.reportOutput, reportJson],
       [context.importersOutput, importersCode],
       [context.manifestTsOutput, manifestTsCode],
     ].flatMap(([filePath, expected]) =>
@@ -671,14 +668,21 @@ function runContentManifestGenerator(
     return false;
   }
 
-  writeFileAtomic(context.reportOutput, reportJson);
+  if (context.reportOutput !== undefined) {
+    writeFileAtomic(context.reportOutput, JSON.stringify(manifest, null, 2));
+  }
   writeFileAtomic(context.importersOutput, importersCode);
   writeFileAtomic(context.manifestTsOutput, manifestTsCode);
 
   console.log(`Generated manifest with ${manifest.entries.length} entries`);
-  console.log(`Output 1: ${context.reportOutput}`);
-  console.log(`Output 2: ${context.importersOutput}`);
-  console.log(`Output 3: ${context.manifestTsOutput}`);
+  let outputIndex = 1;
+  if (context.reportOutput !== undefined) {
+    console.log(`Output ${outputIndex}: ${context.reportOutput}`);
+    outputIndex += 1;
+  }
+  console.log(`Output ${outputIndex}: ${context.importersOutput}`);
+  outputIndex += 1;
+  console.log(`Output ${outputIndex}: ${context.manifestTsOutput}`);
 
   const summary = {};
   for (const entry of manifest.entries) {
