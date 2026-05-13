@@ -43,7 +43,7 @@ const ROW_VALUE_TO_KEY: Record<string, string> = {
  * Map column display name to translation key
  * If not found, returns the display name as-is (for fallback)
  */
-export function mapColumnNameToKey(columnName: string): string {
+function mapColumnNameToKey(columnName: string): string {
   return COLUMN_NAME_TO_KEY[columnName] ?? columnName;
 }
 
@@ -51,7 +51,7 @@ export function mapColumnNameToKey(columnName: string): string {
  * Map row value to translation key
  * If not found, returns null (value should not be translated)
  */
-export function mapRowValueToKey(value: string): string | null {
+function mapRowValueToKey(value: string): string | null {
   return ROW_VALUE_TO_KEY[value] ?? null;
 }
 

@@ -70,11 +70,11 @@ and governance slimming, the native gate has 0 errors. The remaining current
 warnings are React Doctor's Knip-backed Dead Code category:
 
 ```text
-total warnings: 149
-affected files: 51
+total warnings: 122
+affected files: 40
 score: 99 / 100
-types: 102
-exports: 47
+types: 98
+exports: 24
 files: 0
 duplicates: 0
 ```

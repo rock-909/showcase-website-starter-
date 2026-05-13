@@ -34,7 +34,7 @@ function getImportersForType(
   }
 }
 
-export async function loadMDXContent(
+async function loadMDXContent(
   type: ContentType,
   locale: Locale,
   slug: string,

@@ -50,7 +50,7 @@ describe("generated warning baseline contract", () => {
       "docs/quality/react-doctor-exceptions.md",
     );
     expect(readRepoFile("docs/quality/react-doctor-baseline.md")).toContain(
-      "warningCount: 149",
+      "warningCount: 122",
     );
     expect(readRepoFile("docs/quality/react-doctor-baseline.md")).toContain(
       "score: 99 / 100",
@@ -59,7 +59,10 @@ describe("generated warning baseline contract", () => {
       "The calibrated gate target is `0 error`",
     );
     expect(readRepoFile("docs/quality/react-doctor-baseline.md")).toContain(
-      "knip/exports: 47",
+      "knip/types: 98",
+    );
+    expect(readRepoFile("docs/quality/react-doctor-baseline.md")).toContain(
+      "knip/exports: 24",
     );
     expect(readRepoFile("docs/quality/react-doctor-baseline.md")).toContain(
       "knip/files: 0",
