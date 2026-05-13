@@ -361,30 +361,31 @@ function runTranslationCheck() {
 // content manifest
 // ---------------------------------------------------------------------------
 
-const CONTENT_DIR = path.join(ROOT, "content");
-const CONTENT_MANIFEST_OUTPUT = path.join(
-  ROOT,
-  "reports",
-  "content-manifest.json",
-);
-const CONTENT_IMPORTERS_OUTPUT = path.join(
-  ROOT,
-  "src",
-  "lib",
-  "mdx-importers.generated.ts",
-);
-const CONTENT_MANIFEST_TS_OUTPUT = path.join(
-  ROOT,
-  "src",
-  "lib",
-  "content-manifest.generated.ts",
-);
 const CONTENT_TYPES = ["posts", "pages", "products"];
 const CONTENT_MANIFEST_LOCALES = ["en", "zh"];
 const VALID_CONTENT_EXTENSIONS = new Set([".mdx", ".md"]);
 
-function scanContentManifestDirectory(contentType, locale) {
-  const dirPath = path.join(CONTENT_DIR, contentType, locale);
+function createContentManifestContext(rootDir = ROOT) {
+  return {
+    rootDir,
+    contentDir: path.join(rootDir, "content"),
+    importersOutput: path.join(
+      rootDir,
+      "src",
+      "lib",
+      "mdx-importers.generated.ts",
+    ),
+    manifestTsOutput: path.join(
+      rootDir,
+      "src",
+      "lib",
+      "content-manifest.generated.ts",
+    ),
+  };
+}
+
+function scanContentManifestDirectory(context, contentType, locale) {
+  const dirPath = path.join(context.contentDir, contentType, locale);
   const entries = [];
 
   if (!fs.existsSync(dirPath)) {
@@ -408,7 +409,7 @@ function scanContentManifestDirectory(contentType, locale) {
       },
     });
     const relativePath = path
-      .relative(ROOT, filePath)
+      .relative(context.rootDir, filePath)
       .split(path.sep)
       .join("/");
     const stableFilePath = `/${relativePath}`;
@@ -432,12 +433,36 @@ function buildContentManifestKey(type, locale, slug) {
   return `${type}/${locale}/${slug}`;
 }
 
-function generateContentManifest() {
+function assertContentManifestFrontmatterValid(context) {
+  const result = validateContentFrontmatterContract({
+    rootDir: context.rootDir,
+    collections: CONTENT_TYPES,
+    locales: CONTENT_MANIFEST_LOCALES,
+    strictFrontmatter: false,
+  });
+
+  if (result.ok) {
+    return;
+  }
+
+  const detail = result.issues
+    .slice(0, 10)
+    .map((issue) => `- ${issue.filePath}: ${issue.message}`)
+    .join("\n");
+
+  throw new Error(`Content manifest frontmatter validation failed:\n${detail}`);
+}
+
+function generateContentManifest(context = createContentManifestContext()) {
+  assertContentManifestFrontmatterValid(context);
+
   const entries = [];
 
   for (const contentType of CONTENT_TYPES) {
     for (const locale of CONTENT_MANIFEST_LOCALES) {
-      entries.push(...scanContentManifestDirectory(contentType, locale));
+      entries.push(
+        ...scanContentManifestDirectory(context, contentType, locale),
+      );
     }
   }
 
@@ -463,6 +488,16 @@ function ensureOutputDir(outputPath) {
   if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir, { recursive: true });
   }
+}
+
+let atomicWriteCounter = 0;
+
+function writeFileAtomic(outputPath, content) {
+  ensureOutputDir(outputPath);
+  atomicWriteCounter += 1;
+  const tempPath = `${outputPath}.tmp-${process.pid}-${Date.now()}-${atomicWriteCounter}`;
+  fs.writeFileSync(tempPath, content);
+  fs.renameSync(tempPath, outputPath);
 }
 
 function generateImportersCode(entries) {
@@ -591,30 +626,63 @@ export const CONTENT_MANIFEST: ContentManifest = {
 `;
 }
 
-function runContentManifestGenerator() {
-  console.log("Generating content manifest and import map...");
+function readTextIfExists(filePath) {
+  return fs.existsSync(filePath) ? fs.readFileSync(filePath, "utf8") : null;
+}
 
-  const manifest = generateContentManifest();
-
-  ensureOutputDir(CONTENT_MANIFEST_OUTPUT);
-  fs.writeFileSync(CONTENT_MANIFEST_OUTPUT, JSON.stringify(manifest, null, 2));
-
-  ensureOutputDir(CONTENT_IMPORTERS_OUTPUT);
-  fs.writeFileSync(
-    CONTENT_IMPORTERS_OUTPUT,
-    generateImportersCode(manifest.entries),
+function runContentManifestGenerator(
+  context = createContentManifestContext(),
+  options = {},
+) {
+  const checkOnly = options.check === true;
+  console.log(
+    checkOnly
+      ? "Checking content manifest and import map..."
+      : "Generating content manifest and import map...",
   );
 
-  ensureOutputDir(CONTENT_MANIFEST_TS_OUTPUT);
-  fs.writeFileSync(
-    CONTENT_MANIFEST_TS_OUTPUT,
-    generateManifestTsCode(manifest),
-  );
+  const manifest = generateContentManifest(context);
+  const importersCode = generateImportersCode(manifest.entries);
+  const manifestTsCode = generateManifestTsCode(manifest);
+
+  if (checkOnly) {
+    const staleOutputs = [
+      [context.importersOutput, importersCode],
+      [context.manifestTsOutput, manifestTsCode],
+    ].flatMap(([filePath, expected]) =>
+      readTextIfExists(filePath) === expected ? [] : [filePath],
+    );
+
+    if (staleOutputs.length === 0) {
+      console.log("Content manifest artifacts are fresh.");
+      return true;
+    }
+
+    console.error("Content manifest artifacts are stale:");
+    for (const filePath of staleOutputs) {
+      console.error(`  - ${filePath}`);
+    }
+    console.error(
+      "Run `node scripts/starter-checks.js content-manifest` to refresh them.",
+    );
+    return false;
+  }
+
+  if (context.reportOutput !== undefined) {
+    writeFileAtomic(context.reportOutput, JSON.stringify(manifest, null, 2));
+  }
+  writeFileAtomic(context.importersOutput, importersCode);
+  writeFileAtomic(context.manifestTsOutput, manifestTsCode);
 
   console.log(`Generated manifest with ${manifest.entries.length} entries`);
-  console.log(`Output 1: ${CONTENT_MANIFEST_OUTPUT}`);
-  console.log(`Output 2: ${CONTENT_IMPORTERS_OUTPUT}`);
-  console.log(`Output 3: ${CONTENT_MANIFEST_TS_OUTPUT}`);
+  let outputIndex = 1;
+  if (context.reportOutput !== undefined) {
+    console.log(`Output ${outputIndex}: ${context.reportOutput}`);
+    outputIndex += 1;
+  }
+  console.log(`Output ${outputIndex}: ${context.importersOutput}`);
+  outputIndex += 1;
+  console.log(`Output ${outputIndex}: ${context.manifestTsOutput}`);
 
   const summary = {};
   for (const entry of manifest.entries) {
@@ -3269,7 +3337,7 @@ Commands:
   truth-docs          Check current truth docs and release runbook order
   brand               Check old brand residue
   content-slugs       Check localized MDX slug pairs
-  content-manifest    Generate content manifest and static MDX import map
+  content-manifest    Generate content manifest and static MDX import map (--check verifies freshness)
   translations        Check split critical/deferred translation shapes
   validate-production-config Validate production and public-launch config gates
   eslint-disable      Check eslint-disable exception hygiene
@@ -3299,7 +3367,9 @@ async function main(argv = process.argv.slice(2)) {
       ok = runContentSlugCheck(args);
       break;
     case "content-manifest":
-      ok = runContentManifestGenerator();
+      ok = runContentManifestGenerator(createContentManifestContext(), {
+        check: args.includes("--check"),
+      });
       break;
     case "translations":
       ok = runTranslationCheck();
@@ -3373,9 +3443,12 @@ module.exports = {
   collectPairs,
   collectRegisteredGuardrailExceptionIds,
   compareLocales,
+  createContentManifestContext,
   findCommandLineIndex,
   findOutOfOrderCommand,
+  assertContentManifestFrontmatterValid,
   generateContentManifest,
+  writeFileAtomic,
   getActiveGuardrailExceptionSection,
   hasTopLevelUseClientDirective,
   isProductionFile,

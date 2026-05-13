@@ -280,7 +280,7 @@ describe("proof lane contract", () => {
     const expectedScripts = Object.entries({
       "brand:check": "node scripts/starter-checks.js brand",
       "content:check":
-        "node scripts/starter-checks.js content-slugs && node scripts/starter-checks.js translations",
+        "node scripts/starter-checks.js content-manifest --check && node scripts/starter-checks.js content-slugs && node scripts/starter-checks.js translations",
       "component:check":
         "pnpm component:governance:test && pnpm component:governance && pnpm exec storybook build",
       "component:governance":
@@ -693,7 +693,7 @@ describe("proof lane contract", () => {
       "node scripts/starter-checks.js brand",
     );
     expect(packageJson.scripts["content:check"]).toBe(
-      "node scripts/starter-checks.js content-slugs && node scripts/starter-checks.js translations",
+      "node scripts/starter-checks.js content-manifest --check && node scripts/starter-checks.js content-slugs && node scripts/starter-checks.js translations",
     );
     expect(packageJson.scripts["component:check"]).toBe(
       "pnpm component:governance:test && pnpm component:governance && pnpm exec storybook build",

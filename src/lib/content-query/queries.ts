@@ -3,8 +3,6 @@
  */
 
 import { cache } from "react";
-import path from "path";
-import { isRuntimeCloudflare } from "@/lib/env";
 import type {
   ContentMetadata,
   ContentType,
@@ -13,38 +11,39 @@ import type {
   PageMetadata,
   ParsedContent,
 } from "@/types/content.types";
-import { getContentFiles, parseContentFile } from "@/lib/content-parser";
-import { PAGES_DIR } from "@/lib/content-utils";
+import { getContentEntry } from "@/lib/content-manifest";
 
-type ContentLoader<T> = (slug: string, locale?: Locale) => Promise<T>;
+type ContentLoader<T> = (slug: string, locale?: Locale) => T;
 
 function cacheOutsideCloudflare<T>(loader: ContentLoader<T>): ContentLoader<T> {
   const cachedLoader = cache(loader);
-  return (slug, locale) =>
-    isRuntimeCloudflare() ? loader(slug, locale) : cachedLoader(slug, locale);
+  return (slug, locale) => cachedLoader(slug, locale);
 }
 
 /**
  * Get content by slug
  */
-async function getContentBySlug<T extends ContentMetadata = ContentMetadata>(
+function getContentBySlug<T extends ContentMetadata = ContentMetadata>(
   slug: string,
   type: ContentType,
   locale?: Locale,
-): Promise<ParsedContent<T>> {
-  const contentDir = PAGES_DIR;
-  const files = await getContentFiles(contentDir, locale);
-
-  const matchingFile = files.find((file) => {
-    const fileSlug = path.basename(file, path.extname(file));
-    return fileSlug === slug || fileSlug.startsWith(`${slug}.`);
-  });
-
-  if (!matchingFile) {
+): ParsedContent<T> {
+  if (locale === undefined) {
     throw new Error(`Content not found: ${slug}`);
   }
 
-  return parseContentFile<T>(matchingFile, type);
+  const entry = getContentEntry(type, locale, slug);
+
+  if (entry === undefined) {
+    throw new Error(`Content not found: ${slug}`);
+  }
+
+  return {
+    slug: entry.slug,
+    metadata: entry.metadata as T,
+    content: entry.content,
+    filePath: entry.filePath,
+  };
 }
 
 /**
@@ -52,10 +51,8 @@ async function getContentBySlug<T extends ContentMetadata = ContentMetadata>(
  */
 export const getPageBySlug = cacheOutsideCloudflare(
   (slug: string, locale?: Locale): Promise<Page> => {
-    return getContentBySlug<PageMetadata>(
-      slug,
-      "pages",
-      locale,
-    ) as Promise<Page>;
+    return Promise.resolve().then(
+      () => getContentBySlug<PageMetadata>(slug, "pages", locale) as Page,
+    );
   },
 );

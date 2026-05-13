@@ -5,7 +5,11 @@ import {
   generateLocaleStaticParams,
   type LocaleParam,
 } from "@/app/[locale]/generate-static-params";
-import { getLocalizedPath, type Locale } from "@/config/paths";
+import {
+  getBlogArticlePath,
+  getLocalizedPath,
+  type Locale,
+} from "@/config/paths";
 import { generateMetadataForPath } from "@/lib/seo-metadata";
 import { getStarterBlogArticles } from "@/lib/blog/starter-blog";
 
@@ -60,10 +64,7 @@ export default async function BlogPage({ params }: BlogPageProps) {
         {articles.map((article) => (
           <Link
             key={article.slug}
-            href={{
-              pathname: "/blog/[slug]",
-              params: { slug: article.slug },
-            }}
+            href={getBlogArticlePath(article.slug)}
             className="group rounded-lg border border-border bg-card p-6 shadow-sm transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <div className="mb-4 flex flex-wrap gap-2 text-xs text-muted-foreground">

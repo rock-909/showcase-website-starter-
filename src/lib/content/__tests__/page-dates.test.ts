@@ -9,13 +9,13 @@ import {
   isMdxDrivenPage,
 } from "@/lib/content/page-dates";
 
-const { mockGetPageBySlug, mockLoggerWarn } = vi.hoisted(() => ({
-  mockGetPageBySlug: vi.fn(),
+const { mockGetContentEntry, mockLoggerWarn } = vi.hoisted(() => ({
+  mockGetContentEntry: vi.fn(),
   mockLoggerWarn: vi.fn(),
 }));
 
-vi.mock("@/lib/content-query/queries", () => ({
-  getPageBySlug: mockGetPageBySlug,
+vi.mock("@/lib/content-manifest", () => ({
+  getContentEntry: mockGetContentEntry,
 }));
 
 vi.mock("@/lib/logger", () => ({
@@ -62,8 +62,14 @@ describe("page-dates", () => {
   });
 
   it("loads the latest MDX updatedAt across locales for route-derived paths", async () => {
-    mockGetPageBySlug.mockImplementation(
-      async (slug: string, locale: string) => ({
+    mockGetContentEntry.mockImplementation(
+      (type: string, locale: string, slug: string) => ({
+        type,
+        locale,
+        slug,
+        extension: ".mdx",
+        filePath: `/content/pages/${locale}/${slug}.mdx`,
+        relativePath: `content/pages/${locale}/${slug}.mdx`,
         metadata: {
           publishedAt: "2026-01-01T00:00:00Z",
           updatedAt:
@@ -71,7 +77,7 @@ describe("page-dates", () => {
               ? "2026-04-20T00:00:00Z"
               : "2026-04-01T00:00:00Z",
         },
-        slug,
+        content: "",
       }),
     );
 
@@ -80,8 +86,8 @@ describe("page-dates", () => {
     );
 
     expect(lastModified).toEqual(new Date("2026-04-20T00:00:00Z"));
-    expect(mockGetPageBySlug).toHaveBeenCalledWith("about", "en");
-    expect(mockGetPageBySlug).toHaveBeenCalledWith("about", "zh");
+    expect(mockGetContentEntry).toHaveBeenCalledWith("pages", "en", "about");
+    expect(mockGetContentEntry).toHaveBeenCalledWith("pages", "zh", "about");
   });
 
   it("rejects paths that are not mapped from a static route id", async () => {

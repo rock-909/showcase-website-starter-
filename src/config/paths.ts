@@ -28,6 +28,7 @@ export { SITE_CONFIG } from "@/config/paths/site-config";
 export {
   getCanonicalPath,
   getDynamicPathnames,
+  getBlogArticlePath,
   getLocalizedPath,
   getPageTypeFromPath,
   getPathnames,
