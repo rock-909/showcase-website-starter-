@@ -70,21 +70,23 @@ and governance slimming, the native gate has 0 errors. The remaining current
 warnings are React Doctor's Knip-backed Dead Code category:
 
 ```text
-total warnings: 184
-affected files: 62
-score: 98 / 100
+total warnings: 177
+affected files: 60
+score: 99 / 100
 types: 102
-exports: 78
+exports: 75
 files: 0
-duplicates: 4
+duplicates: 0
 ```
 
 These are backlog signals, not deletion instructions. File-level dead-code
 signals have been triaged into narrow `knip/files` overrides when the files are
 external tool entrypoints or test alias assets. Skill bundles under
 `.claude/skills/**` and `.codex/skills/**` are excluded from Knip-backed dead
-code diagnostics because they are agent/tool capability packs. Unused exports
-and types require owner/API-surface review before removal.
+code diagnostics because they are agent/tool capability packs. Duplicate-export
+signals are either removed when they are only module-local implementation
+details, or narrowly exempted when they preserve separate business semantics.
+Unused exports and types require owner/API-surface review before removal.
 
 Most warning volume is not production behavior:
 

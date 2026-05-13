@@ -17,6 +17,10 @@
         "rules": ["knip/files"]
       },
       {
+        "files": ["src/constants/validation-limits.ts"],
+        "rules": ["knip/duplicates"]
+      },
+      {
         "files": ["src/components/layout/__tests__/mobile-navigation.test.tsx"],
         "rules": ["jsx-a11y/click-events-have-key-events"]
       },

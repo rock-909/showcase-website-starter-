@@ -12,9 +12,9 @@ Fresh calibrated baseline:
 
 ```text
 errorCount: 0
-warningCount: 184
-affectedFileCount: 62
-score: 98 / 100
+warningCount: 177
+affectedFileCount: 60
+score: 99 / 100
 ```
 
 React Doctor now loads `react-doctor.config.json`, which records narrow
@@ -88,11 +88,11 @@ Latest governance notes:
 Current warning shape:
 
 ```text
-Dead Code: 184
+Dead Code: 177
 knip/types: 102
-knip/exports: 78
+knip/exports: 75
 knip/files: 0
-knip/duplicates: 4
+knip/duplicates: 0
 ```
 
 The previous `knip/files` signals were classified as external tool entrypoints
@@ -103,6 +103,13 @@ or test alias assets and now have narrow `knip/files` overrides:
 `src/test/css-stub.ts` / `src/test/mdx-stub.ts` are referenced by
 `vitest.config.mts` aliases. Local skill bundles under `.claude/skills/**` and
 `.codex/skills/**` are intentionally outside this dead-code queue.
+
+The previous `knip/duplicates` signals were also triaged. Internal timing
+aliases in `src/constants/time.ts` are now module-local implementation details.
+The lead company/product name limits remain separate exported business names
+even though both currently resolve to 200 characters; that duplicate is a
+documented semantic alias in `src/constants/validation-limits.ts`, not a shared
+implementation name to collapse.
 
 ## Policy files
 

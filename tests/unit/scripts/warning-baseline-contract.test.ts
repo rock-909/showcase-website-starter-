@@ -50,16 +50,19 @@ describe("generated warning baseline contract", () => {
       "docs/quality/react-doctor-exceptions.md",
     );
     expect(readRepoFile("docs/quality/react-doctor-baseline.md")).toContain(
-      "warningCount: 184",
+      "warningCount: 177",
     );
     expect(readRepoFile("docs/quality/react-doctor-baseline.md")).toContain(
-      "score: 98 / 100",
+      "score: 99 / 100",
     );
     expect(readRepoFile("docs/quality/react-doctor-policy.md")).toContain(
       "The calibrated gate target is `0 error`",
     );
     expect(readRepoFile("docs/quality/react-doctor-baseline.md")).toContain(
       "knip/files: 0",
+    );
+    expect(readRepoFile("docs/quality/react-doctor-baseline.md")).toContain(
+      "knip/duplicates: 0",
     );
     expect(readRepoFile("docs/quality/react-doctor-baseline.md")).toContain(
       ".claude/skills/**",
@@ -131,5 +134,27 @@ describe("generated warning baseline contract", () => {
       "src/test/mdx-stub.ts",
     ]);
     expect(externalEntryOverride?.rules).toEqual(["knip/files"]);
+  });
+
+  it("keeps the product-name lead limit as a semantic duplicate, not a collapsed alias", () => {
+    const config = JSON.parse(readRepoFile("react-doctor.config.json")) as {
+      ignore?: {
+        overrides?: Array<{ files?: string[]; rules?: string[] }>;
+      };
+    };
+    const validationLimits = readRepoFile("src/constants/validation-limits.ts");
+    const timeConstants = readRepoFile("src/constants/time.ts");
+
+    const validationDuplicateOverride = config.ignore?.overrides?.find(
+      (override) =>
+        override.files?.includes("src/constants/validation-limits.ts"),
+    );
+
+    expect(validationDuplicateOverride?.rules).toEqual(["knip/duplicates"]);
+    expect(validationLimits).toContain(
+      "export const MAX_LEAD_PRODUCT_NAME_LENGTH = MAX_LEAD_COMPANY_LENGTH",
+    );
+    expect(timeConstants).toContain("const SIX_HUNDRED_MS = 600");
+    expect(timeConstants).not.toContain("export const SIX_HUNDRED_MS");
   });
 });
