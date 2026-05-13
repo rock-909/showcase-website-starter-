@@ -284,6 +284,7 @@ module.exports = {
       from: { path: "^src/lib/i18n/" },
       to: {
         path: "^src/lib/(?!i18n/)[^/]+/",
+        pathNot: "^src/lib/cache/cache-tags\\.ts$",
       },
     },
     {

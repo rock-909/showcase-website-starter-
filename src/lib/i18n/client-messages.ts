@@ -1,4 +1,4 @@
-import { type Locale } from "@/i18n/routing";
+import type { Locale } from "@/i18n/routing-config";
 import {
   loadCriticalMessages,
   loadDeferredMessages,

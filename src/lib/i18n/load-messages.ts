@@ -17,7 +17,7 @@ import {
 } from "@/lib/env";
 import { mergeObjects } from "@/lib/merge-objects";
 import { MONITORING_INTERVALS } from "@/constants/performance-constants";
-import { type Locale } from "@/i18n/routing";
+import type { Locale } from "@/i18n/routing-config";
 import { coerceLocale } from "@/i18n/locale-utils";
 import {
   getSiteMessageValues,

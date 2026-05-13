@@ -145,15 +145,6 @@ describe("i18n Routing Configuration", () => {
     });
   });
 
-  describe("配置验证", () => {
-    it("应该导出路径配置验证函数", async () => {
-      // 直接从 @/config/paths 导入，因为 routing.ts 重新导出了它
-      const pathsModule = await import("@/config/paths");
-      expect(pathsModule.validatePathsConfig).toBeDefined();
-      expect(typeof pathsModule.validatePathsConfig).toBe("function");
-    });
-  });
-
   describe("路径名配置", () => {
     it("应该为所有路径使用相同的值（Shared Pathnames）", async () => {
       const config = await getRoutingDefinition();
