@@ -30,6 +30,14 @@ pnpm website:build:cf
 
 Local release proof is not public launch proof. Public launch still requires `PUBLIC_LAUNCH_STRICT=true node scripts/starter-checks.js validate-production-config`, deployed smoke against the real URL, deployed lead canary, and owner signoff.
 
+## Git hook proof 边界
+
+pre-commit 是快速本地反馈：它只适合拦住格式、Lint、明显 import/export 退化，以及相关变更触发的翻译同步问题。它不跑完整测试、不跑生产构建，也不代表当前分支已经 release-ready。
+
+pre-push 可以更重，但仍然不是 release proof。当前 pre-push 会做构建、翻译、依赖边界和安全审计这类推送前保护；`RUN_FAST_PUSH=1` 只用于紧急推送，之后仍要靠 CI 或本地补跑对应证明。
+
+CI、`pnpm website:check` 和 `pnpm release:verify` 才是完整证明入口。需要发布级信心时，不要把 git hook 绿灯当成发布证明。
+
 ## Component proof 边界
 
 `pnpm component:check` 证明三件事：

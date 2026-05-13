@@ -26,7 +26,14 @@
 - `pnpm type-check`
 - `pnpm lint:check`
 - change-scoped `pnpm exec vitest run ...`
-- `lefthook` 的 staged / pre-commit / pre-push 检查
+- `lefthook` 的 staged / git hook 检查
+
+Git hook 内部也要分层：
+
+- pre-commit：只做快速本地反馈，例如格式、Lint、轻量架构守卫和条件翻译同步。
+- pre-push：可以做较重的本地分支保护，例如构建、翻译、依赖边界和安全审计。
+
+两者都不是 release proof。
 
 它能证明：
 

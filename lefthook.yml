@@ -1,5 +1,5 @@
 # Git Hooks管理配置
-# 自动化质量门禁系统 - 确保代码质量和安全性
+# 本地快速反馈 + 推送前质量门禁
 # 质量阈值通过保留的 starter proof / direct scripts 管理
 pre-commit:
   parallel: true
@@ -11,12 +11,6 @@ pre-commit:
         if [ -z "$FILES" ]; then echo "✅ 格式检查通过 (无可格式化变更)"; exit 0; fi
         pnpm exec prettier --check $FILES
       fail_text: '代码格式检查失败 - 请运行 pnpm exec prettier --write <files> 修复格式问题'
-      stage_fixed: true
-
-    # TypeScript类型检查
-    type-check:
-      run: pnpm type-check
-      fail_text: 'TypeScript类型检查失败 - 请修复类型错误后重新提交'
       stage_fixed: true
 
     # 代码质量检查 (ESLint)
@@ -48,12 +42,6 @@ pre-commit:
       fail_text: '架构守卫检查失败 - 发现违反架构重构规则的代码变更'
       stage_fixed: false
 
-    # 别名一致性检查
-    config-check:
-      run: pnpm exec tsc --noEmit --pretty false --incremental false --noErrorTruncation
-      fail_text: '别名一致性检查失败 - 请修复 tsconfig/next.config/ESLint 配置一致性'
-      stage_fixed: false
-
     # 多语言同步检查
     i18n-sync:
       run: |
@@ -63,31 +51,6 @@ pre-commit:
           echo "跳过 i18n 同步检查（无相关变更）"; exit 0;
         fi
       fail_text: '多语言同步检查失败 - 请同步 messages 与内容文件的中英版本'
-      stage_fixed: false
-
-    structural-clusters-review:
-      run: pnpm exec vitest run tests/unit/middleware.test.ts tests/integration/api/lead-family-contract.test.ts tests/integration/api/health.test.ts --passWithNoTests
-      fail_text: 'Structural cluster review 失败 - 请修复命中的 cluster contract / drift'
-      stage_fixed: false
-
-    # 相关测试检查 - 确保组件/库变更后测试同步更新
-    # 使用 Vitest 4 的 `vitest related` 子命令
-    test-related:
-      run: |
-        FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '^src/.+\.(ts|tsx)$' | grep -v '\.test\.' | grep -v '\.spec\.' | grep -v '__tests__' || true)
-        if [ -z "$FILES" ]; then
-          echo "✅ 相关测试检查通过 (无源码变更)"; exit 0;
-        fi
-        echo "🧪 运行相关测试..."
-        pnpm vitest related $FILES --run --passWithNoTests --reporter=dot 2>/dev/null || {
-          echo ""; echo "❌ 相关测试失败 - 可能原因:";
-          echo "  1. 组件 DOM 结构变更，但测试中的 getByRole/getByText 未同步";
-          echo "  2. 接口属性变更，但 Mock 配置未更新";
-          echo "  3. 函数签名变更，但测试断言未更新";
-          echo ""; echo "💡 请检查并同步更新对应的测试文件";
-          exit 1;
-        }
-      fail_text: '相关测试失败 - 请确保源码变更后测试同步更新（参见 .claude/rules/testing.md Twin File Principle）'
       stage_fixed: false
 
 commit-msg:
