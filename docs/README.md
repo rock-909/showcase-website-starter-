@@ -41,6 +41,7 @@
 
 - `guides/`：当前仍在使用的真相文档、proof 口径、治理合同
 - 优先入口：
+  - `guides/DOCS-OWNERSHIP-MAP.md`
   - `guides/POLICY-SOURCE-OF-TRUTH.md`
   - `guides/CANONICAL-TRUTH-REGISTRY.md`
   - `guides/QUALITY-PROOF-LEVELS.md`

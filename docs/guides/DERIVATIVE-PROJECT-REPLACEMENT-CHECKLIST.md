@@ -1,37 +1,47 @@
 # Derivative Project Replacement Checklist
 
-## Replacement order (do not reorder)
+This file is the English governance index for derivative replacement. It does
+not own the step-by-step replacement order.
 
-### Step 1: Brand Identity — `single-site.ts`
+Canonical operation checklist:
 
-Company name, address, contact, established year, employee count, certifications,
-export countries, social media links, SEO defaults.
+- `docs/website/新项目替换清单.md`
 
-### Step 2: Product Catalog — `src/config/single-site-product-catalog.ts` + `src/constants/product-specs/**`
+Related ownership references:
 
-Markets, families, product structure, specs, certifications, delivery terms, and product facts.
+- `docs/website/配置真相源.md`
+- `docs/guides/CANONICAL-TRUTH-REGISTRY.md`
+- `docs/guides/DOCS-OWNERSHIP-MAP.md`
 
-### Step 3: Page Assembly — `src/config/single-site-page-expression.ts`
+## Ownership
 
-Page switches (show FAQ, show stats), CTA targets, section ordering.
+The Chinese website checklist owns the replacement sequence because it is the
+owner-facing operation entry. This English guide records the governance boundary:
 
-### Step 4: Page Content — `content/pages/**`
+- Do not create a second replacement order here.
+- Do not translate the full Chinese checklist into another maintained list.
+- Use this file to point technical reviewers at the current source-of-truth docs.
 
-All page narrative, FAQ Q&A, hero copy, legal text. One MDX file per page per locale.
+## Current replacement surfaces
 
-### Step 5: Crawl Strategy — `src/config/single-site-seo.ts`
+For review purposes, the current high-level replacement surfaces are:
 
-Sitemap priorities, change frequencies, robots rules.
+- company identity and default SEO: `src/config/single-site.ts`;
+- crawl/indexing policy: `src/config/single-site-seo.ts`;
+- static public page registry: `src/config/pages.config.ts`;
+- page expression and CTA inputs: `src/config/single-site-page-expression.ts`;
+- product catalog and specs: `src/config/single-site-product-catalog.ts` and `src/constants/product-specs/**`;
+- page content and page SEO: `content/pages/{locale}/*.mdx`;
+- UI chrome: `messages/{locale}/critical.json` and `messages/{locale}/deferred.json`;
+- public assets: `public/images/**`.
 
-### Step 6: Brand Assets — `public/images/**`
+If this list conflicts with the Chinese checklist or the canonical truth
+registry, update the canonical docs first and keep this file as a pointer.
 
-OG images, certificates, product photos, hero images.
+## Minimum proof references
 
-### Step 7: Review UI Chrome — `messages/{locale}/`
-
-Usually no change needed. Adjust only for UI voice/tone.
-
-### Step 8: Run Verification Chain
+Use the exact command set from the current operation checklist. The recurring
+proof anchors are:
 
 ```bash
 pnpm brand:check
@@ -47,22 +57,18 @@ node scripts/starter-checks.js truth-docs
 node scripts/starter-checks.js translations
 ```
 
-Steps 1-6 are replacement. Step 7 is review. Step 8 is proof. Do not skip or reorder.
+For proof level meaning, use:
+
+- `docs/guides/QUALITY-PROOF-LEVELS.md`
+- `docs/guides/RELEASE-PROOF-RUNBOOK.md`
 
 ## Do not replace first
 
-- Legal/About shell runtime mechanics
-- i18n loader semantics
-- Cloudflare proof model
-- Security/abuse-protection chain
-- Shared UI components
+These are runtime or governance mechanics, not first-pass project replacement
+content:
 
-## Minimum proof after replacement
-
-- `node scripts/starter-checks.js truth-docs`
-- `node scripts/starter-checks.js translations`
-- `pnpm type-check`
-- `pnpm lint:check`
-- `pnpm exec vitest run`
-- `pnpm build`
-- `pnpm website:build:cf`
+- Legal/About shell runtime mechanics.
+- i18n loader semantics.
+- Cloudflare proof model.
+- Security and abuse-protection chain.
+- Shared UI components.
