@@ -888,9 +888,7 @@ describe("content-slug-sync core", () => {
       expect(
         fs
           .readdirSync(path.dirname(context.manifestTsOutput))
-          .some((file) =>
-            file.startsWith("content-manifest.generated.ts.tmp-"),
-          ),
+          .some((file) => file.startsWith("manifest.generated.ts.tmp-")),
       ).toBe(false);
     });
   });

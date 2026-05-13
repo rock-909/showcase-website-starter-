@@ -6,7 +6,7 @@
 
 import type { ReactNode } from "react";
 import type { ContentType, Locale } from "@/types/content.types";
-import { getMDXComponent } from "@/lib/mdx-loader";
+import { getMDXComponent } from "@/lib/content/mdx-loader";
 
 interface MDXContentProps {
   type: ContentType;

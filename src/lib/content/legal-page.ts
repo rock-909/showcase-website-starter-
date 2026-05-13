@@ -1,4 +1,4 @@
-import { getPageBySlug } from "@/lib/content-query/queries";
+import { getPageBySlug } from "@/lib/content/queries";
 import { parseHeadingId } from "@/lib/content/render-legal-content";
 import type { LegalPageMetadata, Locale } from "@/types/content.types";
 

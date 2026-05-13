@@ -216,7 +216,7 @@ describe("cache directive policy", () => {
 
     expect(routeSource).not.toContain("CONTENT_MANIFEST");
     expect(dataSource).toContain(
-      'import { CONTENT_MANIFEST } from "@/lib/content-manifest.generated"',
+      'import { CONTENT_MANIFEST } from "@/lib/content/manifest.generated"',
     );
 
     for (const source of [routeSource, dataSource]) {

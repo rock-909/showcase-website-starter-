@@ -1,7 +1,7 @@
 import { getMdxPageSlugByStaticPath } from "@/config/pages.config";
 import type { Locale } from "@/types/content.types";
 import { routing } from "@/i18n/routing";
-import { getContentEntry } from "@/lib/content-manifest";
+import { getContentEntry } from "@/lib/content/manifest";
 import { logger } from "@/lib/logger";
 
 const MDX_PAGE_SLUGS: Record<string, string> = getMdxPageSlugByStaticPath();

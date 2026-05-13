@@ -7,7 +7,7 @@ import {
   interpolateFaqAnswer,
 } from "@/lib/content/mdx-faq";
 import { getContactCopyFromMessages } from "@/lib/contact/getContactCopy";
-import { CONTENT_MANIFEST } from "@/lib/content-manifest.generated";
+import { CONTENT_MANIFEST } from "@/lib/content/manifest.generated";
 import { readRequiredMessagePath } from "@/lib/i18n/read-message-path";
 import { getStaticSplitMessages } from "@/lib/i18n/static-split-messages";
 import type { FaqItem, Locale, Page } from "@/types/content.types";

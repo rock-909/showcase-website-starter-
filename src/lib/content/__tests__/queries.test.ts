@@ -5,7 +5,7 @@ const { mockGetContentEntry } = vi.hoisted(() => ({
   mockGetContentEntry: vi.fn(),
 }));
 
-vi.mock("@/lib/content-manifest", () => ({
+vi.mock("@/lib/content/manifest", () => ({
   getContentEntry: mockGetContentEntry,
 }));
 

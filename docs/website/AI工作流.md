@@ -52,13 +52,15 @@ docs/workflows/cwf/
 
 ## Generated content artifacts
 
-AI agents must not hand-edit `src/lib/content-manifest.generated.ts` or
-`src/lib/mdx-importers.generated.ts`. Refresh them through:
+AI agents must not hand-edit `src/lib/content/manifest.generated.ts` or
+`src/lib/content/mdx-importers.generated.ts`. Refresh them through:
 
 ```bash
 node scripts/starter-checks.js content-manifest
 node scripts/starter-checks.js content-manifest --check
 ```
+
+The old top-level generated filenames are compatibility facades only.
 
 ## 不入库
 

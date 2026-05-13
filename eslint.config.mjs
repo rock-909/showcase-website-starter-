@@ -47,6 +47,7 @@ export default [
       "tests/semgrep/drafts/**",
       // Auto-generated files
       "src/lib/*.generated.ts",
+      "src/lib/**/*.generated.ts",
     ],
   },
   // Base JavaScript configuration
@@ -200,8 +201,8 @@ export default [
     name: "security-and-parser-hardened",
     files: [
       "src/lib/security/**/*.{ts,tsx}",
-      "src/lib/content-parser.ts",
-      "src/lib/content-validation.ts",
+      "src/lib/content/parser.ts",
+      "src/lib/content/validation.ts",
     ],
     plugins: {
       promise,

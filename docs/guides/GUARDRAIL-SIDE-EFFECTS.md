@@ -26,7 +26,7 @@ Each ID must be registered below. `node scripts/starter-checks.js eslint-disable
 
 | ID | File | Rule(s) | Real boundary preserved | Why exception is better than split | Verification |
 |----|------|---------|-------------------------|------------------------------------|--------------|
-| GSE-20260428-products-metadata-validation | `src/lib/content-validation.ts` | `complexity`, `max-statements` | product metadata input validation | Required-field checks stay in one validator, so errors and warnings are reviewed in the same input boundary instead of helper piles. | `src/lib/__tests__/content-validation*.test.ts` plus `node scripts/starter-checks.js eslint-disable` |
+| GSE-20260428-products-metadata-validation | `src/lib/content/validation.ts` | `complexity`, `max-statements` | product metadata input validation | Required-field checks stay in one validator, so errors and warnings are reviewed in the same input boundary instead of helper piles. | `src/lib/content/__tests__/content-validation*.test.ts` plus `node scripts/starter-checks.js eslint-disable` |
 | GSE-20260428-turnstile-security-gates | `src/app/api/verify-turnstile/route.ts` | `max-statements` | Turnstile API security gate order | Config, rate limit, parse, validate, verify, and response mapping stay in request order; splitting would hide fail-closed flow. | `src/app/api/verify-turnstile/__tests__/route*.test.ts`, `tests/integration/api/verify-turnstile.test.ts`, plus `node scripts/starter-checks.js eslint-disable` |
 
 ## Confirmed side effects

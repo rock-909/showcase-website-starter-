@@ -14,7 +14,7 @@ const { mockGetContentEntry, mockLoggerWarn } = vi.hoisted(() => ({
   mockLoggerWarn: vi.fn(),
 }));
 
-vi.mock("@/lib/content-manifest", () => ({
+vi.mock("@/lib/content/manifest", () => ({
   getContentEntry: mockGetContentEntry,
 }));
 

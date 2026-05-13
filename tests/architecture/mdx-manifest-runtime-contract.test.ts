@@ -2,10 +2,10 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 const RUNTIME_FILES = [
-  "src/lib/content-manifest.ts",
-  "src/lib/content-query/queries.ts",
+  "src/lib/content/manifest.ts",
+  "src/lib/content/queries.ts",
   "src/lib/content/page-dates.ts",
-  "src/lib/mdx-loader.ts",
+  "src/lib/content/mdx-loader.ts",
 ] as const;
 
 const FORBIDDEN_RUNTIME_IMPORTS = [
@@ -16,8 +16,8 @@ const FORBIDDEN_RUNTIME_IMPORTS = [
   "gray-matter",
   "glob",
   "fast-glob",
-  "@/lib/content-parser",
-  "@/lib/content-utils",
+  "@/lib/content/parser",
+  "@/lib/content/utils",
 ] as const;
 
 function readSource(relativePath: string): string {
@@ -40,17 +40,17 @@ describe("MDX manifest-only runtime contract", () => {
   });
 
   it("loads runtime manifest and MDX components from generated artifacts", () => {
-    expect(readSource("src/lib/content-manifest.ts")).toContain(
-      "./content-manifest.generated",
+    expect(readSource("src/lib/content/manifest.ts")).toContain(
+      "@/lib/content/manifest.generated",
     );
-    expect(readSource("src/lib/content-query/queries.ts")).toContain(
-      "@/lib/content-manifest",
+    expect(readSource("src/lib/content/queries.ts")).toContain(
+      "@/lib/content/manifest",
     );
     expect(readSource("src/lib/content/page-dates.ts")).toContain(
-      "@/lib/content-manifest",
+      "@/lib/content/manifest",
     );
-    expect(readSource("src/lib/mdx-loader.ts")).toContain(
-      "@/lib/mdx-importers.generated",
+    expect(readSource("src/lib/content/mdx-loader.ts")).toContain(
+      "@/lib/content/mdx-importers.generated",
     );
   });
 });

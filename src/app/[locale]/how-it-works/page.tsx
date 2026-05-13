@@ -7,7 +7,7 @@ import {
 } from "@/app/[locale]/generate-static-params";
 import { getLocalizedPath } from "@/config/paths";
 import { renderLegalContent } from "@/lib/content/render-legal-content";
-import { getPageBySlug } from "@/lib/content-query/queries";
+import { getPageBySlug } from "@/lib/content/queries";
 import { generateMetadataForPath } from "@/lib/seo-metadata";
 import type { Locale } from "@/types/content.types";
 

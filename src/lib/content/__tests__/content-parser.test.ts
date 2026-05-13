@@ -10,7 +10,7 @@ import {
   getContentFiles,
   parseContentFile,
   parseContentFileWithDraftFilter,
-} from "@/lib/content-parser";
+} from "@/lib/content/parser";
 import { logger } from "@/lib/logger";
 import { CONTENT_LIMITS } from "@/constants/app-constants";
 
@@ -36,7 +36,7 @@ vi.mock("fs", () => {
   return { default: exports, ...exports };
 });
 vi.mock("@/lib/logger");
-vi.mock("@/lib/content-utils", () => ({
+vi.mock("@/lib/content/utils", () => ({
   CONTENT_DIR: "/mock/content",
   validateFilePath: vi.fn((filePath: string, baseDir: string) => {
     if (filePath.includes("..") || filePath.includes("invalid")) {
@@ -60,7 +60,7 @@ vi.mock("@/lib/content-utils", () => ({
   })),
   shouldFilterDraft: vi.fn(() => false),
 }));
-vi.mock("@/lib/content-validation", () => ({
+vi.mock("@/lib/content/validation", () => ({
   validateContentMetadata: vi.fn(() => ({
     isValid: true,
     errors: [],
@@ -166,7 +166,7 @@ This is test content.`;
 
     it("should log warnings when content validation fails", async () => {
       const { validateContentMetadata } = vi.mocked(
-        await import("@/lib/content-validation"),
+        await import("@/lib/content/validation"),
       );
       validateContentMetadata.mockReturnValue({
         isValid: false,
@@ -340,7 +340,7 @@ Draft content.`;
 
     it("should return parsed content when not a draft", async () => {
       const { shouldFilterDraft } = vi.mocked(
-        await import("@/lib/content-utils"),
+        await import("@/lib/content/utils"),
       );
       shouldFilterDraft.mockReturnValue(false);
 
@@ -355,7 +355,7 @@ Draft content.`;
 
     it("should return null when content is filtered as draft", async () => {
       const { shouldFilterDraft } = vi.mocked(
-        await import("@/lib/content-utils"),
+        await import("@/lib/content/utils"),
       );
       shouldFilterDraft.mockReturnValue(true);
 
@@ -388,7 +388,7 @@ Content`;
 
     it("should log errors in strict mode when validation fails", async () => {
       const { validateContentMetadata } = vi.mocked(
-        await import("@/lib/content-validation"),
+        await import("@/lib/content/validation"),
       );
       validateContentMetadata.mockReturnValue({
         isValid: false,
@@ -411,7 +411,7 @@ Content`;
 
     it("should log info for warnings when validation passes", async () => {
       const { validateContentMetadata } = vi.mocked(
-        await import("@/lib/content-validation"),
+        await import("@/lib/content/validation"),
       );
       validateContentMetadata.mockReturnValue({
         isValid: true,
@@ -432,7 +432,7 @@ Content`;
 
     it("should throw ContentValidationError in strict mode", async () => {
       const { validateContentMetadata } = vi.mocked(
-        await import("@/lib/content-validation"),
+        await import("@/lib/content/validation"),
       );
       validateContentMetadata.mockReturnValue({
         isValid: false,

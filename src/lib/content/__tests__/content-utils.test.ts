@@ -17,7 +17,7 @@ import {
   shouldFilterDraft,
   validateFilePath,
   warnIfDraftsInProduction,
-} from "../content-utils";
+} from "../utils";
 
 // Mock dependencies
 vi.mock("fs", () => {

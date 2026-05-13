@@ -9,7 +9,7 @@
 
 import { describe, expect, it } from "vitest";
 import type { ContentType } from "@/types/content.types";
-import { validateContentMetadata } from "@/lib/content-validation";
+import { validateContentMetadata } from "@/lib/content/validation";
 import {
   TEST_CONTENT_LIMITS,
   TEST_COUNT_CONSTANTS,

@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 const mockGetPageBySlug = vi.hoisted(() => vi.fn());
 
-vi.mock("@/lib/content-query/queries", () => ({
+vi.mock("@/lib/content/queries", () => ({
   getPageBySlug: mockGetPageBySlug,
 }));
 

@@ -1,8 +1,8 @@
 import { screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { renderAsyncPage } from "@/test/render-async-page";
-import { getContentEntry } from "@/lib/content-manifest";
-import { getPageBySlug } from "@/lib/content-query/queries";
+import { getContentEntry } from "@/lib/content/manifest";
+import { getPageBySlug } from "@/lib/content/queries";
 import HowItWorksPage, { generateMetadata } from "../page";
 
 const { mockGenerateMetadataForPath } = vi.hoisted(() => ({

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getPageBySlug } from "@/lib/content-query/queries";
+import { getPageBySlug } from "@/lib/content/queries";
 
 describe("Contact page localized rendering content", () => {
   it("provides Chinese body sections from MDX", async () => {

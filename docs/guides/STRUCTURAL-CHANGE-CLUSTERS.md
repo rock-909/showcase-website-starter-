@@ -96,7 +96,7 @@ pnpm exec vitest run src/components/sections/__tests__/hero-section.test.tsx src
 - `src/app/[locale]/layout.tsx`
 - `src/app/global-error.tsx`
 - `src/lib/seo-metadata.ts`
-- `src/lib/content-utils.ts`
+- `src/lib/content/utils.ts`
 
 ### Review rule
 

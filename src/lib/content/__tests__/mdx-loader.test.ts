@@ -5,11 +5,11 @@ const getContentEntryMock = vi.hoisted(() => vi.fn());
 const pageImporterMock = vi.hoisted(() => vi.fn());
 const failingImporterMock = vi.hoisted(() => vi.fn());
 
-vi.mock("@/lib/content-manifest", () => ({
+vi.mock("@/lib/content/manifest", () => ({
   getContentEntry: getContentEntryMock,
 }));
 
-vi.mock("@/lib/mdx-importers.generated", () => ({
+vi.mock("@/lib/content/mdx-importers.generated", () => ({
   pageImporters: {
     en: {
       exists: pageImporterMock,
@@ -34,7 +34,7 @@ describe("mdx-loader manifest-only runtime behavior", () => {
 
   it("returns null when the manifest entry is missing", async () => {
     getContentEntryMock.mockReturnValue(undefined);
-    const { getMDXComponent } = await import("@/lib/mdx-loader");
+    const { getMDXComponent } = await import("@/lib/content/mdx-loader");
 
     await expect(getMDXComponent("pages", "en", "missing")).resolves.toBeNull();
     expect(pageImporterMock).not.toHaveBeenCalled();
@@ -51,7 +51,7 @@ describe("mdx-loader manifest-only runtime behavior", () => {
       metadata: {},
       content: "",
     });
-    const { getMDXComponent } = await import("@/lib/mdx-loader");
+    const { getMDXComponent } = await import("@/lib/content/mdx-loader");
 
     await expect(
       getMDXComponent("pages", "en", "missing-importer"),
@@ -71,7 +71,7 @@ describe("mdx-loader manifest-only runtime behavior", () => {
       content: "",
     });
     pageImporterMock.mockResolvedValue({ default: Component });
-    const { getMDXComponent } = await import("@/lib/mdx-loader");
+    const { getMDXComponent } = await import("@/lib/content/mdx-loader");
 
     await expect(getMDXComponent("pages", "en", "exists")).resolves.toBe(
       Component,
@@ -90,7 +90,7 @@ describe("mdx-loader manifest-only runtime behavior", () => {
       content: "",
     });
     failingImporterMock.mockRejectedValue(new Error("load failed"));
-    const { getMDXComponent } = await import("@/lib/mdx-loader");
+    const { getMDXComponent } = await import("@/lib/content/mdx-loader");
 
     await expect(getMDXComponent("pages", "en", "fails")).resolves.toBeNull();
   });

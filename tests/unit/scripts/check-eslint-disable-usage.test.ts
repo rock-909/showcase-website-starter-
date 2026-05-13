@@ -146,7 +146,7 @@ export default function ContactPage() {
 
   it("does not require registry entries for ordinary production disables", () => {
     const findings = analyzeSource(
-      "src/lib/content-validation.ts",
+      "src/lib/content/validation.ts",
       `
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- value is validated before this branch
 const value = parsed.data.value!;

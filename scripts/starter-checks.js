@@ -373,13 +373,15 @@ function createContentManifestContext(rootDir = ROOT) {
       rootDir,
       "src",
       "lib",
+      "content",
       "mdx-importers.generated.ts",
     ),
     manifestTsOutput: path.join(
       rootDir,
       "src",
       "lib",
-      "content-manifest.generated.ts",
+      "content",
+      "manifest.generated.ts",
     ),
   };
 }
