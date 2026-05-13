@@ -2,8 +2,7 @@
  * Airtable 相关类型定义
  */
 
-// 重新导出生产链路仍在使用的表单/Airtable类型
-export type { ContactFormData } from "@/lib/form-schema/contact-form-schema";
+// 重新导出生产链路仍在使用的 Airtable 类型
 export type { AirtableRecord } from "@/lib/airtable/record-schema";
 
 // Airtable 查询选项类型
@@ -26,7 +25,7 @@ export type LeadSource =
   | "Newsletter Subscription";
 
 // Base lead data for CRM
-export interface BaseLeadData {
+interface BaseLeadData {
   email: string;
   referenceId?: string;
 }

@@ -21,6 +21,34 @@
         "rules": ["knip/duplicates"]
       },
       {
+        "files": [
+          "src/config/single-site.ts",
+          "src/config/paths.ts",
+          "src/i18n/routing.ts",
+          "src/lib/env.ts",
+          "src/components/ui/button.tsx",
+          "src/components/ui/badge.tsx",
+          "src/lib/contact/submit-canonical-contact.ts",
+          "src/lib/structured-data.ts",
+          "src/lib/cookie-consent/index.ts"
+        ],
+        "rules": ["knip/exports"]
+      },
+      {
+        "files": [
+          "src/config/single-site.ts",
+          "src/config/paths.ts",
+          "src/config/site-types.ts",
+          "src/lib/contact/submit-canonical-contact.ts",
+          "src/lib/cookie-consent/types.ts",
+          "src/lib/cookie-consent/index.ts",
+          "src/test/test-types.ts",
+          "src/types/content.types.ts",
+          "src/types/i18n.ts"
+        ],
+        "rules": ["knip/types"]
+      },
+      {
         "files": ["src/components/layout/__tests__/mobile-navigation.test.tsx"],
         "rules": ["jsx-a11y/click-events-have-key-events"]
       },

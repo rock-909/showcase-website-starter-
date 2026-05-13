@@ -73,5 +73,3 @@ export async function getMDXComponent(
   const mdxModule = await loadMDXContent(type, locale, slug);
   return mdxModule?.default ?? null;
 }
-
-export type { MDXContentModule };

@@ -50,19 +50,19 @@ describe("generated warning baseline contract", () => {
       "docs/quality/react-doctor-exceptions.md",
     );
     expect(readRepoFile("docs/quality/react-doctor-baseline.md")).toContain(
-      "warningCount: 122",
+      "warningCount: 0",
     );
     expect(readRepoFile("docs/quality/react-doctor-baseline.md")).toContain(
-      "score: 99 / 100",
+      "score: 100 / 100",
     );
     expect(readRepoFile("docs/quality/react-doctor-policy.md")).toContain(
       "The calibrated gate target is `0 error`",
     );
     expect(readRepoFile("docs/quality/react-doctor-baseline.md")).toContain(
-      "knip/types: 98",
+      "knip/types: 0",
     );
     expect(readRepoFile("docs/quality/react-doctor-baseline.md")).toContain(
-      "knip/exports: 24",
+      "knip/exports: 0",
     );
     expect(readRepoFile("docs/quality/react-doctor-baseline.md")).toContain(
       "knip/files: 0",
@@ -78,6 +78,9 @@ describe("generated warning baseline contract", () => {
     );
     expect(readRepoFile("docs/quality/react-doctor-policy.md")).toContain(
       "scoped to Knip-backed",
+    );
+    expect(readRepoFile("docs/quality/react-doctor-policy.md")).toContain(
+      "public-surface `knip/exports` and `knip/types` overrides",
     );
     const retiredZeroWarningClaim = [
       "native scan is",
@@ -162,5 +165,45 @@ describe("generated warning baseline contract", () => {
     );
     expect(timeConstants).toContain("const SIX_HUNDRED_MS = 600");
     expect(timeConstants).not.toContain("export const SIX_HUNDRED_MS");
+  });
+
+  it("keeps public authoring surfaces out of the unused export/type queue after review", () => {
+    const config = JSON.parse(readRepoFile("react-doctor.config.json")) as {
+      ignore?: {
+        overrides?: Array<{ files?: string[]; rules?: string[] }>;
+      };
+    };
+
+    const publicExportOverride = config.ignore?.overrides?.find((override) =>
+      override.files?.includes("src/config/single-site.ts"),
+    );
+    const publicTypeOverride = config.ignore?.overrides?.find((override) =>
+      override.files?.includes("src/config/site-types.ts"),
+    );
+
+    expect(publicExportOverride?.rules).toEqual(["knip/exports"]);
+    expect(publicExportOverride?.files).toEqual([
+      "src/config/single-site.ts",
+      "src/config/paths.ts",
+      "src/i18n/routing.ts",
+      "src/lib/env.ts",
+      "src/components/ui/button.tsx",
+      "src/components/ui/badge.tsx",
+      "src/lib/contact/submit-canonical-contact.ts",
+      "src/lib/structured-data.ts",
+      "src/lib/cookie-consent/index.ts",
+    ]);
+    expect(publicTypeOverride?.rules).toEqual(["knip/types"]);
+    expect(publicTypeOverride?.files).toEqual([
+      "src/config/single-site.ts",
+      "src/config/paths.ts",
+      "src/config/site-types.ts",
+      "src/lib/contact/submit-canonical-contact.ts",
+      "src/lib/cookie-consent/types.ts",
+      "src/lib/cookie-consent/index.ts",
+      "src/test/test-types.ts",
+      "src/types/content.types.ts",
+      "src/types/i18n.ts",
+    ]);
   });
 });

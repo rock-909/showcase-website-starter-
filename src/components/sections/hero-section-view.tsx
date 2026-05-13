@@ -7,17 +7,17 @@ import { Link } from "@/i18n/routing";
 
 type HeroSectionHref = ComponentProps<typeof Link>["href"];
 
-export interface HeroSectionProofItem {
+interface HeroSectionProofItem {
   value: string;
   label?: string;
 }
 
-export interface HeroSectionCta {
+interface HeroSectionCta {
   label: string;
   href: HeroSectionHref;
 }
 
-export interface HeroSectionPreview {
+interface HeroSectionPreview {
   label: string;
   title: string;
   description: string;

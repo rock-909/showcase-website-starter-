@@ -43,7 +43,7 @@ export interface ContactFormResult {
 /**
  * 扩展的联系表单数据类型，包含Turnstile token
  */
-export interface ContactFormWithToken extends ContactFormData {
+interface ContactFormWithToken extends ContactFormData {
   /** Turnstile验证token */
   turnstileToken: string;
   /** 提交时间戳 */

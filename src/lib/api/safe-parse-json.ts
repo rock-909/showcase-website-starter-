@@ -4,8 +4,8 @@ import { API_ERROR_CODES } from "@/constants/api-error-codes";
 import { HTTP_BAD_REQUEST, HTTP_PAYLOAD_TOO_LARGE } from "@/constants";
 import { logger } from "@/lib/logger";
 
-export type SafeJsonParseSuccess<T> = { ok: true; data: T };
-export type SafeJsonParseFailure = {
+type SafeJsonParseSuccess<T> = { ok: true; data: T };
+type SafeJsonParseFailure = {
   ok: false;
   errorCode:
     | typeof API_ERROR_CODES.INVALID_JSON_BODY

@@ -11,7 +11,7 @@ export const CACHE_DOMAINS = {
   I18N: "i18n",
 } as const;
 
-export type CacheDomain = (typeof CACHE_DOMAINS)[keyof typeof CACHE_DOMAINS];
+type CacheDomain = (typeof CACHE_DOMAINS)[keyof typeof CACHE_DOMAINS];
 
 export const CACHE_ENTITIES = {
   I18N: {

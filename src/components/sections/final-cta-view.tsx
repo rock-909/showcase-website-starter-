@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { HomepageTrustStrip } from "@/components/sections/homepage-trust-strip";
 import { Link } from "@/i18n/routing";
 
-export interface FinalCtaAction {
+interface FinalCtaAction {
   label: string;
   href: LinkHref;
 }

@@ -9,10 +9,9 @@ import type { ContentType, Locale } from "@/types/content.types";
 import {
   CONTENT_MANIFEST,
   type ContentEntry,
-  type ContentManifest,
 } from "./content-manifest.generated";
 
-export type { ContentEntry, ContentManifest };
+export type { ContentEntry };
 
 function buildKey(type: ContentType, locale: Locale, slug: string): string {
   return `${type}/${locale}/${slug}`;

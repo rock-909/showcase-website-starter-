@@ -18,7 +18,7 @@ export interface FamilySpecs {
   specGroups: SpecGroup[];
 }
 
-export interface TradeInfo {
+interface TradeInfo {
   moq: string;
   leadTime: string;
   supplyCapacity: string;

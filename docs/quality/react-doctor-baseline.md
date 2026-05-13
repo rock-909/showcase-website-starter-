@@ -17,12 +17,20 @@ affectedFileCount: 60
 score: 99 / 100
 ```
 
-Current cleanup baseline after internal unused export cleanup:
+Intermediate cleanup baseline after the first internal unused export cleanup:
 
 ```text
 warningCount: 122
 affectedFileCount: 40
 score: 99 / 100
+```
+
+Current native baseline after public-surface review:
+
+```text
+warningCount: 0
+affectedFileCount: 0
+score: 100 / 100
 ```
 
 React Doctor now loads `react-doctor.config.json`, which records narrow
@@ -96,21 +104,40 @@ Latest governance notes:
 Current warning shape:
 
 ```text
-Dead Code: 122
-knip/types: 98
-knip/exports: 24
+Dead Code: 0
+knip/types: 0
+knip/exports: 0
 knip/files: 0
 knip/duplicates: 0
 ```
 
-The first unused-export cleanup waves internalized helpers and test fixtures
-that had no supported external import surface: rate-limit store parsing
-helpers, test mock-message namespace fragments, logger private sanitizers,
-i18n performance thresholds, contact-form rendering helpers, contact field
-validator internals, API error translation internals, component barrel
-re-exports, E2E helper internals, content loader/query internals, and legal
-content rendering helpers. Behavior-facing exports remain under API-surface
-review rather than being deleted for score.
+The unused-export cleanup waves internalized helpers and test fixtures that had
+no supported external import surface: rate-limit store parsing helpers, test
+mock-message namespace fragments, logger private sanitizers, i18n performance
+thresholds, contact-form rendering helpers, contact field validator internals,
+API error translation internals, component barrel re-exports, E2E helper
+internals, content loader/query internals, legal content rendering helpers,
+local section/content copy types, image barrel exports, test utility re-exports,
+and other module-local types. Behavior-facing exports were not deleted just for
+score; they now have narrow `knip/exports` or `knip/types` overrides after
+API-surface review.
+
+The current public-surface overrides cover starter authoring/configuration
+facades and framework-compatible component surfaces:
+
+- `src/config/single-site.ts`, `src/config/paths.ts`, and
+  `src/config/site-types.ts` are starter authoring contracts.
+- `src/i18n/routing.ts` and `src/lib/env.ts` are facade contracts already
+  guarded by architecture tests.
+- `src/components/ui/button.tsx` and `src/components/ui/badge.tsx` keep their
+  variant helpers available for shadcn/class-variance composition.
+- `src/lib/contact/submit-canonical-contact.ts` is the protected contact
+  validation/submission core shared by API and Server Action adapters.
+- `src/lib/structured-data.ts` keeps SEO helper compatibility exports for
+  downstream structured-data customization.
+- `src/lib/cookie-consent/**`, `src/types/content.types.ts`,
+  `src/types/i18n.ts`, and `src/test/test-types.ts` are public authoring or
+  test utility type surfaces, not runtime dead code.
 
 The previous `knip/files` signals were classified as external tool entrypoints
 or test alias assets and now have narrow `knip/files` overrides:

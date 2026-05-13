@@ -19,7 +19,7 @@ export { FOOTER_STYLE_TOKENS };
 export type FooterLinkItem = SiteFooterLinkItem;
 export type FooterColumnConfig = SiteFooterColumnConfig;
 
-export interface FooterLayoutTokens {
+interface FooterLayoutTokens {
   /** 容器最大宽度 */
   maxWidthPx: number;
   /** 左右留白：clamp(24px, 12vw, 184px) 对齐抓取数据 */
@@ -45,7 +45,7 @@ export interface FooterLayoutTokens {
   minColumnWidthPx: number;
 }
 
-export interface FooterTypographyTokens {
+interface FooterTypographyTokens {
   title: {
     fontSizePx: number;
     lineHeightPx: number;
@@ -60,7 +60,7 @@ export interface FooterTypographyTokens {
   fontFamily: string;
 }
 
-export interface FooterColorTokens {
+interface FooterColorTokens {
   light: {
     text: string;
     hoverText: string;
@@ -75,7 +75,7 @@ export interface FooterColorTokens {
   };
 }
 
-export interface FooterHoverTokens {
+interface FooterHoverTokens {
   description: string;
   transition: string;
   light: {

@@ -10,7 +10,7 @@ import {
 } from "@/components/icons/static-icons";
 import { HomepageSectionShell } from "@/components/sections/homepage-section-shell";
 
-export interface QualityCommitmentItem {
+interface QualityCommitmentItem {
   key: string;
   title: string;
   description: string;
@@ -18,7 +18,7 @@ export interface QualityCommitmentItem {
 
 export type QualityStandardStatus = "certified" | "applying" | "compliant";
 
-export interface QualityStandardItem {
+interface QualityStandardItem {
   key: string;
   label: string;
   status: QualityStandardStatus;

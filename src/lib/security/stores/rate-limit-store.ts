@@ -4,7 +4,7 @@ import { logger } from "@/lib/logger";
 /**
  * Key-value pair interface representing rate limit data
  */
-export interface RateLimitEntry {
+interface RateLimitEntry {
   count: number;
   expiresAt: number; // Unix timestamp in milliseconds
 }

@@ -38,7 +38,7 @@ export const NEUTRAL_BLUR_DATA_URL = `data:image/svg+xml;base64,${NEUTRAL_BASE64
 /**
  * Image placeholder configuration for Next.js Image component.
  */
-export interface BlurPlaceholderConfig {
+interface BlurPlaceholderConfig {
   placeholder: "blur";
   blurDataURL: string;
 }

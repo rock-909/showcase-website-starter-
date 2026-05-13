@@ -1,11 +1,11 @@
-export interface CloudflareAnalyticsConfig {
+interface CloudflareAnalyticsConfig {
   configured: true;
   zoneId: string;
   apiToken: string;
   hostname: string;
 }
 
-export interface CloudflareAnalyticsNotConfigured {
+interface CloudflareAnalyticsNotConfigured {
   configured: false;
   reason:
     | "missing-credentials"
@@ -18,7 +18,7 @@ export type CloudflareAnalyticsConfigState =
   | CloudflareAnalyticsConfig
   | CloudflareAnalyticsNotConfigured;
 
-export interface CloudflareTrafficSummary {
+interface CloudflareTrafficSummary {
   visits: number;
   requests: number;
   bandwidthBytes: number;

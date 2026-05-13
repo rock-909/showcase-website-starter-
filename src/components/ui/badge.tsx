@@ -22,7 +22,7 @@ const badgeVariants = cva(
   },
 );
 
-export interface BadgeProps
+interface BadgeProps
   extends HTMLAttributes<HTMLDivElement>, VariantProps<typeof badgeVariants> {
   // 支持额外的HTML属性，即使它们不是div的标准属性
   disabled?: boolean;

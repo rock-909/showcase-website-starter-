@@ -3,19 +3,19 @@ import { logger } from "@/lib/logger";
 import { loadCompleteMessages } from "@/lib/i18n/load-messages";
 import type { MessageRecord } from "@/lib/i18n/read-message-path";
 
-export interface ContactHeaderCopy {
+interface ContactHeaderCopy {
   title: string;
   description: string;
 }
 
-export interface ContactPanelContactCopy {
+interface ContactPanelContactCopy {
   title: string;
   emailLabel: string;
   emailUnavailable: string;
   phoneLabel: string;
 }
 
-export interface ContactPanelHoursCopy {
+interface ContactPanelHoursCopy {
   title: string;
   weekdaysLabel: string;
   saturdayLabel: string;
@@ -23,7 +23,7 @@ export interface ContactPanelHoursCopy {
   closedLabel: string;
 }
 
-export interface ContactPanelResponseCopy {
+interface ContactPanelResponseCopy {
   title: string;
   responseTimeLabel: string;
   responseTimeValue: string;

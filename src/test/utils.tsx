@@ -395,4 +395,3 @@ export { customRender as render };
 
 // 重新导出testing-library的所有工具
 export * from "@testing-library/react";
-export { vi } from "vitest";

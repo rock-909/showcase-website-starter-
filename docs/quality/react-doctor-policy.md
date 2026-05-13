@@ -66,31 +66,33 @@ owner and reason.
 The initial integrated scan had 516 warnings and 0 errors.
 
 After the production repair waves, sanitizer proof lane, config calibration,
-and governance slimming, the native gate has 0 errors. The remaining current
-warnings are React Doctor's Knip-backed Dead Code category:
+governance slimming, unused-export cleanup, and public-surface review, the
+native gate has 0 errors and no native warnings:
 
 ```text
-total warnings: 122
-affected files: 40
-score: 99 / 100
-types: 98
-exports: 24
+total warnings: 0
+affected files: 0
+score: 100 / 100
+types: 0
+exports: 0
 files: 0
 duplicates: 0
 ```
 
-These are backlog signals, not deletion instructions. File-level dead-code
-signals have been triaged into narrow `knip/files` overrides when the files are
-external tool entrypoints or test alias assets. Skill bundles under
+Dead-code findings remain deletion candidates only after proof, not automatic
+deletion instructions. File-level dead-code signals have been triaged into
+narrow `knip/files` overrides when the files are external tool entrypoints or
+test alias assets. Skill bundles under
 `.claude/skills/**` and `.codex/skills/**` are excluded from Knip-backed dead
 code diagnostics because they are agent/tool capability packs. Duplicate-export
 signals are either removed when they are only module-local implementation
 details, or narrowly exempted when they preserve separate business semantics.
-Unused exports and types require owner/API-surface review before removal.
-The current unused-export backlog has already had obvious same-file helpers and
-test fixture fragments internalized; remaining exports are treated as possible
-starter public API, framework convention, or behavior-sensitive surfaces until
-proven otherwise.
+Unused exports and types require owner/API-surface review before removal. The
+current public-surface `knip/exports` and `knip/types` overrides are limited to
+starter authoring contracts, facade contracts, component variant composition
+surfaces, protected contact/SEO compatibility APIs, cookie-consent helpers, and
+test authoring types. Do not expand these overrides without adding a concrete
+reason in this policy or the baseline notes.
 
 Most warning volume is not production behavior:
 

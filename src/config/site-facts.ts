@@ -10,14 +10,4 @@
 
 import { SINGLE_SITE_FACTS } from "@/config/single-site";
 
-export type {
-  BusinessHours,
-  BusinessStats,
-  Certification,
-  CompanyInfo,
-  ContactInfo,
-  SiteFacts,
-  SocialLinks,
-} from "@/config/single-site";
-
 export const siteFacts = SINGLE_SITE_FACTS;

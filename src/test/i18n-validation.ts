@@ -34,7 +34,7 @@ export interface TranslationValidationResult {
   inconsistentKeys: string[];
 }
 
-export interface TranslationError {
+interface TranslationError {
   type: "missing_key" | "type_mismatch" | "invalid_format" | "empty_value";
   key: string;
   locale: string;
@@ -42,7 +42,7 @@ export interface TranslationError {
   severity: "critical" | "high" | "medium" | "low";
 }
 
-export interface TranslationWarning {
+interface TranslationWarning {
   type:
     | "untranslated"
     | "length_mismatch"
