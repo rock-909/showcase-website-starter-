@@ -17,8 +17,20 @@ const EXPLICIT_BROWSER_UI_FILES = [
 ] as const;
 
 function collectFiles(directoryPath: string): string[] {
-  // eslint-disable-next-line security/detect-non-literal-fs-filename -- test-only boundary scan walks approved repo directories to catch browser UI imports
-  return readdirSync(directoryPath).flatMap((entry) => {
+  let entries: string[];
+
+  try {
+    // eslint-disable-next-line security/detect-non-literal-fs-filename -- test-only boundary scan walks approved repo directories to catch browser UI imports
+    entries = readdirSync(directoryPath);
+  } catch (error) {
+    if (error instanceof Error && "code" in error && error.code === "ENOENT") {
+      return [];
+    }
+
+    throw error;
+  }
+
+  return entries.flatMap((entry) => {
     const entryPath = join(directoryPath, entry);
 
     // eslint-disable-next-line security/detect-non-literal-fs-filename -- test-only boundary scan inspects discovered repo paths under approved directories
