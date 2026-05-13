@@ -14,6 +14,12 @@ function countHeading(content: string, pattern: RegExp): number {
     .length;
 }
 
+function extractFencedCodeBlocks(content: string): string[] {
+  return Array.from(content.matchAll(/```[\s\S]*?```/gu)).map(
+    (match) => match[0],
+  );
+}
+
 describe("documentation ownership contract", () => {
   it("keeps a docs ownership map for bilingual and technical doc boundaries", () => {
     const ownershipMap = readRepoFile("docs/guides/DOCS-OWNERSHIP-MAP.md");
@@ -45,10 +51,20 @@ describe("documentation ownership contract", () => {
     expect(englishChecklist).toContain(
       "docs/guides/CANONICAL-TRUTH-REGISTRY.md",
     );
+    expect(englishChecklist).toContain(
+      "does not own the step-by-step replacement order",
+    );
+    expect(englishChecklist).toContain(
+      "The Chinese website checklist owns the replacement sequence",
+    );
     expect(englishChecklist).toContain("ownership");
     expect(countHeading(englishChecklist, /^### Step \d+:/u)).toBe(0);
+    expect(englishChecklist).not.toMatch(/\bStep\s+1\b/u);
+    expect(englishChecklist).not.toMatch(/^#{1,6}\s+Replacement order\b/mu);
+    expect(englishChecklist).not.toMatch(/^#{1,6}\s+Replacement sequence\b/mu);
     expect(englishChecklist).not.toContain(
       "## Replacement order (do not reorder)",
     );
+    expect(extractFencedCodeBlocks(englishChecklist)).toEqual([]);
   });
 });

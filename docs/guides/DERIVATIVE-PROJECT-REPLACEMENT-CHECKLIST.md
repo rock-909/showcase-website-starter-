@@ -1,7 +1,6 @@
 # Derivative Project Replacement Checklist
 
-This file is the English governance index for derivative replacement. It does
-not own the step-by-step replacement order.
+This file is the English governance index for derivative replacement. It does not own the step-by-step replacement order; it only points technical reviewers to the current source-of-truth docs.
 
 Canonical operation checklist:
 
@@ -40,24 +39,8 @@ registry, update the canonical docs first and keep this file as a pointer.
 
 ## Minimum proof references
 
-Use the exact command set from the current operation checklist. The recurring
-proof anchors are:
-
-```bash
-pnpm brand:check
-pnpm content:check
-node scripts/starter-checks.js content-readiness
-node scripts/starter-checks.js client-boundary
-pnpm type-check
-pnpm lint:check
-pnpm test
-pnpm build
-pnpm website:build:cf
-node scripts/starter-checks.js truth-docs
-node scripts/starter-checks.js translations
-```
-
-For proof level meaning, use:
+Use the exact command set from the current operation checklist instead of
+maintaining another proof flow here. For proof level meaning, use:
 
 - `docs/guides/QUALITY-PROOF-LEVELS.md`
 - `docs/guides/RELEASE-PROOF-RUNBOOK.md`
