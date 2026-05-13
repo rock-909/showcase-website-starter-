@@ -57,6 +57,7 @@ AI agents must not hand-edit `src/lib/content-manifest.generated.ts` or
 
 ```bash
 node scripts/starter-checks.js content-manifest
+node scripts/starter-checks.js content-manifest --check
 ```
 
 ## 不入库

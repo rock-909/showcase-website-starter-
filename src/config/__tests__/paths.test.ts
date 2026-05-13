@@ -5,6 +5,7 @@ import {
   getCanonicalPath,
   getLocaleCurrency,
   getLocaleTimeZone,
+  getBlogArticlePath,
   getLocalizedPath,
   getPageTypeFromPath,
   getPathnames,
@@ -329,6 +330,12 @@ describe("paths configuration", () => {
     it("should derive product market paths from the products route", () => {
       expect(getProductMarketPath("north-america")).toBe(
         `${getCanonicalPath("products")}/north-america`,
+      );
+    });
+
+    it("should derive blog article paths from the blog route", () => {
+      expect(getBlogArticlePath("prepare-before-launch")).toBe(
+        `${getCanonicalPath("blog")}/prepare-before-launch`,
       );
     });
   });

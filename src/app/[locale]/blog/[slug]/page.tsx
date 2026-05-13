@@ -6,7 +6,11 @@ import {
   getStarterBlogArticle,
   getStarterBlogArticleSlugs,
 } from "@/lib/blog/starter-blog";
-import type { Locale } from "@/config/paths";
+import {
+  getBlogArticlePath,
+  getCanonicalPath,
+  type Locale,
+} from "@/config/paths";
 import { generateMetadataForPath } from "@/lib/seo-metadata";
 
 interface BlogArticlePageProps {
@@ -45,7 +49,7 @@ export async function generateMetadata({
   return generateMetadataForPath({
     locale,
     pageType: "blog",
-    path: `/blog/${article.slug}`,
+    path: getBlogArticlePath(article.slug),
     config: {
       title: article.title,
       description: article.description,
@@ -71,7 +75,7 @@ export default async function BlogArticlePage({
   return (
     <div className="mx-auto max-w-[840px] px-6 py-16">
       <Link
-        href="/blog"
+        href={getCanonicalPath("blog")}
         className="mb-8 inline-flex text-sm font-semibold text-primary hover:underline"
       >
         {t("article.backToBlog")}

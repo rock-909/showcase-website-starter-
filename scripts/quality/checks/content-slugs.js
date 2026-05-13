@@ -6,6 +6,7 @@ const yaml = require("js-yaml");
 
 const DEFAULT_COLLECTIONS = ["posts", "pages", "products"];
 const DEFAULT_LOCALES = ["en", "zh"];
+const DEFAULT_CONTENT_EXTENSIONS = ["md", "mdx"];
 const REPORT_DIR = "reports";
 const CONTENT_SLUG_REPORT_FILENAME = "content-slug-sync-report.json";
 const REQUIRED_FRONTMATTER_STRING_FIELDS = [
@@ -366,6 +367,7 @@ function validateContentFrontmatterContract(options) {
     rootDir,
     collections = DEFAULT_COLLECTIONS,
     locales = DEFAULT_LOCALES,
+    extensions = DEFAULT_CONTENT_EXTENSIONS,
     strictFrontmatter = false,
   } = options;
   const issues = [];
@@ -373,14 +375,13 @@ function validateContentFrontmatterContract(options) {
 
   for (const collection of collections) {
     for (const locale of locales) {
-      const pattern = path.join(
-        rootDir,
-        "content",
-        collection,
-        locale,
-        "**/*.mdx",
+      const patterns = extensions.map((extension) =>
+        path.join(rootDir, "content", collection, locale, `**/*.${extension}`),
       );
-      for (const filePath of glob.sync(pattern).sort()) {
+      const filePaths = Array.from(
+        new Set(patterns.flatMap((pattern) => glob.sync(pattern))),
+      ).sort();
+      for (const filePath of filePaths) {
         totalFiles += 1;
         issues.push(
           ...validateFrontmatterFile({

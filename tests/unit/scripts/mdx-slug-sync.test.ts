@@ -30,8 +30,12 @@ const {
   writeContentSlugJsonReport,
 } = require("../../../scripts/quality/checks/content-slugs.js");
 const starterChecksFacade = require("../../../scripts/starter-checks.js");
-const { createContentManifestContext, generateContentManifest } =
-  starterChecksFacade;
+const {
+  createContentManifestContext,
+  generateContentManifest,
+  runContentManifestGenerator,
+  writeFileAtomic,
+} = starterChecksFacade;
 
 describe("content-slug-sync legacy facade", () => {
   it("keeps starter-checks exports wired to the focused module", () => {
@@ -54,6 +58,7 @@ describe("content-slug-sync legacy facade", () => {
       "function",
     );
     expect(starterChecksFacade.generateContentManifest).toBeTypeOf("function");
+    expect(starterChecksFacade.writeFileAtomic).toBeTypeOf("function");
   });
 });
 
@@ -706,8 +711,42 @@ describe("content-slug-sync core", () => {
   });
 
   describe("content manifest generation", () => {
+    it("exposes an atomic generated-artifact writer", () => {
+      const outputPath = path.join(tmpDir, "reports", "artifact.txt");
+
+      writeFileAtomic(outputPath, "first");
+      writeFileAtomic(outputPath, "second");
+
+      expect(fs.readFileSync(outputPath, "utf8")).toBe("second");
+      expect(
+        fs
+          .readdirSync(path.dirname(outputPath))
+          .some((file) => file.startsWith("artifact.txt.tmp-")),
+      ).toBe(false);
+    });
+
     it("rejects invalid frontmatter before producing manifest entries", () => {
       createMdxFile("pages", "en", "about.mdx", {
+        locale: "en",
+        title: "About",
+        description: "About page description",
+        slug: "about",
+        publishedAt: "2026-01-01",
+        updatedAt: "2026-01-02",
+        seo: {
+          title: "About SEO",
+        },
+      });
+
+      const context = createContentManifestContext(tmpDir);
+
+      expect(() => generateContentManifest(context)).toThrow(
+        /seo\.description is required/u,
+      );
+    });
+
+    it("rejects invalid markdown frontmatter before producing manifest entries", () => {
+      createMdxFile("pages", "en", "about.md", {
         locale: "en",
         title: "About",
         description: "About page description",
@@ -759,6 +798,104 @@ describe("content-slug-sync core", () => {
 
       expect(manifest.byKey["pages/en/about"]).toBeDefined();
       expect(manifest.byKey["pages/zh/about"]).toBeDefined();
+    });
+
+    it("check mode fails when generated artifacts are stale without rewriting them", () => {
+      createMdxFile("pages", "en", "about.mdx", {
+        locale: "en",
+        title: "About",
+        description: "About page description",
+        slug: "about",
+        publishedAt: "2026-01-01",
+        updatedAt: "2026-01-02",
+        draft: false,
+        seo: {
+          title: "About SEO",
+          description: "About SEO description",
+        },
+      });
+      createMdxFile("pages", "zh", "about.mdx", {
+        locale: "zh",
+        title: "关于",
+        description: "关于页面描述",
+        slug: "about",
+        publishedAt: "2026-01-01",
+        updatedAt: "2026-01-02",
+        draft: false,
+        seo: {
+          title: "关于 SEO",
+          description: "关于 SEO 描述",
+        },
+      });
+
+      const context = createContentManifestContext(tmpDir);
+      fs.mkdirSync(path.dirname(context.reportOutput), { recursive: true });
+      fs.mkdirSync(path.dirname(context.importersOutput), { recursive: true });
+      fs.mkdirSync(path.dirname(context.manifestTsOutput), { recursive: true });
+      fs.writeFileSync(context.reportOutput, "stale report");
+      fs.writeFileSync(context.importersOutput, "stale importers");
+      fs.writeFileSync(context.manifestTsOutput, "stale manifest");
+
+      expect(runContentManifestGenerator(context, { check: true })).toBe(false);
+      expect(fs.readFileSync(context.reportOutput, "utf8")).toBe(
+        "stale report",
+      );
+      expect(fs.readFileSync(context.importersOutput, "utf8")).toBe(
+        "stale importers",
+      );
+      expect(fs.readFileSync(context.manifestTsOutput, "utf8")).toBe(
+        "stale manifest",
+      );
+    });
+
+    it("replaces generated artifacts through temporary files", () => {
+      createMdxFile("pages", "en", "about.mdx", {
+        locale: "en",
+        title: "About",
+        description: "About page description",
+        slug: "about",
+        publishedAt: "2026-01-01",
+        updatedAt: "2026-01-02",
+        draft: false,
+        seo: {
+          title: "About SEO",
+          description: "About SEO description",
+        },
+      });
+      createMdxFile("pages", "zh", "about.mdx", {
+        locale: "zh",
+        title: "关于",
+        description: "关于页面描述",
+        slug: "about",
+        publishedAt: "2026-01-01",
+        updatedAt: "2026-01-02",
+        draft: false,
+        seo: {
+          title: "关于 SEO",
+          description: "关于 SEO 描述",
+        },
+      });
+
+      const context = createContentManifestContext(tmpDir);
+
+      expect(runContentManifestGenerator(context)).toBe(true);
+      expect(
+        fs
+          .readdirSync(path.dirname(context.reportOutput))
+          .some((file) => file.startsWith("content-manifest.json.tmp-")),
+      ).toBe(false);
+      expect(
+        fs
+          .readdirSync(path.dirname(context.importersOutput))
+          .some((file) => file.startsWith("mdx-importers.generated.ts.tmp-")),
+      ).toBe(false);
+      expect(
+        fs
+          .readdirSync(path.dirname(context.manifestTsOutput))
+          .some((file) =>
+            file.startsWith("content-manifest.generated.ts.tmp-"),
+          ),
+      ).toBe(false);
     });
   });
 });

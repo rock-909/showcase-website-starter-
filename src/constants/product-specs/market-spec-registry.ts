@@ -4,6 +4,7 @@ import { MEXICO_SPECS } from "@/constants/product-specs/mexico";
 import { NORTH_AMERICA_SPECS } from "@/constants/product-specs/north-america";
 import { SPECIALTY_PRODUCT_SPECS } from "@/constants/product-specs/specialty-product-systems";
 import type { MarketSpecs } from "@/constants/product-specs/types";
+import type { ProductMarketSlug } from "@/config/single-site-product-catalog";
 
 export const MARKET_SPECS_BY_SLUG = Object.freeze({
   "north-america": NORTH_AMERICA_SPECS,
@@ -11,7 +12,7 @@ export const MARKET_SPECS_BY_SLUG = Object.freeze({
   mexico: MEXICO_SPECS,
   europe: EUROPE_SPECS,
   "specialty-product-systems": SPECIALTY_PRODUCT_SPECS,
-} as const satisfies Record<string, MarketSpecs>);
+} as const satisfies Record<ProductMarketSlug, MarketSpecs>);
 
 export type MarketSpecSlug = keyof typeof MARKET_SPECS_BY_SLUG;
 

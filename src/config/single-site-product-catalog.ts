@@ -4,7 +4,7 @@ import type {
   ProductFamilyDefinition,
 } from "@/config/site-types";
 
-const markets: readonly MarketDefinition[] = [
+const markets = [
   {
     slug: "north-america",
     label: "Primary Offer Example",
@@ -60,9 +60,9 @@ const markets: readonly MarketDefinition[] = [
     standardIds: ["specialty"],
     familySlugs: ["specialty-units", "fittings"],
   },
-] as const;
+] as const satisfies readonly MarketDefinition[];
 
-const families: readonly ProductFamilyDefinition[] = [
+const families = [
   {
     slug: "sample-product-shapes",
     label: "Sample Product Shapes",
@@ -164,9 +164,11 @@ const families: readonly ProductFamilyDefinition[] = [
       "Integration examples for product, service, or workflow systems.",
     marketSlug: "specialty-product-systems",
   },
-] as const;
+] as const satisfies readonly ProductFamilyDefinition[];
 
-export const singleSiteProductCatalog: ProductCatalog = {
+export type ProductMarketSlug = (typeof markets)[number]["slug"];
+
+export const singleSiteProductCatalog = {
   markets,
   families,
-};
+} as const satisfies ProductCatalog;
