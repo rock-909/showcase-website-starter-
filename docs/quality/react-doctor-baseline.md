@@ -12,9 +12,9 @@ Fresh calibrated baseline:
 
 ```text
 errorCount: 0
-warningCount: 189
-affectedFileCount: 67
-score: 97 / 100
+warningCount: 184
+affectedFileCount: 62
+score: 98 / 100
 ```
 
 React Doctor now loads `react-doctor.config.json`, which records narrow
@@ -88,19 +88,21 @@ Latest governance notes:
 Current warning shape:
 
 ```text
-Dead Code: 189
+Dead Code: 184
 knip/types: 102
 knip/exports: 78
-knip/files: 5
+knip/files: 0
 knip/duplicates: 4
 ```
 
-The remaining `knip/files` signals include retained support assets:
-`lighthouserc.js`, `open-next.config.ts`, `.devtools/react-grab-dev.mjs`,
-`src/test/css-stub.ts`, and `src/test/mdx-stub.ts`. Local skill bundles under
-`.claude/skills/**` and `.codex/skills/**` are intentionally outside this
-dead-code queue. Do not delete remaining file-level signals from raw dead-code
-output alone.
+The previous `knip/files` signals were classified as external tool entrypoints
+or test alias assets and now have narrow `knip/files` overrides:
+`lighthouserc.js` is invoked by `pnpm website:lighthouse`,
+`open-next.config.ts` is consumed by the OpenNext Cloudflare build path,
+`.devtools/react-grab-dev.mjs` is a retained local dev helper, and
+`src/test/css-stub.ts` / `src/test/mdx-stub.ts` are referenced by
+`vitest.config.mts` aliases. Local skill bundles under `.claude/skills/**` and
+`.codex/skills/**` are intentionally outside this dead-code queue.
 
 ## Policy files
 

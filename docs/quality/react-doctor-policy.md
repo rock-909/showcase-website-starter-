@@ -70,18 +70,18 @@ and governance slimming, the native gate has 0 errors. The remaining current
 warnings are React Doctor's Knip-backed Dead Code category:
 
 ```text
-total warnings: 189
-affected files: 67
-score: 97 / 100
+total warnings: 184
+affected files: 62
+score: 98 / 100
 types: 102
 exports: 78
-files: 5
+files: 0
 duplicates: 4
 ```
 
-These are backlog signals, not deletion instructions. Several file-level
-signals are retained project assets, such as `lighthouserc.js`,
-`open-next.config.ts`, and Vitest stub aliases. Skill bundles under
+These are backlog signals, not deletion instructions. File-level dead-code
+signals have been triaged into narrow `knip/files` overrides when the files are
+external tool entrypoints or test alias assets. Skill bundles under
 `.claude/skills/**` and `.codex/skills/**` are excluded from Knip-backed dead
 code diagnostics because they are agent/tool capability packs. Unused exports
 and types require owner/API-surface review before removal.

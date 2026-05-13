@@ -7,6 +7,16 @@
         "rules": ["knip/duplicates", "knip/exports", "knip/files", "knip/types"]
       },
       {
+        "files": [
+          "lighthouserc.js",
+          "open-next.config.ts",
+          ".devtools/react-grab-dev.mjs",
+          "src/test/css-stub.ts",
+          "src/test/mdx-stub.ts"
+        ],
+        "rules": ["knip/files"]
+      },
+      {
         "files": ["src/components/layout/__tests__/mobile-navigation.test.tsx"],
         "rules": ["jsx-a11y/click-events-have-key-events"]
       },

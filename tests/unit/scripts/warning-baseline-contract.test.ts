@@ -50,16 +50,16 @@ describe("generated warning baseline contract", () => {
       "docs/quality/react-doctor-exceptions.md",
     );
     expect(readRepoFile("docs/quality/react-doctor-baseline.md")).toContain(
-      "warningCount: 189",
+      "warningCount: 184",
     );
     expect(readRepoFile("docs/quality/react-doctor-baseline.md")).toContain(
-      "score: 97 / 100",
+      "score: 98 / 100",
     );
     expect(readRepoFile("docs/quality/react-doctor-policy.md")).toContain(
       "The calibrated gate target is `0 error`",
     );
     expect(readRepoFile("docs/quality/react-doctor-baseline.md")).toContain(
-      "knip/files: 5",
+      "knip/files: 0",
     );
     expect(readRepoFile("docs/quality/react-doctor-baseline.md")).toContain(
       ".claude/skills/**",
@@ -110,5 +110,26 @@ describe("generated warning baseline contract", () => {
       "knip/files",
       "knip/types",
     ]);
+  });
+
+  it("keeps external config and test alias files out of the file-level dead-code queue", () => {
+    const config = JSON.parse(readRepoFile("react-doctor.config.json")) as {
+      ignore?: {
+        overrides?: Array<{ files?: string[]; rules?: string[] }>;
+      };
+    };
+
+    const externalEntryOverride = config.ignore?.overrides?.find((override) =>
+      override.files?.includes("lighthouserc.js"),
+    );
+
+    expect(externalEntryOverride?.files).toEqual([
+      "lighthouserc.js",
+      "open-next.config.ts",
+      ".devtools/react-grab-dev.mjs",
+      "src/test/css-stub.ts",
+      "src/test/mdx-stub.ts",
+    ]);
+    expect(externalEntryOverride?.rules).toEqual(["knip/files"]);
   });
 });
