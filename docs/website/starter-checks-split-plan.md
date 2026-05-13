@@ -10,8 +10,6 @@ node scripts/starter-checks.js <command>
 
 后续就算内部拆成多个文件，也不能随便改命令名、参数习惯或退出码含义。派生项目、CI、文档和 owner runbook 都可能已经依赖这些命令。
 
-Phase 2 extracted commands: content-slugs, eslint-disable, client-boundary, brand. Public command compatibility remains `node scripts/starter-checks.js <command>`.
-
 ## Current command surface
 
 | 命令 | 当前职责 | 适合第一波拆分吗 |
@@ -97,6 +95,24 @@ scripts/
    - 当前没有独立 package script，所以必须直接证明 `node scripts/starter-checks.js client-boundary`。
 
 第一波不要碰 `release-verify`、Cloudflare proof、部署 smoke 或 owner launch proof 相关命令。
+
+## Phase 2 extraction status
+
+`content-slugs` is the first Phase 2 extraction target.
+
+Expected post-extraction state:
+
+- `node scripts/starter-checks.js content-slugs` remains the public command.
+- Core slug-sync logic lives in `scripts/quality/checks/content-slugs.js`.
+- `scripts/starter-checks.js` remains the compatibility router and legacy export facade.
+- `pnpm content:check` still runs `content-slugs` before `translations`.
+- `reports/content-slug-sync-report.json` remains the JSON report path for `--json`.
+
+Phase 2 remaining governance status:
+
+- `src/config/website/*` has been retired from tracked source. Runtime and adopter-facing docs should point at canonical replacement surfaces instead of mirror fields.
+- `.env.example` remains checked against `src/lib/env.ts`, and sensitive/deployment-critical env keys must be mentioned in adopter-facing docs.
+- `content-slugs` now owns an optional `--strict-frontmatter` mode for MDX frontmatter and SEO field contract checks. This mode is not the default `pnpm content:check` behavior because current starter pages may intentionally keep starter OG images until a real derived project replaces assets.
 
 ## Required compatibility proof
 

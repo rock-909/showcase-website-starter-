@@ -21,9 +21,10 @@ const { runBrandCheck } = require("./quality/checks/brand");
 const {
   buildKey,
   collectPairs,
-  parseArgs: parseContentSlugArgs,
+  parseContentSlugArgs,
   parseFrontmatter,
   runContentSlugCheck,
+  validateContentFrontmatterContract,
   validateCollectionPair,
   validateMdxSlugSync,
 } = require("./quality/checks/content-slugs");
@@ -3399,6 +3400,7 @@ module.exports = {
   runValidateProductionConfigCli,
   STRUCTURAL_GUARDRAIL_RULES,
   shouldValidateProductionRuntimeContract,
+  validateContentFrontmatterContract,
   validateCollectionPair,
   validateLocale,
   validateMdxSlugSync,

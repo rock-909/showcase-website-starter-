@@ -17,23 +17,27 @@
 | Package | Current reason | Safe next step |
 | --- | --- | --- |
 | `@types/node` | 项目 runtime 支持范围是 `>=24 <25`，Node 25 types 不匹配 | 只有当 runtime baseline 扩到 Node 25 时再升 |
-| `vite` | Vite 8 是 major，影响 Storybook/Vitest peer graph | 独立开 tooling lane，至少跑 Storybook build、Vitest、相关 preview proof |
 
-## 2026-05-08 当前版本快照
+## 2026-05-12 当前版本快照
 
 这轮全面同步后的版本边界：
 
 - Next.js / `@next/*`：16.2.6
 - React / React DOM / `react-server-dom-*`：19.2.6
 - TypeScript：6.0.3
-- Tailwind CSS / `@tailwindcss/postcss`：4.2.4
-- next-intl：4.11.0
+- Tailwind CSS / `@tailwindcss/postcss`：4.3.0
+- next-intl：4.11.2
 - ESLint：10.3.0，`eslint-plugin-react-you-might-not-need-an-effect`：0.10.1
 - React Email：6.1.1，`@react-email/render`：2.0.8
 - React Grab：0.1.33，当前入口是 `@react-grab/mcp`
-- OpenNext Cloudflare：1.19.8
+- OpenNext Cloudflare：1.19.9
 - Wrangler：4.90.0
 - workerd：1.20260507.1，由 Wrangler / Miniflare 间接带入
+- Vite：8.0.12
+- Playwright：1.60.0
+- Vitest / `@vitest/coverage-v8`：4.1.6
+- commitlint：21.0.0
+- pnpm：11.1.0
 - Node proof baseline：24.15.0，`@types/node` 保持 24.x
 
 这份快照不替代 `package.json` 和 lockfile；它只是给人工阅读时快速判断“是不是旧文档”的锚点。
@@ -94,7 +98,7 @@ ESLint 10 不能只改版本号。当前仓库采用：
 - `@eslint/js 10.0.1`
 - `eslint-plugin-security 4.0.0`
 - `eslint-plugin-react-you-might-not-need-an-effect 0.10.1`
-- `@eslint/compat 2.0.5`
+- `@eslint/compat 2.1.0`
 
 这次升级的关键点：
 
@@ -179,6 +183,22 @@ Node 24 迁移验证重点：
 4. 完整 CI 必须在 Node 24 下通过。
 5. 只有当 CI、Cloudflare 构建链和项目运行时都明确支持 Node 25 时，才考虑 `@types/node 25.x`。
 
+### pnpm 11 / CI version source
+
+当前仓库采用：
+
+- `packageManager: pnpm@11.1.0`
+- `engines.pnpm: >=11.1.0 <12`
+- `pnpm-workspace.yaml` 里的 `packageManager: pnpm@11.1.0`
+
+CI 不再在 `pnpm/action-setup@v5` 里硬编码 `version`。让 action 读取 `package.json` 的 `packageManager` 是有意的：
+
+- 避免 GitHub Actions 配置和 `package.json` 出现两个 pnpm 真相源
+- 避免 `ERR_PNPM_BAD_PM_VERSION`
+- 避免 strict package-manager 检查下 CI 安装阶段提前失败
+
+如果以后升级 pnpm，只改项目真相源和 lockfile，再跑 workflow contract test；不要只在 CI 里临时改成另一个 10.x 或 11.x。
+
 ### `critters`
 
 `critters` 已从仓库移除，不替换成 `beasties`。
@@ -209,7 +229,7 @@ Node 24 迁移验证重点：
 
 - Next.js `v16.2.5` 是安全发布，覆盖 App Router / Middleware-Proxy / Cache Components / RSC / CSP nonce / Image Optimization 等多项 advisory；当前已跟随补丁线到 `v16.2.6`。
 - React `19.2.6` 同步修复 React Server Components 相关安全警告；仓库显式依赖的 `react-server-dom-*` 必须一起对齐，不能只升 `react` / `react-dom`。
-- Cloudflare adapter `@opennextjs/cloudflare 1.19.8` peer 明确要求 `next >=15.5.16 <16 || >=16.2.5`，所以 Next 16.2.6 与 OpenNext 1.19.8 仍在同一条安全兼容线。
+- Cloudflare adapter `@opennextjs/cloudflare 1.19.9` peer 明确要求 `next >=15.5.16 <16 || >=16.2.5`，所以 Next 16.2.6 与 OpenNext 1.19.9 仍在同一条安全兼容线。
 
 验证重点：
 
@@ -219,7 +239,7 @@ Node 24 迁移验证重点：
 - `pnpm lint:check`
 - `pnpm test`
 - `pnpm build`
-- `pnpm build:cf`
+- `pnpm website:build:cf`
 
 ### transitive security overrides
 
@@ -227,12 +247,12 @@ Node 24 迁移验证重点：
 
 - `@lhci/cli 0.15.1` 仍带 `lighthouse 12.6.1`、`proxy-agent`、`express` 链路里的漏洞依赖。
 - `eslint-config-next 16.2.6` 仍通过 `eslint-plugin-import` 带入旧 `minimatch 3.1.2`。
-- `vitest 4.1.5` peer graph 会解析到 vulnerable `happy-dom 20.3.7`，虽然本仓库默认测试环境是 `jsdom`。
+- `vitest 4.1.6` peer graph 仍需要通过 override 固定 `happy-dom >=20.8.9`，虽然本仓库默认测试环境是 `jsdom`。
 - `@storybook/nextjs-vite 10.3.6` peer graph 需要 patched Vite。
 
 因此使用这些 override：
 
-- `vite@>=7.1.0 <7.3.2 -> >=7.3.2`
+- `vite@>=7.1.0 <7.3.2 -> >=7.3.2`：历史安全 override，Vite 主依赖现已升级到 8.0.12；保留用于收敛仍声明旧 peer 范围的下游工具链。
 - `basic-ftp -> >=5.3.1`
 - `path-to-regexp@>=8.0.0 <8.4.0 -> >=8.4.0`
 - `happy-dom -> >=20.8.9`

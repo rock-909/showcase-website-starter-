@@ -1,5 +1,7 @@
 # Starter Quality Governance Verified Roadmap Implementation Plan
 
+> **Status update, 2026-05-12:** This roadmap predates the Phase 3 governance branch and is now partially superseded. In particular, Wave W3 / Task W3-1 must not be executed as written: Phase 3 intentionally keeps `src/config/website/*` as a replacement and compatibility surface, adds runtime-boundary guards, and derives only proven mirror fields. Treat W3-1 as a future breaking-design RFC that needs fresh approval, not as an approved implementation task.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Turn the verified repo-quality findings into safe, isolated repair waves that reduce governance, config, docs, and test weight without touching the stable lead/API/runtime core.
@@ -156,15 +158,6 @@ git commit -m "docs: archive root audit handoff files"
 Expected: commit contains only audit archive moves.
 
 ### Task W1-2: Slim React Doctor governance to the useful gate
-
-> **Current contract after W1-2:** React Doctor keeps only the blocking gate
-> `pnpm react:doctor` and the manual JSON report command
-> `pnpm react:doctor:report`. Any `react:doctor:classify`,
-> `react:doctor:governance`, `react:doctor:raw-governance`,
-> `react-doctor-raw-governance`, or `react-doctor-raw-baseline` text in this
-> W1-2 section is an obsolete contract that this task removes, not a command a
-> later agent should run. There is no separate governance/raw-governance CI
-> layer after W1-2; warning classification is human backlog/reference work.
 
 **Files:**
 - Modify: `package.json`
@@ -885,6 +878,8 @@ Expected: one test-helper consolidation commit.
 **Commit boundary:** one design change per commit. This wave can change starter contracts, so each task needs docs and tests.
 
 ### Task W3-1: Retire `src/config/website/*` as runtime-adjacent mirror
+
+> **Superseded by Phase 3:** Do not execute this task as written. The current approved direction is to keep `src/config/website/*` as a replacement and compatibility surface, prove runtime code does not depend on it, and derive only fields with proven drift risk. Revisit full retirement only as a separate breaking-design RFC.
 
 **Files:**
 - Modify: `docs/website/README.md`

@@ -55,6 +55,8 @@ copy those wrappers into new code.
 - Route handlers and Server Actions must validate and authorize internally.
 - Middleware/proxy filtering is optional front-line protection, not the only
   authorization layer.
+- Do not pass trusted identity, client IP, or auth decisions through middleware
+  headers for public write flows.
 
 ## Endpoint notes
 
@@ -82,6 +84,9 @@ requires route-local ordering.
   native `headers()` in `next.config.ts`.
 - Middleware owns locale redirects, locale cookies, and leaked middleware
   cookie cleanup. It does not own CSP or generic security headers.
+- Do not use `NextResponse.next({ headers })` to push broad response headers
+  from middleware/proxy. It can break framework-owned responses such as Server
+  Actions and streaming.
 - CSP is static by starter default. Do not add dynamic nonce handling unless a
   dedicated dynamic-rendering proof plan justifies the trade-off.
 - CSP reports go to `/api/csp-report`.

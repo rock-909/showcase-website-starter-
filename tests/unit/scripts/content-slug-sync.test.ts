@@ -1,56 +1,112 @@
+/* eslint-disable security/detect-non-literal-fs-filename -- test creates isolated temp fixture files and moves temp dirs to trash */
 import { spawn } from "child_process";
 import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 /**
  * Content Slug Sync CLI Integration Tests
  *
  * Tests for the CLI wrapper in scripts/starter-checks.js content-slugs
- * Focuses on CLI behavior that doesn't require content files:
+ * Focuses on CLI behavior using isolated temporary content fixtures:
  * - Help flag behavior
  * - Argument validation errors
+ * - JSON report path behavior
+ * - Strict frontmatter behavior
  *
  * Note: Exit code and content validation tests are covered by the
- * core exports in starter-checks.js. This file focuses on
- * CLI-specific behavior that can be tested without setting up content.
+ * core exports in starter-checks.js. This file keeps CLI-specific checks
+ * hermetic so they do not write to the real repo reports directory.
  */
 
 const CLI_PATH = path.resolve(__dirname, "../../../scripts/starter-checks.js");
-const REPORT_PATH = path.resolve(
-  __dirname,
-  "../../../reports/content-slug-sync-report.json",
-);
 const TEMP_TRASH_ROOT = path.join(
   os.tmpdir(),
-  "showcase-content-slug-sync-report-trash",
+  "showcase-content-slug-cli-test-trash",
 );
 
-function moveReportToTrash(): void {
-  if (!fs.existsSync(REPORT_PATH)) {
-    return;
-  }
+let tmpDir: string;
 
-  // eslint-disable-next-line security/detect-non-literal-fs-filename -- cleanup moves generated reports to a recoverable os.tmpdir trash folder
+function moveTempDirToTrash(dir: string): void {
+  if (!dir || !fs.existsSync(dir)) return;
+
   fs.mkdirSync(TEMP_TRASH_ROOT, { recursive: true });
-  const targetPath = path.join(
-    TEMP_TRASH_ROOT,
-    `content-slug-sync-report-${Date.now()}.json`,
+  fs.renameSync(
+    dir,
+    path.join(TEMP_TRASH_ROOT, `${path.basename(dir)}-${Date.now()}`),
   );
-
-  // eslint-disable-next-line security/detect-non-literal-fs-filename -- generated report cleanup uses recoverable rename instead of permanent deletion
-  fs.renameSync(REPORT_PATH, targetPath);
 }
-
-afterEach(() => {
-  moveReportToTrash();
-});
 
 interface SpawnResult {
   code: number | null;
   stdout: string;
   stderr: string;
+}
+
+function createMdxFile(
+  collection: string,
+  locale: string,
+  filename: string,
+  frontmatter: Record<string, unknown>,
+): string {
+  const dir = path.join(tmpDir, "content", collection, locale);
+  fs.mkdirSync(dir, { recursive: true });
+
+  const filePath = path.join(dir, filename);
+  const yaml = Object.entries(frontmatter)
+    .map(([key, value]) => {
+      if (value && typeof value === "object" && !Array.isArray(value)) {
+        const nested = Object.entries(value)
+          .map(
+            ([nestedKey, nestedValue]) =>
+              `  ${nestedKey}: ${JSON.stringify(nestedValue)}`,
+          )
+          .join("\n");
+        return `${key}:\n${nested}`;
+      }
+
+      return `${key}: ${JSON.stringify(value)}`;
+    })
+    .join("\n");
+
+  fs.writeFileSync(filePath, `---\n${yaml}\n---\n\nTest content`);
+  return filePath;
+}
+
+function createSlugPair(
+  collection: string,
+  filename: string,
+  slug = path.basename(filename, ".mdx"),
+): void {
+  createMdxFile(collection, "en", filename, { slug });
+  createMdxFile(collection, "zh", filename, { slug });
+}
+
+function createDefaultSlugFixtures(): void {
+  for (const collection of ["posts", "pages", "products"]) {
+    createSlugPair(collection, `${collection}-sample.mdx`);
+  }
+}
+
+function createValidPageFrontmatter(ogImage = "/images/custom-about.jpg") {
+  return {
+    locale: "en",
+    title: "About",
+    description: "About page description",
+    slug: "about",
+    publishedAt: "2026-01-01",
+    updatedAt: "2026-01-02",
+    seo: {
+      title: "About SEO",
+      description: "About SEO description",
+      ogImage,
+    },
+  };
+}
+
+function reportPath() {
+  return path.join(tmpDir, "reports", "content-slug-sync-report.json");
 }
 
 /**
@@ -59,6 +115,7 @@ interface SpawnResult {
 function runCLI(args: string[]): Promise<SpawnResult> {
   return new Promise((resolve) => {
     const proc = spawn("node", [CLI_PATH, "content-slugs", ...args], {
+      cwd: tmpDir,
       env: { ...process.env },
     });
 
@@ -80,6 +137,16 @@ function runCLI(args: string[]): Promise<SpawnResult> {
 }
 
 describe("content-slug-sync CLI", () => {
+  beforeEach(() => {
+    tmpDir = fs.mkdtempSync(
+      path.join(os.tmpdir(), "showcase-content-slug-cli-"),
+    );
+  });
+
+  afterEach(() => {
+    moveTempDirToTrash(tmpDir);
+  });
+
   describe("help flag", () => {
     it("should display help with --help", async () => {
       const result = await runCLI(["--help"]);
@@ -89,6 +156,7 @@ describe("content-slug-sync CLI", () => {
       expect(result.stdout).toContain("--json");
       expect(result.stdout).toContain("--collections");
       expect(result.stdout).toContain("--locales");
+      expect(result.stdout).toContain("--strict-frontmatter");
     });
 
     it("should display help with -h", async () => {
@@ -140,40 +208,142 @@ describe("content-slug-sync CLI", () => {
     });
   });
 
-  describe("runs against real content", () => {
-    it("should run validation on project content", async () => {
-      // This test runs against the actual project content
-      // It's an integration test that verifies the full pipeline works
+  describe("runs against fixture content", () => {
+    it("should run validation on fixture content", async () => {
+      createDefaultSlugFixtures();
+
       const result = await runCLI([]);
 
-      // The CLI should complete (either pass or fail based on content state)
-      expect(result.code).toBeDefined();
-      // Should produce MDX Slug Sync output header
+      expect(result.code).toBe(0);
       expect(result.stdout).toContain("MDX Slug Sync Validation");
     });
 
-    it("should preserve --json report output path and payload", async () => {
-      const result = await runCLI(["--json"]);
+    it("should keep default validation independent from strict frontmatter failures", async () => {
+      createMdxFile(
+        "pages",
+        "en",
+        "about.mdx",
+        createValidPageFrontmatter("/images/about-og.jpg"),
+      );
+      createMdxFile("pages", "zh", "about.mdx", {
+        ...createValidPageFrontmatter("/images/about-og.jpg"),
+        locale: "zh",
+      });
+
+      const result = await runCLI([]);
 
       expect(result.code).toBe(0);
-      expect(result.stdout).toContain("JSON report saved to:");
-      expect(result.stdout).toContain("reports/content-slug-sync-report.json");
-      expect(fs.existsSync(REPORT_PATH)).toBe(true);
+      expect(result.stdout).toContain("MDX Slug Sync Validation");
+      expect(result.stdout).not.toContain("Frontmatter/SEO Contract");
+    });
 
-      const report = JSON.parse(fs.readFileSync(REPORT_PATH, "utf8")) as {
+    it("should fail strict frontmatter validation on fixture starter OG images", async () => {
+      createMdxFile(
+        "pages",
+        "en",
+        "about.mdx",
+        createValidPageFrontmatter("/images/about-og.jpg"),
+      );
+      createMdxFile("pages", "zh", "about.mdx", {
+        ...createValidPageFrontmatter("/images/about-og.jpg"),
+        locale: "zh",
+      });
+
+      const result = await runCLI(["--strict-frontmatter"]);
+
+      expect(result.code).toBe(1);
+      expect(result.stdout).toContain("Frontmatter/SEO Contract Validation");
+      expect(result.stdout).toContain("Starter OG Images");
+    });
+
+    it("should pass strict frontmatter validation on fixture project OG images", async () => {
+      createMdxFile("pages", "en", "about.mdx", createValidPageFrontmatter());
+      createMdxFile("pages", "zh", "about.mdx", {
+        ...createValidPageFrontmatter(),
+        locale: "zh",
+      });
+
+      const result = await runCLI(["--strict-frontmatter"]);
+
+      expect(result.code).toBe(0);
+      expect(result.stdout).toContain("Frontmatter/SEO Contract Validation");
+      expect(result.stdout).toContain(
+        "All frontmatter/SEO contract validations passed.",
+      );
+    });
+
+    it("should preserve --json report output path and payload", async () => {
+      createDefaultSlugFixtures();
+
+      const result = await runCLI(["--json"]);
+
+      expect(result.stdout).toContain("JSON report saved to:");
+      expect(result.stdout).toContain(
+        path.join("reports", "content-slug-sync-report.json"),
+      );
+      expect(fs.existsSync(reportPath())).toBe(true);
+
+      const report = JSON.parse(fs.readFileSync(reportPath(), "utf8")) as {
         ok: boolean;
+        timestamp: string;
         tool: string;
+        version: string;
         checkedCollections: string[];
         checkedLocales: string[];
+        issues: unknown[];
       };
 
-      expect(report.ok).toBe(true);
       expect(report.tool).toBe("content-slug-sync");
+      expect(report.version).toBe("1.0.0");
+      expect(Number.isNaN(Date.parse(report.timestamp))).toBe(false);
       expect(report.checkedCollections).toEqual(["posts", "pages", "products"]);
       expect(report.checkedLocales).toEqual(["en", "zh"]);
+      expect(typeof report.ok).toBe("boolean");
+      expect(Array.isArray(report.issues)).toBe(true);
+      expect(result.code).toBe(report.ok ? 0 : 1);
+    });
+
+    it("should preserve legacy report fields when strict frontmatter writes json", async () => {
+      createMdxFile(
+        "pages",
+        "en",
+        "about.mdx",
+        createValidPageFrontmatter("/images/about-og.jpg"),
+      );
+      createMdxFile("pages", "zh", "about.mdx", {
+        ...createValidPageFrontmatter("/images/about-og.jpg"),
+        locale: "zh",
+      });
+
+      const result = await runCLI(["--json", "--strict-frontmatter"]);
+
+      expect(result.code).toBe(1);
+      expect(result.stdout).toContain("JSON report saved to:");
+      expect(fs.existsSync(reportPath())).toBe(true);
+
+      const report = JSON.parse(fs.readFileSync(reportPath(), "utf8")) as {
+        issues: unknown[];
+        stats?: Record<string, unknown>;
+        slugSync?: unknown;
+        frontmatterContract?: {
+          stats?: {
+            starterOgImages?: number;
+          };
+        };
+      };
+
+      expect(Array.isArray(report.issues)).toBe(true);
+      expect(report.stats).toBeDefined();
+      expect(report.slugSync).toBeDefined();
+      expect(report.frontmatterContract).toBeDefined();
+      expect(
+        report.frontmatterContract?.stats?.starterOgImages,
+      ).toBeGreaterThan(0);
     });
 
     it("should support quiet mode", async () => {
+      createDefaultSlugFixtures();
+
       const normalResult = await runCLI([]);
       const quietResult = await runCLI(["--quiet"]);
 

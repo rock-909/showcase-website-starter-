@@ -72,3 +72,13 @@ domain meaning.
 
 Production code must not import `src/test/**`, `src/testing/**`, or
 `src/constants/test-*`.
+
+## Upgrade drift
+
+- Do not copy old framework examples without checking the installed docs.
+- When a package upgrade changes the public API shape, update the rule or proof
+  doc that controls future use of that API in the same branch.
+- Prefer deleting stale compatibility comments over adding new wrappers around
+  obsolete behavior.
+- If a warning is intentionally accepted, record the owner and proof boundary;
+  do not let it become anonymous build noise.

@@ -220,9 +220,4 @@ export default defineConfig({
     // 确保 React DOM 能够正确初始化
     "globalThis.window": "globalThis",
   },
-
-  // JSX配置
-  esbuild: {
-    jsxInject: `import React from 'react'`,
-  },
 });

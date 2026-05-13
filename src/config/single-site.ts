@@ -1,11 +1,11 @@
 import { env } from "@/lib/env";
+import { defineSiteDefinition } from "@/config/site-definition-builder";
 import { SINGLE_SITE_ROUTE_HREFS } from "@/config/single-site-links";
 import { SINGLE_SITE_NAVIGATION } from "@/config/single-site-navigation";
 import { singleSiteProductCatalog } from "@/config/single-site-product-catalog";
 import type {
   ProductCatalog,
   SiteConfig,
-  SiteDefinition,
   SiteFacts,
   SiteFooterColumnConfig,
 } from "@/config/site-types";
@@ -58,9 +58,9 @@ const siteFactSnapshotYear = 2026;
 /**
  * Single-site canonical source for the current cutover phase.
  */
-const singleSiteKey = "showcase" as const;
-export const SINGLE_SITE_DEFINITION: SiteDefinition = {
-  key: singleSiteKey,
+export const SINGLE_SITE_KEY = "showcase" as const;
+export const SINGLE_SITE_DEFINITION = defineSiteDefinition({
+  key: SINGLE_SITE_KEY,
   config: {
     baseUrl,
     name: "Showcase Website Starter",
@@ -235,7 +235,7 @@ export const SINGLE_SITE_DEFINITION: SiteDefinition = {
       ],
     },
   ],
-};
+});
 
 export const SINGLE_SITE_CONFIG: SiteConfig = SINGLE_SITE_DEFINITION.config;
 export const SINGLE_SITE_FACTS: SiteFacts = SINGLE_SITE_DEFINITION.facts;

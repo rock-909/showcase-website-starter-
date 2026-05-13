@@ -4,12 +4,25 @@ const matter = require("gray-matter");
 const { glob } = require("glob");
 const yaml = require("js-yaml");
 
-const ROOT = process.cwd();
-
 const DEFAULT_COLLECTIONS = ["posts", "pages", "products"];
 const DEFAULT_LOCALES = ["en", "zh"];
 const REPORT_DIR = "reports";
 const CONTENT_SLUG_REPORT_FILENAME = "content-slug-sync-report.json";
+const REQUIRED_FRONTMATTER_STRING_FIELDS = [
+  "locale",
+  "title",
+  "description",
+  "slug",
+  "publishedAt",
+  "updatedAt",
+];
+const REQUIRED_SEO_STRING_FIELDS = ["title", "description"];
+const OPTIONAL_DATE_FIELDS = ["lastReviewed"];
+const STRICT_STARTER_OG_IMAGES = new Set([
+  "/images/og-image.jpg",
+  "/images/about-og.jpg",
+]);
+const DATE_FIELD_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const matterOptions = {
   engines: {
     yaml: {
@@ -60,14 +73,14 @@ function collectPairs(rootDir, collection, baseLocale, targetLocale) {
   );
   const pairMap = new Map();
 
-  for (const filePath of glob.sync(basePattern)) {
+  for (const filePath of glob.sync(basePattern).sort()) {
     const key = buildKey(rootDir, filePath, collection, baseLocale);
     const entry = pairMap.get(key) || {};
     entry.basePath = filePath;
     pairMap.set(key, entry);
   }
 
-  for (const filePath of glob.sync(targetPattern)) {
+  for (const filePath of glob.sync(targetPattern).sort()) {
     const key = buildKey(rootDir, filePath, collection, targetLocale);
     const entry = pairMap.get(key) || {};
     entry.targetPath = filePath;
@@ -82,7 +95,11 @@ function validateCollectionPair(rootDir, collection, baseLocale, targetLocale) {
   const pairMap = collectPairs(rootDir, collection, baseLocale, targetLocale);
   let fileCount = 0;
 
-  for (const [, { basePath, targetPath }] of pairMap) {
+  const orderedPairs = Array.from(pairMap.entries()).sort(([keyA], [keyB]) =>
+    keyA.localeCompare(keyB),
+  );
+
+  for (const [, { basePath, targetPath }] of orderedPairs) {
     fileCount += (basePath ? 1 : 0) + (targetPath ? 1 : 0);
 
     if (!basePath || !targetPath) {
@@ -183,11 +200,227 @@ function validateMdxSlugSync(options) {
   };
 }
 
+function parseFrontmatterData(filePath) {
+  try {
+    const content = fs.readFileSync(filePath, "utf-8");
+    const { data } = matter(content, matterOptions);
+
+    return { data: data || {}, error: null };
+  } catch (err) {
+    return { data: {}, error: `Failed to parse: ${err.message}` };
+  }
+}
+
+function pushFrontmatterIssue(issues, issue) {
+  issues.push({
+    ...issue,
+    message: `[${issue.type}] ${issue.field}: ${issue.message}`,
+  });
+}
+
+function validateFrontmatterFile({
+  collection,
+  expectedLocale,
+  filePath,
+  strictFrontmatter,
+}) {
+  const issues = [];
+  const { data, error } = parseFrontmatterData(filePath);
+  const expectedSlug = path.basename(filePath, path.extname(filePath));
+
+  if (error) {
+    pushFrontmatterIssue(issues, {
+      type: "invalid_field",
+      collection,
+      locale: expectedLocale,
+      filePath,
+      field: "frontmatter",
+      message: error,
+    });
+    return issues;
+  }
+
+  for (const field of REQUIRED_FRONTMATTER_STRING_FIELDS) {
+    if (!(field in data)) {
+      pushFrontmatterIssue(issues, {
+        type: "missing_field",
+        collection,
+        locale: expectedLocale,
+        filePath,
+        field,
+        message: `${field} is required`,
+      });
+      continue;
+    }
+
+    if (typeof data[field] !== "string" || data[field].trim() === "") {
+      pushFrontmatterIssue(issues, {
+        type: "invalid_field",
+        collection,
+        locale: expectedLocale,
+        filePath,
+        field,
+        message: `${field} must be a non-empty string`,
+      });
+    }
+  }
+
+  if (typeof data.locale === "string" && data.locale !== expectedLocale) {
+    pushFrontmatterIssue(issues, {
+      type: "invalid_field",
+      collection,
+      locale: expectedLocale,
+      filePath,
+      field: "locale",
+      message: `locale must match directory locale "${expectedLocale}"`,
+    });
+  }
+
+  if (typeof data.slug === "string" && data.slug !== expectedSlug) {
+    pushFrontmatterIssue(issues, {
+      type: "invalid_field",
+      collection,
+      locale: expectedLocale,
+      filePath,
+      field: "slug",
+      message: `slug must match file slug "${expectedSlug}"`,
+    });
+  }
+
+  for (const field of ["publishedAt", "updatedAt", ...OPTIONAL_DATE_FIELDS]) {
+    if (
+      field in data &&
+      (typeof data[field] !== "string" || !DATE_FIELD_PATTERN.test(data[field]))
+    ) {
+      pushFrontmatterIssue(issues, {
+        type: "invalid_field",
+        collection,
+        locale: expectedLocale,
+        filePath,
+        field,
+        message: `${field} must use YYYY-MM-DD`,
+      });
+    }
+  }
+
+  if ("draft" in data && typeof data.draft !== "boolean") {
+    pushFrontmatterIssue(issues, {
+      type: "invalid_field",
+      collection,
+      locale: expectedLocale,
+      filePath,
+      field: "draft",
+      message: "draft must be boolean when present",
+    });
+  }
+
+  const seo =
+    data.seo && typeof data.seo === "object" && !Array.isArray(data.seo)
+      ? data.seo
+      : {};
+  for (const field of REQUIRED_SEO_STRING_FIELDS) {
+    if (!(field in seo)) {
+      pushFrontmatterIssue(issues, {
+        type: "missing_seo_field",
+        collection,
+        locale: expectedLocale,
+        filePath,
+        field: `seo.${field}`,
+        message: `seo.${field} is required`,
+      });
+      continue;
+    }
+
+    if (typeof seo[field] !== "string" || seo[field].trim() === "") {
+      pushFrontmatterIssue(issues, {
+        type: "invalid_field",
+        collection,
+        locale: expectedLocale,
+        filePath,
+        field: `seo.${field}`,
+        message: `seo.${field} must be a non-empty string`,
+      });
+    }
+  }
+
+  if (
+    strictFrontmatter &&
+    typeof seo.ogImage === "string" &&
+    STRICT_STARTER_OG_IMAGES.has(seo.ogImage)
+  ) {
+    pushFrontmatterIssue(issues, {
+      type: "starter_og_image",
+      collection,
+      locale: expectedLocale,
+      filePath,
+      field: "seo.ogImage",
+      message: `starter OG image must be replaced: ${seo.ogImage}`,
+    });
+  }
+
+  return issues;
+}
+
+function validateContentFrontmatterContract(options) {
+  const {
+    rootDir,
+    collections = DEFAULT_COLLECTIONS,
+    locales = DEFAULT_LOCALES,
+    strictFrontmatter = false,
+  } = options;
+  const issues = [];
+  let totalFiles = 0;
+
+  for (const collection of collections) {
+    for (const locale of locales) {
+      const pattern = path.join(
+        rootDir,
+        "content",
+        collection,
+        locale,
+        "**/*.mdx",
+      );
+      for (const filePath of glob.sync(pattern).sort()) {
+        totalFiles += 1;
+        issues.push(
+          ...validateFrontmatterFile({
+            collection,
+            expectedLocale: locale,
+            filePath,
+            strictFrontmatter,
+          }),
+        );
+      }
+    }
+  }
+
+  return {
+    ok: issues.length === 0,
+    checkedCollections: collections,
+    checkedLocales: locales,
+    issues,
+    stats: {
+      totalFiles,
+      missingFields: issues.filter((issue) => issue.type === "missing_field")
+        .length,
+      invalidFields: issues.filter((issue) => issue.type === "invalid_field")
+        .length,
+      missingSeoFields: issues.filter(
+        (issue) => issue.type === "missing_seo_field",
+      ).length,
+      starterOgImages: issues.filter(
+        (issue) => issue.type === "starter_og_image",
+      ).length,
+    },
+  };
+}
+
 function parseContentSlugArgs(args) {
   const options = {
     json: false,
     quiet: false,
     help: false,
+    strictFrontmatter: false,
     collections: DEFAULT_COLLECTIONS,
     locales: DEFAULT_LOCALES,
   };
@@ -197,6 +430,8 @@ function parseContentSlugArgs(args) {
       options.json = true;
     } else if (arg === "--quiet") {
       options.quiet = true;
+    } else if (arg === "--strict-frontmatter") {
+      options.strictFrontmatter = true;
     } else if (arg === "--help" || arg === "-h") {
       options.help = true;
     } else if (arg.startsWith("--collections=")) {
@@ -232,12 +467,14 @@ Options:
   --json              Output JSON report to reports/content-slug-sync-report.json
   --collections=x,y   Collections to check (default: posts,pages,products)
   --locales=x,y       Locales to check (default: en,zh)
+  --strict-frontmatter Run opt-in frontmatter/SEO contract checks
   --quiet             Only output errors
   --help, -h          Show this help
 
 Examples:
   node scripts/starter-checks.js content-slugs
   node scripts/starter-checks.js content-slugs --json
+  node scripts/starter-checks.js content-slugs --strict-frontmatter
   node scripts/starter-checks.js content-slugs --collections=products --locales=en,zh,ja
 `);
 }
@@ -310,6 +547,50 @@ function printContentSlugSummary(result, options) {
   console.log(`   Total issues: ${result.issues.length}\n`);
 }
 
+function printFrontmatterContractSummary(result, options) {
+  console.log("\nFrontmatter/SEO Contract Validation");
+  console.log("===================================\n");
+
+  if (!options.quiet) {
+    console.log(`Collections: ${result.checkedCollections.join(", ")}`);
+    console.log(`Locales: ${result.checkedLocales.join(", ")}`);
+    console.log(`Total files: ${result.stats.totalFiles}\n`);
+  }
+
+  if (result.ok) {
+    console.log("All frontmatter/SEO contract validations passed.\n");
+    return;
+  }
+
+  const groups = [
+    ["Missing Fields", "missing_field"],
+    ["Invalid Fields", "invalid_field"],
+    ["Missing SEO Fields", "missing_seo_field"],
+    ["Starter OG Images", "starter_og_image"],
+  ];
+
+  for (const [label, type] of groups) {
+    const groupedIssues = result.issues.filter((issue) => issue.type === type);
+    if (groupedIssues.length === 0) continue;
+
+    console.log(`${label} (${groupedIssues.length}):`);
+    for (const issue of groupedIssues) {
+      console.log(
+        `   - [${issue.collection}/${issue.locale}] ${path.basename(issue.filePath)} ${issue.field}`,
+      );
+      console.log(`     ${issue.message}`);
+    }
+    console.log("");
+  }
+
+  console.log("Frontmatter/SEO summary:");
+  console.log(`   Missing fields: ${result.stats.missingFields}`);
+  console.log(`   Invalid fields: ${result.stats.invalidFields}`);
+  console.log(`   Missing SEO fields: ${result.stats.missingSeoFields}`);
+  console.log(`   Starter OG images: ${result.stats.starterOgImages}`);
+  console.log(`   Total issues: ${result.issues.length}\n`);
+}
+
 function writeContentSlugJsonReport(result, rootDir) {
   const reportDir = path.join(rootDir, REPORT_DIR);
   const reportPath = path.join(reportDir, CONTENT_SLUG_REPORT_FILENAME);
@@ -334,7 +615,7 @@ function writeContentSlugJsonReport(result, rootDir) {
   console.log(`JSON report saved to: ${reportPath}\n`);
 }
 
-function runContentSlugCheck(args = []) {
+function runContentSlugCheck(args = [], rootDir = process.cwd()) {
   const options = parseContentSlugArgs(args);
   if (options.help) {
     printContentSlugHelp();
@@ -350,22 +631,43 @@ function runContentSlugCheck(args = []) {
   }
 
   const result = validateMdxSlugSync({
-    rootDir: ROOT,
+    rootDir,
     collections: options.collections,
     locales: options.locales,
   });
   printContentSlugSummary(result, options);
-  if (options.json) writeContentSlugJsonReport(result, ROOT);
+  let finalResult = result;
 
-  return result.ok;
+  if (options.strictFrontmatter) {
+    const frontmatterResult = validateContentFrontmatterContract({
+      rootDir,
+      collections: options.collections,
+      locales: options.locales,
+      strictFrontmatter: true,
+    });
+    printFrontmatterContractSummary(frontmatterResult, options);
+
+    finalResult = {
+      ...result,
+      ok: result.ok && frontmatterResult.ok,
+      slugSync: result,
+      frontmatterContract: frontmatterResult,
+    };
+  }
+
+  if (options.json) writeContentSlugJsonReport(finalResult, rootDir);
+
+  return finalResult.ok;
 }
 
 module.exports = {
   buildKey,
   collectPairs,
-  parseArgs: parseContentSlugArgs,
+  parseContentSlugArgs,
   parseFrontmatter,
   runContentSlugCheck,
+  validateContentFrontmatterContract,
   validateCollectionPair,
   validateMdxSlugSync,
+  writeContentSlugJsonReport,
 };
