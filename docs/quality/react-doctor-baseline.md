@@ -12,14 +12,17 @@ Fresh calibrated baseline:
 
 ```text
 errorCount: 0
-warningCount: 203
-affectedFileCount: 81
+warningCount: 189
+affectedFileCount: 67
 score: 97 / 100
 ```
 
 React Doctor now loads `react-doctor.config.json`, which records narrow
 file/rule overrides for warnings that already entered one of the accepted
-dispositions. CI only runs the error-level gate (`pnpm react:doctor`).
+dispositions. The config also excludes `.claude/skills/**` and
+`.codex/skills/**` from Knip-backed dead-code rules only, because those
+directories are tool-owned AI skill bundles rather than website runtime source.
+CI only runs the error-level gate (`pnpm react:doctor`).
 `pnpm react:doctor:report` remains available for a human JSON snapshot when
 someone wants to review warning backlog manually. Warning classification is
 human backlog/reference, not a separate CI governance layer.
@@ -85,18 +88,19 @@ Latest governance notes:
 Current warning shape:
 
 ```text
-Dead Code: 203
+Dead Code: 189
 knip/types: 102
 knip/exports: 78
-knip/files: 19
+knip/files: 5
 knip/duplicates: 4
 ```
 
 The remaining `knip/files` signals include retained support assets:
 `lighthouserc.js`, `open-next.config.ts`, `.devtools/react-grab-dev.mjs`,
-`src/test/css-stub.ts`, `src/test/mdx-stub.ts`, and local skill helper scripts
-under `.claude/skills/impeccable/scripts/`. Do not delete these from raw
-dead-code output alone.
+`src/test/css-stub.ts`, and `src/test/mdx-stub.ts`. Local skill bundles under
+`.claude/skills/**` and `.codex/skills/**` are intentionally outside this
+dead-code queue. Do not delete remaining file-level signals from raw dead-code
+output alone.
 
 ## Policy files
 

@@ -11,8 +11,13 @@ React Doctor is an error-level gate in this starter.
 - `react-doctor.config.json` may suppress only narrow file/rule combinations
   that are backed by this policy, the exception registry, or the classified
   historical warning review.
+- The only directory-level patterns in the current config are
+  `.claude/skills/**` and `.codex/skills/**`, and they are scoped to Knip-backed
+  dead-code rules through `ignore.overrides`. These are tool-owned AI skill
+  bundles, not website runtime source.
 - Do not add broad `ignore.rules` or whole-directory `ignore.files` entries for
-  convenience.
+  convenience. Do not suppress non-Knip diagnostics for skill bundles without a
+  separate tool-ownership review.
 - CI does not run a separate classified or raw governance layer. Warning
   classification is human backlog/reference work, not an extra CI gate.
 - `pnpm react:doctor:report` remains available when a human reviewer needs a
@@ -65,19 +70,21 @@ and governance slimming, the native gate has 0 errors. The remaining current
 warnings are React Doctor's Knip-backed Dead Code category:
 
 ```text
-total warnings: 203
-affected files: 81
+total warnings: 189
+affected files: 67
 score: 97 / 100
 types: 102
 exports: 78
-files: 19
+files: 5
 duplicates: 4
 ```
 
 These are backlog signals, not deletion instructions. Several file-level
 signals are retained project assets, such as `lighthouserc.js`,
-`open-next.config.ts`, Vitest stub aliases, and skill/dev helper scripts.
-Unused exports and types require owner/API-surface review before removal.
+`open-next.config.ts`, and Vitest stub aliases. Skill bundles under
+`.claude/skills/**` and `.codex/skills/**` are excluded from Knip-backed dead
+code diagnostics because they are agent/tool capability packs. Unused exports
+and types require owner/API-surface review before removal.
 
 Most warning volume is not production behavior:
 

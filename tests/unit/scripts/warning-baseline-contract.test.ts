@@ -50,13 +50,25 @@ describe("generated warning baseline contract", () => {
       "docs/quality/react-doctor-exceptions.md",
     );
     expect(readRepoFile("docs/quality/react-doctor-baseline.md")).toContain(
-      "warningCount: 203",
+      "warningCount: 189",
     );
     expect(readRepoFile("docs/quality/react-doctor-baseline.md")).toContain(
       "score: 97 / 100",
     );
     expect(readRepoFile("docs/quality/react-doctor-policy.md")).toContain(
       "The calibrated gate target is `0 error`",
+    );
+    expect(readRepoFile("docs/quality/react-doctor-baseline.md")).toContain(
+      "knip/files: 5",
+    );
+    expect(readRepoFile("docs/quality/react-doctor-baseline.md")).toContain(
+      ".claude/skills/**",
+    );
+    expect(readRepoFile("docs/quality/react-doctor-baseline.md")).toContain(
+      ".codex/skills/**",
+    );
+    expect(readRepoFile("docs/quality/react-doctor-policy.md")).toContain(
+      "scoped to Knip-backed",
     );
     const retiredZeroWarningClaim = [
       "native scan is",
@@ -72,5 +84,31 @@ describe("generated warning baseline contract", () => {
     expect(qualityProof).toContain("error blocks CI");
     expect(qualityProof).toContain("warning is backlog");
     expect(qualityProof).toContain("not a separate CI governance layer");
+  });
+
+  it("keeps AI skill bundles out of React Doctor's Knip dead-code queue only", () => {
+    const config = JSON.parse(readRepoFile("react-doctor.config.json")) as {
+      ignore?: {
+        files?: string[];
+        overrides?: Array<{ files?: string[]; rules?: string[] }>;
+      };
+    };
+
+    expect(config.ignore?.files ?? []).toEqual([]);
+
+    const skillBundleOverride = config.ignore?.overrides?.find((override) =>
+      override.files?.includes(".claude/skills/**"),
+    );
+
+    expect(skillBundleOverride?.files).toEqual([
+      ".claude/skills/**",
+      ".codex/skills/**",
+    ]);
+    expect(skillBundleOverride?.rules).toEqual([
+      "knip/duplicates",
+      "knip/exports",
+      "knip/files",
+      "knip/types",
+    ]);
   });
 });
