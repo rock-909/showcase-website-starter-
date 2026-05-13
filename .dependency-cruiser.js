@@ -184,7 +184,7 @@ module.exports = {
           "^src/lib/performance-monitoring",
           "^src/lib/theme-analytics",
           "^src/lib/content(?:-query|-)",
-          "^src/lib/resend",
+          "^src/lib/(?:email|resend)",
           "^src/lib/airtable",
         ].join("|"),
         // 豁免类型定义和常量

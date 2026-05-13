@@ -24,7 +24,7 @@ vi.mock("@/lib/airtable/instance", () => ({
   },
 }));
 
-vi.mock("@/lib/resend-instance", () => ({
+vi.mock("@/lib/email/resend-instance", () => ({
   resendService: {
     sendContactFormEmail: mockSendContactFormEmail,
     sendConfirmationEmail: mockSendConfirmationEmail,

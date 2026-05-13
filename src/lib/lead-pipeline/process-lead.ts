@@ -23,7 +23,7 @@ import {
   splitName,
 } from "@/lib/lead-pipeline/utils";
 import { logger, sanitizeEmail } from "@/lib/logger";
-import { resendService } from "@/lib/resend-instance";
+import { resendService } from "@/lib/email/resend-instance";
 
 interface ProcessLeadOptions {
   requestId?: string;

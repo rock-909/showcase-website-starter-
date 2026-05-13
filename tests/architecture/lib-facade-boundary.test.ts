@@ -139,7 +139,7 @@ describe("legacy lib facade boundaries", () => {
     }
 
     for (const specifier of [
-      "@/lib/resend-utils",
+      "@/lib/email/resend-utils",
       "@/lib/content/mdx-faq",
       "@/lib/airtable/service",
       "@/lib/api/safe-parse-json",

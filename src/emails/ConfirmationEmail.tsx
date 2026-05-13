@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
 import { Section, Text } from "react-email";
 import type { EmailTemplateData } from "@/lib/email/email-data-schema";
-import { ResendUtils } from "@/lib/resend-utils";
+import { ResendUtils } from "@/lib/email/resend-utils";
 import { EmailLayout } from "@/emails/EmailLayout";
 import { COLORS, FONT_SIZES, SPACING } from "@/emails/theme";
 import { SITE_CONFIG } from "@/config/paths/site-config";

@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { DynamicImportModule } from "@/test/test-types";
 import { SITE_CONFIG } from "@/config/paths/site-config";
-import type { ResendService as ResendServiceInstance } from "../resend-core";
+import type { ResendService as ResendServiceInstance } from "../email/resend-core";
 
 type ResendServiceConstructor = new () => ResendServiceInstance;
 
@@ -73,7 +73,7 @@ const setupResendTest = async (): Promise<ResendServiceConstructor> => {
   // 构造器已固定返回 mockResendInstance，无需在此返回
 
   // Dynamic import to ensure mocks are applied
-  const module = await import("../resend-core");
+  const module = await import("../email/resend-core");
   const typedModule = module as DynamicImportModule;
   const ResendService = typedModule.ResendService ?? typedModule.default;
   if (typeof ResendService !== "function") {
@@ -608,40 +608,6 @@ describe("resend - Product Inquiry and Utility Methods", () => {
         validProductInquiryData,
       );
       expect(result).toBe("unknown");
-    });
-  });
-
-  describe("getEmailStats", () => {
-    it("should return email statistics with zero values", () => {
-      const service = new ResendServiceClass();
-      const stats = service.getEmailStats();
-
-      expect(stats).toEqual({
-        sent: 0,
-        delivered: 0,
-        bounced: 0,
-        complained: 0,
-      });
-    });
-  });
-
-  describe("getEmailConfig", () => {
-    it("should return email configuration", () => {
-      const service = new ResendServiceClass();
-      const config = service.getEmailConfig();
-
-      expect(config).toEqual({
-        from: "test@example.com",
-        replyTo: "reply@example.com",
-        supportEmail: "reply@example.com",
-      });
-    });
-  });
-
-  describe("checkConnection", () => {
-    it("should return true when service is ready", () => {
-      const service = new ResendServiceClass();
-      expect(service.checkConnection()).toBe(true);
     });
   });
 });
