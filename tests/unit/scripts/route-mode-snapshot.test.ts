@@ -44,6 +44,7 @@ describe("route mode snapshot parser", () => {
       "scripts/quality/checks/client-boundary.js",
       "scripts/quality/checks/content-slugs.js",
       "scripts/quality/checks/eslint-disable.js",
+      "scripts/quality/retention-reports.mjs",
       "scripts/quality/route-mode-snapshot.mjs",
       "scripts/starter-checks.js",
     ]);
