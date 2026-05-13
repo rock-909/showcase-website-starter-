@@ -34,6 +34,10 @@
 - [`.dependency-cruiser.js`](../../.dependency-cruiser.js)
 - [`STRUCTURAL-CHANGE-CLUSTERS.md`](./STRUCTURAL-CHANGE-CLUSTERS.md)
 
+dependency-cruiser 是阻断型架构边界工具，不再承担 broad dead-code / orphan scan 或历史回退提醒。
+
+Semgrep ERROR 规则是 CI 阻断项。WARNING / INFO 级启发式规则只有在明确保留时才是人工 review signal，不应长期堆例外列表。
+
 ## Supplemental, Not Canonical
 
 下面这些可以参考，但不能压过上面的 canonical source：
