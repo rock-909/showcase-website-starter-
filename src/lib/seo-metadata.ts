@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
+import { getPublicStaticPageDefinition } from "@/config/pages.config";
 import { SITE_CONFIG, type Locale, type PageType } from "@/config/paths";
 import { siteFacts } from "@/config/site-facts";
 import { ONE } from "@/constants";
 import { routing } from "@/i18n/routing-config";
 import { getRuntimeEnvString } from "@/lib/env";
-import { hasOwn } from "@/lib/security/object-guards";
 import {
   generateCanonicalURL,
   generateLanguageAlternates,
@@ -124,6 +124,85 @@ function mergeSEOConfig(
   applyCustomFields(mergedConfig, customConfig);
 
   return mergedConfig;
+}
+
+function createStaticPageSeoDefaults(pageType: PageType): SEOConfig {
+  const definition =
+    getPublicStaticPageDefinition(pageType) ??
+    getPublicStaticPageDefinition("home");
+
+  if (definition === undefined) {
+    return {
+      type: "website",
+      keywords: [...SITE_CONFIG.seo.keywords, "B2B Solution"],
+      image: "/images/og-image.jpg",
+    };
+  }
+
+  switch (definition.seoKey) {
+    case "home":
+      return {
+        type: "website",
+        keywords: [...SITE_CONFIG.seo.keywords, "B2B Solution"],
+        image: "/images/og-image.jpg",
+      };
+    case "content.pages.about":
+      return {
+        type: "website",
+        keywords: ["About", "Company", "Team", "Enterprise"],
+      };
+    case "content.pages.capabilities":
+      return {
+        type: "website",
+        keywords: ["Capabilities", "Website Starter", "Lead Foundation", "B2B"],
+      };
+    case "content.pages.contact":
+      return {
+        type: "website",
+        keywords: ["Contact", "Support", "Business"],
+      };
+    case "content.pages.how-it-works":
+      return {
+        type: "website",
+        keywords: ["How It Works", "Setup", "Launch", "Website Starter"],
+      };
+    case "catalog.overview":
+      return {
+        type: "website",
+        keywords: ["Products", "Solutions", "Enterprise", "B2B"],
+      };
+    case "blog.index":
+      return {
+        type: "website",
+        keywords: ["Blog", "Launch Guide", "Website Starter", "Cloudflare"],
+      };
+    case "content.pages.privacy":
+      return {
+        type: "website",
+        keywords: ["Privacy", "Policy", "Data Protection"],
+      };
+    case "content.pages.terms":
+      return {
+        type: "website",
+        keywords: ["Terms", "Conditions", "Legal"],
+      };
+    case "content.pages.custom-project-support":
+      return {
+        type: "website",
+        keywords: [
+          "Custom Project",
+          "Website Starter",
+          "Brand Adaptation",
+          "Implementation Support",
+        ],
+      };
+    default:
+      return {
+        type: "website",
+        keywords: [...SITE_CONFIG.seo.keywords, "B2B Solution"],
+        image: "/images/og-image.jpg",
+      };
+  }
 }
 
 export function generateLocalizedMetadata(
@@ -249,58 +328,5 @@ export function createPageSEOConfig(
   pageType: PageType,
   customConfig: Partial<SEOConfig> = {},
 ): SEOConfig {
-  const baseConfigs: Record<PageType, SEOConfig> = {
-    home: {
-      type: "website" as const,
-      keywords: [...SITE_CONFIG.seo.keywords, "B2B Solution"],
-      image: "/images/og-image.jpg",
-    },
-    about: {
-      type: "website" as const,
-      keywords: ["About", "Company", "Team", "Enterprise"],
-    },
-    capabilities: {
-      type: "website" as const,
-      keywords: ["Capabilities", "Website Starter", "Lead Foundation", "B2B"],
-    },
-    contact: {
-      type: "website" as const,
-      keywords: ["Contact", "Support", "Business"],
-    },
-    howItWorks: {
-      type: "website" as const,
-      keywords: ["How It Works", "Setup", "Launch", "Website Starter"],
-    },
-    products: {
-      type: "website" as const,
-      keywords: ["Products", "Solutions", "Enterprise", "B2B"],
-    },
-    blog: {
-      type: "website" as const,
-      keywords: ["Blog", "Launch Guide", "Website Starter", "Cloudflare"],
-    },
-    privacy: {
-      type: "website" as const,
-      keywords: ["Privacy", "Policy", "Data Protection"],
-    },
-    terms: {
-      type: "website" as const,
-      keywords: ["Terms", "Conditions", "Legal"],
-    },
-    customProject: {
-      type: "website" as const,
-      keywords: [
-        "Custom Project",
-        "Website Starter",
-        "Brand Adaptation",
-        "Implementation Support",
-      ],
-    },
-  };
-
-  const baseConfig =
-    (hasOwn(baseConfigs, pageType) ? baseConfigs[pageType] : undefined) ??
-    baseConfigs.home;
-
-  return mergeSEOConfig(baseConfig, customConfig);
+  return mergeSEOConfig(createStaticPageSeoDefaults(pageType), customConfig);
 }

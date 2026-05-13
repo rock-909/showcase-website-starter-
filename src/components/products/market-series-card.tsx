@@ -29,7 +29,7 @@ export function MarketSeriesCard({
 
   return (
     <Link
-      href={{ pathname: "/products/[market]", params: { market: slug } }}
+      href={`/products/${slug}`}
       className="group block rounded-lg border border-border bg-card p-6 shadow-sm transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
       <div className="relative mb-4 aspect-[16/9] w-full overflow-hidden rounded-md bg-muted">

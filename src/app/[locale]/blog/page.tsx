@@ -60,10 +60,7 @@ export default async function BlogPage({ params }: BlogPageProps) {
         {articles.map((article) => (
           <Link
             key={article.slug}
-            href={{
-              pathname: "/blog/[slug]",
-              params: { slug: article.slug },
-            }}
+            href={`/blog/${article.slug}`}
             className="group rounded-lg border border-border bg-card p-6 shadow-sm transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <div className="mb-4 flex flex-wrap gap-2 text-xs text-muted-foreground">
