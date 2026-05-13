@@ -28,6 +28,24 @@ function createFixture(files: Record<string, string>): string {
   return rootDir;
 }
 
+function createSymlinkFixture(): { externalDir: string; rootDir: string } {
+  const rootDir = createFixture({
+    "reports/local-report-20260501.json": "old local",
+    "reports/local-report-20260502.json": "new local",
+  });
+  const externalDir = fs.mkdtempSync(
+    path.join(os.tmpdir(), "showcase-reports-retention-external-"),
+  );
+  fs.writeFileSync(path.join(externalDir, "outside-20260501.json"), "outside");
+  fs.writeFileSync(
+    path.join(externalDir, "outside-20260502.json"),
+    "outside newer",
+  );
+  fs.symlinkSync(externalDir, path.join(rootDir, "reports/external"));
+
+  return { externalDir, rootDir };
+}
+
 function moveFixtureToTrash(rootDir: string): void {
   if (!fs.existsSync(rootDir)) return;
 
@@ -145,6 +163,46 @@ describe("reports retention", () => {
     expect(exists(rootDir, "reports/semgrep-warning-20260502.json")).toBe(true);
   });
 
+  it("does not scan report directory symlinks outside the reports tree", () => {
+    const { externalDir, rootDir } = createSymlinkFixture();
+    fixtureRoots.push(rootDir, externalDir);
+
+    const result = runReportRetention({
+      rootDir,
+      keep: 1,
+      dryRun: false,
+      trashBatchName: "retention-test",
+    });
+
+    expect(result.plan.moves.map((move) => move.from)).toEqual([
+      "reports/local-report-20260501.json",
+    ]);
+    expect(exists(rootDir, "reports/local-report-20260501.json")).toBe(false);
+    expect(exists(rootDir, "reports/local-report-20260502.json")).toBe(true);
+    expect(fs.existsSync(path.join(externalDir, "outside-20260501.json"))).toBe(
+      true,
+    );
+  });
+
+  it("ignores existing reports trash batches", () => {
+    const rootDir = createFixture({
+      "reports/.trash/retention-old/reports/quality-gate-20260501.json":
+        "old trash",
+      "reports/quality-gate-20260501.json": "old",
+      "reports/quality-gate-20260502.json": "new",
+    });
+    fixtureRoots.push(rootDir);
+
+    const plan = collectReportRetentionPlan({ rootDir, keep: 1 });
+
+    expect(plan.moves.map((move) => move.from)).toEqual([
+      "reports/quality-gate-20260501.json",
+    ]);
+    expect(plan.moves.map((move) => move.from)).not.toContain(
+      "reports/.trash/retention-old/reports/quality-gate-20260501.json",
+    );
+  });
+
   it("does not touch owner-authored markdown but can prune known generated markdown families", () => {
     const rootDir = createFixture({
       "reports/owner-review-20260501.md": "human note",
@@ -185,6 +243,16 @@ describe("reports retention", () => {
     });
     expect(() => parseReportRetentionArgs(["--keep", "0"])).toThrow(
       /--keep must be a positive integer/u,
+    );
+  });
+
+  it("keeps the package retention command dry-run by default", () => {
+    const packageJson = JSON.parse(
+      fs.readFileSync(path.join(process.cwd(), "package.json"), "utf8"),
+    ) as { scripts?: Record<string, string> };
+
+    expect(packageJson.scripts?.["reports:retention"]).toBe(
+      "node scripts/quality/retention-reports.mjs --dry-run --keep 5",
     );
   });
 });

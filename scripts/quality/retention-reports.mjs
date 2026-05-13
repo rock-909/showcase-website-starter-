@@ -77,7 +77,9 @@ function collectReportFiles(rootDir) {
       return;
     }
 
-    const stats = fs.statSync(currentPath);
+    const stats = fs.lstatSync(currentPath);
+    if (stats.isSymbolicLink()) return;
+
     if (stats.isDirectory()) {
       for (const entry of fs.readdirSync(currentPath, {
         withFileTypes: true,
