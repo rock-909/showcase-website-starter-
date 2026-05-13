@@ -16,7 +16,7 @@ vi.mock("@/components/content/legal-page-shell", () => ({
   ),
 }));
 
-vi.mock("@/lib/seo-metadata", () => ({
+vi.mock("@/lib/seo/metadata", () => ({
   generateMetadataForPath: vi.fn(() => ({
     title: "Privacy Policy",
     description: "Privacy description",

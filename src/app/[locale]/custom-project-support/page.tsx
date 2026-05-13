@@ -1,7 +1,7 @@
 import { Suspense, type ComponentProps } from "react";
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { generateMetadataForPath } from "@/lib/seo-metadata";
+import { generateMetadataForPath } from "@/lib/seo/metadata";
 import { SINGLE_SITE_CUSTOM_PROJECT_PAGE_EXPRESSION } from "@/config/single-site-page-expression";
 import { JsonLdGraphScript } from "@/components/seo";
 import { FaqSection } from "@/components/sections/faq-section";
@@ -14,7 +14,7 @@ import {
   generateFaqSchemaFromItems,
   interpolateFaqAnswer,
 } from "@/lib/content/mdx-faq";
-import { buildCustomProjectPageSchema } from "@/lib/structured-data-generators";
+import { buildCustomProjectPageSchema } from "@/lib/seo/structured-data-generators";
 import { getLocalizedPath } from "@/config/paths";
 import type { FaqItem, Locale } from "@/types/content.types";
 

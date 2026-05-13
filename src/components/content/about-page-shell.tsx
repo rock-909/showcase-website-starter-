@@ -29,7 +29,7 @@ import {
   generateFaqSchemaFromItems,
   interpolateFaqAnswer,
 } from "@/lib/content/mdx-faq";
-import { buildAboutPageSchema } from "@/lib/structured-data-generators";
+import { buildAboutPageSchema } from "@/lib/seo/structured-data-generators";
 import type {
   AboutPageSections,
   FaqItem,

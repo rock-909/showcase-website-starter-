@@ -6,7 +6,7 @@ import {
 import {
   getStaticPageLastModified,
   type StaticPageLastModConfig,
-} from "@/lib/sitemap-utils";
+} from "@/lib/seo/sitemap-utils";
 import { SITE_CONFIG } from "@/config/paths";
 import { getProductMarketPath } from "@/config/paths/utils";
 import {

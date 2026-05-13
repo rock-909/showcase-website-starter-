@@ -7,7 +7,7 @@ import {
 import {
   generateMetadataForPath,
   type Locale as SeoLocale,
-} from "@/lib/seo-metadata";
+} from "@/lib/seo/metadata";
 import { getLocalizedPath } from "@/config/paths";
 import { SINGLE_SITE_ROUTE_HREFS } from "@/config/single-site-links";
 import {

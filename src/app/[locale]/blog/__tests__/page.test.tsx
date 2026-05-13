@@ -44,7 +44,7 @@ vi.mock("next-intl/server", () => ({
   setRequestLocale: vi.fn(),
 }));
 
-vi.mock("@/lib/seo-metadata", () => ({
+vi.mock("@/lib/seo/metadata", () => ({
   generateMetadataForPath: mockGenerateMetadataForPath,
 }));
 

@@ -10,7 +10,7 @@ import {
   getLocalizedPath,
   type Locale,
 } from "@/config/paths";
-import { generateMetadataForPath } from "@/lib/seo-metadata";
+import { generateMetadataForPath } from "@/lib/seo/metadata";
 import { getStarterBlogArticles } from "@/lib/blog/starter-blog";
 
 interface BlogPageProps {

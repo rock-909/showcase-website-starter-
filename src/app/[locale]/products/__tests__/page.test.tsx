@@ -93,7 +93,7 @@ vi.mock("@/config/paths", () => ({
 }));
 
 // Mock SEO metadata
-vi.mock("@/lib/seo-metadata", () => ({
+vi.mock("@/lib/seo/metadata", () => ({
   generateMetadataForPath: vi.fn(async () => ({
     title: "Products",
     description: "Products page",

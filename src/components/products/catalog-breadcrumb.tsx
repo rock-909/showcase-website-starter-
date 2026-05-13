@@ -4,7 +4,7 @@ import { JsonLdScript } from "@/components/seo";
 import { SITE_CONFIG } from "@/config/paths";
 import { getCanonicalPath, getProductMarketPath } from "@/config/paths/utils";
 import type { MarketDefinition } from "@/constants/product-catalog";
-import { buildBreadcrumbListSchema } from "@/lib/structured-data-generators";
+import { buildBreadcrumbListSchema } from "@/lib/seo/structured-data-generators";
 import { CatalogBreadcrumbView } from "@/components/products/catalog-breadcrumb-view";
 
 interface CatalogBreadcrumbProps {

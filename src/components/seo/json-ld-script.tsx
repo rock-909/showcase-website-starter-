@@ -1,6 +1,6 @@
 import "server-only";
-import { generateJSONLD } from "@/lib/structured-data";
-import { generatePageStructuredData } from "@/lib/page-structured-data";
+import { generateJSONLD } from "@/lib/seo/structured-data";
+import { generatePageStructuredData } from "@/lib/seo/page-structured-data";
 import type { Locale } from "@/types/content.types";
 
 interface JsonLdScriptProps {

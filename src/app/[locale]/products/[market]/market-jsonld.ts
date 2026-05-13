@@ -1,6 +1,6 @@
 import { buildCatalogBreadcrumbJsonLd } from "@/components/products/catalog-breadcrumb";
 import { SITE_CONFIG } from "@/config/paths";
-import { generateProductGroupData } from "@/lib/structured-data-generators";
+import { generateProductGroupData } from "@/lib/seo/structured-data-generators";
 import type { MarketPageData } from "@/app/[locale]/products/[market]/market-page-data";
 
 export interface MarketPageJsonLdLabels {

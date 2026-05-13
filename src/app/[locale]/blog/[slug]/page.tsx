@@ -11,7 +11,7 @@ import {
   getCanonicalPath,
   type Locale,
 } from "@/config/paths";
-import { generateMetadataForPath } from "@/lib/seo-metadata";
+import { generateMetadataForPath } from "@/lib/seo/metadata";
 
 interface BlogArticlePageProps {
   params: Promise<{

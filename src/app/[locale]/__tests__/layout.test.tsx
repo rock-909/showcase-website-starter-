@@ -59,7 +59,7 @@ vi.mock("@/app/[locale]/layout-metadata", () => ({
   generateLocaleMetadata: mockGenerateLocaleMetadata,
 }));
 
-vi.mock("@/lib/page-structured-data", () => ({
+vi.mock("@/lib/seo/page-structured-data", () => ({
   generatePageStructuredData: mockGeneratePageStructuredData,
 }));
 
@@ -97,7 +97,7 @@ vi.mock("@/lib/i18n/client-messages", () => ({
   loadClientMessages: vi.fn(async () => ({ navigation: { home: "Home" } })),
 }));
 
-vi.mock("@/lib/structured-data", () => ({
+vi.mock("@/lib/seo/structured-data", () => ({
   generateJSONLD: () => JSON.stringify({ ok: true }),
 }));
 

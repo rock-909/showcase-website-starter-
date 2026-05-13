@@ -13,7 +13,7 @@ import {
 } from "@/config/single-site-page-expression";
 import { SINGLE_SITE_ROUTE_HREFS } from "@/config/single-site-links";
 import { Link } from "@/i18n/routing";
-import { generateMetadataForPath, type Locale } from "@/lib/seo-metadata";
+import { generateMetadataForPath, type Locale } from "@/lib/seo/metadata";
 import { JsonLdGraphScript } from "@/components/seo";
 
 type HomeTranslator = Awaited<ReturnType<typeof getTranslations>>;

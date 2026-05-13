@@ -7,7 +7,7 @@ import {
   type LocaleParam,
 } from "@/app/[locale]/generate-static-params";
 import { getPageBySlug } from "@/lib/content-query/queries";
-import { generateMetadataForPath, type Locale } from "@/lib/seo-metadata";
+import { generateMetadataForPath, type Locale } from "@/lib/seo/metadata";
 import { getLocalizedPath } from "@/config/paths";
 
 export function generateStaticParams() {

@@ -8,7 +8,7 @@ import {
 import { getLocalizedPath } from "@/config/paths";
 import { renderLegalContent } from "@/lib/content/render-legal-content";
 import { getPageBySlug } from "@/lib/content-query/queries";
-import { generateMetadataForPath } from "@/lib/seo-metadata";
+import { generateMetadataForPath } from "@/lib/seo/metadata";
 import type { Locale } from "@/types/content.types";
 
 interface CapabilitiesPageProps {

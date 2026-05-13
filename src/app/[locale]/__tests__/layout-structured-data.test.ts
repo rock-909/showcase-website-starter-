@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { generatePageStructuredData } from "@/lib/page-structured-data";
+import { generatePageStructuredData } from "@/lib/seo/page-structured-data";
 
 const {
   mockGetTranslations,
@@ -15,7 +15,7 @@ vi.mock("next-intl/server", () => ({
   getTranslations: mockGetTranslations,
 }));
 
-vi.mock("@/lib/structured-data-generators", () => ({
+vi.mock("@/lib/seo/structured-data-generators", () => ({
   generateOrganizationData: mockGenerateOrganizationData,
   generateWebSiteData: mockGenerateWebSiteData,
 }));

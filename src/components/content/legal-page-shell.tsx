@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { JsonLdGraphScript } from "@/components/seo";
 import type { HeadingItem } from "@/lib/content/legal-page";
 import { renderLegalContent } from "@/lib/content/render-legal-content";
-import { buildLegalPageSchema } from "@/lib/structured-data-generators";
+import { buildLegalPageSchema } from "@/lib/seo/structured-data-generators";
 import type { LegalPageMetadata, Locale } from "@/types/content.types";
 
 interface LegalPageShellProps {

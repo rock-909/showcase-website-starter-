@@ -40,7 +40,7 @@ vi.mock("@/lib/content-query/queries", () => ({
   getPageBySlug: mockGetPageBySlug,
 }));
 
-vi.mock("@/lib/seo-metadata", () => ({
+vi.mock("@/lib/seo/metadata", () => ({
   generateMetadataForPath: mockGenerateMetadataForPath,
 }));
 

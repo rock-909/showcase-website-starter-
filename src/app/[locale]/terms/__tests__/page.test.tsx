@@ -12,7 +12,7 @@ vi.mock("@/lib/content/legal-page", () => ({
   loadLegalPage: mockLoadLegalPage,
 }));
 
-vi.mock("@/lib/seo-metadata", () => ({
+vi.mock("@/lib/seo/metadata", () => ({
   generateMetadataForPath: mockGenerateMetadataForPath,
 }));
 

@@ -9,7 +9,7 @@ import {
   SINGLE_SITE_PUBLIC_STATIC_PAGES,
 } from "@/config/single-site-seo";
 import { getMdxPageLastModified } from "@/lib/content/page-dates";
-import { getStaticPageLastModified } from "@/lib/sitemap-utils";
+import { getStaticPageLastModified } from "@/lib/seo/sitemap-utils";
 import sitemap from "../sitemap";
 
 // Mock dependencies before imports
@@ -32,7 +32,7 @@ vi.mock("@/i18n/routing", () => ({
   },
 }));
 
-vi.mock("@/lib/sitemap-utils", async () => {
+vi.mock("@/lib/seo/sitemap-utils", async () => {
   const { getCanonicalPath } = await import("@/config/paths/utils");
   const productsPath = getCanonicalPath("products");
 

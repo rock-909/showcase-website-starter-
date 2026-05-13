@@ -5,7 +5,7 @@ import {
   createPageSEOConfig,
   generateLocalizedMetadata,
   generateMetadataForPath,
-} from "../seo-metadata";
+} from "../metadata";
 
 // Use vi.hoisted to ensure proper mock setup
 const { mockGenerateCanonicalURL, mockGenerateLanguageAlternates } = vi.hoisted(

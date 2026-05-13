@@ -7,7 +7,7 @@ import {
 } from "@/app/[locale]/generate-static-params";
 import { LegalPageShell } from "@/components/content/legal-page-shell";
 import { loadLegalPage } from "@/lib/content/legal-page";
-import { generateMetadataForPath, type Locale } from "@/lib/seo-metadata";
+import { generateMetadataForPath, type Locale } from "@/lib/seo/metadata";
 import { getLocalizedPath } from "@/config/paths";
 
 export function generateStaticParams() {

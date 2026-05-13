@@ -107,7 +107,7 @@ SEO 最终输出不是只由 MDX 决定。当前职责分工如下：
 | Base metadata title / description | `src/app/[locale]/layout-metadata.ts` 和 `src/config/single-site.ts` 里的 site config。 |
 | Sitemap entries / alternates | `src/app/sitemap.ts`、`src/config/single-site-seo.ts`、`src/i18n/routing.ts`。 |
 | Robots policy | `src/app/robots.ts`、`src/config/single-site-seo.ts`。 |
-| Page JSON-LD | 页面级 SEO component 和 structured-data helper，例如 `src/components/seo/**`、`src/lib/page-structured-data.ts`、`src/lib/structured-data-generators.ts`。 |
+| Page JSON-LD | 页面级 SEO component 和 structured-data helper，例如 `src/components/seo/**`、`src/lib/seo/page-structured-data.ts`、`src/lib/seo/structured-data-generators.ts`。 |
 | Canonical / hreflang key-route validation | `tests/e2e/seo-validation.spec.ts` 覆盖关键页面的 SEO 合同；它不是自动覆盖全站每个页面和路径的完整 SEO 证明，除非继续扩大测试覆盖。 |
 
 换句话说：

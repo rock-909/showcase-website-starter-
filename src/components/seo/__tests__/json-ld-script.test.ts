@@ -3,13 +3,13 @@ import {
   createJsonLdGraphData,
   JsonLdGraphScript,
 } from "@/components/seo/json-ld-script";
-import { generateJSONLD } from "@/lib/structured-data";
+import { generateJSONLD } from "@/lib/seo/structured-data";
 
 const { mockGeneratePageStructuredData } = vi.hoisted(() => ({
   mockGeneratePageStructuredData: vi.fn(),
 }));
 
-vi.mock("@/lib/page-structured-data", () => ({
+vi.mock("@/lib/seo/page-structured-data", () => ({
   generatePageStructuredData: mockGeneratePageStructuredData,
 }));
 
