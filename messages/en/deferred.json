@@ -257,7 +257,7 @@
   "emailPlaceholder": "your@email.com",
   "phone": "Phone Number",
   "organization": {
-    "name": "Showcase Website Starter",
+    "name": "{companyName}",
     "description": "Reusable showcase website starter for products, services, proof, and inquiry paths",
     "phone": "Contact sales by email",
     "social": {
@@ -266,11 +266,11 @@
     }
   },
   "website": {
-    "name": "Showcase Website Starter",
+    "name": "{siteName}",
     "description": "Reusable showcase website starter for products, services, proof, and inquiry paths"
   },
   "article": {
-    "defaultAuthor": "Showcase Website Starter"
+    "defaultAuthor": "{companyName}"
   },
   "products": {
     "pageTitle": "Products",

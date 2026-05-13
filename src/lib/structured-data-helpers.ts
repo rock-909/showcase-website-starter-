@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { I18nPerformanceMonitor } from "@/lib/i18n-performance";
+import { I18nPerformanceMonitor } from "@/lib/i18n/performance";
 import {
   buildLocalBusinessSchema,
   buildSchemaFallback,

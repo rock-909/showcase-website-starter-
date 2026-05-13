@@ -10,7 +10,7 @@
 - locale redirect / locale cookie / security headers
 - Cloudflare / OpenNext build chain
 - Tier A 翻译关键路径
-- `src/config/single-site*.ts` 及其兼容包装层
+- `src/config/single-site*.ts` 和 `src/constants/product-specs/**`
 - contact / inquiry / abuse-protection 的运行时行为
 
 当前单站 authoring split 要始终记住：

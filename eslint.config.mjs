@@ -684,25 +684,16 @@ export default [
     files: [
       // 构建脚本和配置文件（完全豁免魔法数字）
       "scripts/**/*.{js,ts}",
-      "src/scripts/**/*.{js,ts}",
       "config/**/*.{js,ts}",
       ".size-limit.js",
       "next.config.ts",
-      "tailwind.config.ts",
       "vitest.config.mts",
       "playwright.config.ts",
       "*.config.{js,ts,mjs}",
 
       // 开发者工具（应用渐进式标准）
-      "src/components/dev-tools/**/*.{ts,tsx}",
-      "src/app/**/dev-tools/**/*.{ts,tsx}",
       "src/app/**/diagnostics/**/*.{ts,tsx}",
       "src/components/examples/ui-showcase/**/*.{ts,tsx}",
-      "src/lib/dev-tools-positioning.ts",
-      "src/lib/performance-monitoring-coordinator.ts",
-      "src/constants/dev-tools.ts",
-      "src/constants/test-*.ts",
-      "continue-eslint-fixes.ts",
     ],
     plugins: {
       security,

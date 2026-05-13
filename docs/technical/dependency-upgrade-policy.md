@@ -130,10 +130,16 @@ ESLint 10 不能只改版本号。当前仓库采用：
 - `@/*`、`@messages/*`、`@content/*` 继续通过 `paths` 工作。
 - 新版 DOM 类型要求 `IntersectionObserver.scrollMargin`，测试 mock 需要补齐这个只读字段。
 
+保留的 secondary tsconfig：
+
+- `tsconfig.test.json` 保留给测试专用类型证明。它覆盖 Vitest、Testing Library、Playwright 配置、mock、测试工具和测试内容导入，避免测试环境类型问题被主 `tsconfig.json` 的源码检查漏掉。手动验证命令：`pnpm exec next typegen && pnpm exec tsc --noEmit -p tsconfig.test.json`。这条不是默认 CI 门禁；如果失败，要按输出修测试类型，不要靠删配置掩盖。
+- `tsconfig.typecheck-source.json` 保留给 source-only 类型证明。它继承主 tsconfig，只单独设置 `tsBuildInfoFile`，用于在依赖或编译器升级时隔离证明源码面仍能通过。手动验证命令：`pnpm exec next typegen && pnpm exec tsc --noEmit -p tsconfig.typecheck-source.json`。
+- `tsconfig.knip.json` 不保留。当前没有 package script 或 active 文档把它作为正式质量门禁；不在本轮顺手接入 knip，已按本地 trash 规则从 tracked source 退役。
+
 验证重点：
 
 - `next typegen && pnpm exec tsc --noEmit -p tsconfig.typecheck-source.json` 通过
-- `next typegen && pnpm exec tsc --noEmit -p tsconfig.test.json` 通过
+- `next typegen && pnpm exec tsc --noEmit -p tsconfig.test.json` 作为保留测试 tsconfig 的证明命令，必须通过
 - `pnpm type-check` 通过
 - 与 Turnstile / IntersectionObserver 相关测试通过
 - `pnpm build` 和 `pnpm website:build:cf` 都要跑，因为 Next 文档明确生产构建会执行类型检查
@@ -267,7 +273,7 @@ pnpm why basic-ftp lodash-es path-to-regexp happy-dom vite minimatch brace-expan
 
 - `pnpm build` 通过
 - `pnpm website:build:cf` 通过
-- `pnpm exec knip -c knip.jsonc --dependencies --files` 通过
+- `pnpm website:lighthouse` 是可选手动性能证明，不属于默认升级门禁
 - `pnpm outdated --format json` 不再出现 deprecated `critters`
 
 ### tech check

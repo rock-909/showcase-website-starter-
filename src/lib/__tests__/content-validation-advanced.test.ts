@@ -13,7 +13,7 @@ import { validateContentMetadata } from "@/lib/content-validation";
 import {
   TEST_CONTENT_LIMITS,
   TEST_COUNT_CONSTANTS,
-} from "@/constants/test-constants";
+} from "@/test/constants/test-constants";
 
 describe("Content Validation - Advanced Tests", () => {
   describe("validateContentMetadata - Advanced Validation", () => {

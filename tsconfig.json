@@ -93,7 +93,6 @@
     "*.config.js",
     "*.config.mjs",
     "instrumentation*.ts",
-    "src/constants/dev-tools.ts",
-    "src/constants/test-*.ts"
+    "src/constants/dev-tools.ts"
   ]
 }

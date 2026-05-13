@@ -67,15 +67,6 @@ export async function isHeaderInMobileMode(page: Page): Promise<boolean> {
   }
 }
 
-export async function isHeaderInDesktopMode(page: Page): Promise<boolean> {
-  const nav = getNav(page);
-  try {
-    return await nav.isVisible();
-  } catch {
-    return false;
-  }
-}
-
 /**
  * 点击主导航栏中的指定链接。
  * @param page Playwright 页面实例

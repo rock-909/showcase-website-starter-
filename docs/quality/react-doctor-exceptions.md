@@ -67,7 +67,6 @@ This file records accepted React Doctor warning exceptions. Each exception needs
 ### Radix and shadcn compatibility wrappers
 
 - Files:
-  - `src/components/ui/accordion.tsx`
   - `src/components/ui/textarea.tsx`
   - `src/components/ui/separator.tsx`
   - `src/components/ui/badge.tsx`

@@ -14,7 +14,7 @@ import {
 } from "@/lib/api/with-rate-limit";
 import { env } from "@/lib/env";
 import { logger, sanitizeIP } from "@/lib/logger";
-import { verifyTurnstileDetailed } from "@/lib/turnstile";
+import { verifyTurnstileDetailed } from "@/lib/security/turnstile";
 import { API_ERROR_CODES } from "@/constants/api-error-codes";
 import {
   HTTP_BAD_REQUEST,

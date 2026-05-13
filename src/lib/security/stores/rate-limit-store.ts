@@ -4,7 +4,7 @@ import { logger } from "@/lib/logger";
 /**
  * Key-value pair interface representing rate limit data
  */
-export interface RateLimitEntry {
+interface RateLimitEntry {
   count: number;
   expiresAt: number; // Unix timestamp in milliseconds
 }
@@ -34,7 +34,7 @@ export interface RateLimitStore {
 
 type UpstashResultEnvelope = { result: unknown };
 
-export function hasUpstashResultProperty(
+function hasUpstashResultProperty(
   value: unknown,
 ): value is UpstashResultEnvelope {
   return (
@@ -44,11 +44,11 @@ export function hasUpstashResultProperty(
   );
 }
 
-export function unwrapUpstashResult(value: unknown): unknown {
+function unwrapUpstashResult(value: unknown): unknown {
   return hasUpstashResultProperty(value) ? value.result : value;
 }
 
-export function getUpstashPipelineResults(payload: unknown): unknown[] {
+function getUpstashPipelineResults(payload: unknown): unknown[] {
   if (Array.isArray(payload)) {
     return payload;
   }
@@ -70,7 +70,7 @@ function getStrictUpstashPipelineResults(payload: unknown): unknown[] {
   return results;
 }
 
-export function parseStrictNumber(value: unknown, label: string): number {
+function parseStrictNumber(value: unknown, label: string): number {
   const parsed = unwrapUpstashResult(value);
   if (!Number.isFinite(parsed as number)) {
     throw new Error(
@@ -80,7 +80,7 @@ export function parseStrictNumber(value: unknown, label: string): number {
   return parsed as number;
 }
 
-export function parseLenientTTL(value: unknown): number {
+function parseLenientTTL(value: unknown): number {
   const parsed = Number(unwrapUpstashResult(value));
   return Number.isFinite(parsed) ? Math.max(0, parsed) : 0;
 }

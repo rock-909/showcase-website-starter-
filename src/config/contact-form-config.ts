@@ -18,7 +18,7 @@ export const CONTACT_FORM_FIELD_KEYS = [
 
 export type ContactFormFieldKey = (typeof CONTACT_FORM_FIELD_KEYS)[number];
 
-export type ContactFormFieldType =
+type ContactFormFieldType =
   | "text"
   | "email"
   | "tel"
@@ -41,7 +41,7 @@ export interface ContactFormFieldConfig {
 /**
  * 特性配置
  */
-export interface ContactFormFeatures {
+interface ContactFormFeatures {
   enableTurnstile: boolean;
   showPrivacyCheckbox: boolean;
   showMarketingConsent: boolean;
@@ -52,7 +52,7 @@ export interface ContactFormFeatures {
 /**
  * 验证配置
  */
-export interface ContactFormValidationSettings {
+interface ContactFormValidationSettings {
   emailDomainWhitelist: string[];
   messageMinLength: number;
   messageMaxLength: number;

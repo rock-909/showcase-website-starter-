@@ -415,6 +415,23 @@ describe("proof lane contract", () => {
     );
   });
 
+  it("keeps manual Lighthouse proof URLs aligned with shipped dynamic routes", () => {
+    const lighthouseConfig = readRepoFile("lighthouserc.js");
+    const productCatalog = readRepoFile(
+      "src/config/single-site-product-catalog.ts",
+    );
+    const starterBlog = readRepoFile("src/lib/blog/starter-blog.ts");
+
+    expect(lighthouseConfig).toContain("/en/products/north-america");
+    expect(lighthouseConfig).toContain("/zh/products/north-america");
+    expect(lighthouseConfig).toContain("/en/blog/prepare-before-launch");
+    expect(lighthouseConfig).toContain("/zh/blog/prepare-before-launch");
+    expect(productCatalog).toContain('slug: "north-america"');
+    expect(starterBlog).toContain('slug: "prepare-before-launch"');
+    expect(lighthouseConfig).not.toContain("industrial-control-panel");
+    expect(lighthouseConfig).not.toContain("/blog/welcome");
+  });
+
   it("removes retired governance script files after public command pruning", () => {
     for (const relativePath of [
       "scripts/append-guardrail-summary.js",
@@ -770,15 +787,15 @@ describe("proof lane contract", () => {
 
     for (const expectedSurface of [
       "src/config/single-site.ts",
-      "src/config/website/profile.ts",
-      "src/config/website/seo.ts",
       "src/config/single-site-seo.ts",
-      "src/config/website/products.ts",
+      "src/config/single-site-navigation.ts",
+      "src/config/single-site-links.ts",
+      "src/config/single-site-page-expression.ts",
       "src/config/single-site-product-catalog.ts",
       "src/constants/product-specs/**",
       "messages/{locale}/critical.json",
       "messages/{locale}/deferred.json",
-      "public/images/products/**",
+      "public/images/**",
       "content/pages/{locale}/about.mdx",
       "content/pages/{locale}/contact.mdx",
       "content/pages/{locale}/privacy.mdx",
@@ -788,54 +805,79 @@ describe("proof lane contract", () => {
     }
 
     expect(brandSettings).toContain("src/config/single-site.ts");
-    expect(brandSettings).toContain("src/config/website/profile.ts");
-    expect(brandSettings).toContain("src/config/website/seo.ts");
-    expect(brandSettings).toContain("镜像层");
+    expect(brandSettings).toContain("src/config/single-site-seo.ts");
+    expect(brandSettings).toContain("src/config/single-site-navigation.ts");
+    expect(brandSettings).toContain("src/config/single-site-links.ts");
+    expect(brandSettings).toContain(
+      "src/config/single-site-page-expression.ts",
+    );
     expect(brandSettings).not.toContain("品牌信息集中在 `src/config/website/`");
+    expect(brandSettings).not.toContain("src/config/website");
+    expect(brandSettings).not.toContain("镜像层");
 
     expect(replacementChecklist).toContain("client launch");
     expect(replacementChecklist).toContain("starter 示例");
     expect(replacementChecklist).toContain("SEO");
     expect(replacementChecklist).toContain("法务");
     expect(qualityProof).toContain("src/config/single-site.ts");
-    expect(qualityProof).toContain("src/config/website/profile.ts");
-    expect(qualityProof).toContain("src/config/website/seo.ts");
     expect(qualityProof).toContain("src/config/single-site-seo.ts");
+    expect(qualityProof).toContain("src/config/single-site-navigation.ts");
+    expect(qualityProof).toContain("src/config/single-site-links.ts");
+    expect(qualityProof).toContain("src/config/single-site-page-expression.ts");
     expect(qualityProof).toContain("src/config/single-site-product-catalog.ts");
-    expect(qualityProof).toContain("product specs");
+    expect(qualityProof).toContain("src/constants/product-specs/**");
     expect(qualityProof).toContain("catalog truth");
     expect(qualityProof).toContain("crawl / indexing truth");
     expect(qualityProof).toContain("canonical authoring source");
     expect(qualityProof).toContain("starter 示例可以存在于 starter 仓库");
+    expect(qualityProof).not.toContain("src/config/website");
     expect(qualityProof).toContain(
       "PUBLIC_LAUNCH_STRICT=true node scripts/starter-checks.js validate-production-config",
     );
   });
 
   it("keeps ai-smell repo profile pointed at current critical surfaces", () => {
-    const repoProfile = readRepoFile(
+    const codexRepoProfile = readRepoFile(
       ".codex/skills/ai-smell-audit/references/repo-profile.md",
     );
+    const claudeRepoProfile = readRepoFile(
+      ".claude/skills/ai-smell-audit/references/repo-profile.md",
+    );
 
-    expect(repoProfile).toContain("src/app/api/contact/**");
-    expect(repoProfile).toContain("src/lib/actions/contact.ts");
-    expect(repoProfile).toContain("src/app/api/inquiry/route.ts");
-    expect(repoProfile).toContain("src/app/api/subscribe/route.ts");
-    expect(repoProfile).toContain("src/app/api/verify-turnstile/route.ts");
-    expect(repoProfile).toContain("src/lib/turnstile.ts");
-    expect(repoProfile).toContain(
-      "src/lib/lead-pipeline/{lead-schema,process-lead,utils}.ts",
-    );
-    expect(repoProfile).toContain("src/config/single-site-product-catalog.ts");
-    expect(repoProfile).toContain("src/constants/product-specs/**");
-    expect(repoProfile).toContain("tests/e2e/contact-form-smoke.spec.ts");
-    expect(repoProfile).toContain("tests/e2e/smoke/post-deploy-form.spec.ts");
-    expect(repoProfile).toContain("playwright.config.ts");
-    expect(repoProfile).toContain("docs/website/quality-proof.md");
-    expect(repoProfile).not.toContain("src/app/actions.ts");
-    expect(repoProfile).not.toContain(
-      "src/components/products/product-inquiry-form",
-    );
-    expect(repoProfile).not.toContain("src/lib/idempotency/**");
+    expect(claudeRepoProfile).toBe(codexRepoProfile);
+
+    for (const repoProfile of [codexRepoProfile, claudeRepoProfile]) {
+      expect(repoProfile).toContain("src/app/api/contact/**");
+      expect(repoProfile).toContain("src/lib/actions/contact.ts");
+      expect(repoProfile).toContain("src/app/api/inquiry/route.ts");
+      expect(repoProfile).toContain("src/app/api/subscribe/route.ts");
+      expect(repoProfile).toContain("src/app/api/verify-turnstile/**");
+      expect(repoProfile).toContain("src/lib/security/turnstile.ts");
+      expect(repoProfile).toContain(
+        "src/lib/lead-pipeline/{lead-schema,process-lead,utils}.ts",
+      );
+      expect(repoProfile).toContain(
+        "src/config/single-site-product-catalog.ts",
+      );
+      expect(repoProfile).toContain("src/config/single-site-seo.ts");
+      expect(repoProfile).toContain("src/config/single-site-navigation.ts");
+      expect(repoProfile).toContain("src/config/single-site-links.ts");
+      expect(repoProfile).toContain(
+        "src/config/single-site-page-expression.ts",
+      );
+      expect(repoProfile).toContain("src/constants/product-specs/**");
+      expect(repoProfile).toContain("tests/e2e/contact-form-smoke.spec.ts");
+      expect(repoProfile).toContain("tests/e2e/smoke/post-deploy-form.spec.ts");
+      expect(repoProfile).toContain("playwright.config.ts");
+      expect(repoProfile).toContain("docs/website/quality-proof.md");
+      expect(repoProfile).not.toContain("src/app/actions.ts");
+      expect(repoProfile).not.toContain(
+        "src/components/products/product-inquiry-form",
+      );
+      expect(repoProfile).not.toContain("src/config/website/**");
+      expect(repoProfile).not.toContain("src/lib/load-messages*");
+      expect(repoProfile).not.toContain("src/lib/turnstile.ts");
+      expect(repoProfile).not.toContain("src/lib/idempotency/**");
+    }
   });
 });

@@ -53,6 +53,7 @@ const contact = {
 } as const;
 
 const establishedYear = 2018;
+const siteFactSnapshotYear = 2026;
 
 /**
  * Single-site canonical source for the current cutover phase.
@@ -89,7 +90,7 @@ export const SINGLE_SITE_DEFINITION = defineSiteDefinition({
     company: {
       name: "Showcase Website Starter",
       established: establishedYear,
-      yearsInBusiness: new Date().getFullYear() - establishedYear,
+      yearsInBusiness: siteFactSnapshotYear - establishedYear,
       employees: 60,
       location: {
         country: "Replace before launch",

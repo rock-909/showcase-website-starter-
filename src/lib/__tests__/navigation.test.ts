@@ -3,7 +3,7 @@ import {
   TEST_COUNT_CONSTANTS,
   TEST_SCREEN_CONSTANTS,
   TEST_TIMEOUT_CONSTANTS,
-} from "@/constants/test-constants";
+} from "@/test/constants/test-constants";
 import {
   getLocalizedHref,
   isActivePath,

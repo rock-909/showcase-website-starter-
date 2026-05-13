@@ -27,9 +27,11 @@ function cacheOutsideCloudflare<T>(loader: ContentLoader<T>): ContentLoader<T> {
 /**
  * Get content by slug
  */
-export async function getContentBySlug<
-  T extends ContentMetadata = ContentMetadata,
->(slug: string, type: ContentType, locale?: Locale): Promise<ParsedContent<T>> {
+async function getContentBySlug<T extends ContentMetadata = ContentMetadata>(
+  slug: string,
+  type: ContentType,
+  locale?: Locale,
+): Promise<ParsedContent<T>> {
   const contentDir = PAGES_DIR;
   const files = await getContentFiles(contentDir, locale);
 

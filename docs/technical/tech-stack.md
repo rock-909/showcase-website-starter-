@@ -95,7 +95,7 @@
   - `@testing-library/jest-dom 6.9.1`
   - `@testing-library/user-event 14.6.1`
 - **jsdom 29.1.1**
-- **happy-dom >=20.8.9**：通过 override 修复 Vitest peer 环境里的已知漏洞；默认测试环境仍是 jsdom
+- **happy-dom 20.9.0**：通过 override 修复 Vitest peer 环境里的已知漏洞；默认测试环境仍是 jsdom
 - **fast-check 4.8.0**
 
 ### E2E / 可访问性 / 性能
@@ -103,9 +103,9 @@
 - **Playwright 1.60.0**
 - **@axe-core/playwright 4.11.3**
 - **axe-core 4.11.4**
-- **Lighthouse CI**
+- **Lighthouse CI**：手动可选性能检查，不接入默认 CI 或 git hook；入口是 `pnpm build && pnpm website:lighthouse`
   - `@lhci/cli 0.15.1`
-  - `lighthouse 12.8.2`
+  - `lighthouse 12.6.1`
 
 ### 静态质量工具
 
@@ -119,8 +119,8 @@
 - **prettier-plugin-tailwindcss 0.8.0**
 - **@ianvs/prettier-plugin-sort-imports 4.7.1**
 - **dependency-cruiser 17.4.0**：依赖边界检查
-- **knip 6.12.2**：未使用代码扫描
-- **Stryker 9.6.1**：变异测试工具，主要覆盖 lead/security/form-schema 高风险逻辑
+- **knip 6.12.2**：不作为 starter 内置 proof lane；如派生项目需要，可单独维护自己的配置和 CI lane
+- **Stryker 9.6.1**：不作为 starter 内置 proof lane；变异测试属于派生项目可选的高成本专项检查
 - **commitlint 21.0.0**
 - **lefthook 2.1.6**
 

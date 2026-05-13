@@ -15,7 +15,7 @@ import {
   TEST_DELAY_VALUES,
   TEST_PERFORMANCE_TIMESTAMPS,
   TEST_TIME_CALCULATIONS,
-} from "../test-app-constants";
+} from "@/test/constants/test-app-constants";
 import {
   TEST_ANGLE_CONSTANTS,
   TEST_CONTENT_LIMITS,
@@ -23,7 +23,7 @@ import {
   TEST_OPACITY_CONSTANTS,
   TEST_PERCENTAGE_CONSTANTS,
   TEST_SPECIAL_CONSTANTS,
-} from "../test-constants";
+} from "@/test/constants/test-constants";
 
 describe("app-constants", () => {
   describe("TIME_CONSTANTS", () => {

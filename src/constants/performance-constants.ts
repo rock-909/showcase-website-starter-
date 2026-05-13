@@ -28,7 +28,7 @@ const BASE_NUMBERS = {
 } as const;
 
 /** 时间单位常量 */
-export const TIME_UNITS = {
+const TIME_UNITS = {
   /** 1秒 = 1000毫秒 */
   SECOND: TIME_BASE.MS_PER_SECOND,
   /** 1分钟 = 60000毫秒 */

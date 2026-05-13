@@ -3,7 +3,7 @@ import {
   getColumnTranslationKey,
   getGroupLabelTranslationKey,
   getRowValueTranslationKey,
-} from "@/lib/spec-table-translator";
+} from "@/lib/i18n/spec-table-translator";
 
 export interface MarketTrustSignalsViewModel {
   translatedTechnical: Record<string, string>;

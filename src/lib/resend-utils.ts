@@ -3,7 +3,7 @@
  * Resend email service utilities
  */
 
-import { sanitizePlainText } from "@/lib/security-validation";
+import { sanitizePlainText } from "@/lib/security/validation";
 import {
   emailTemplateDataSchema,
   productInquiryEmailDataSchema,

@@ -1,4 +1,4 @@
-import { sanitizePlainText } from "@/lib/security-validation";
+import { sanitizePlainText } from "@/lib/security/validation";
 
 const FORMULA_PREFIX_PATTERN = /^[=+\-@]/;
 

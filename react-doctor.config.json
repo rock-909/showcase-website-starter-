@@ -3,45 +3,58 @@
   "ignore": {
     "overrides": [
       {
-        "files": [
-          "src/components/ui/__tests__/card-accessibility-features-core.test.tsx",
-          "src/components/ui/__tests__/card-accessibility-features.test.tsx",
-          "src/components/ui/__tests__/label-state-management-core.test.tsx",
-          "src/components/ui/__tests__/label-state-management.test.tsx"
-        ],
-        "rules": ["jsx-a11y/anchor-is-valid"]
+        "files": [".claude/skills/**", ".codex/skills/**"],
+        "rules": ["knip/duplicates", "knip/exports", "knip/files", "knip/types"]
       },
       {
         "files": [
-          "src/components/layout/__tests__/mobile-navigation.test.tsx",
-          "src/components/ui/__tests__/badge-custom-props.test.tsx",
-          "src/components/ui/__tests__/label-event-handling-basic.test.tsx",
-          "src/components/ui/__tests__/label-event-handling.test.tsx"
+          "lighthouserc.js",
+          "open-next.config.ts",
+          ".devtools/react-grab-dev.mjs",
+          "src/test/css-stub.ts",
+          "src/test/mdx-stub.ts"
         ],
+        "rules": ["knip/files"]
+      },
+      {
+        "files": ["src/constants/validation-limits.ts"],
+        "rules": ["knip/duplicates"]
+      },
+      {
+        "files": [
+          "src/config/single-site.ts",
+          "src/config/paths.ts",
+          "src/i18n/routing.ts",
+          "src/lib/env.ts",
+          "src/components/ui/button.tsx",
+          "src/components/ui/badge.tsx",
+          "src/lib/contact/submit-canonical-contact.ts",
+          "src/lib/structured-data.ts",
+          "src/lib/cookie-consent/index.ts"
+        ],
+        "rules": ["knip/exports"]
+      },
+      {
+        "files": [
+          "src/config/single-site.ts",
+          "src/config/paths.ts",
+          "src/config/site-types.ts",
+          "src/lib/contact/submit-canonical-contact.ts",
+          "src/lib/cookie-consent/types.ts",
+          "src/lib/cookie-consent/index.ts",
+          "src/test/test-types.ts",
+          "src/types/content.types.ts",
+          "src/types/i18n.ts"
+        ],
+        "rules": ["knip/types"]
+      },
+      {
+        "files": ["src/components/layout/__tests__/mobile-navigation.test.tsx"],
         "rules": ["jsx-a11y/click-events-have-key-events"]
       },
       {
-        "files": [
-          "src/components/ui/__tests__/input-states-accessibility.test.tsx"
-        ],
-        "rules": ["jsx-a11y/label-has-associated-control"]
-      },
-      {
-        "files": ["src/components/ui/__tests__/input-props-events.test.tsx"],
-        "rules": ["jsx-a11y/no-autofocus"]
-      },
-      {
-        "files": [
-          "src/components/layout/__tests__/mobile-navigation.test.tsx",
-          "src/components/ui/__tests__/badge-custom-props.test.tsx",
-          "src/components/ui/__tests__/label-event-handling-basic.test.tsx",
-          "src/components/ui/__tests__/label-event-handling.test.tsx"
-        ],
+        "files": ["src/components/layout/__tests__/mobile-navigation.test.tsx"],
         "rules": ["jsx-a11y/no-static-element-interactions"]
-      },
-      {
-        "files": ["src/components/ui/__tests__/input-props-events.test.tsx"],
-        "rules": ["jsx-a11y/tabindex-no-positive"]
       },
       {
         "files": [
@@ -50,13 +63,6 @@
           "src/app/api/csp-report/__tests__/route.test.ts",
           "src/app/api/inquiry/__tests__/route.test.ts",
           "src/app/ops/traffic/access/__tests__/route.test.ts",
-          "src/components/ui/__tests__/label-edge-cases-basic.test.tsx",
-          "src/components/ui/__tests__/label-edge-cases.test.tsx",
-          "src/components/ui/__tests__/label-events.test.tsx",
-          "src/components/ui/__tests__/label-form-association.test.tsx",
-          "src/components/ui/__tests__/sheet-content.test.tsx",
-          "src/components/ui/__tests__/sheet-edge-cases.test.tsx",
-          "src/components/ui/__tests__/social-icons-accessibility-integration.test.tsx",
           "src/constants/__tests__/index.test.ts",
           "src/lib/__tests__/structured-data.test.ts",
           "src/lib/api/safe-parse-json.ts",
@@ -103,21 +109,7 @@
         "rules": ["react-doctor/design-no-bold-heading"]
       },
       {
-        "files": [
-          "src/components/ui/__tests__/badge-basic-rendering.test.tsx",
-          "src/components/ui/__tests__/input-file-edge-cases.test.tsx",
-          "src/components/ui/__tests__/label-events.test.tsx",
-          "src/components/ui/__tests__/label-responsive-basic.test.tsx",
-          "src/components/ui/__tests__/label-responsive-behavior.test.tsx",
-          "src/components/ui/__tests__/label-state-management-core.test.tsx",
-          "src/components/ui/__tests__/label-state-management.test.tsx",
-          "src/components/ui/__tests__/separator.test.tsx",
-          "src/components/ui/__tests__/social-icons-accessibility-integration.test.tsx",
-          "src/components/ui/__tests__/social-icons-basic.test.tsx",
-          "src/components/ui/__tests__/social-icons-integration-scenarios-basic-core.test.tsx",
-          "src/components/ui/__tests__/social-icons-integration-scenarios-basic.test.tsx",
-          "src/components/ui/__tests__/social-icons-integration-scenarios.test.tsx"
-        ],
+        "files": ["src/components/ui/__tests__/separator.test.tsx"],
         "rules": ["react-doctor/design-no-default-tailwind-palette"]
       },
       {
@@ -134,10 +126,6 @@
           "src/components/sections/products-section-view.tsx",
           "src/components/sections/resources-section-view.tsx",
           "src/components/sections/sample-cta-view.tsx",
-          "src/components/ui/__tests__/badge-accessibility-interactions.test.tsx",
-          "src/components/ui/__tests__/social-icons-basic.test.tsx",
-          "src/components/ui/__tests__/social-icons-mapper-links.test.tsx",
-          "src/components/ui/__tests__/social-icons-mapper.test.tsx",
           "src/components/ui/theme-switcher-highlight.stories.tsx",
           "src/components/ui/theme-switcher.tsx",
           "src/stories/color-directions.stories.tsx"
@@ -149,40 +137,12 @@
           "src/app/[locale]/contact/contact-form-static-fallback.tsx",
           "src/app/[locale]/contact/contact-page-sections.tsx",
           "src/components/forms/contact-form-fields.tsx",
-          "src/components/forms/fields/checkbox-fields.tsx",
-          "src/components/ui/__tests__/card-integration-scenarios.test.tsx",
-          "src/components/ui/__tests__/social-icons-accessibility-integration.test.tsx",
-          "src/components/ui/__tests__/social-icons-integration-scenarios-basic-core.test.tsx",
-          "src/components/ui/__tests__/social-icons-integration-scenarios-basic.test.tsx",
-          "src/components/ui/__tests__/social-icons-integration-scenarios.test.tsx"
+          "src/components/forms/fields/checkbox-fields.tsx"
         ],
         "rules": ["react-doctor/design-no-space-on-flex-children"]
       },
       {
-        "files": [
-          "src/components/contact/contact-form-island-view.stories.tsx",
-          "src/components/contact/contact-form-island.stories.tsx",
-          "src/components/ui/__tests__/card-integration-scenarios.test.tsx",
-          "src/components/ui/__tests__/dropdown-menu-complex.test.tsx",
-          "src/components/ui/__tests__/label-state-management-core.test.tsx",
-          "src/components/ui/__tests__/label-state-management.test.tsx",
-          "src/components/ui/__tests__/social-icons-integration-scenarios.test.tsx"
-        ],
-        "rules": ["react-doctor/design-no-three-period-ellipsis"]
-      },
-      {
-        "files": [
-          "src/components/ui/__tests__/card-integration-scenarios.test.tsx",
-          "src/components/ui/__tests__/input-states-accessibility.test.tsx",
-          "src/components/ui/__tests__/label-component-composition.test.tsx",
-          "src/components/ui/__tests__/label-form-advanced-integration-core.test.tsx",
-          "src/components/ui/__tests__/label-form-advanced-integration.test.tsx",
-          "src/components/ui/__tests__/label-form-basic-integration-core.test.tsx",
-          "src/components/ui/__tests__/label-form-basic-integration-essential.test.tsx",
-          "src/components/ui/__tests__/label-form-basic-integration.test.tsx",
-          "src/components/ui/__tests__/label-form-integration.test.tsx",
-          "src/components/ui/__tests__/label.test.tsx"
-        ],
+        "files": ["src/components/ui/__tests__/label.test.tsx"],
         "rules": ["react-doctor/design-no-vague-button-label"]
       },
       {
@@ -234,10 +194,7 @@
         "rules": ["react-doctor/nextjs-missing-metadata"]
       },
       {
-        "files": [
-          "src/components/ui/__tests__/card-integration-scenarios.test.tsx",
-          "tests/integration/components/header.test.tsx"
-        ],
+        "files": ["tests/integration/components/header.test.tsx"],
         "rules": ["react-doctor/nextjs-no-a-element"]
       },
       {
@@ -245,10 +202,7 @@
           "src/app/[locale]/products/__tests__/products-page.test.tsx",
           "src/components/layout/logo.tsx",
           "src/components/products/__tests__/family-section.test.tsx",
-          "src/components/products/__tests__/market-series-card.test.tsx",
-          "src/components/ui/__tests__/card-accessibility-features-core.test.tsx",
-          "src/components/ui/__tests__/card-accessibility-features.test.tsx",
-          "src/components/ui/__tests__/card-structure-components.test.tsx"
+          "src/components/products/__tests__/market-series-card.test.tsx"
         ],
         "rules": ["react-doctor/nextjs-no-img-element"]
       },
@@ -270,19 +224,9 @@
           "src/app/[locale]/terms/page.tsx",
           "src/components/grid/grid-frame.tsx",
           "src/components/grid/grid-system.tsx",
-          "src/components/layout/__tests__/mobile-navigation-edge-cases-advanced.test.tsx",
-          "src/components/ui/__tests__/badge-basic-variants.test.tsx",
-          "src/components/ui/__tests__/badge-content-basic.test.tsx",
-          "src/components/ui/__tests__/label-edge-cases-basic.test.tsx",
-          "src/components/ui/__tests__/social-icons-accessibility-integration.test.tsx",
-          "src/components/ui/__tests__/social-icons-integration-scenarios-basic.test.tsx",
-          "src/components/ui/__tests__/social-icons-integration-scenarios.test.tsx"
+          "src/components/layout/__tests__/mobile-navigation-edge-cases-advanced.test.tsx"
         ],
         "rules": ["react-doctor/no-array-index-as-key"]
-      },
-      {
-        "files": ["src/components/ui/__tests__/input-file-edge-cases.test.tsx"],
-        "rules": ["react-doctor/no-cascading-set-state"]
       },
       {
         "files": [
@@ -301,13 +245,8 @@
           "src/components/layout/__tests__/mobile-navigation-items-accessibility-core.test.tsx",
           "src/components/layout/__tests__/mobile-navigation-responsive-basic.test.tsx",
           "src/components/layout/__tests__/mobile-navigation-responsive-edge-cases.test.tsx",
-          "src/components/ui/__tests__/badge-accessibility-interactions.test.tsx",
-          "src/components/ui/__tests__/badge-basic-variants.test.tsx",
-          "src/components/ui/__tests__/badge-custom-props-core.test.tsx",
-          "src/components/ui/__tests__/badge-custom-props.test.tsx",
           "src/components/ui/__tests__/input.test.tsx",
-          "src/components/ui/__tests__/label-event-handling-basic.test.tsx",
-          "src/components/ui/__tests__/label-event-handling.test.tsx",
+          "src/components/ui/__tests__/label-integration.test.tsx",
           "src/components/ui/__tests__/label.test.tsx"
         ],
         "rules": ["react-doctor/no-generic-handler-names"]
@@ -318,9 +257,6 @@
       },
       {
         "files": [
-          "src/components/ui/__tests__/label-component-composition.test.tsx",
-          "src/components/ui/__tests__/label-form-association.test.tsx",
-          "src/components/ui/accordion.tsx",
           "src/components/ui/badge.tsx",
           "src/components/ui/separator.tsx",
           "src/components/ui/textarea.tsx"
@@ -345,12 +281,6 @@
       },
       {
         "files": [
-          "src/components/ui/__tests__/label-form-advanced-integration-core.test.tsx"
-        ],
-        "rules": ["react-doctor/rerender-functional-setstate"]
-      },
-      {
-        "files": [
           "src/components/cookie/lazy-cookie-consent-island.tsx",
           "src/components/layout/header-client.tsx",
           "src/components/ui/lazy-theme-switcher.tsx"
@@ -366,6 +296,7 @@
           "src/app/__tests__/contact-integration.test.ts",
           "src/app/api/csp-report/__tests__/route-get-options.test.ts",
           "src/app/api/inquiry/__tests__/route.test.ts",
+          "src/lib/__tests__/load-messages-runtime.test.ts",
           "src/components/forms/__tests__/contact-form-submission.test.tsx",
           "src/lib/__tests__/load-messages.fallback.test.ts",
           "src/lib/__tests__/security-crypto.test.ts",

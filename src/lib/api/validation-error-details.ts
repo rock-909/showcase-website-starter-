@@ -40,7 +40,7 @@ function isBlankRequiredIssue(issue: ZodIssue): boolean {
   );
 }
 
-export function mapZodIssueToValidationDetail(
+function mapZodIssueToValidationDetail(
   issue: ZodIssue,
   fieldKeys: ValidationFieldErrorKeys,
 ): string {

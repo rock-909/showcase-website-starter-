@@ -36,7 +36,7 @@ import {
   HTTP_INTERNAL_ERROR,
   HTTP_SERVICE_UNAVAILABLE,
 } from "@/constants";
-import { verifyTurnstileDetailed } from "@/lib/turnstile";
+import { verifyTurnstileDetailed } from "@/lib/security/turnstile";
 
 const TURNSTILE_SERVICE_FAILURE_CODES = new Set([
   "not-configured",

@@ -13,7 +13,7 @@ type LocatorClickOptions = Parameters<ReturnType<Page["locator"]>["click"]>[0];
 /**
  * 禁用开发工具的环境变量设置
  */
-export const TEST_ENV_VARS = {
+const TEST_ENV_VARS = {
   // 禁用 React Scan 以避免 DOM 干扰
   NEXT_PUBLIC_DISABLE_REACT_SCAN: "true",
 
@@ -111,7 +111,7 @@ export async function installInterferenceGuard(page: Page) {
 /**
  * 检查页面是否存在干扰元素
  */
-export async function checkForInterferingElements(page: Page) {
+async function checkForInterferingElements(page: Page) {
   const foundElements: string[] = [];
 
   for (const selector of INTERFERING_SELECTORS) {
@@ -262,16 +262,3 @@ export async function safeClick(
     }
   }
 }
-
-const testEnvironmentUtils = {
-  setupTestEnvironment,
-  cleanupTestEnvironment,
-  installInterferenceGuard,
-  checkForInterferingElements,
-  removeInterferingElements,
-  waitForStablePage,
-  safeClick,
-  TEST_ENV_VARS,
-};
-
-export default testEnvironmentUtils;

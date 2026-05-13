@@ -6,7 +6,7 @@ import {
   readMessagePath,
   type MessageRecord,
 } from "@/lib/i18n/read-message-path";
-import { loadCompleteMessages } from "@/lib/load-messages";
+import { loadCompleteMessages } from "@/lib/i18n/load-messages";
 import type { FaqItem, Locale } from "@/types/content.types";
 
 const FAQ_ICU_VALUES = {

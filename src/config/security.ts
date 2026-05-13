@@ -127,7 +127,7 @@ export function generateCSP(): string {
 /**
  * Security headers configuration
  */
-export function isSecurityHeadersEnabled(testMode = false): boolean {
+function isSecurityHeadersEnabled(testMode = false): boolean {
   if (testMode) {
     return getRuntimeEnvBoolean("SECURITY_HEADERS_ENABLED") !== false;
   }

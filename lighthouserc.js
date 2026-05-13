@@ -19,8 +19,8 @@
  * 更新时间：2025-12-04 (Phase 3 实施)
  */
 
-// 关键URL优先策略：CI_DAILY=true时运行全部URL，否则仅运行关键3个URL
-// 这将CI耗时从15分钟优化至5-8分钟
+// 关键 URL 优先策略：CI_DAILY=true 时运行全部 URL，否则仅运行双语首页。
+// Lighthouse 是手动性能证明，不接入默认 CI 或 git hook。
 const isDaily = process.env.CI_DAILY === "true";
 
 // Root path redirects to the locale entry page. Lighthouse can audit it now, but
@@ -41,10 +41,10 @@ const allUrls = [
   "http://localhost:3000/en/blog",
   "http://localhost:3000/zh/blog",
   // Dynamic pages: test one product and one blog post per locale
-  "http://localhost:3000/en/products/industrial-control-panel",
-  "http://localhost:3000/zh/products/industrial-control-panel",
-  "http://localhost:3000/en/blog/welcome",
-  "http://localhost:3000/zh/blog/welcome",
+  "http://localhost:3000/en/products/north-america",
+  "http://localhost:3000/zh/products/north-america",
+  "http://localhost:3000/en/blog/prepare-before-launch",
+  "http://localhost:3000/zh/blog/prepare-before-launch",
 ];
 
 module.exports = {

@@ -13,7 +13,7 @@ vi.mock("@/lib/security/distributed-rate-limit", () => ({
   createRateLimitHeaders: vi.fn(() => new Headers()),
 }));
 
-vi.mock("@/lib/turnstile", () => ({
+vi.mock("@/lib/security/turnstile", () => ({
   verifyTurnstile: vi.fn(async () => true),
   verifyTurnstileDetailed: vi.fn(async () => ({ success: true })),
 }));
@@ -120,7 +120,7 @@ describe("api/subscribe", () => {
   });
 
   it("binds Turnstile verification to the newsletter_subscribe action", async () => {
-    const utils = await import("@/lib/turnstile");
+    const utils = await import("@/lib/security/turnstile");
 
     await route.POST(
       makeReq({ email: "ok@example.com", turnstileToken: "valid-token" }),
@@ -142,7 +142,7 @@ describe("api/subscribe", () => {
   });
 
   it("returns 400 when turnstile verification fails", async () => {
-    const utils = await import("@/lib/turnstile");
+    const utils = await import("@/lib/security/turnstile");
     (
       utils.verifyTurnstileDetailed as ReturnType<typeof vi.fn>
     ).mockResolvedValueOnce({
@@ -160,7 +160,7 @@ describe("api/subscribe", () => {
   });
 
   it("returns 503 when turnstile verification is unavailable", async () => {
-    const utils = await import("@/lib/turnstile");
+    const utils = await import("@/lib/security/turnstile");
     (
       utils.verifyTurnstileDetailed as ReturnType<typeof vi.fn>
     ).mockResolvedValueOnce({

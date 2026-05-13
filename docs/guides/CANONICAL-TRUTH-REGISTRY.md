@@ -16,7 +16,7 @@
 | 3 | Page Content | `content/pages/{locale}/*.mdx` | 页面正文、hero 文案、FAQ 问答、页面级 SEO、发布日期/更新日期 | 第 3 批换 |
 | 4 | UI Chrome | `messages/{locale}/critical.json` + `messages/{locale}/deferred.json` | 跨页面通用界面文案：按钮、表单标签、导航、通用提示 | 通常保留 |
 
-例外：产品目录、定制项目结构化卡片数据保留在 typed config 中，并按 locale 存储需要翻译的字段。
+例外：产品目录、定制项目结构化卡片数据保留在 typed config 中，并按 locale 存储需要翻译的字段。产品/服务事实的 canonical surfaces 是 `src/config/single-site-product-catalog.ts` 和 `src/constants/product-specs/**`。
 
 ## 页面内容所有权
 
@@ -72,7 +72,7 @@ Runtime 正式读取：
 | Web request entry | `src/middleware.ts` | locale redirect、安全头和 locale cookie 在这里；不再注入 public form client-IP |
 | Root layout | `src/app/[locale]/layout.tsx` | SSR locale 和 `<html lang>` 真相在这里 |
 | Contact conversion path | `src/app/[locale]/contact/page.tsx` + `src/app/api/contact/route.ts` | 当前浏览器联系表单主路径是 Browser contact route handler；`src/lib/actions/contact.ts` 只是兼容入口 |
-| Message loader | `src/lib/load-messages.ts` | 必须和 `src/i18n/request.ts` 使用同一 split-source truth |
+| Message loader | `src/lib/i18n/load-messages.ts` | 必须和 `src/i18n/request.ts` 使用同一 split-source truth |
 | Cloudflare build | `pnpm website:build:cf` / `open-next.config.ts` / `wrangler.jsonc` | Native OpenNext + Cloudflare worker build path |
 
 ## Proof Sources

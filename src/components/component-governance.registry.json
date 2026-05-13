@@ -1,9 +1,6 @@
 {
   "version": 1,
   "components": {
-    "accordion": {
-      "story": "required"
-    },
     "badge": {
       "story": "required"
     },
@@ -14,9 +11,6 @@
       "story": "required"
     },
     "card": {
-      "story": "required"
-    },
-    "dropdown-menu": {
       "story": "required"
     },
     "input": {

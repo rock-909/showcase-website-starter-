@@ -1,7 +1,7 @@
 import React from "react";
 import { screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { renderAsyncPage } from "@/testing/render-async-page";
+import { renderAsyncPage } from "@/test/render-async-page";
 
 const { mockGetPageBySlug, mockGetTranslations } = vi.hoisted(() => ({
   mockGetPageBySlug: vi.fn(),

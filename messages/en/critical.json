@@ -42,7 +42,7 @@
     }
   },
   "navigation": {
-    "siteName": "Showcase Website Starter",
+    "siteName": "{siteName}",
     "siteDescription": "Reusable showcase website starter for products, services, proof, and inquiry paths.",
     "home": "Home",
     "more": "More",
@@ -432,7 +432,7 @@
     },
     "footer": {
       "about": {
-        "title": "Showcase Website Starter",
+        "title": "{siteName}",
         "desc": "A replaceable showcase website starter for presenting offers, proof, resources, and inquiry paths."
       },
       "products": {
@@ -462,7 +462,7 @@
           "item4": "Project Review"
         }
       },
-      "copyright": "© 2024 Showcase Website Starter. All rights reserved.",
+      "copyright": "{copyright}",
       "location": "Replace with real dispatch point"
     },
     "cta": {
@@ -797,7 +797,7 @@
     "learn": "Learn",
     "examples": "Examples",
     "goToNextjs": "Go to nextjs.org",
-    "copyright": "(c) {year} Showcase Website Starter. All rights reserved.",
+    "copyright": "{copyright}",
     "description": "Reusable showcase website starter for products, services, proof, and inquiry paths."
   },
   "accessibility": {
@@ -930,7 +930,7 @@
   },
   "structured-data": {
     "organization": {
-      "name": "Showcase Website Starter",
+      "name": "{companyName}",
       "description": "Reusable showcase website starter for products, services, proof, and inquiry paths",
       "phone": "Contact sales by email",
       "social": {
@@ -939,13 +939,13 @@
       }
     },
     "website": {
-      "name": "Showcase Website Starter",
+      "name": "{siteName}",
       "description": "Reusable showcase website starter for products, services, proof, and inquiry paths"
     },
     "article": {
       "defaultTitle": "Article",
       "defaultDescription": "Article description",
-      "defaultAuthor": "Showcase Website Starter"
+      "defaultAuthor": "{companyName}"
     },
     "product": {
       "defaultName": "Product",

@@ -244,7 +244,18 @@ describe("Airtable Service - Create Operations Tests", () => {
 
       await service.createLead("contact", validLeadData);
 
-      const fields = mockCreate.mock.calls[0][0][0].fields;
+      const createCall = mockCreate.mock.calls[0];
+      expect(createCall).toBeDefined();
+      if (!createCall) {
+        throw new Error("Expected Airtable create to be called");
+      }
+      const [records] = createCall;
+      const firstRecord = records[0];
+      expect(firstRecord).toBeDefined();
+      if (!firstRecord) {
+        throw new Error("Expected Airtable create call to include one record");
+      }
+      const { fields } = firstRecord;
       expect(fields).not.toHaveProperty("Subject");
     });
 

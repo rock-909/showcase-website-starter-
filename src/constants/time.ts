@@ -37,12 +37,12 @@ export const MILLISECONDS_PER_HOUR = 3600000 as const;
 // ============================================================================
 
 export const HALF_SECOND_MS = 500;
-export const SIX_HUNDRED_MS = 600;
+const SIX_HUNDRED_MS = 600;
 export const TWO_HUNDRED_MS = 200;
 export const FOUR_HUNDRED_MS = 400;
 export const ONE_SECOND_MS = 1000;
-export const TWELVE_HUNDRED_MS = 1200;
-export const FIFTEEN_HUNDRED_MS = 1500;
+const TWELVE_HUNDRED_MS = 1200;
+const FIFTEEN_HUNDRED_MS = 1500;
 export const TWO_SECONDS_MS = 2000;
 export const THREE_SECONDS_MS = 3000;
 export const FIVE_SECONDS_MS = 5000;

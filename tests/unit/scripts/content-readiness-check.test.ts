@@ -81,7 +81,7 @@ describe("content-readiness-check", () => {
       "messages/en/critical.json": JSON.stringify({
         cta: "Contact your company",
       }),
-      "src/config/website/products.ts":
+      "src/config/single-site-product-catalog.ts":
         "export const product = 'Sample Product';",
     });
     fixtureRoots.push(rootDir);
@@ -95,7 +95,7 @@ describe("content-readiness-check", () => {
     expectFinding(
       result.warnings,
       "sample-product",
-      "src/config/website/products.ts",
+      "src/config/single-site-product-catalog.ts",
     );
   });
 
@@ -138,7 +138,7 @@ describe("content-readiness-check", () => {
 
   it("does not treat config asset paths as buyer-visible product residue", () => {
     const rootDir = createFixture({
-      "src/config/website/products.ts":
+      "src/config/single-site-product-catalog.ts":
         "export const product = { image: '/images/products/sample-product.svg' };",
     });
     fixtureRoots.push(rootDir);
@@ -152,7 +152,7 @@ describe("content-readiness-check", () => {
 
   it("does not treat absolute config asset URLs as buyer-visible product residue", () => {
     const rootDir = createFixture({
-      "src/config/website/products.ts":
+      "src/config/single-site-product-catalog.ts":
         "export const product = { image: 'https://cdn.example.com/images/products/sample-product.svg' };",
     });
     fixtureRoots.push(rootDir);
@@ -166,7 +166,7 @@ describe("content-readiness-check", () => {
 
   it("does not treat commented config strings as buyer-visible product residue", () => {
     const rootDir = createFixture({
-      "src/config/website/profile.ts": [
+      "src/config/single-site.ts": [
         '// "Sample Product" belongs in documentation, not runtime config.',
         'export const profile = { companyName: "Real Company" };',
       ].join("\n"),
@@ -182,7 +182,7 @@ describe("content-readiness-check", () => {
 
   it("does not treat quoted config object keys as buyer-visible content", () => {
     const rootDir = createFixture({
-      "src/config/website/profile.ts":
+      "src/config/single-site.ts":
         'export const profile = { "placeholder": "Real Company" };',
     });
     fixtureRoots.push(rootDir);
@@ -196,7 +196,7 @@ describe("content-readiness-check", () => {
 
   it("scans static template string values in config", () => {
     const rootDir = createFixture({
-      "src/config/website/profile.ts":
+      "src/config/single-site.ts":
         "export const profile = { heroTitle: `Sample Product` };",
     });
     fixtureRoots.push(rootDir);
@@ -207,7 +207,7 @@ describe("content-readiness-check", () => {
     expectFinding(
       result.warnings,
       "sample-product",
-      "src/config/website/profile.ts",
+      "src/config/single-site.ts",
     );
   });
 
@@ -249,7 +249,7 @@ describe("content-readiness-check", () => {
 
   it("does not treat commented logo asset references as runtime references", () => {
     const rootDir = createFixture({
-      "src/config/website/profile.ts": [
+      "src/config/single-site.ts": [
         "// docs note: replace /images/logo.svg later",
         'export const profile = { companyName: "Real Company" };',
       ].join("\n"),
@@ -265,7 +265,7 @@ describe("content-readiness-check", () => {
 
   it("does not treat config module paths as buyer-visible content", () => {
     const rootDir = createFixture({
-      "src/config/website/profile.ts": [
+      "src/config/single-site.ts": [
         'import placeholderKit from "@acme/placeholder-kit";',
         'export { sampleProductConfig } from "./sample-product-config";',
         'export const profile = { companyName: "Real Company" };',
@@ -283,7 +283,7 @@ describe("content-readiness-check", () => {
 
   it("does not treat TypeScript string literal types as buyer-visible content", () => {
     const rootDir = createFixture({
-      "src/config/website/types.ts": [
+      "src/config/single-site.ts": [
         'export type ProductName = "Sample Product";',
         'export type LogoPath = "/images/logo.svg";',
         "export interface Profile {",
@@ -303,7 +303,7 @@ describe("content-readiness-check", () => {
 
   it("scans TypeScript enum string values as runtime config content", () => {
     const rootDir = createFixture({
-      "src/config/website/enums.ts": [
+      "src/config/single-site.ts": [
         "export enum BrandText {",
         '  Title = "Sample Product",',
         '  Logo = "/images/logo.svg",',
@@ -314,17 +314,13 @@ describe("content-readiness-check", () => {
 
     const result = runContentReadinessCheck(rootDir);
 
-    expect(result.status).toBe("failed");
+    expect(result.status).toBe("passed");
     expectFinding(
       result.warnings,
       "sample-product",
-      "src/config/website/enums.ts",
+      "src/config/single-site.ts",
     );
-    expectFinding(
-      result.errors,
-      "missing-logo-asset",
-      "src/config/website/enums.ts",
-    );
+    expect(result.errors).toEqual([]);
   });
 
   it("does not scan docs tests reports generated output or test files", () => {
@@ -352,7 +348,7 @@ describe("content-readiness-check", () => {
 
   it("reports example.com as a warning without failing the check", () => {
     const rootDir = createFixture({
-      "src/config/website/profile.ts":
+      "src/config/single-site.ts":
         "export const website = { domain: 'https://example.com' };",
     });
     fixtureRoots.push(rootDir);
@@ -364,7 +360,7 @@ describe("content-readiness-check", () => {
     expectFinding(
       result.warnings,
       "example-domain",
-      "src/config/website/profile.ts",
+      "src/config/single-site.ts",
     );
   });
 
@@ -572,22 +568,17 @@ describe("content-readiness-check", () => {
     );
   });
 
-  it("reports a missing /images/logo.svg runtime reference", () => {
+  it("does not treat canonical config logo placeholders as runtime image references", () => {
     const rootDir = createFixture({
-      "src/config/website/profile.ts":
-        "export const logo = '/images/logo.svg';",
+      "src/config/single-site.ts": "export const logo = '/images/logo.svg';",
       "content/pages/en/about.mdx": "Real content.",
     });
     fixtureRoots.push(rootDir);
 
     const result = runContentReadinessCheck(rootDir);
 
-    expect(result.status).toBe("failed");
-    expectFinding(
-      result.errors,
-      "missing-logo-asset",
-      "src/config/website/profile.ts",
-    );
+    expect(result.status).toBe("passed");
+    expect(result.errors).toEqual([]);
   });
 
   it("does not treat prose mentions of /images/logo.svg as runtime references", () => {
@@ -694,8 +685,7 @@ describe("content-readiness-check", () => {
 
   it("passes when logo.svg exists and visible content is clean", () => {
     const rootDir = createFixture({
-      "src/config/website/profile.ts":
-        "export const logo = '/images/logo.svg';",
+      "src/config/single-site.ts": "export const logo = '/images/logo.svg';",
       "public/images/logo.svg": '<svg role="img"></svg>',
       "content/pages/en/about.mdx": "Real company content.",
       "messages/en/critical.json": JSON.stringify({ cta: "Contact us" }),

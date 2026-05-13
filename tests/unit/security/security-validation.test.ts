@@ -9,7 +9,7 @@ import {
   sanitizePlainText,
   validateCharacters,
   validateInputLength,
-} from "@/lib/security-validation";
+} from "@/lib/security/validation";
 
 describe("security-validation", () => {
   it("sanitizes html and input payloads", () => {

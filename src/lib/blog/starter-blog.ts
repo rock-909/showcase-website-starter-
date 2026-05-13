@@ -1,6 +1,6 @@
 import type { Locale } from "@/config/paths/types";
 
-export interface StarterBlogSection {
+interface StarterBlogSection {
   heading: string;
   body: string;
 }

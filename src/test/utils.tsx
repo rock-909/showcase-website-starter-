@@ -30,18 +30,6 @@
  * });
  * ```
  *
- * ### 使用特定命名空间 mock
- *
- * ```typescript
- * import { navigationMessages, themeMessages } from '@/test/constants/mock-messages';
- *
- * // 只使用特定命名空间
- * renderWithIntl(<MyComponent />, 'en', {
- *   navigation: navigationMessages,
- *   theme: themeMessages,
- * });
- * ```
- *
  * ### 创建 mock 翻译函数
  *
  * ```typescript
@@ -73,21 +61,13 @@
  * - `footer`: 页脚内容 (sections, platform, etc.)
  * - `underConstruction`: 施工中页面 (title, subtitle, comingSoon, etc.)
  *
- * ### 导入特定命名空间
+ * ### 局部覆写特定命名空间
  *
  * ```typescript
- * import {
- *   commonMessages,
- *   navigationMessages,
- *   accessibilityMessages,
- *   themeMessages,
- *   languageMessages,
- *   errorBoundaryMessages,
- *   seoMessages,
- *   footerMessages,
- *   underConstructionMessages,
- *   combinedMessages, // 全部合并
- * } from '@/test/constants/mock-messages';
+ * renderWithIntl(<Component />, 'en', {
+ *   navigation: { home: 'Custom Home' },
+ *   theme: { light: 'Light mode' },
+ * });
  * ```
  *
  * ## 验证命令
@@ -415,4 +395,3 @@ export { customRender as render };
 
 // 重新导出testing-library的所有工具
 export * from "@testing-library/react";
-export { vi } from "vitest";

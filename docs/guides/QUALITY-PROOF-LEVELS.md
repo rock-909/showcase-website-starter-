@@ -71,9 +71,9 @@
 - `pnpm exec wrangler deploy --dry-run --env preview`：Cloudflare 部署 artifact 改动，需要不改远端状态的部署证明时
 - Semgrep security scan: CI runs `semgrep scan --error --severity ERROR --config semgrep.yml src` in the official `semgrep/semgrep` container. INFO/WARNING heuristic findings are review signals, not CI blockers. A missing local `semgrep` binary is `Blocked`, not `Passed`.
 - `CI=1 pnpm exec playwright test`：关键 UI / runtime 行为改动
-- `pnpm build`：改到 `src/config/website/**`、`NEXT_PUBLIC_SITE_KEY` 或站点装配入口
+- `pnpm build`：改到 `src/config/single-site*.ts`、`src/constants/product-specs/**`、`NEXT_PUBLIC_SITE_KEY` 或站点装配入口
 - `pnpm website:build:cf`：同类改动还要证明 Cloudflare 构建链时
-- `node scripts/starter-checks.js content-readiness`：改到 `content/pages/**`、`messages/{locale}/{critical,deferred}.json`、`public/images/**/*.svg` 或 `src/config/website/**` 时运行
+- `node scripts/starter-checks.js content-readiness`：改到 `content/pages/**`、`messages/{locale}/{critical,deferred}.json`、`public/images/**`、`src/config/single-site*.ts` 或 `src/constants/product-specs/**` 时运行
 - `node scripts/starter-checks.js client-boundary`：改到 client/server component 边界、interactive islands、forms、theme、cookie 或 header/navigation 交互时运行
 
 它能证明：

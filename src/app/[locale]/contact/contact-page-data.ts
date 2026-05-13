@@ -21,7 +21,7 @@ export interface ContactPageData {
   faqSchema: ReturnType<typeof generateFaqSchemaFromItems> | null;
 }
 
-export function getStaticMessages(locale: Locale): Record<string, unknown> {
+function getStaticMessages(locale: Locale): Record<string, unknown> {
   return getStaticSplitMessages(locale);
 }
 

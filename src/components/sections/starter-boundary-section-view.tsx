@@ -2,12 +2,12 @@ import { Link } from "@/i18n/routing";
 import type { LinkHref } from "@/lib/i18n/route-parsing";
 import { HomepageSectionShell } from "@/components/sections/homepage-section-shell";
 
-export interface StarterBoundaryItem {
+interface StarterBoundaryItem {
   title: string;
   description: string;
 }
 
-export interface StarterBoundaryLink {
+interface StarterBoundaryLink {
   label: string;
   href: LinkHref;
 }

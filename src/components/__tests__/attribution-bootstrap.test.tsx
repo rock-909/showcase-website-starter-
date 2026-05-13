@@ -8,8 +8,8 @@ const { mockStoreAttributionData, mockFlushPendingAttribution } = vi.hoisted(
   }),
 );
 
-vi.mock("@/lib/utm", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/utm")>();
+vi.mock("@/lib/marketing/utm", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/marketing/utm")>();
   return {
     ...actual,
     storeAttributionData: () => {

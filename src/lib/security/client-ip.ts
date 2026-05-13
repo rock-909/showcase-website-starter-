@@ -10,7 +10,6 @@ import { NextRequest } from "next/server";
 import { getRuntimeEnvString, isRuntimeDevelopment } from "@/lib/env";
 import { INTERNAL_TRUSTED_CLIENT_IP_HEADER } from "@/lib/security/client-ip-headers";
 import {
-  getIPVersion,
   getNextJsIP,
   isValidIP,
   parseFirstIP,
@@ -249,5 +248,3 @@ export function getClientIPFromHeaders(headers: HeadersLike): string {
     ? LOCALHOST_IP
     : FALLBACK_IP;
 }
-
-export { getIPVersion };

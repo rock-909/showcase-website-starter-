@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import {
   evaluatePerformance,
   I18nPerformanceMonitor,
-} from "../i18n-performance";
+} from "@/lib/i18n/performance";
 
 describe("i18n-performance", () => {
   beforeEach(() => {

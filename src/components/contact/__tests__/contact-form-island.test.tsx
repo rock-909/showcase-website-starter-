@@ -80,6 +80,7 @@ describe("ContactFormIsland", () => {
 
     expect(source).toContain("useReducer");
     expect(source).not.toContain("setLoadState");
+    expect(source).not.toContain("contact-form-island-view");
   });
 
   it("shows the loading fallback until the real form loads", async () => {

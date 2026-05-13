@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const { execSync, spawnSync } = require("node:child_process");
+const { spawnSync } = require("node:child_process");
 const fs = require("node:fs");
 const {
   access,
@@ -17,6 +17,7 @@ const matter = require("gray-matter");
 const { config: loadDotenv } = require("dotenv");
 const yaml = require("js-yaml");
 const ts = require("typescript");
+const { runBrandCheck } = require("./quality/checks/brand");
 const {
   buildKey,
   collectPairs,
@@ -27,6 +28,24 @@ const {
   validateCollectionPair,
   validateMdxSlugSync,
 } = require("./quality/checks/content-slugs");
+const {
+  collectClientBoundaryFiles,
+  hasTopLevelUseClientDirective,
+  runClientBoundaryBudgetCheck,
+  runClientBoundaryCli,
+} = require("./quality/checks/client-boundary");
+const {
+  analyzeFile,
+  analyzeSource,
+  collectRegisteredGuardrailExceptionIds,
+  getActiveGuardrailExceptionSection,
+  isProductionFile,
+  isStructuralGuardrailExemptPath,
+  isTestFile,
+  parseGuardrailException,
+  runEslintDisableCheck,
+  STRUCTURAL_GUARDRAIL_RULES,
+} = require("./quality/checks/eslint-disable");
 
 const ROOT = process.cwd();
 
@@ -146,151 +165,12 @@ function parseJsoncText(filePath, content) {
   return parsed.config;
 }
 
-// ---------------------------------------------------------------------------
-// brand
-// ---------------------------------------------------------------------------
-
-const BRAND_SCAN_ROOTS = [
-  "README.md",
-  "AGENTS.md",
-  "CLAUDE.md",
-  "CLAUDE.local.md",
-  "PRODUCT.md",
-  "DESIGN.md",
-  "HANDOFF.md",
-  "package.json",
-  "src",
-  "content",
-  "messages",
-  "public",
-  "tests",
-  "scripts",
-  "docs",
-];
-const BRAND_SOURCE_EXTENSIONS = new Set([
-  ".css",
-  ".html",
-  ".js",
-  ".json",
-  ".jsx",
-  ".md",
-  ".mdx",
-  ".mjs",
-  ".svg",
-  ".ts",
-  ".tsx",
-  ".txt",
-  ".yml",
-  ".yaml",
-]);
-const COMMON_EXCLUDED_DIRS = new Set([
-  ".git",
-  ".next",
-  ".open-next",
-  ".wrangler",
-  "coverage",
-  "node_modules",
-  "reports",
-  "storybook-static",
-]);
-const FORBIDDEN_BRAND_MARKERS = [
-  "Tianze",
-  "天泽",
-  "tianze-pipe",
-  "Lianyungang Tianze",
-  "TIANZE-DESIGN",
-  "b2b-web-template",
-  "PVC conduit",
-  "PETG pneumatic",
-];
-const SELF_PATH = "scripts/starter-checks.js";
-
 function toRepoPath(rootDir, absolutePath) {
   return path.relative(rootDir, absolutePath).split(path.sep).join("/");
 }
 
-function isBrandSourceFile(filePath) {
-  return BRAND_SOURCE_EXTENSIONS.has(path.extname(filePath));
-}
-
-function collectBrandFiles(targetPath, results = []) {
-  if (!fs.existsSync(targetPath)) return results;
-
-  const stats = fs
-    .readdirSync(path.dirname(targetPath), { withFileTypes: true })
-    .find((entry) => entry.name === path.basename(targetPath));
-
-  if (stats?.isFile()) {
-    if (isBrandSourceFile(targetPath)) results.push(targetPath);
-    return results;
-  }
-
-  for (const entry of fs.readdirSync(targetPath, { withFileTypes: true })) {
-    if (COMMON_EXCLUDED_DIRS.has(entry.name)) continue;
-
-    const absolutePath = path.join(targetPath, entry.name);
-    if (entry.isDirectory()) {
-      collectBrandFiles(absolutePath, results);
-      continue;
-    }
-
-    if (entry.isFile() && isBrandSourceFile(absolutePath)) {
-      results.push(absolutePath);
-    }
-  }
-
-  return results;
-}
-
 function getLineNumber(content, index) {
   return content.slice(0, index).split("\n").length;
-}
-
-function scanBrandFile(filePath) {
-  const content = fs.readFileSync(filePath, "utf8");
-  if (toRepoPath(ROOT, filePath) === SELF_PATH) return [];
-
-  const findings = [];
-  for (const marker of FORBIDDEN_BRAND_MARKERS) {
-    const haystack =
-      marker === marker.toLowerCase() ? content.toLowerCase() : content;
-    const needle =
-      marker === marker.toLowerCase() ? marker.toLowerCase() : marker;
-    let searchIndex = 0;
-
-    while (true) {
-      const index = haystack.indexOf(needle, searchIndex);
-      if (index === -1) break;
-      findings.push({
-        file: toRepoPath(ROOT, filePath),
-        line: getLineNumber(content, index),
-        marker,
-      });
-      searchIndex = index + needle.length;
-    }
-  }
-
-  return findings;
-}
-
-function runBrandCheck() {
-  const files = BRAND_SCAN_ROOTS.flatMap((scanRoot) =>
-    collectBrandFiles(path.join(ROOT, scanRoot)),
-  );
-  const findings = files.flatMap(scanBrandFile);
-
-  if (findings.length === 0) {
-    console.log("brand:check passed");
-    return true;
-  }
-
-  console.error("brand:check failed: old project brand markers remain");
-  for (const finding of findings) {
-    console.error(
-      `- ${finding.file}:${finding.line} forbidden marker "${finding.marker}"`,
-    );
-  }
-  return false;
 }
 
 // ---------------------------------------------------------------------------
@@ -1091,300 +971,6 @@ function runValidateProductionConfigCli() {
 }
 
 // ---------------------------------------------------------------------------
-// eslint-disable guard
-// ---------------------------------------------------------------------------
-
-const GUARDRAIL_REGISTER_PATH = "docs/guides/GUARDRAIL-SIDE-EFFECTS.md";
-const GUARDRAIL_EXCEPTION_PATTERN =
-  /\bguardrail-exception\s+(GSE-\d{8}-[a-z0-9-]+):\s*(\S.+)$/i;
-const ACTIVE_GUARDRAIL_EXCEPTION_HEADING =
-  /^## Active production structural exceptions\s*$/im;
-const CONFIG_FILE_PATTERN = /(?:^|\/)[^/]+\.config\.(?:js|ts|mjs|mts)$/i;
-const STRUCTURAL_GUARDRAIL_RULES = new Set([
-  "complexity",
-  "max-depth",
-  "max-lines",
-  "max-lines-per-function",
-  "max-nested-callbacks",
-  "max-params",
-  "max-statements",
-]);
-
-function getRepoFiles() {
-  try {
-    const output = execSync(
-      "git ls-files --cached --others --exclude-standard",
-      {
-        encoding: "utf8",
-        cwd: ROOT,
-        stdio: ["ignore", "pipe", "ignore"],
-      },
-    );
-    return output.split("\n").flatMap((line) => {
-      const trimmed = line.trim();
-      return trimmed ? [trimmed] : [];
-    });
-  } catch (error) {
-    console.error("[eslint-disable-check] Failed to list git files:", error);
-    process.exit(1);
-  }
-}
-
-function isLintSourceFile(filePath) {
-  if (
-    !(
-      filePath.startsWith("src/") ||
-      filePath.startsWith("tests/") ||
-      filePath.startsWith("scripts/")
-    )
-  ) {
-    return false;
-  }
-
-  return [".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs"].includes(
-    path.extname(filePath),
-  );
-}
-
-function isTestFile(filePath) {
-  if (filePath.startsWith("tests/")) return true;
-  if (filePath.startsWith("src/test/")) return true;
-  if (filePath.includes("/__tests__/")) return true;
-  if (/\.(test|spec)\.(ts|tsx|js|jsx)$/.test(filePath)) return true;
-  if (filePath.startsWith("src/types/test-")) return true;
-  if (filePath.startsWith("src/constants/test-")) return true;
-
-  return false;
-}
-
-function isStructuralGuardrailExemptPath(filePath) {
-  if (CONFIG_FILE_PATTERN.test(filePath)) return true;
-  if (filePath.startsWith("src/components/dev-tools/")) return true;
-  if (/^src\/app\/.+\/dev-tools\//.test(filePath)) return true;
-
-  return false;
-}
-
-function isProductionFile(filePath) {
-  if (!filePath.startsWith("src/")) return false;
-  if (isTestFile(filePath)) return false;
-  if (filePath.startsWith("src/scripts/")) return false;
-  if (isStructuralGuardrailExemptPath(filePath)) return false;
-
-  return true;
-}
-
-function isValidRuleName(rule) {
-  return /^[@\w/-]+$/.test(rule);
-}
-
-function stripTrailingCommentEnd(text) {
-  return text.replace(/\*\/\s*\}?$/, "").trim();
-}
-
-function getActiveGuardrailExceptionSection(registerContent) {
-  const headingMatch = registerContent.match(
-    ACTIVE_GUARDRAIL_EXCEPTION_HEADING,
-  );
-  if (!headingMatch || headingMatch.index === undefined) return "";
-
-  const sectionStart = headingMatch.index + headingMatch[0].length;
-  const sectionContent = registerContent.slice(sectionStart);
-  const nextHeadingIndex = sectionContent.search(/^##\s+/m);
-
-  return nextHeadingIndex === -1
-    ? sectionContent
-    : sectionContent.slice(0, nextHeadingIndex);
-}
-
-function collectRegisteredGuardrailExceptionIds(registerContent) {
-  const ids = new Set();
-  const activeSection = getActiveGuardrailExceptionSection(registerContent);
-  if (activeSection.length === 0) return ids;
-
-  const idPattern = /\|\s*(GSE-\d{8}-[a-z0-9-]+)\s*\|/gi;
-  let match = idPattern.exec(activeSection);
-
-  while (match) {
-    ids.add(match[1].toLowerCase());
-    match = idPattern.exec(activeSection);
-  }
-
-  return ids;
-}
-
-function readRegisteredGuardrailExceptionIds() {
-  const registerPath = path.join(ROOT, GUARDRAIL_REGISTER_PATH);
-
-  try {
-    return collectRegisteredGuardrailExceptionIds(
-      fs.readFileSync(registerPath, "utf8"),
-    );
-  } catch (error) {
-    if (error && typeof error === "object" && error.code === "ENOENT") {
-      return new Set();
-    }
-    throw error;
-  }
-}
-
-function parseGuardrailException(reason) {
-  const match = reason.match(GUARDRAIL_EXCEPTION_PATTERN);
-  if (!match) return null;
-
-  return {
-    id: match[1].toLowerCase(),
-    detail: match[2].trim(),
-  };
-}
-
-function parseDisableDirective(line, directive) {
-  const idx = line.indexOf(directive);
-  if (idx === -1) return null;
-
-  const rawRest = stripTrailingCommentEnd(line.slice(idx + directive.length));
-  const rest = rawRest.trim();
-  const reasonIdx = rest.indexOf("--");
-  const rulesText = (reasonIdx === -1 ? rest : rest.slice(0, reasonIdx)).trim();
-  const reason = (reasonIdx === -1 ? "" : rest.slice(reasonIdx + 2)).trim();
-  const rules = rulesText.split(",").flatMap((rule) => {
-    const trimmed = rule.trim();
-    return trimmed ? [trimmed] : [];
-  });
-
-  return { rules, reason };
-}
-
-function analyzeSource(filePath, content, options = {}) {
-  const registeredGuardrailExceptionIds =
-    options.registeredGuardrailExceptionIds ?? new Set();
-  const lines = content.split("\n");
-  const findings = [];
-  const testFile = isTestFile(filePath);
-  const productionFile = isProductionFile(filePath);
-
-  function extractDirectiveText(trimmed) {
-    if (trimmed.startsWith("//")) return trimmed.slice(2).trim();
-    if (trimmed.startsWith("/*")) return trimmed.slice(2).trim();
-    if (trimmed.startsWith("*")) return trimmed.slice(1).trim();
-
-    const jsxBlockIdx = trimmed.indexOf("{/*");
-    if (jsxBlockIdx !== -1) {
-      return trimmed.slice(jsxBlockIdx + 3).trim();
-    }
-
-    return null;
-  }
-
-  for (let i = 0; i < lines.length; i += 1) {
-    const rawLine = lines[i] ?? "";
-    if (!rawLine.includes("eslint-disable")) continue;
-    if (rawLine.includes("eslint-enable")) continue;
-
-    const trimmed = rawLine.trim();
-    const directiveText = extractDirectiveText(trimmed);
-    if (!directiveText) continue;
-
-    const directiveMatch = directiveText.match(
-      /^eslint-disable(?:-next-line|-line)?\b/,
-    );
-    if (!directiveMatch) continue;
-
-    const directive = directiveMatch[0];
-    const parsed = parseDisableDirective(directiveText, directive);
-    if (!parsed) continue;
-
-    const violations = [];
-    if (parsed.rules.length === 0) {
-      violations.push("missing explicit rule name");
-    }
-
-    for (const rule of parsed.rules) {
-      if (!isValidRuleName(rule)) {
-        violations.push(`invalid rule name: ${rule}`);
-      }
-    }
-
-    if (productionFile && parsed.reason.length === 0) {
-      violations.push("missing production-code reason");
-    }
-
-    const structuralRules = parsed.rules.filter((rule) =>
-      STRUCTURAL_GUARDRAIL_RULES.has(rule),
-    );
-    if (
-      structuralRules.length > 0 &&
-      productionFile &&
-      !testFile &&
-      !isStructuralGuardrailExemptPath(filePath)
-    ) {
-      const exception = parseGuardrailException(parsed.reason);
-      if (!exception) {
-        violations.push(
-          "missing guardrail exception id (use `-- guardrail-exception GSE-YYYYMMDD-short-slug: real boundary ...`)",
-        );
-      } else if (!registeredGuardrailExceptionIds.has(exception.id)) {
-        violations.push(`unregistered guardrail exception id: ${exception.id}`);
-      }
-    }
-
-    if (violations.length > 0) {
-      findings.push({
-        filePath,
-        line: i + 1,
-        directive,
-        content: trimmed,
-        violations,
-      });
-    }
-  }
-
-  return findings;
-}
-
-function analyzeFile(filePath, options = {}) {
-  const absolute = path.join(ROOT, filePath);
-  let content;
-  try {
-    content = fs.readFileSync(absolute, "utf8");
-  } catch (error) {
-    if (error && typeof error === "object" && error.code === "ENOENT") {
-      return [];
-    }
-    throw error;
-  }
-
-  return analyzeSource(filePath, content, options);
-}
-
-function runEslintDisableCheck() {
-  const files = getRepoFiles().filter(isLintSourceFile);
-  const registeredGuardrailExceptionIds = readRegisteredGuardrailExceptionIds();
-  const allFindings = [];
-
-  for (const file of files) {
-    allFindings.push(...analyzeFile(file, { registeredGuardrailExceptionIds }));
-  }
-
-  if (allFindings.length === 0) {
-    console.log("[eslint-disable-check] OK (no violations)");
-    return true;
-  }
-
-  console.log(`[eslint-disable-check] Violations: ${allFindings.length}\n`);
-  for (const finding of allFindings) {
-    console.log(
-      `- ${finding.filePath}:${finding.line} ${finding.directive}: ${finding.violations.join(
-        "; ",
-      )}`,
-    );
-    console.log(`  ${finding.content}`);
-  }
-
-  return false;
-}
-
-// ---------------------------------------------------------------------------
 // component governance
 // ---------------------------------------------------------------------------
 
@@ -1717,14 +1303,17 @@ const READINESS_SCAN_TARGETS = [
   },
   {
     root: "public/images",
-    extensions: new Set([".svg"]),
+    extensions: new Set([
+      ".avif",
+      ".gif",
+      ".jpg",
+      ".jpeg",
+      ".png",
+      ".svg",
+      ".webp",
+    ]),
     scanTextRules: false,
     scanPathRules: true,
-  },
-  {
-    root: "src/config/website",
-    extensions: new Set([".js", ".json", ".mjs", ".ts", ".tsx"]),
-    scanTextRules: true,
   },
   {
     root: "src/constants/product-specs",
@@ -1735,7 +1324,7 @@ const READINESS_SCAN_TARGETS = [
     root: "src/config",
     extensions: new Set([".ts"]),
     allowedPathPattern:
-      /^src\/config\/(?:single-site|single-site-seo|single-site-product-catalog)\.ts$/u,
+      /^src\/config\/(?:single-site|single-site-seo|single-site-navigation|single-site-links|single-site-page-expression|single-site-product-catalog)\.ts$/u,
     scanTextRules: true,
   },
 ];
@@ -2151,13 +1740,6 @@ function collectScanUnits(content, filePath) {
   }));
 }
 
-function isConfigRuntimeLogoReference(file, unit) {
-  return (
-    file.repoPath.startsWith("src/config/website/") &&
-    unit.value.trim() === LOGO_REFERENCE
-  );
-}
-
 function isContentRuntimeLogoReference(file, unit) {
   return (
     file.repoPath.startsWith("content/pages/") &&
@@ -2169,11 +1751,7 @@ function isContentRuntimeLogoReference(file, unit) {
 function findRuntimeLogoReferenceUnit(file, scanUnits) {
   if (file.scanPathRules) return undefined;
 
-  return scanUnits.find(
-    (unit) =>
-      isConfigRuntimeLogoReference(file, unit) ||
-      isContentRuntimeLogoReference(file, unit),
-  );
+  return scanUnits.find((unit) => isContentRuntimeLogoReference(file, unit));
 }
 
 function scanReadinessFile(rootDir, file) {
@@ -2269,266 +1847,6 @@ function runContentReadinessCli() {
 }
 
 // ---------------------------------------------------------------------------
-// client boundary
-// ---------------------------------------------------------------------------
-
-const BUDGET_PATH = "docs/quality/client-boundary-budget.json";
-const CLIENT_BOUNDARY_REPORT_PATH =
-  "reports/quality/client-boundary-budget.json";
-const SOURCE_ROOT = "src";
-const BUDGET_VERSION = 1;
-const SOURCE_EXTENSIONS = new Set([".ts", ".tsx"]);
-const CLIENT_BOUNDARY_EXCLUDED_DIR_NAMES = new Set([
-  "__fixtures__",
-  "__mocks__",
-  "__tests__",
-  "mock",
-  "mocks",
-  "spec",
-  "specs",
-  "stories",
-  "storybook",
-  ".storybook",
-]);
-const CLIENT_BOUNDARY_EXCLUDED_FILE_PATTERN =
-  /\.(?:mock|spec|stories|story|test)\.[cm]?(?:ts|tsx)$/u;
-
-function isClientBoundaryExcludedPath(repoPath) {
-  if (repoPath.startsWith("src/test/")) return true;
-  if (repoPath.startsWith("src/testing/")) return true;
-  if (CLIENT_BOUNDARY_EXCLUDED_FILE_PATTERN.test(repoPath)) return true;
-
-  return repoPath
-    .split("/")
-    .some((part) => CLIENT_BOUNDARY_EXCLUDED_DIR_NAMES.has(part));
-}
-
-function collectSourceFiles(rootDir) {
-  const srcDir = path.join(rootDir, SOURCE_ROOT);
-  const results = [];
-  if (!fs.existsSync(srcDir)) return results;
-
-  function walk(currentPath) {
-    const repoPath = toRepoPath(rootDir, currentPath);
-    if (isClientBoundaryExcludedPath(repoPath)) return;
-
-    const stats = fs.statSync(currentPath);
-    if (stats.isDirectory()) {
-      for (const entry of fs.readdirSync(currentPath, {
-        withFileTypes: true,
-      })) {
-        walk(path.join(currentPath, entry.name));
-      }
-      return;
-    }
-
-    if (stats.isFile() && SOURCE_EXTENSIONS.has(path.extname(currentPath))) {
-      results.push(currentPath);
-    }
-  }
-
-  walk(srcDir);
-  return results.sort((left, right) => left.localeCompare(right));
-}
-
-function hasTopLevelUseClientDirective(source) {
-  const ast = parse(source, {
-    sourceType: "module",
-    plugins: ["jsx", "typescript"],
-  });
-
-  return ast.program.directives.some(
-    (directive) => directive.value.value === "use client",
-  );
-}
-
-function collectClientBoundaryFiles(rootDir = ROOT) {
-  const clientBoundaries = [];
-
-  for (const filePath of collectSourceFiles(rootDir)) {
-    if (!hasTopLevelUseClientDirective(fs.readFileSync(filePath, "utf8"))) {
-      continue;
-    }
-    clientBoundaries.push(toRepoPath(rootDir, filePath));
-  }
-
-  return clientBoundaries.sort((left, right) => left.localeCompare(right));
-}
-
-function createBudgetError(kind, message) {
-  return {
-    kind,
-    file: BUDGET_PATH,
-    message,
-  };
-}
-
-function isValidBudgetShape(value) {
-  return (
-    value !== null &&
-    typeof value === "object" &&
-    value.version === BUDGET_VERSION &&
-    Number.isInteger(value.maxClientBoundaries) &&
-    value.maxClientBoundaries >= 0 &&
-    Array.isArray(value.allowedClientBoundaries) &&
-    value.allowedClientBoundaries.every((item) => typeof item === "string")
-  );
-}
-
-function readBudget(rootDir) {
-  const budgetFile = path.join(rootDir, BUDGET_PATH);
-  if (!fs.existsSync(budgetFile)) {
-    return {
-      budget: null,
-      errors: [
-        createBudgetError(
-          "budget-missing",
-          "Client boundary budget file is missing.",
-        ),
-      ],
-    };
-  }
-
-  try {
-    const parsed = JSON.parse(fs.readFileSync(budgetFile, "utf8"));
-    if (!isValidBudgetShape(parsed)) {
-      return {
-        budget: null,
-        errors: [
-          createBudgetError(
-            "budget-invalid",
-            "Client boundary budget must define version 1, maxClientBoundaries, and allowedClientBoundaries.",
-          ),
-        ],
-      };
-    }
-
-    return {
-      budget: {
-        version: parsed.version,
-        maxClientBoundaries: parsed.maxClientBoundaries,
-        allowedClientBoundaries: parsed.allowedClientBoundaries.toSorted(
-          (left, right) => left.localeCompare(right),
-        ),
-      },
-      errors: [],
-    };
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return {
-      budget: null,
-      errors: [createBudgetError("budget-invalid-json", message)],
-    };
-  }
-}
-
-function writeClientBoundaryReport(rootDir, payload) {
-  const reportFile = path.join(rootDir, CLIENT_BOUNDARY_REPORT_PATH);
-  fs.mkdirSync(path.dirname(reportFile), { recursive: true });
-  fs.writeFileSync(reportFile, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
-}
-
-function createUnexpectedBoundaryErrors(clientBoundaries, budget) {
-  const allowed = new Set(budget.allowedClientBoundaries);
-
-  const errors = [];
-  for (const file of clientBoundaries) {
-    if (allowed.has(file)) continue;
-    errors.push({
-      kind: "unexpected-client-boundary",
-      file,
-      message: "Client boundary is not listed in the committed budget.",
-    });
-  }
-
-  return errors;
-}
-
-function createStaleBoundaryErrors(clientBoundaries, budget) {
-  const actual = new Set(clientBoundaries);
-
-  const errors = [];
-  for (const file of budget.allowedClientBoundaries) {
-    if (actual.has(file)) continue;
-    errors.push({
-      kind: "stale-client-boundary",
-      file,
-      message:
-        "Client boundary is listed in the committed budget but is not detected in src.",
-    });
-  }
-
-  return errors;
-}
-
-function createBudgetExceededError(clientBoundaries, budget) {
-  if (clientBoundaries.length <= budget.maxClientBoundaries) return null;
-
-  return createBudgetError(
-    "budget-exceeded",
-    `Detected ${clientBoundaries.length} client boundaries, but the budget allows ${budget.maxClientBoundaries}.`,
-  );
-}
-
-function runClientBoundaryBudgetCheck(rootDir = ROOT) {
-  const clientBoundaries = collectClientBoundaryFiles(rootDir);
-  const { budget, errors: budgetErrors } = readBudget(rootDir);
-  const errors = [...budgetErrors];
-  let unexpectedClientBoundaries = [];
-  let staleClientBoundaries = [];
-
-  if (budget) {
-    const unexpectedErrors = createUnexpectedBoundaryErrors(
-      clientBoundaries,
-      budget,
-    );
-    unexpectedClientBoundaries = unexpectedErrors.map((error) => error.file);
-    errors.push(...unexpectedErrors);
-
-    const staleErrors = createStaleBoundaryErrors(clientBoundaries, budget);
-    staleClientBoundaries = staleErrors.map((error) => error.file);
-    errors.push(...staleErrors);
-
-    const budgetExceededError = createBudgetExceededError(
-      clientBoundaries,
-      budget,
-    );
-    if (budgetExceededError) errors.push(budgetExceededError);
-  }
-
-  const result = {
-    status: errors.length === 0 ? "passed" : "failed",
-    budgetPath: BUDGET_PATH,
-    reportPath: CLIENT_BOUNDARY_REPORT_PATH,
-    clientBoundaries,
-    unexpectedClientBoundaries,
-    staleClientBoundaries,
-    maxClientBoundaries: budget?.maxClientBoundaries ?? null,
-    errors,
-  };
-
-  writeClientBoundaryReport(rootDir, {
-    createdAt: new Date().toISOString(),
-    ...result,
-  });
-
-  return result;
-}
-
-function runClientBoundaryCli() {
-  const result = runClientBoundaryBudgetCheck(ROOT);
-
-  console.log(
-    `[client-boundary-budget] ${result.status}: ${result.clientBoundaries.length} client boundary file(s)`,
-  );
-  for (const error of result.errors) {
-    console.log(`- ERROR ${error.file} ${error.kind}: ${error.message}`);
-  }
-
-  return result.status !== "failed";
-}
-
-// ---------------------------------------------------------------------------
 // truth docs
 // ---------------------------------------------------------------------------
 
@@ -2538,6 +1856,8 @@ const TRUTH_DOC_CHECKS = [
     required: [
       "src/config/single-site-page-expression.ts",
       "src/config/single-site-seo.ts",
+      "src/config/single-site-product-catalog.ts",
+      "src/constants/product-specs/**",
       "messages/en/critical.json",
       "messages/en/deferred.json",
       "Browser contact route handler",
@@ -2554,6 +1874,8 @@ const TRUTH_DOC_CHECKS = [
     required: [
       "src/config/single-site-page-expression.ts",
       "src/config/single-site-seo.ts",
+      "src/config/single-site-product-catalog.ts",
+      "src/constants/product-specs/**",
       "Do not replace first",
       "Minimum proof after replacement",
     ],

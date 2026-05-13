@@ -4,7 +4,7 @@ import {
   loadCompleteMessagesFromSource,
   loadCriticalMessages,
   loadDeferredMessages,
-} from "@/lib/load-messages";
+} from "@/lib/i18n/load-messages";
 
 vi.mock("next/cache", () => ({
   unstable_cache: (fn: unknown) => fn,

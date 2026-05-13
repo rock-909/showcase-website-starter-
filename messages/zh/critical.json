@@ -42,7 +42,7 @@
     }
   },
   "navigation": {
-    "siteName": "Showcase Website Starter",
+    "siteName": "{siteName}",
     "siteDescription": "用于展示产品、服务、证据和询盘路径的可复用网站 starter。",
     "home": "首页",
     "more": "更多",
@@ -432,7 +432,7 @@
     },
     "footer": {
       "about": {
-        "title": "Showcase Website Starter",
+        "title": "{siteName}",
         "desc": "可复用展示型网站 starter，用于展示业务、证据、资源和询盘路径。"
       },
       "products": {
@@ -462,7 +462,7 @@
           "item4": "项目评审"
         }
       },
-      "copyright": "© 2024 Showcase Website Starter 版权所有",
+      "copyright": "{copyright}",
       "location": "上线前替换真实所在地"
     },
     "cta": {
@@ -797,7 +797,7 @@
     "learn": "学习",
     "examples": "示例",
     "goToNextjs": "访问nextjs.org",
-    "copyright": "(c) {year} Showcase Website Starter。保留所有权利。",
+    "copyright": "{copyright}",
     "description": "用于展示产品、服务、证据和询盘路径的可复用网站 starter。"
   },
   "accessibility": {
@@ -930,7 +930,7 @@
   },
   "structured-data": {
     "organization": {
-      "name": "Showcase Website Starter",
+      "name": "{companyName}",
       "description": "用于展示产品、服务、证据和询盘路径的可复用网站 starter",
       "phone": "请通过邮箱联系销售团队",
       "social": {
@@ -939,13 +939,13 @@
       }
     },
     "website": {
-      "name": "Showcase Website Starter",
+      "name": "{siteName}",
       "description": "用于展示产品、服务、证据和询盘路径的可复用网站 starter"
     },
     "article": {
       "defaultTitle": "文章",
       "defaultDescription": "文章描述",
-      "defaultAuthor": "Showcase Website Starter"
+      "defaultAuthor": "{companyName}"
     },
     "product": {
       "defaultName": "产品",

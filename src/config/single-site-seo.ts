@@ -3,7 +3,7 @@ import { getCanonicalPath, getProductMarketPath } from "@/config/paths/utils";
 import { getAllMarketSlugs } from "@/constants/product-catalog";
 import { getMarketSpecsBySlug } from "@/constants/product-specs/market-spec-registry";
 
-export type SingleSiteSitemapChangeFrequency =
+type SingleSiteSitemapChangeFrequency =
   | "always"
   | "hourly"
   | "daily"

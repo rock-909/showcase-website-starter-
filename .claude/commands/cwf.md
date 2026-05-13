@@ -20,7 +20,7 @@ cwf = 文案编排器
 
 **输出**：`docs/workflows/cwf/{page}/v{N}.md` + 可选 i18n JSON。
 
-Starter 只保留 CWF 这套 workflow，不携带旧项目已经跑出来的 CWF 文案产物。不要恢复或复用旧页面定稿、旧研究上下文或旧 proof materials。新项目如果需要文案工作流，应从 `docs/website/内容设置.md`、`src/config/website/`、当前页面目标和用户提供的业务素材开始。
+Starter 只保留 CWF 这套 workflow，不携带旧项目已经跑出来的 CWF 文案产物。不要恢复或复用旧页面定稿、旧研究上下文或旧 proof materials。新项目如果需要文案工作流，应从 `docs/website/内容设置.md`、`src/config/single-site*.ts`、当前页面目标和用户提供的业务素材开始。
 
 ---
 
@@ -30,7 +30,7 @@ Starter 只保留 CWF 这套 workflow，不携带旧项目已经跑出来的 CWF
 
 1. `docs/website/README.md`
 2. `docs/website/内容设置.md`
-3. `src/config/website/`
+3. `src/config/single-site*.ts`
 4. 当前页面已有内容（如 `content/pages/{locale}/{page}.mdx`）
 
 **询问用户：**

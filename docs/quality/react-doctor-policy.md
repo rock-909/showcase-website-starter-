@@ -5,21 +5,23 @@ React Doctor is an error-level gate in this starter.
 ## Gate policy
 
 - `error` blocks CI.
-- `warning` is backlog until classified.
-- React Doctor native scan should stay at `0 warning / 0 error` after project
-  calibration.
+- `warning` is backlog, not merge-blocking by default.
+- The calibrated gate target is `0 error`; warning-level dead-code output is a
+  review queue unless a finding has file-level runtime proof.
 - `react-doctor.config.json` may suppress only narrow file/rule combinations
   that are backed by this policy, the exception registry, or the classified
-  governance report.
+  historical warning review.
+- The only directory-level patterns in the current config are
+  `.claude/skills/**` and `.codex/skills/**`, and they are scoped to Knip-backed
+  dead-code rules through `ignore.overrides`. These are tool-owned AI skill
+  bundles, not website runtime source.
 - Do not add broad `ignore.rules` or whole-directory `ignore.files` entries for
-  convenience.
-- CI also runs the classified governance gate. The classified gate blocks on any `blocking-error` or `confirmed-real` diagnostic that has not been fixed or otherwise classified with owner and reason.
-- CI also runs a raw-governance gate against the pre-suppression diagnostics.
-  That gate verifies the native suppression config still matches the current
-  raw file/rule set and does not use global rule or whole-file ignores.
-- Raw governance also compares pre-suppression diagnostic counts against
-  `docs/quality/react-doctor-raw-baseline.json` so a future warning with the
-  same file/rule pair is not silently swallowed by an existing narrow override.
+  convenience. Do not suppress non-Knip diagnostics for skill bundles without a
+  separate tool-ownership review.
+- CI does not run a separate classified or raw governance layer. Warning
+  classification is human backlog/reference work, not an extra CI gate.
+- `pnpm react:doctor:report` remains available when a human reviewer needs a
+  JSON snapshot for manual warning backlog review.
 
 ## Buckets
 
@@ -32,9 +34,9 @@ React Doctor is an error-level gate in this starter.
 | `test-fixture-noise` | Test or support fixture warning. | Do not block release. |
 | `low-value-style` | Style or micro-optimization. | Cleanup only after higher-value work. |
 
-## Calibrated zero-warning definition
+## Calibrated warning definition
 
-The long-term target remains React Doctor `0 warning / 0 error`, but the
+The long-term cleanup direction is still to reduce warning noise, but the
 project rule after calibration is stricter than a raw count and safer than
 blind cleanup:
 
@@ -53,21 +55,44 @@ Every raw warning must have exactly one actionable disposition:
 | `exempt-after-proof` | The warning is a documented exception or test/support fixture signal. | `quality-governance` or `test-governance` |
 | `temporarily-retain` | The warning needs a dedicated proof lane or is low-value style cleanup. | `proof-lane` or `quality-governance` |
 
-At the current calibrated baseline, native React Doctor reports zero issues.
-Historical diagnostics are represented by narrow project config overrides,
-the governance docs, and the raw count baseline. If a future raw React Doctor
-run produces a diagnostic outside that config, or grows the count for an
-already-governed file/rule pair, the raw-governance gate should fail until the
-item is repaired, removed after proof, or reclassified with owner and reason.
+At the current calibrated baseline, React Doctor reports zero errors and a
+dead-code warning backlog. The old raw baseline is no longer tracked or
+enforced as a separate CI gate. If a future React Doctor report shows new
+meaningful diagnostics, repair, remove after proof, or reclassify them with
+owner and reason.
 
 ## Current known shape
 
 The initial integrated scan had 516 warnings and 0 errors.
 
-After the production repair waves, sanitizer proof lane, and config
-calibration, the native scan is 0 warning / 0 error. The historical backlog is
-still documented so future agents understand why each suppressed file/rule pair
-is not a hidden bug.
+After the production repair waves, sanitizer proof lane, config calibration,
+governance slimming, unused-export cleanup, and public-surface review, the
+native gate has 0 errors and no native warnings:
+
+```text
+total warnings: 0
+affected files: 0
+score: 100 / 100
+types: 0
+exports: 0
+files: 0
+duplicates: 0
+```
+
+Dead-code findings remain deletion candidates only after proof, not automatic
+deletion instructions. File-level dead-code signals have been triaged into
+narrow `knip/files` overrides when the files are external tool entrypoints or
+test alias assets. Skill bundles under
+`.claude/skills/**` and `.codex/skills/**` are excluded from Knip-backed dead
+code diagnostics because they are agent/tool capability packs. Duplicate-export
+signals are either removed when they are only module-local implementation
+details, or narrowly exempted when they preserve separate business semantics.
+Unused exports and types require owner/API-surface review before removal. The
+current public-surface `knip/exports` and `knip/types` overrides are limited to
+starter authoring contracts, facade contracts, component variant composition
+surfaces, protected contact/SEO compatibility APIs, cookie-consent helpers, and
+test authoring types. Do not expand these overrides without adding a concrete
+reason in this policy or the baseline notes.
 
 Most warning volume is not production behavior:
 
@@ -90,12 +115,12 @@ Most warning volume is not production behavior:
 ## Warning gate decision
 
 Raw warning-level CI blocking is still not used, because warning handling is
-owned by a calibrated config plus raw governance classification. The effective
-target is nevertheless native React Doctor 0 warning / 0 error.
+owned by focused proof lanes plus human warning backlog review. The effective
+merge target is React Doctor 0 error, with warning cleanup handled separately.
 
 Do not change the CI gate to `--fail-on warning` unless the team intentionally
-decides that the current `react-doctor.config.json` should be treated as the
-canonical suppression baseline for warning-level blocking.
+decides that the current warning backlog should be eliminated or explicitly
+suppressed as a canonical warning-level baseline.
 
 ## Rules of repair
 

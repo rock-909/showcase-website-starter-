@@ -40,7 +40,7 @@ vi.mock("next-intl/server", () => ({
   getRequestConfig: mockGetRequestConfig,
 }));
 
-vi.mock("@/lib/i18n-performance", () => ({
+vi.mock("@/lib/i18n/performance", () => ({
   I18nPerformanceMonitor: mockI18nPerformanceMonitor,
 }));
 
@@ -141,7 +141,7 @@ describe("i18n Request Configuration", () => {
   });
 
   it("returns fallback metadata on load failure", async () => {
-    vi.doMock("@/lib/load-messages", () => ({
+    vi.doMock("@/lib/i18n/load-messages", () => ({
       loadCompleteMessages: vi.fn().mockRejectedValue(new Error("load failed")),
       loadCompleteMessagesFromSource: vi.fn().mockResolvedValue({
         common: { loading: "Loading..." },

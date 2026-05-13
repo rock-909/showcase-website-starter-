@@ -10,6 +10,8 @@ import {
   generateStructuredData,
 } from "../structured-data";
 import * as structuredDataPublicApi from "../structured-data";
+import { SINGLE_SITE_CONFIG, SINGLE_SITE_FACTS } from "@/config/single-site";
+import { loadCompleteMessagesFromSource } from "@/lib/i18n/load-messages";
 
 // 测试常量定义
 const TEST_COUNTS = {
@@ -28,7 +30,11 @@ vi.mock("next-intl/server", () => ({
   getTranslations: mockGetTranslations,
 }));
 
-vi.mock("@/lib/i18n-performance", () => ({
+vi.mock("next/cache", () => ({
+  unstable_cache: (loader: unknown) => loader,
+}));
+
+vi.mock("@/lib/i18n/performance", () => ({
   I18nPerformanceMonitor: {
     getInstance: () => ({
       trackTranslationUsage: vi.fn(),
@@ -43,6 +49,36 @@ vi.mock("@/i18n/routing", () => ({
     defaultLocale: "en",
   },
 }));
+
+type TranslationOptions = { defaultValue?: string };
+type TranslationFunction = (
+  key: string,
+  options?: TranslationOptions,
+) => string;
+type MessageRecord = Record<string, unknown>;
+
+const factualPlaceholderPattern =
+  /\{(?:siteName|companyName|currentYear|copyright)\}/u;
+
+function isMessageRecord(value: unknown): value is MessageRecord {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function readNestedMessage(messages: MessageRecord, keyPath: string): unknown {
+  return keyPath.split(".").reduce<unknown>((current, key) => {
+    if (!isMessageRecord(current)) return undefined;
+    return current[key];
+  }, messages);
+}
+
+function createTranslationFunction(
+  messages: MessageRecord,
+): TranslationFunction {
+  return (key, options) => {
+    const value = readNestedMessage(messages, key);
+    return typeof value === "string" ? value : (options?.defaultValue ?? key);
+  };
+}
 
 vi.mock("@/config/paths/site-config", () => ({
   SITE_CONFIG: {
@@ -188,6 +224,38 @@ describe("Structured Data Generation", () => {
       expect(schema).not.toHaveProperty("potentialAction");
       expect(JSON.stringify(schema)).not.toContain("SearchAction");
       expect(JSON.stringify(schema)).not.toContain("/search");
+    });
+  });
+
+  describe("structured-data runtime messages", () => {
+    it("uses concrete brand names after message loader interpolation", async () => {
+      const messages = await loadCompleteMessagesFromSource("en");
+      const structuredDataMessages = readNestedMessage(
+        messages,
+        "structured-data",
+      );
+
+      if (!isMessageRecord(structuredDataMessages)) {
+        throw new Error("Missing structured-data message namespace");
+      }
+
+      mockGetTranslations.mockImplementation(
+        async ({ namespace }: { namespace?: string }) =>
+          createTranslationFunction(
+            namespace === "structured-data" ? structuredDataMessages : {},
+          ),
+      );
+
+      const [organization, website] = await Promise.all([
+        generateLocalizedStructuredData("en", "Organization", {}),
+        generateLocalizedStructuredData("en", "WebSite", {}),
+      ]);
+
+      expect(organization.name).toBe(SINGLE_SITE_FACTS.company.name);
+      expect(website.name).toBe(SINGLE_SITE_CONFIG.name);
+      expect(JSON.stringify([organization, website])).not.toMatch(
+        factualPlaceholderPattern,
+      );
     });
   });
 

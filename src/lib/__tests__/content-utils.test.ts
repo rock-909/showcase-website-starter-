@@ -5,7 +5,7 @@ import { ContentError, type ContentConfig } from "@/types/content.types";
 import {
   TEST_COUNT_CONSTANTS,
   TEST_SAMPLE_CONSTANTS,
-} from "@/constants/test-constants";
+} from "@/test/constants/test-constants";
 import {
   ALLOWED_EXTENSIONS,
   CONFIG_DIR,

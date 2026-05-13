@@ -661,19 +661,13 @@ function runContentSlugCheck(args = [], rootDir = process.cwd()) {
 }
 
 module.exports = {
-  DEFAULT_COLLECTIONS,
-  DEFAULT_LOCALES,
   buildKey,
   collectPairs,
   parseContentSlugArgs,
   parseFrontmatter,
-  printContentSlugHelp,
-  printContentSlugSummary,
-  printFrontmatterContractSummary,
   runContentSlugCheck,
   validateContentFrontmatterContract,
   validateCollectionPair,
-  validateFrontmatterFile,
   validateMdxSlugSync,
   writeContentSlugJsonReport,
 };

@@ -40,8 +40,8 @@ React Doctor is part of the React quality signal, not a replacement for tests.
 
 - Use `pnpm react:doctor` for Client Component, hook, form interaction, and
   render-flow changes when the change could affect React behavior.
-- Use `pnpm react:doctor:governance` when changing React Doctor policy,
-  classification, or known exception files.
+- Use `pnpm react:doctor` when changing React Doctor policy or known
+  exception files; the old classify/raw-governance layer has been retired.
 - React Doctor errors block the branch. Warnings are backlog unless the change
   introduces or reclassifies them.
 - Do not hide warnings by broad exception rules; record narrow, named exceptions

@@ -2,7 +2,7 @@
  * Cache tag utilities for Next.js 16 Cache Components.
  *
  * Runtime invalidation is not part of the current launch architecture.
- * Keep only i18n tags used by `src/lib/load-messages.ts`.
+ * Keep only i18n tags used by `src/lib/i18n/load-messages.ts`.
  */
 
 import type { Locale } from "@/types/content.types";
@@ -11,7 +11,7 @@ export const CACHE_DOMAINS = {
   I18N: "i18n",
 } as const;
 
-export type CacheDomain = (typeof CACHE_DOMAINS)[keyof typeof CACHE_DOMAINS];
+type CacheDomain = (typeof CACHE_DOMAINS)[keyof typeof CACHE_DOMAINS];
 
 export const CACHE_ENTITIES = {
   I18N: {

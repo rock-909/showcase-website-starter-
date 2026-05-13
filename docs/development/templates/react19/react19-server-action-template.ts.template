@@ -17,7 +17,7 @@ import {
   getFormDataString,
   withErrorHandling,
   type ServerActionResult,
-} from "@/lib/server-action-utils";
+} from "@/lib/actions/server-action-utils";
 
 /**
  * 通用表单数据验证Schema示例

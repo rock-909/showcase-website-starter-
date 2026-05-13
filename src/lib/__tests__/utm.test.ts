@@ -16,7 +16,7 @@ import {
   getAttributionAsObject,
   getAttributionSnapshot,
   storeAttributionData,
-} from "../utm";
+} from "@/lib/marketing/utm";
 
 // Mock window and sessionStorage before importing the module
 const mockSessionStorage = {
@@ -270,7 +270,7 @@ describe("UTM Parameter Tracking", () => {
       expect(mockSessionStorage.setItem).not.toHaveBeenCalled();
 
       mockLoadConsent.mockReturnValue(createStoredConsent(true));
-      const utmModule = await import("../utm");
+      const utmModule = await import("@/lib/marketing/utm");
       const flushPendingAttribution = (
         utmModule as typeof utmModule & {
           flushPendingAttribution?: () => void;

@@ -56,7 +56,7 @@ export interface ContactFormFieldValidatorContext {
   field: ContactFormFieldConfig;
 }
 
-export type ContactFormFieldValidator = (
+type ContactFormFieldValidator = (
   context: ContactFormFieldValidatorContext,
 ) => z.ZodTypeAny;
 

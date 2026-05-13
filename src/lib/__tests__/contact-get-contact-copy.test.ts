@@ -10,7 +10,7 @@ const { mockLoadCompleteMessages, mockLoggerWarn } = vi.hoisted(() => ({
   mockLoggerWarn: vi.fn(),
 }));
 
-vi.mock("@/lib/load-messages", () => ({
+vi.mock("@/lib/i18n/load-messages", () => ({
   loadCompleteMessages: mockLoadCompleteMessages,
 }));
 

@@ -27,7 +27,7 @@ dwf = 设计编排器
 | 资源 | 路径 |
 |------|------|
 | 网站说明 | `docs/website/README.md` |
-| 品牌设置 | `docs/website/品牌设置.md` + `src/config/website/` |
+| 品牌设置 | `docs/website/品牌设置.md` + `src/config/single-site*.ts` |
 | 内容设置 | `docs/website/内容设置.md` |
 | CWF 定稿 | `docs/workflows/cwf/{page}/v{N}-final.md` |
 | 生产 Token（权威） | `src/app/globals.css` |

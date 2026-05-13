@@ -27,7 +27,7 @@ import {
   HTTP_SERVICE_UNAVAILABLE,
 } from "@/constants";
 import { API_ERROR_CODES } from "@/constants/api-error-codes";
-import { verifyTurnstileDetailed } from "@/lib/turnstile";
+import { verifyTurnstileDetailed } from "@/lib/security/turnstile";
 
 const TURNSTILE_SERVICE_FAILURE_CODES = new Set([
   "not-configured",

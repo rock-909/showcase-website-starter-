@@ -110,7 +110,7 @@ Expected post-extraction state:
 
 Phase 2 remaining governance status:
 
-- `src/config/website/*` mirror fields are protected by focused tests for the fields that must not drift from `src/config/single-site.ts`.
+- `src/config/website/*` has been retired from tracked source. Runtime and adopter-facing docs should point at canonical replacement surfaces instead of mirror fields.
 - `.env.example` remains checked against `src/lib/env.ts`, and sensitive/deployment-critical env keys must be mentioned in adopter-facing docs.
 - `content-slugs` now owns an optional `--strict-frontmatter` mode for MDX frontmatter and SEO field contract checks. This mode is not the default `pnpm content:check` behavior because current starter pages may intentionally keep starter OG images until a real derived project replaces assets.
 

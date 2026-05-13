@@ -1,5 +1,5 @@
 import { API_ERROR_CODES } from "@/constants/api-error-codes";
-import type { ServerActionResult } from "@/lib/server-action-utils";
+import type { ServerActionResult } from "@/lib/actions/server-action-utils";
 import type { ContactFormResult } from "@/components/forms/use-contact-form";
 
 const STORY_TIMESTAMP = "2026-05-06T00:00:00.000Z";

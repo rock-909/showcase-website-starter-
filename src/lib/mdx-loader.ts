@@ -34,7 +34,7 @@ function getImportersForType(
   }
 }
 
-export async function loadMDXContent(
+async function loadMDXContent(
   type: ContentType,
   locale: Locale,
   slug: string,
@@ -73,5 +73,3 @@ export async function getMDXComponent(
   const mdxModule = await loadMDXContent(type, locale, slug);
   return mdxModule?.default ?? null;
 }
-
-export type { MDXContentModule };

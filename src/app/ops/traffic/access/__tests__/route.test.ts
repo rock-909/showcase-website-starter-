@@ -4,11 +4,15 @@ import { resetRateLimitStore } from "@/lib/security/distributed-rate-limit";
 import { resetPepperWarning } from "@/lib/security/rate-limit-key-strategies";
 
 const mockConstantTimeCompare = vi.hoisted(() => vi.fn());
-const mockCheckDistributedRateLimit = vi.hoisted(() => vi.fn());
+const mockCheckDistributedRateLimit = vi.hoisted(() =>
+  vi.fn<
+    typeof import("@/lib/security/distributed-rate-limit").checkDistributedRateLimit
+  >(),
+);
 
-vi.mock("@/lib/security-crypto", async (importOriginal) => {
+vi.mock("@/lib/security/crypto", async (importOriginal) => {
   const original =
-    await importOriginal<typeof import("@/lib/security-crypto")>();
+    await importOriginal<typeof import("@/lib/security/crypto")>();
   return {
     ...original,
     constantTimeCompare: mockConstantTimeCompare,

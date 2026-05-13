@@ -14,7 +14,7 @@ import { contactFieldValidators } from "@/lib/form-schema/contact-field-validato
 import { LEAD_TYPES } from "@/lib/lead-pipeline/lead-schema";
 import { processLead } from "@/lib/lead-pipeline/process-lead";
 import { logger, sanitizeEmail } from "@/lib/logger";
-import { verifyTurnstileDetailed } from "@/lib/turnstile";
+import { verifyTurnstileDetailed } from "@/lib/security/turnstile";
 
 const contactFormSchema = createContactFormSchemaFromConfig(
   CONTACT_FORM_CONFIG,

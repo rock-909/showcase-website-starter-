@@ -3,7 +3,7 @@ import {
   isValidEmail,
   isValidUrl,
   sanitizePlainText,
-} from "@/lib/security-validation";
+} from "@/lib/security/validation";
 
 describe("Security Utils", () => {
   describe("sanitizePlainText", () => {
