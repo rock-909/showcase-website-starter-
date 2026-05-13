@@ -78,7 +78,7 @@ export class I18nPerformanceMonitor {
 }
 
 // 性能基准目标
-export const PERFORMANCE_TARGETS = {
+const PERFORMANCE_TARGETS = {
   TRANSLATION_LOAD_TIME: {
     excellent: PERCENTAGE_HALF, // < 50ms
     good: PERCENTAGE_FULL, // < 100ms

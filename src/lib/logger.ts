@@ -108,7 +108,7 @@ export function sanitizeIP(ip: string | undefined | null): string {
  * Sanitize company name for logging
  * Returns "[REDACTED]" to prevent PII exposure
  */
-export function sanitizeCompany(company: string | undefined | null): string {
+function sanitizeCompany(company: string | undefined | null): string {
   if (!company) return "[NO_COMPANY]";
   return "[REDACTED]";
 }
@@ -117,7 +117,7 @@ export function sanitizeCompany(company: string | undefined | null): string {
  * Sanitize phone number for logging
  * Keeps first 3 chars and last 4 digits, masks middle
  */
-export function sanitizePhone(phone: string | undefined | null): string {
+function sanitizePhone(phone: string | undefined | null): string {
   if (!phone) return "[NO_PHONE]";
   const s = String(phone).replace(/\s/g, "");
   if (s.length <= 7) return "[PHONE]";

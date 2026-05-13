@@ -11,7 +11,7 @@ const FORM_NETWORK_ERROR_CODE = "FORM_NETWORK_ERROR";
 /**
  * 获取状态消息配置
  */
-export function getStatusConfig(
+function getStatusConfig(
   status: FormSubmissionStatus,
   t: (key: string) => string,
 ): { className: string; message: string } | undefined {

@@ -113,17 +113,6 @@ export const CONTENT_LIMITS = {
   MAX_FILE_SIZE: BASE_NUMBERS.BYTES_PER_KB * BASE_NUMBERS.KB_PER_MB,
 } as const;
 
-/** 内存大小常量 */
-export const MEMORY_CONSTANTS = {
-  /** 1MB的字节数 */
-  MB: BASE_NUMBERS.BYTES_PER_KB * BASE_NUMBERS.KB_PER_MB,
-  /** 1KB的字节数 */
-  KB: BASE_NUMBERS.BYTES_PER_KB,
-} as const;
-
-/** MB常量 - 用于向后兼容 */
-export const { MB } = MEMORY_CONSTANTS;
-
 /** 分页和列表常量 */
 export const PAGINATION_CONSTANTS = {
   /** 默认页面大小 - 10条 */

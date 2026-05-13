@@ -9,9 +9,6 @@
  * // 导入全部消息
  * import { combinedMessages } from '@/test/constants/mock-messages';
  *
- * // 导入特定命名空间
- * import { navigationMessages, commonMessages } from '@/test/constants/mock-messages';
- *
  * // 在测试中使用
  * renderWithIntl(<Component />, 'en', combinedMessages);
  * ```
@@ -23,7 +20,7 @@
  * Common 命名空间 - 通用消息
  * 包含常见的 UI 动作、状态文本
  */
-export const commonMessages = {
+const commonMessages = {
   loading: "Loading...",
   error: "An error occurred",
   success: "Success",
@@ -71,7 +68,7 @@ export const commonMessages = {
  * Navigation 命名空间 - 导航相关消息
  * 包含主导航、移动导航的所有链接文本和描述
  */
-export const navigationMessages = {
+const navigationMessages = {
   home: "Home",
   about: "About",
   contact: "Contact",
@@ -112,7 +109,7 @@ export const navigationMessages = {
  * Accessibility 命名空间 - 无障碍访问消息
  * 用于屏幕阅读器、键盘导航等无障碍功能
  */
-export const accessibilityMessages = {
+const accessibilityMessages = {
   skipToContent: "Skip to main content",
   openMenu: "Open navigation menu",
   closeMenu: "Close navigation menu",
@@ -132,7 +129,7 @@ export const accessibilityMessages = {
  * Theme 命名空间 - 主题切换相关消息
  * 包含主题选择器、主题模式文本
  */
-export const themeMessages = {
+const themeMessages = {
   toggle: "Toggle theme",
   toggleLabel: "Theme toggle",
   light: "Light",
@@ -149,7 +146,7 @@ export const themeMessages = {
  * Language 命名空间 - 语言切换相关消息
  * 包含语言选择器、切换状态、检测信息
  */
-export const languageMessages = {
+const languageMessages = {
   toggle: "Toggle language",
   selectLanguage: "Select Language",
   english: "English",
@@ -186,7 +183,7 @@ export const languageMessages = {
  * ErrorBoundary 命名空间 - 错误边界组件消息
  * 用于全局错误处理组件
  */
-export const errorBoundaryMessages = {
+const errorBoundaryMessages = {
   title: "An error occurred",
   description: "Something went wrong. Please try refreshing the page.",
   tryAgain: "Try Again",
@@ -196,7 +193,7 @@ export const errorBoundaryMessages = {
  * SEO 命名空间 - SEO 相关元数据
  * 用于测试 metadata 生成和 SEO 组件
  */
-export const seoMessages = {
+const seoMessages = {
   title: "Example Showcase Company",
   description:
     "Reusable showcase website starter for product or service presentation",
@@ -235,7 +232,7 @@ export const seoMessages = {
  * Footer 命名空间 - 页脚相关消息
  * 包含页脚导航、社交链接等
  */
-export const footerMessages = {
+const footerMessages = {
   sections: {
     product: {
       title: "Product",
@@ -319,7 +316,7 @@ export const footerMessages = {
  * Under Construction 命名空间 - 施工中页面消息
  * 用于测试未完成页面的占位组件
  */
-export const underConstructionMessages = {
+const underConstructionMessages = {
   title: "Under Construction",
   subtitle: "We're working hard to bring you something amazing",
   description:

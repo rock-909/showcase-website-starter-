@@ -70,11 +70,11 @@ and governance slimming, the native gate has 0 errors. The remaining current
 warnings are React Doctor's Knip-backed Dead Code category:
 
 ```text
-total warnings: 177
-affected files: 60
+total warnings: 149
+affected files: 51
 score: 99 / 100
 types: 102
-exports: 75
+exports: 47
 files: 0
 duplicates: 0
 ```
@@ -87,6 +87,10 @@ code diagnostics because they are agent/tool capability packs. Duplicate-export
 signals are either removed when they are only module-local implementation
 details, or narrowly exempted when they preserve separate business semantics.
 Unused exports and types require owner/API-surface review before removal.
+The current unused-export backlog has already had obvious same-file helpers and
+test fixture fragments internalized; remaining exports are treated as possible
+starter public API, framework convention, or behavior-sensitive surfaces until
+proven otherwise.
 
 Most warning volume is not production behavior:
 

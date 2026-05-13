@@ -17,6 +17,14 @@ affectedFileCount: 60
 score: 99 / 100
 ```
 
+Current cleanup baseline after internal unused export cleanup:
+
+```text
+warningCount: 149
+affectedFileCount: 51
+score: 99 / 100
+```
+
 React Doctor now loads `react-doctor.config.json`, which records narrow
 file/rule overrides for warnings that already entered one of the accepted
 dispositions. The config also excludes `.claude/skills/**` and
@@ -88,12 +96,19 @@ Latest governance notes:
 Current warning shape:
 
 ```text
-Dead Code: 177
+Dead Code: 149
 knip/types: 102
-knip/exports: 75
+knip/exports: 47
 knip/files: 0
 knip/duplicates: 0
 ```
+
+The first unused-export cleanup wave internalized helpers and test fixtures
+that had no supported external import surface: rate-limit store parsing
+helpers, test mock-message namespace fragments, logger private sanitizers,
+i18n performance thresholds, contact-form rendering helpers, contact field
+validator internals, and API error translation internals. Behavior-facing
+exports remain under API-surface review rather than being deleted for score.
 
 The previous `knip/files` signals were classified as external tool entrypoints
 or test alias assets and now have narrow `knip/files` overrides:

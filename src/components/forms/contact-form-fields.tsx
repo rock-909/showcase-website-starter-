@@ -17,7 +17,6 @@ export { AdditionalFields } from "@/components/forms/fields/additional-fields";
 export { CheckboxFields } from "@/components/forms/fields/checkbox-fields";
 export { ContactFields } from "@/components/forms/fields/contact-fields";
 export { NameFields } from "@/components/forms/fields/name-fields";
-export { MessageField } from "@/components/forms/fields/message-field";
 
 export interface FormFieldsProps {
   t: (key: string) => string;
@@ -42,7 +41,7 @@ function OptionalFieldMarker({
   );
 }
 
-export function getFieldInputProps(
+function getFieldInputProps(
   field: ContactFormFieldDescriptor,
 ): Partial<React.ComponentProps<"input"> & React.ComponentProps<"textarea">> {
   switch (field.key) {

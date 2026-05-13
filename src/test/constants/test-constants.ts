@@ -7,7 +7,7 @@
 // ==================== 基础测试常量 ====================
 
 /** 测试基础数字常量 */
-export const TEST_BASE_NUMBERS = {
+const TEST_BASE_NUMBERS = {
   // 时间相关
   MILLISECONDS_PER_SECOND: 1000,
   SECONDS_PER_MINUTE: 60,
