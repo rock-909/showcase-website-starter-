@@ -24,7 +24,7 @@ Do not rely on chat memory for project truth. If a decision must survive session
 
 ## Stack
 
-Next.js 16.2.6 (App Router, Cache Components) + React 19.2.6 + TypeScript 6.0.3 + Tailwind CSS 4.2.4 + next-intl 4.11.0
+Next.js 16.2.6 (App Router, Cache Components) + React 19.2.6 + TypeScript 6.0.3 + Tailwind CSS 4.3.0 + next-intl 4.11.2
 
 ## Structure
 
@@ -33,6 +33,7 @@ src/
 - app/[locale]/       # Localized App Router pages
 - app/api/            # Route handlers for inquiry, subscribe, Turnstile, CSP report, and health
 - components/         # UI components, sections, forms, product blocks, layout, and shared UI
+- config/website/     # Website replacement surface for new projects
 - config/             # Runtime and project configuration
 - constants/          # Shared constants and product specs
 - emails/             # Email templates and email-related code
@@ -41,6 +42,7 @@ src/
 - lib/                # Utilities, integrations, security, cache, content, forms, and lead pipeline
 - services/           # Service-layer modules
 - styles/             # Shared styles
+- templates/          # Reusable templates
 - test/, testing/     # Test fixtures, setup helpers, and test utilities
 - types/              # TypeScript definitions
 
