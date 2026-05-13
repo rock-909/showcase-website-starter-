@@ -50,6 +50,15 @@ docs/workflows/cwf/
 
 项目可保留 `.mcp.example.json`，真实 `.mcp.json` 不入库。
 
+## Generated content artifacts
+
+AI agents must not hand-edit `src/lib/content-manifest.generated.ts` or
+`src/lib/mdx-importers.generated.ts`. Refresh them through:
+
+```bash
+node scripts/starter-checks.js content-manifest
+```
+
 ## 不入库
 
 - `.codex/auth.json`

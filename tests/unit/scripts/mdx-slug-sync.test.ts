@@ -30,6 +30,8 @@ const {
   writeContentSlugJsonReport,
 } = require("../../../scripts/quality/checks/content-slugs.js");
 const starterChecksFacade = require("../../../scripts/starter-checks.js");
+const { createContentManifestContext, generateContentManifest } =
+  starterChecksFacade;
 
 describe("content-slug-sync legacy facade", () => {
   it("keeps starter-checks exports wired to the focused module", () => {
@@ -45,6 +47,13 @@ describe("content-slug-sync legacy facade", () => {
       validateCollectionPair,
     );
     expect(starterChecksFacade.validateMdxSlugSync).toBe(validateMdxSlugSync);
+  });
+
+  it("exports content manifest helpers for generator contract tests", () => {
+    expect(starterChecksFacade.createContentManifestContext).toBeTypeOf(
+      "function",
+    );
+    expect(starterChecksFacade.generateContentManifest).toBeTypeOf("function");
   });
 });
 
@@ -693,6 +702,63 @@ describe("content-slug-sync core", () => {
       expect(result.ok).toBe(true);
       expect(result.stats.totalPairs).toBe(3);
       expect(result.stats.totalFiles).toBe(6);
+    });
+  });
+
+  describe("content manifest generation", () => {
+    it("rejects invalid frontmatter before producing manifest entries", () => {
+      createMdxFile("pages", "en", "about.mdx", {
+        locale: "en",
+        title: "About",
+        description: "About page description",
+        slug: "about",
+        publishedAt: "2026-01-01",
+        updatedAt: "2026-01-02",
+        seo: {
+          title: "About SEO",
+        },
+      });
+
+      const context = createContentManifestContext(tmpDir);
+
+      expect(() => generateContentManifest(context)).toThrow(
+        /seo\.description is required/u,
+      );
+    });
+
+    it("accepts valid paired page frontmatter into manifest keys", () => {
+      createMdxFile("pages", "en", "about.mdx", {
+        locale: "en",
+        title: "About",
+        description: "About page description",
+        slug: "about",
+        publishedAt: "2026-01-01",
+        updatedAt: "2026-01-02",
+        draft: false,
+        seo: {
+          title: "About SEO",
+          description: "About SEO description",
+        },
+      });
+      createMdxFile("pages", "zh", "about.mdx", {
+        locale: "zh",
+        title: "关于",
+        description: "关于页面描述",
+        slug: "about",
+        publishedAt: "2026-01-01",
+        updatedAt: "2026-01-02",
+        draft: false,
+        seo: {
+          title: "关于 SEO",
+          description: "关于 SEO 描述",
+        },
+      });
+
+      const context = createContentManifestContext(tmpDir);
+      const manifest = generateContentManifest(context);
+
+      expect(manifest.byKey["pages/en/about"]).toBeDefined();
+      expect(manifest.byKey["pages/zh/about"]).toBeDefined();
     });
   });
 });
