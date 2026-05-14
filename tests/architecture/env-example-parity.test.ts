@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 
 const ENV_SOURCE_PATH = "src/lib/env.ts";
 const ENV_EXAMPLE_PATH = ".env.example";
+const DEV_VARS_EXAMPLE_PATH = ".dev.vars.example";
 const ENV_DOC_PATH = "docs/website/env 设置.md";
 const DEPLOY_DOC_PATH = "docs/website/部署设置.md";
 const QUALITY_PROOF_DOC_PATH = "docs/website/quality-proof.md";
@@ -332,6 +333,25 @@ describe(".env.example parity", () => {
     expect(envExample.get("TURNSTILE_ALLOWED_ACTIONS")?.split(",")).toContain(
       "contact_form",
     );
+  });
+
+  it("keeps the Cloudflare local preview env example explicit about its limited scope", () => {
+    const devVarsExample = readRepoFile(DEV_VARS_EXAMPLE_PATH);
+    const requiredBoundaryText = [
+      "Cloudflare local preview minimal example",
+      ".env.example",
+      "RATE_LIMIT_PEPPER",
+      "UPSTASH_REDIS_REST_URL",
+      "NEXT_SERVER_ACTIONS_ENCRYPTION_KEY",
+      "OPS_DASHBOARD_ACCESS_KEY",
+    ];
+
+    for (const text of requiredBoundaryText) {
+      expect(
+        devVarsExample,
+        `${DEV_VARS_EXAMPLE_PATH} should mention ${text}`,
+      ).toContain(text);
+    }
   });
 
   it("documents all sensitive example keys in the env guide", () => {

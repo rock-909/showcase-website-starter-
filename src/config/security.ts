@@ -19,6 +19,11 @@ export type SecurityHeader = {
 
 /**
  * Content Security Policy configuration
+ *
+ * Boundary: NEXT_PUBLIC_SECURITY_MODE=strict means enforced security headers
+ * with a static-compatible CSP. It is not nonce-level strict CSP. A
+ * nonce-level policy needs dynamic rendering and a proxy-generated nonce, which
+ * is intentionally outside the starter default.
  */
 export function generateCSP(): string {
   const isDevelopment = isRuntimeDevelopment();
@@ -205,6 +210,10 @@ export function getSecurityHeaders(testMode = false): SecurityHeader[] {
 
 /**
  * Security mode configuration
+ *
+ * `strict` is kept as the public env value for compatibility. In this starter,
+ * it means "enforce the static-compatible CSP header" rather than "nonce-level
+ * strict CSP".
  */
 export const SECURITY_MODES = {
   strict: {

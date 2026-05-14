@@ -195,6 +195,12 @@ Passing criteria:
 - Airtable/Resend/Turnstile credentials are the deployed environment credentials;
 - failures block public launch until investigated.
 
+The current Playwright canary verifies the Airtable record, so it proves
+`recordCreated` for the deployed contact path. It does not automatically inspect
+the owner inbox or Resend event stream. `ownerNotified` remains separate:
+owner notification still needs manual target-system confirmation before public
+launch signoff.
+
 This is a manual launch gate because it depends on deployed secrets and external service state.
 
 ## Middleware to proxy migration lane

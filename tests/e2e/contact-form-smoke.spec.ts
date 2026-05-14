@@ -2,6 +2,7 @@ import { expect, test, type Page, type TestInfo } from "@playwright/test";
 
 /**
  * Contact Form Smoke Tests - Test Mode
+ * Proof lane: local/test-mode
  *
  * 这是本地/CI 的 test-mode smoke：
  * - 允许使用 Playwright 注入的测试环境与 Turnstile 测试路径

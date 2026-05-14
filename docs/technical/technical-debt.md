@@ -13,6 +13,8 @@
 
 Starter default now uses static CSP through Next.js native `headers()` in `next.config.ts`. Middleware does not generate or forward CSP-specific request metadata.
 
+Current nonce CSP feasibility decision lives in `docs/website/nonce-csp-feasibility.md`.
+
 Current practical risk is reduced because the starter has no user-generated rich-text surface. Real projects should reassess this before paid traffic or high-risk integrations.
 
 Decision options:

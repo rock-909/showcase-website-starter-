@@ -46,6 +46,12 @@ const {
   runEslintDisableCheck,
   STRUCTURAL_GUARDRAIL_RULES,
 } = require("./quality/checks/eslint-disable");
+const {
+  collectLeafPaths,
+  compareLocales,
+  runTranslationCheck,
+  validateLocale,
+} = require("./quality/checks/translations");
 
 const ROOT = process.cwd();
 
@@ -76,9 +82,20 @@ function loadContactFormConfigModule() {
 
 function loadPublicTrustModule() {
   if (isVitestRuntime()) {
+    const fakePhonePattern =
+      /(?:\+?1[\s.-]?)?(?:(?:\(?555\)?[\s.-]?\d{3})|(?:\(?\d{3}\)?[\s.-]?555))[\s.-]?\d{4}\b|\b123[\s.-]?456[\s.-]?7890\b/iu;
     return {
+      getPublicContactEmail: (email) =>
+        email &&
+        !/@(?:example\.com|example\.org|example\.net|[\w.-]+\.example)$/iu.test(
+          email.trim(),
+        )
+          ? email.trim()
+          : undefined,
       getPublicContactPhone: (phone) =>
-        phone && !/(?:^|[-\s])0{3,}(?:[-\s]|$)/u.test(phone)
+        phone &&
+        !/(?:^|[-\s])0{3,}(?:[-\s]|$)/u.test(phone) &&
+        !fakePhonePattern.test(phone)
           ? phone.trim()
           : undefined,
       getPublicLogoPath: (logo) =>
@@ -171,190 +188,6 @@ function toRepoPath(rootDir, absolutePath) {
 
 function getLineNumber(content, index) {
   return content.slice(0, index).split("\n").length;
-}
-
-// ---------------------------------------------------------------------------
-// translations
-// ---------------------------------------------------------------------------
-
-const I18N_LOCALES = require("../i18n-locales.config").locales;
-const MESSAGES_DIR = path.join(ROOT, "messages");
-
-function isPlainObject(value) {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
-}
-
-function collectLeafPaths(obj, prefix = "") {
-  const paths = [];
-
-  if (!isPlainObject(obj)) return paths;
-
-  for (const [key, value] of Object.entries(obj)) {
-    const currentPath = prefix ? `${prefix}.${key}` : key;
-    if (isPlainObject(value)) {
-      paths.push(...collectLeafPaths(value, currentPath));
-    } else {
-      paths.push(currentPath);
-    }
-  }
-
-  return paths;
-}
-
-function getLocaleSplitPaths(locale) {
-  return {
-    critical: path.join(MESSAGES_DIR, locale, "critical.json"),
-    deferred: path.join(MESSAGES_DIR, locale, "deferred.json"),
-  };
-}
-
-function readJson(filePath) {
-  return JSON.parse(fs.readFileSync(filePath, "utf8"));
-}
-
-function validateLocale(locale) {
-  console.log(`\nValidating split canonical locale: ${locale}`);
-
-  const { critical: criticalPath, deferred: deferredPath } =
-    getLocaleSplitPaths(locale);
-
-  if (!fs.existsSync(criticalPath)) {
-    console.error(`   Error: critical.json not found: ${criticalPath}`);
-    return false;
-  }
-
-  if (!fs.existsSync(deferredPath)) {
-    console.error(`   Error: deferred.json not found: ${deferredPath}`);
-    return false;
-  }
-
-  const critical = readJson(criticalPath);
-  const deferred = readJson(deferredPath);
-  const criticalKeys = collectLeafPaths(critical);
-  const deferredKeys = collectLeafPaths(deferred);
-  const criticalSet = new Set(criticalKeys);
-  const deferredSet = new Set(deferredKeys);
-
-  console.log(`   Critical keys: ${criticalKeys.length}`);
-  console.log(`   Deferred keys: ${deferredKeys.length}`);
-  console.log(`   Total keys: ${criticalKeys.length + deferredKeys.length}`);
-
-  const deferredDuplicates = criticalKeys.filter((key) => deferredSet.has(key));
-  if (deferredDuplicates.length > 0) {
-    console.error(
-      `   Error: Found ${deferredDuplicates.length} duplicate keys:`,
-    );
-    deferredDuplicates
-      .slice(0, 10)
-      .forEach((key) => console.error(`      - ${key}`));
-    return false;
-  }
-
-  console.log("   No duplicate keys found");
-
-  return {
-    locale,
-    criticalKeys: criticalSet,
-    deferredKeys: deferredSet,
-    totalKeys: criticalKeys.length + deferredKeys.length,
-  };
-}
-
-function compareLocales(localeData) {
-  console.log("\nComparing locales...");
-  const locales = Object.keys(localeData);
-  if (locales.length < 2) {
-    console.log("   Only one locale found, skipping comparison");
-    return true;
-  }
-
-  const [firstLocale, ...otherLocales] = locales;
-  const firstData = localeData[firstLocale];
-  let allMatch = true;
-
-  for (const locale of otherLocales) {
-    const data = localeData[locale];
-
-    if (data.totalKeys !== firstData.totalKeys) {
-      console.error(
-        `   Error: ${locale} has ${data.totalKeys} keys, but ${firstLocale} has ${firstData.totalKeys} keys`,
-      );
-      allMatch = false;
-      continue;
-    }
-
-    const allKeys = new Set([...data.criticalKeys, ...data.deferredKeys]);
-    const firstAllKeys = new Set([
-      ...firstData.criticalKeys,
-      ...firstData.deferredKeys,
-    ]);
-    const missingInLocale = [...firstAllKeys].filter(
-      (key) => !allKeys.has(key),
-    );
-    const extraInLocale = [...allKeys].filter((key) => !firstAllKeys.has(key));
-
-    if (missingInLocale.length > 0) {
-      console.error(
-        `   Error: ${locale} is missing ${missingInLocale.length} keys:`,
-      );
-      missingInLocale
-        .slice(0, 5)
-        .forEach((key) => console.error(`      - ${key}`));
-      allMatch = false;
-    }
-
-    if (extraInLocale.length > 0) {
-      console.error(
-        `   Error: ${locale} has ${extraInLocale.length} extra keys:`,
-      );
-      extraInLocale
-        .slice(0, 5)
-        .forEach((key) => console.error(`      - ${key}`));
-      allMatch = false;
-    }
-
-    if (missingInLocale.length === 0 && extraInLocale.length === 0) {
-      console.log(`   ${locale} matches ${firstLocale}`);
-    }
-  }
-
-  return allMatch;
-}
-
-function runTranslationCheck() {
-  console.log("Translation Validation (split canonical)");
-  console.log("========================================");
-
-  const localeData = {};
-  let allValid = true;
-
-  for (const locale of I18N_LOCALES) {
-    const result = validateLocale(locale);
-    if (!result) {
-      allValid = false;
-    } else {
-      localeData[locale] = result;
-    }
-  }
-
-  if (!allValid) {
-    console.error("\nValidation failed.\n");
-    return false;
-  }
-
-  if (!compareLocales(localeData)) {
-    console.error("\nLocales do not match.\n");
-    return false;
-  }
-
-  console.log("\nAll validations passed.");
-  for (const [locale, data] of Object.entries(localeData)) {
-    console.log(
-      `${locale.toUpperCase()}: ${data.totalKeys} total keys (${data.criticalKeys.size} critical + ${data.deferredKeys.size} deferred)`,
-    );
-  }
-
-  return true;
 }
 
 // ---------------------------------------------------------------------------
@@ -727,7 +560,7 @@ function isTrue(env, key) {
 function containsStarterMarker(value) {
   if (!value) return true;
 
-  return /Example Showcase Company|Showcase Website Starter|example\.com|localhost|127\.0\.0\.1|sales@example\.com|starter-contact@example\.com|showcase website example|showcase website starter|public demo starter|replaceable showcase website example|Public Demo Starter Site|Example Business Park|Example City|Replace before launch|x\.com\/example|linkedin\.com\/company\/example/iu.test(
+  return /Example Showcase Company|Showcase Website Starter|example\.(?:com|org|net)|[\w.-]+\.example|localhost|127\.0\.0\.1|sales@example\.com|starter-contact@example\.com|showcase website example|showcase website starter|public demo starter|replaceable showcase website example|Public Demo Starter Site|Example Business Park|Example City|Replace before launch|x\.com\/example|linkedin\.com\/company\/example/iu.test(
     value,
   );
 }
@@ -764,6 +597,10 @@ function validateMinLengthEnv(target, env, key, minLength, reason) {
 }
 
 function shouldValidateProductionRuntimeContract(env) {
+  if (isTrue(env, "PUBLIC_LAUNCH_STRICT")) {
+    return true;
+  }
+
   const appEnv = readEnv(env, "APP_ENV")?.toLowerCase();
 
   if (appEnv === "preview") {
@@ -853,7 +690,7 @@ function validateProductionRuntimeContract(env) {
     "the shipped lead pipeline persists lead records in Airtable",
   );
 
-  if (hasAny(env, "ALLOW_MEMORY_RATE_LIMIT")) {
+  if (isTrue(env, "ALLOW_MEMORY_RATE_LIMIT")) {
     errors.push(
       "Degraded in-memory rate-limit store flag (ALLOW_MEMORY_RATE_LIMIT) cannot be used in production. Configure a durable Redis-compatible store for production deployments.",
     );
@@ -865,7 +702,8 @@ function validateProductionRuntimeContract(env) {
 function validatePublicLaunchTrustContent(env) {
   const warnings = [];
   const errors = [];
-  const { getPublicContactPhone, getPublicLogoPath } = loadPublicTrustModule();
+  const { getPublicContactEmail, getPublicContactPhone, getPublicLogoPath } =
+    loadPublicTrustModule();
   const { SINGLE_SITE_DEFINITION, SINGLE_SITE_FACTS } = loadSingleSiteModule();
   const target = isTrue(env, "PUBLIC_LAUNCH_STRICT") ? errors : warnings;
   const shouldCheck =
@@ -888,12 +726,14 @@ function validatePublicLaunchTrustContent(env) {
     SINGLE_SITE_DEFINITION.config.baseUrl,
     "configure the real public domain before client launch",
   );
-  validateNoStarterMarker(
-    target,
-    "SITE_CONFIG.contact.email",
-    SINGLE_SITE_DEFINITION.config.contact.email,
-    "replace the starter contact email before client launch",
-  );
+  if (
+    containsStarterMarker(SINGLE_SITE_DEFINITION.config.contact.email) ||
+    !getPublicContactEmail(SINGLE_SITE_DEFINITION.config.contact.email)
+  ) {
+    target.push(
+      "SITE_CONFIG.contact.email is not public-launch ready (replace the starter contact email before client launch).",
+    );
+  }
   validateNoStarterMarker(
     target,
     "SITE_CONFIG.seo.defaultTitle",
@@ -1412,10 +1252,18 @@ const EXCLUDED_FILE_PATTERN =
   /(?:^|\/)(?:__tests__|__mocks__)(?:\/|$)|\.(?:test|spec)\.[^.]+$/u;
 const TEXT_RULES = [
   {
+    ruleId: "starter-identity",
+    severity: "warning",
+    pattern:
+      /\b(?:Showcase Website Starter|Public Demo Starter Site|Reusable Showcase Website Starter|Showcase Website Starter Team)\b/giu,
+    message:
+      "Starter site identity is still present. Replace it before client launch.",
+  },
+  {
     ruleId: "fake-phone",
     severity: "error",
     pattern:
-      /(?:\+?1[\s.-]?)?(?:\(?555\)?[\s.-]?)\d{3}[\s.-]?\d{4}\b|\b123[\s.-]?456[\s.-]?7890\b/giu,
+      /(?:\+?1[\s.-]?)?(?:(?:\(?555\)?[\s.-]?\d{3})|(?:\(?\d{3}\)?[\s.-]?555))[\s.-]?\d{4}\b|\b123[\s.-]?456[\s.-]?7890\b/giu,
     message: "Fake phone marker is present in buyer-visible content.",
   },
   {
@@ -1490,11 +1338,25 @@ const TEXT_RULES = [
   {
     ruleId: "example-domain",
     severity: "warning",
-    pattern: /\bexample\.com\b/giu,
+    pattern:
+      /\b(?:example\.com|example\.org|example\.net|[\w.-]+\.example)\b/giu,
     message:
-      "example.com appears in buyer-visible input. Confirm it is intentional before launch.",
+      "Example domain appears in buyer-visible input. Confirm it is intentional before launch.",
   },
 ];
+const STRICT_CLIENT_LAUNCH_BLOCKER_RULE_IDS = new Set([
+  "example-domain",
+  "example-offer",
+  "example-standard",
+  "fake-phone",
+  "placeholder",
+  "replace-this-image",
+  "replaceable-content",
+  "sample-product",
+  "starter-identity",
+  "your-company",
+  "your-email",
+]);
 const CONFIG_SOURCE_EXTENSIONS = new Set([".js", ".mjs", ".ts", ".tsx"]);
 const TS_TYPE_ONLY_NODE_TYPES = new Set([
   "TSArrayType",
@@ -1599,7 +1461,15 @@ function getLineText(content, index) {
   return content.slice(lineStart, lineEnd === -1 ? content.length : lineEnd);
 }
 
-function getEffectiveSeverity(rule, scanUnit, index) {
+function getEffectiveSeverity(rule, scanUnit, index, options = {}) {
+  const strictClientLaunch = options.strictClientLaunch === true;
+  if (
+    strictClientLaunch &&
+    STRICT_CLIENT_LAUNCH_BLOCKER_RULE_IDS.has(rule.ruleId)
+  ) {
+    return "error";
+  }
+
   if (rule.ruleId !== "fake-phone") return rule.severity;
   if (/placeholder/iu.test(scanUnit.context ?? "")) return "warning";
   if (/placeholder/iu.test(getLineText(scanUnit.value, index))) {
@@ -1822,7 +1692,7 @@ function findRuntimeLogoReferenceUnit(file, scanUnits) {
   return scanUnits.find((unit) => isContentRuntimeLogoReference(file, unit));
 }
 
-function scanReadinessFile(rootDir, file) {
+function scanReadinessFile(rootDir, file, options = {}) {
   const content = fs.readFileSync(file.absolutePath, "utf8");
   const scanUnits = file.scanPathRules
     ? collectPathScanUnits(file.repoPath)
@@ -1841,7 +1711,7 @@ function scanReadinessFile(rootDir, file) {
           file: file.repoPath,
           line: unit.line,
           ruleId: rule.ruleId,
-          severity: getEffectiveSeverity(rule, unit, index),
+          severity: getEffectiveSeverity(rule, unit, index, options),
           message: rule.message,
           match: match[0],
         });
@@ -1867,19 +1737,19 @@ function scanReadinessFile(rootDir, file) {
   return findings;
 }
 
-function collectContentReadinessFindings(rootDir = ROOT) {
+function collectContentReadinessFindings(rootDir = ROOT, options = {}) {
   const files = READINESS_SCAN_TARGETS.flatMap((target) =>
     collectReadinessFiles(rootDir, target),
   );
   return files.flatMap((file) =>
     file.scanTextRules || file.scanPathRules
-      ? scanReadinessFile(rootDir, file)
+      ? scanReadinessFile(rootDir, file, options)
       : [],
   );
 }
 
-function runContentReadinessCheck(rootDir = ROOT) {
-  const findings = collectContentReadinessFindings(rootDir);
+function runContentReadinessCheck(rootDir = ROOT, options = {}) {
+  const findings = collectContentReadinessFindings(rootDir, options);
   const errors = findings.filter((finding) => finding.severity === "error");
   const warnings = findings.filter((finding) => finding.severity === "warning");
 
@@ -1898,8 +1768,10 @@ function printReadinessFinding(finding) {
   );
 }
 
-function runContentReadinessCli() {
-  const result = runContentReadinessCheck(ROOT);
+function runContentReadinessCli(args = []) {
+  const result = runContentReadinessCheck(ROOT, {
+    strictClientLaunch: args.includes("--strict-client-launch"),
+  });
 
   if (result.findings.length === 0) {
     console.log("content readiness passed: no buyer-visible residue found");
@@ -2454,19 +2326,19 @@ function runReleaseVerify() {
 
   console.log("Cloudflare proof split:");
   console.log(
-    "  - Local stock preview: node scripts/starter-checks.js cf-preview-smoke",
+    "  - [local/test-mode] Local stock preview: node scripts/starter-checks.js cf-preview-smoke",
   );
   console.log(
-    "  - Local Cloudflare deploy-artifact dry run: pnpm exec wrangler deploy --dry-run --env preview",
+    "  - [local/test-mode] Local Cloudflare deploy-artifact dry run: pnpm exec wrangler deploy --dry-run --env preview",
   );
   console.log(
-    "  - Real preview publish path: node scripts/starter-checks.js cf-preview-deployed",
+    "  - [deployed-smoke] Real preview publish path: node scripts/starter-checks.js cf-preview-deployed",
   );
   console.log(
-    '  - Deployed GET smoke: node scripts/starter-checks.js deployed-smoke --base-url "$DEPLOYED_BASE_URL"',
+    '  - [deployed-smoke] Deployed GET smoke: node scripts/starter-checks.js deployed-smoke --base-url "$DEPLOYED_BASE_URL"',
   );
   console.log(
-    '  - Real deployed lead canary manual launch gate: POST_DEPLOY_TEST=1 PLAYWRIGHT_BASE_URL="$DEPLOYED_BASE_URL" pnpm exec playwright test tests/e2e/smoke/',
+    '  - [real-service-canary] Real deployed lead canary manual launch gate: POST_DEPLOY_TEST=1 PLAYWRIGHT_BASE_URL="$DEPLOYED_BASE_URL" pnpm exec playwright test tests/e2e/smoke/',
   );
   console.log(
     "  - The lead canary requires deployed Airtable/Resend/Turnstile credentials and must be recorded before broad public launch.",
@@ -3342,7 +3214,7 @@ Commands:
   validate-production-config Validate production and public-launch config gates
   eslint-disable      Check eslint-disable exception hygiene
   component-governance Check component registry, Storybook, and UI wrapper drift
-  content-readiness   Check buyer-visible starter residue
+  content-readiness   Check buyer-visible starter residue (--strict-client-launch promotes launch blockers to errors)
   client-boundary     Check top-level use client budget
   cf-preview-smoke    Probe local Cloudflare preview behavior
   deployed-smoke      Probe deployed URL route health
@@ -3384,7 +3256,7 @@ async function main(argv = process.argv.slice(2)) {
       ok = runComponentGovernanceCli();
       break;
     case "content-readiness":
-      ok = runContentReadinessCli();
+      ok = runContentReadinessCli(args);
       break;
     case "client-boundary":
       ok = runClientBoundaryCli();

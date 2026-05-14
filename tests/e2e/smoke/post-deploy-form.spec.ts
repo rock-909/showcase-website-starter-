@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 
 /**
  * Post-Deploy Contact Chain Verification
+ * Proof lane: real-service-canary
  *
  * This is the production-like proof for the contact flow.
  * It must hit a deployed URL and verify the real submission chain instead of

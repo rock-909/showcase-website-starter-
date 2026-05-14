@@ -30,6 +30,14 @@ pnpm website:build:cf
 
 Local release proof is not public launch proof. Public launch still requires `PUBLIC_LAUNCH_STRICT=true node scripts/starter-checks.js validate-production-config`, deployed smoke against the real URL, deployed lead canary, and owner signoff.
 
+## Proof lane labels
+
+在报告、handoff 和发布记录里统一使用这些标签，避免把本地测试、部署可访问性和真实外部服务链路混成一个“已证明”：
+
+- `local/test-mode`：本地或 CI 的结构、页面、交互 smoke，允许测试 key、mock 或 test-mode 服务；不能证明真实 Turnstile、CRM、邮件或线上提交链路。
+- `deployed-smoke`：打到 preview/staging/production URL 的页面、健康接口或静态资源检查；证明部署地址可访问，不证明真实线索已送达。
+- `real-service-canary`：在明确的非生产或上线前目标上，用真实配置服务跑一次 canary；只有记录写入和 owner notification 都被核对后，才能说外部服务链路闭环。
+
 ## Component proof 边界
 
 `pnpm component:check` 证明三件事：
@@ -60,6 +68,14 @@ Semgrep local CLI may be unavailable on a developer machine. When local `pnpm ex
 ### Cloudflare platform signal
 
 Cloudflare platform detection uses `DEPLOYMENT_PLATFORM=cloudflare` as the canonical signal. `DEPLOY_TARGET=cloudflare` is accepted only as a legacy compatibility alias.
+
+### CSP proof boundary
+
+`NEXT_PUBLIC_SECURITY_MODE=strict` means enforced security headers with the current static-compatible CSP. It is not nonce-level strict CSP.
+
+This starter intentionally does not add a proxy-generated nonce by default. A nonce CSP lane must be opened separately because it requires dynamic rendering, Cloudflare/OpenNext proof, and fresh checks for Cache Components, Turnstile, analytics, deployed smoke, and form canary behavior.
+
+Current nonce feasibility decision: `docs/website/nonce-csp-feasibility.md`.
 
 ### Warning baseline
 
@@ -260,6 +276,10 @@ Next.js 当前推荐 `proxy.ts`，并会输出 Next.js deprecation warning。
 - Cloudflare/OpenNext support is not acceptable for a blind migration.
 - 当前 `src/middleware.ts` 只负责 next-intl locale routing，稳定性优先于消除 warning。
 - 这条 warning 作为 known platform-transition warning 记录，不作为 public launch blocker。
+
+Current decision record: `docs/website/proxy-migration-official-doc-check.md`
+(`official-doc-only check`). This current decision does not run a proxy runtime
+migration test and does not create `src/proxy.ts`.
 
 如果未来要迁移，必须单独开 proof lane，至少证明：
 
