@@ -1,16 +1,19 @@
 # Radix Contact Form Pilot Result
 
-Status: continue pilot, not approved for expansion
+Status: Contact pilot proven; staged stable takeover approved, not full-site expansion
 Date: 2026-05-14
 Related decision: `docs/decisions/ADR-ui-foundation.md`
 
 ## Decision
 
-The Contact / Inquiry form pilot may stay in this branch as a narrow Radix
-Themes pilot.
+The Contact / Inquiry form pilot is proven as the first Radix Themes wrapper
+layer.
 
-Do not expand Radix Themes to badges, cards, specification tables, or other
-surfaces yet.
+Do not approve a full-site Radix Themes migration. Staged stable takeover is
+allowed only through local `src/components/ui/*` wrappers for form controls,
+status callouts, badges, and data-control cards. Hero sections, product
+storytelling, proof sections, footer art direction, grid systems, and page
+layout stay project-owned and outside Radix Themes takeover.
 
 ## What this pilot proves
 
