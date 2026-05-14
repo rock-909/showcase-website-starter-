@@ -1,16 +1,19 @@
 # Radix Contact Form Pilot Result
 
-Status: continue pilot, not approved for expansion
+Status: Contact pilot proven; staged stable takeover approved, not full-site expansion
 Date: 2026-05-14
 Related decision: `docs/decisions/ADR-ui-foundation.md`
 
 ## Decision
 
-The Contact / Inquiry form pilot may stay in this branch as a narrow Radix
-Themes pilot.
+The Contact / Inquiry form pilot is proven as the first Radix Themes wrapper
+layer.
 
-Do not expand Radix Themes to badges, cards, specification tables, or other
-surfaces yet.
+Do not approve a full-site Radix Themes migration. Staged stable takeover is
+allowed only through local `src/components/ui/*` wrappers for form controls,
+status callouts, badges, and data-control cards. Hero sections, product
+storytelling, proof sections, footer art direction, grid systems, and page
+layout stay project-owned and outside Radix Themes takeover.
 
 ## What this pilot proves
 
@@ -142,6 +145,20 @@ Turnstile widget is unavailable locally and the submit button is disabled.
 
 Result: Continue pilot; not approved for broad expansion.
 
+Stable takeover follow-up:
+
+The Contact form controls pilot is the first proof layer. It proves that Radix
+Themes can stay behind local wrappers without leaking direct imports into
+business, page, or section code.
+
+The next step is a staged stable takeover, not a full-site Radix Themes
+migration. Approved stable surfaces are limited to local `src/components/ui/*`
+wrappers for form controls, status callouts, badges, and data-control cards.
+
+This does not approve Radix Themes ownership of hero sections, product
+storytelling, proof sections, footer art direction, grid systems, or page
+layout. Those surfaces stay project-owned and Tailwind/layout-driven.
+
 The Contact form now proves the local Radix Themes wrapper boundary, scoped token
 mapping, project-owned typography mapping, Radix-backed text input and textarea wrappers, native checkbox
 preservation, governance checks, build proof, and browser proof.
@@ -151,3 +168,86 @@ possible pilot may be one bounded control/data surface such as form feedback,
 status callouts, badges, or a single specification/data card wrapper. Hero,
 footer, product storytelling, proof sections, and page narrative structure stay
 outside Radix Themes.
+
+## Stable takeover exception log
+
+This stable takeover round deliberately did not migrate checkbox controls, FAQ
+disclosure, or narrative cards. Treat these as recorded risk exceptions, not as
+missed work.
+
+- Contact checkboxes remain native because a Radix-backed checkbox still needs a
+  dedicated proof for FormData submission, no-JS fallback behavior, label-click
+  toggling, and stable E2E locators.
+- FAQ disclosure remains native `<details>/<summary>` because the current
+  route-level performance boundary requires no client JavaScript for the FAQ
+  section.
+- Narrative card usage remains local because those cards are layout and
+  storytelling surfaces. Radix-backed `DataCard` is reserved for data/control
+  surfaces.
+- Hero sections, product story sections, proof sections, footer art direction,
+  grids, and page layout remain Tailwind/project-token owned. Moving them to
+  Radix Themes would be a separate design decision, not part of this stable
+  takeover.
+
+## Stable takeover result
+
+Result: stable limited expansion.
+
+Expanded Radix ownership:
+
+- textual form controls;
+- textarea controls;
+- status callouts;
+- badges;
+- data/control cards;
+- dropdown menu primitive for the language menu.
+
+Intentionally local:
+
+- contact checkboxes;
+- FAQ disclosure;
+- narrative cards;
+- hero, product storytelling, proof sections, footer art direction, grid, and
+  page layout.
+
+Final validation:
+
+- `pnpm component:governance:test`: pass.
+- `pnpm component:governance`: pass.
+- `pnpm component:check`: pass.
+- `pnpm type-check`: pass.
+- `pnpm lint:check`: pass.
+- `pnpm build`: pass.
+
+Build notes recorded during final validation:
+
+- `pnpm build` printed the existing Next.js middleware convention deprecation
+  warning: `"middleware" file convention is deprecated. Please use "proxy"
+  instead.`
+- `pnpm build` printed the existing local email note: `Resend API key missing -
+  email service will be disabled`.
+- `pnpm build` printed existing `DYNAMIC_SERVER_USAGE` digests during static
+  generation.
+- None of those build notes point to a file changed by this Radix stable
+  takeover.
+
+Boundary proof:
+
+- Direct Radix imports remain inside `src/components/ui/*` wrappers, plus the
+  single `src/app/globals.css` Radix Themes stylesheet import.
+- `@radix-ui/themes` imports are limited to approved local UI wrappers.
+- Production implementation code has no `.rt-*` class dependency. The only
+  precise `.rt-*` matches are test-only badge wrapper assertions in
+  `src/components/ui/__tests__/badge.test.tsx`, used to verify Radix prop
+  mapping.
+
+Browser proof artifacts:
+
+- `reports/radix-stable-takeover-en-contact-2026-05-14.png`
+- `reports/radix-stable-takeover-en-products-2026-05-14.png`
+- `reports/radix-stable-takeover-en-home-2026-05-14.png`
+
+The browser proof used the current workspace dev server on port 3002 because
+port 3000 was already occupied by an unrelated local Next.js process. The
+verified buyer-facing routes were still `/en/contact`, `/en/products`, and
+`/en`.

@@ -26,6 +26,12 @@ describe("Feature: Market Page — Spec Matrix", () => {
       render(await SpecTable({ specGroups: mockGroups }));
       expect(screen.getByText("Basic Option")).toBeInTheDocument();
       expect(screen.getByText("Advanced Option")).toBeInTheDocument();
+      expect(
+        screen.getByRole("heading", { level: 4, name: "Basic Option" }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("heading", { level: 4, name: "Advanced Option" }),
+      ).toBeInTheDocument();
     });
 
     it("renders column headers in table head", async () => {
@@ -49,6 +55,16 @@ describe("Feature: Market Page — Spec Matrix", () => {
       expect(container.querySelector("table")).toBeInTheDocument();
       expect(container.querySelector("thead")).toBeInTheDocument();
       expect(container.querySelector("tbody")).toBeInTheDocument();
+    });
+
+    it("wraps each specification group in a data card surface", async () => {
+      const { container } = render(await SpecTable({ specGroups: mockGroups }));
+      expect(
+        container.querySelectorAll('[data-slot="data-card"]'),
+      ).toHaveLength(2);
+      expect(
+        container.querySelectorAll('[data-ui-pilot="radix-themes-data-card"]'),
+      ).toHaveLength(2);
     });
 
     it("wraps table in horizontally scrollable container", async () => {

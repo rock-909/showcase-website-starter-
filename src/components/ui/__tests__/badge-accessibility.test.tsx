@@ -19,7 +19,10 @@ describe("Badge accessibility", () => {
   it("keeps focus-visible styling available when made focusable", () => {
     render(<Badge tabIndex={0}>Focusable Badge</Badge>);
 
-    expect(screen.getByText("Focusable Badge")).toHaveClass(
+    const badge = screen.getByText("Focusable Badge");
+    expect(badge).toHaveAttribute("tabindex", "0");
+    expect(badge).toHaveAttribute("data-slot", "badge");
+    expect(badge).toHaveClass(
       "focus:ring-2",
       "focus:ring-offset-2",
       "focus:outline-none",

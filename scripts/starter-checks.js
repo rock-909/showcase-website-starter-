@@ -897,6 +897,11 @@ const COMPONENT_GOVERNANCE_RADIX_THEMES_APPROVED_WRAPPERS = new Set([
   "src/components/ui/radix-theme.tsx",
   "src/components/ui/contact-form-shell.tsx",
   "src/components/ui/contact-form-control.tsx",
+  "src/components/ui/input.tsx",
+  "src/components/ui/textarea.tsx",
+  "src/components/ui/status-callout.tsx",
+  "src/components/ui/badge.tsx",
+  "src/components/ui/data-card.tsx",
 ]);
 const COMPONENT_GOVERNANCE_RADIX_THEMES_IMPORT_PATTERN =
   /(?:from\s+["']@radix-ui\/themes(?:\/[^"']*)?["']|import\s*\(\s*["']@radix-ui\/themes(?:\/[^"']*)?["']\s*\)|require\s*\(\s*["']@radix-ui\/themes(?:\/[^"']*)?["']\s*\))/;

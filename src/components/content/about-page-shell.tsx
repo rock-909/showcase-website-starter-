@@ -11,12 +11,12 @@ import { JsonLdGraphScript } from "@/components/seo";
 import { FaqSection } from "@/components/sections/faq-section";
 import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+  DataCard,
+  DataCardContent,
+  DataCardDescription,
+  DataCardHeader,
+  DataCardTitle,
+} from "@/components/ui/data-card";
 import { siteFacts } from "@/config/site-facts";
 import {
   SINGLE_SITE_ABOUT_PAGE_EXPRESSION,
@@ -51,19 +51,19 @@ interface ValueCardProps {
 
 function ValueCard({ icon, title, description }: ValueCardProps) {
   return (
-    <Card className="h-full">
-      <CardHeader>
+    <DataCard className="h-full">
+      <DataCardHeader>
         <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
           {icon}
         </div>
-        <CardTitle className="text-lg">{title}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <CardDescription className="text-sm leading-relaxed">
+        <DataCardTitle className="text-lg">{title}</DataCardTitle>
+      </DataCardHeader>
+      <DataCardContent>
+        <DataCardDescription className="text-sm leading-relaxed">
           {description}
-        </CardDescription>
-      </CardContent>
-    </Card>
+        </DataCardDescription>
+      </DataCardContent>
+    </DataCard>
   );
 }
 

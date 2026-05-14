@@ -1,19 +1,19 @@
+import { Badge as RadixBadge } from "@radix-ui/themes";
 import { forwardRef, type HTMLAttributes } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
+import { RadixThemePilot } from "@/components/ui/radix-theme";
 import { cn } from "@/lib/utils";
 
 const badgeVariants = cva(
-  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-none",
+  "focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-none",
   {
     variants: {
       variant: {
-        default:
-          "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
-        secondary:
-          "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        default: "border-transparent bg-primary text-primary-foreground",
+        secondary: "border-transparent bg-secondary text-secondary-foreground",
         destructive:
-          "text-destructive-foreground border-transparent bg-destructive hover:bg-destructive/80",
-        outline: "text-foreground hover:bg-accent hover:text-accent-foreground",
+          "border-[var(--error-border)] bg-[var(--error-muted)] text-[var(--error-foreground)]",
+        outline: "border-border bg-transparent text-foreground",
       },
     },
     defaultVariants: {
@@ -23,23 +23,39 @@ const badgeVariants = cva(
 );
 
 interface BadgeProps
-  extends HTMLAttributes<HTMLDivElement>, VariantProps<typeof badgeVariants> {
-  // 支持额外的HTML属性，即使它们不是div的标准属性
+  extends
+    Omit<
+      HTMLAttributes<HTMLSpanElement>,
+      "color" | "defaultChecked" | "defaultValue"
+    >,
+    VariantProps<typeof badgeVariants> {
+  autoComplete?: string;
   disabled?: boolean;
   form?: string;
   name?: string;
   value?: string;
-  autoComplete?: string;
 }
 
-const Badge = forwardRef<HTMLDivElement, BadgeProps>(
+const RADIX_BADGE_VARIANT = {
+  default: "solid",
+  secondary: "soft",
+  destructive: "surface",
+  outline: "outline",
+} as const;
+
+const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
   ({ className, variant, ...props }, ref) => {
     return (
-      <div
-        ref={ref}
-        className={cn(badgeVariants({ variant }), className)}
-        {...props}
-      />
+      <RadixThemePilot className="contents" surface="badge">
+        <RadixBadge
+          ref={ref}
+          className={cn(badgeVariants({ variant }), className)}
+          data-slot="badge"
+          radius="full"
+          variant={RADIX_BADGE_VARIANT[variant ?? "default"]}
+          {...props}
+        />
+      </RadixThemePilot>
     );
   },
 );

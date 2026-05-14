@@ -28,3 +28,16 @@ export const ContactSurface: Story = {
     ),
   },
 };
+
+export const StatusSurface: Story = {
+  args: {
+    surface: "status-callout",
+    children: (
+      <div className="w-80 rounded-lg border border-border bg-card p-4">
+        <p className="text-sm text-muted-foreground">
+          Status surface keeps Radix Themes scoped to approved callout UI.
+        </p>
+      </div>
+    ),
+  },
+};

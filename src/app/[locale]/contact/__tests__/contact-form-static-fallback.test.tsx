@@ -48,6 +48,14 @@ describe("ContactFormStaticFallback", () => {
 
     expect(form).toBeInTheDocument();
     expect(form).toHaveAttribute("aria-busy", "true");
+    expect(form?.closest('[data-slot="data-card"]')).toHaveClass(
+      "mx-auto",
+      "w-full",
+      "max-w-2xl",
+    );
+    expect(
+      form?.closest('[data-ui-pilot="radix-themes-data-card"]'),
+    ).toBeInTheDocument();
     expect(screen.getByLabelText("Full name")).toBeDisabled();
     expect(screen.getByLabelText("Email")).toBeDisabled();
     const companyInput = document.querySelector('input[name="company"]');

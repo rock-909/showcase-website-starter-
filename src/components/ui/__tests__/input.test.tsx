@@ -1,23 +1,21 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { createRef } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { Input } from "@/components/ui/input";
 
 describe("Input", () => {
-  it("renders the default textbox shell with placeholder and base classes", () => {
+  it("renders textual inputs inside the Radix form-control surface", () => {
     render(<Input placeholder="Enter text here" data-testid="input" />);
 
     const input = screen.getByPlaceholderText("Enter text here");
-    expect(input).toHaveAttribute("data-slot", "input");
-    expect(input).toHaveClass(
-      "flex",
-      "h-10",
-      "w-full",
-      "rounded-xl",
-      "border",
-      "text-base",
-      "md:text-sm",
+    const surface = input.closest(
+      "[data-ui-pilot='radix-themes-form-control']",
     );
+
+    expect(surface).toBeInTheDocument();
+    expect(input).toHaveAttribute("data-slot", "input");
+    expect(surface).toHaveClass("contents");
   });
 
   it.each([
@@ -56,7 +54,12 @@ describe("Input", () => {
     expect(input).toHaveAttribute("maxlength", "50");
     expect(input).toBeRequired();
     expect(input).toHaveAttribute("readonly");
-    expect(input).toHaveClass("custom-input");
+
+    const surface = input.closest(
+      "[data-ui-pilot='radix-themes-form-control']",
+    );
+    expect(surface).toBeInTheDocument();
+    expect(surface?.querySelector(".custom-input")).toBeInTheDocument();
   });
 
   it("emits user input and keyboard/focus events", async () => {
@@ -99,10 +102,6 @@ describe("Input", () => {
     await user.type(input, "test");
 
     expect(input).toBeDisabled();
-    expect(input).toHaveClass(
-      "disabled:pointer-events-none",
-      "disabled:opacity-50",
-    );
     expect(handleChange).not.toHaveBeenCalled();
     expect(handleFocus).not.toHaveBeenCalled();
   });
@@ -118,12 +117,96 @@ describe("Input", () => {
     const input = screen.getByTestId("file-input");
     fireEvent.change(input, { target: { files: [file] } });
 
+    expect(
+      input.closest("[data-ui-pilot='radix-themes-form-control']"),
+    ).toBeNull();
+    expect(input).toHaveAttribute("data-slot", "input");
     expect(input).toHaveClass(
+      "h-10",
+      "rounded-xl",
+      "border",
       "file:inline-flex",
       "file:h-7",
       "file:text-foreground",
       "file:font-medium",
     );
     expect(handleChange).toHaveBeenCalled();
+  });
+
+  it("keeps hidden inputs native and includes them in FormData", () => {
+    render(
+      <form data-testid="form">
+        <Input
+          type="hidden"
+          name="trackingId"
+          value="lead-123"
+          readOnly
+          data-testid="hidden-input"
+        />
+      </form>,
+    );
+
+    const input = screen.getByTestId("hidden-input");
+    const form = screen.getByTestId("form") as HTMLFormElement;
+
+    expect(input).toHaveAttribute("type", "hidden");
+    expect(
+      input.closest("[data-ui-pilot='radix-themes-form-control']"),
+    ).toBeNull();
+    expect(new FormData(form).get("trackingId")).toBe("lead-123");
+  });
+
+  it("submits typed textual values through native FormData", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <form data-testid="form">
+        <Input name="email" placeholder="Email" />
+      </form>,
+    );
+
+    await user.type(screen.getByRole("textbox"), "buyer@example.com");
+
+    const form = screen.getByTestId("form") as HTMLFormElement;
+    expect(new FormData(form).get("email")).toBe("buyer@example.com");
+  });
+
+  it("submits default textual values through native FormData", () => {
+    render(
+      <form data-testid="form">
+        <Input name="email" defaultValue="initial@example.com" />
+      </form>,
+    );
+
+    const form = screen.getByTestId("form") as HTMLFormElement;
+    expect(new FormData(form).get("email")).toBe("initial@example.com");
+  });
+
+  it("forwards refs to textual inputs", () => {
+    const ref = createRef<HTMLInputElement>();
+
+    render(<Input ref={ref} placeholder="Email" type="email" />);
+
+    expect(ref.current).toBeInstanceOf(HTMLInputElement);
+
+    ref.current?.focus();
+    expect(ref.current).toHaveFocus();
+  });
+
+  it("forwards refs to file inputs", () => {
+    const ref = createRef<HTMLInputElement>();
+
+    render(<Input ref={ref} type="file" />);
+
+    expect(ref.current).toBeInstanceOf(HTMLInputElement);
+    expect(ref.current).toHaveAttribute("type", "file");
+  });
+
+  it("does not throw when file inputs receive an incompatible value", () => {
+    expect(() => {
+      render(<Input type="file" value="invalid" data-testid="file-input" />);
+    }).not.toThrow();
+
+    expect(screen.getByTestId("file-input")).toHaveAttribute("type", "file");
   });
 });

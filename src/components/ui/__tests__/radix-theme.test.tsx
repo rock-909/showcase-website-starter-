@@ -16,7 +16,7 @@ describe("RadixThemePilot", () => {
     ).toBeInTheDocument();
   });
 
-  it("exposes a stable pilot marker for tests and browser proof", () => {
+  it("uses the contact form surface marker by default", () => {
     render(
       <RadixThemePilot>
         <span>Boundary content</span>
@@ -26,6 +26,19 @@ describe("RadixThemePilot", () => {
     expect(screen.getByTestId("radix-theme-pilot")).toHaveAttribute(
       "data-ui-pilot",
       "radix-themes-contact-form",
+    );
+  });
+
+  it("uses the status callout surface marker when requested", () => {
+    render(
+      <RadixThemePilot surface="status-callout">
+        <span>Status content</span>
+      </RadixThemePilot>,
+    );
+
+    expect(screen.getByTestId("radix-theme-pilot")).toHaveAttribute(
+      "data-ui-pilot",
+      "radix-themes-status-callout",
     );
   });
 

@@ -19,6 +19,12 @@
     "contact-form-shell": {
       "story": "required"
     },
+    "data-card": {
+      "story": "required"
+    },
+    "dropdown-menu": {
+      "story": "required"
+    },
     "input": {
       "story": "required"
     },
@@ -44,6 +50,9 @@
       "story": "required"
     },
     "social-icons": {
+      "story": "required"
+    },
+    "status-callout": {
       "story": "required"
     },
     "textarea": {

@@ -170,3 +170,19 @@ repair the wrapper boundary before doing any visual expansion.
 
 Documentation alone is not enough. This ADR depends on the automated check
 staying active in the component governance gate.
+
+## Stable takeover exceptions
+
+The stable takeover keeps these local implementations intentionally. These are
+not missed migration items.
+
+- Contact checkboxes stay native until a dedicated checkbox spike proves
+  FormData submission, no-JS fallback behavior, label-click toggling, and stable
+  E2E locators.
+- FAQ disclosure stays native `<details>/<summary>` while the route-level test
+  requires the FAQ section to add no client JavaScript.
+- Narrative `Card` usage stays local. Radix-backed `DataCard` is limited to
+  data/control surfaces where repeated state, structure, or control semantics
+  matter.
+- Hero sections, product story sections, proof sections, footer art direction,
+  grid systems, and page layout stay owned by Tailwind and project tokens.

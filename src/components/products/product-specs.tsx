@@ -1,6 +1,11 @@
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  DataCard,
+  DataCardContent,
+  DataCardHeader,
+  DataCardTitle,
+} from "@/components/ui/data-card";
 
 export interface ProductSpecsProps {
   /** Key-value pairs of product specifications */
@@ -29,11 +34,11 @@ export function ProductSpecs({
   }
 
   return (
-    <Card className={cn("overflow-hidden", className)}>
-      <CardHeader className="bg-muted/50">
-        <CardTitle className="text-lg">{title}</CardTitle>
-      </CardHeader>
-      <CardContent className="p-0">
+    <DataCard className={cn("overflow-hidden", className)}>
+      <DataCardHeader className="bg-muted/50">
+        <DataCardTitle className="text-lg">{title}</DataCardTitle>
+      </DataCardHeader>
+      <DataCardContent className="p-0">
         <dl className="divide-y divide-border">
           {entries.map(([key, value]) => (
             <div
@@ -45,8 +50,8 @@ export function ProductSpecs({
             </div>
           ))}
         </dl>
-      </CardContent>
-    </Card>
+      </DataCardContent>
+    </DataCard>
   );
 }
 
@@ -166,11 +171,11 @@ export function ProductTradeInfo({
   }
 
   return (
-    <Card className={cn("overflow-hidden", className)}>
-      <CardHeader className="bg-muted/50">
-        <CardTitle className="text-lg">{title}</CardTitle>
-      </CardHeader>
-      <CardContent className="p-0">
+    <DataCard className={cn("overflow-hidden", className)}>
+      <DataCardHeader className="bg-muted/50">
+        <DataCardTitle className="text-lg">{title}</DataCardTitle>
+      </DataCardHeader>
+      <DataCardContent className="p-0">
         <dl className="divide-y divide-border">
           {items.map((item) => (
             <div
@@ -184,7 +189,7 @@ export function ProductTradeInfo({
             </div>
           ))}
         </dl>
-      </CardContent>
-    </Card>
+      </DataCardContent>
+    </DataCard>
   );
 }
