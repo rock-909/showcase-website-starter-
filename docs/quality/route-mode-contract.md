@@ -30,4 +30,6 @@ mapped to exact route/helper behavior or removed.
 Do not rename `src/middleware.ts` to `src/proxy.ts`.
 
 Next.js reports a `middleware` deprecation warning, but Cloudflare/OpenNext support is not acceptable for a blind migration in this starter.
-Keep `src/middleware.ts` until a dedicated proof lane demonstrates the renamed runtime entrypoint across local build, Cloudflare/OpenNext build, local Cloudflare preview smoke, and deployed smoke when a preview URL exists.
+Current decision record: `docs/website/proxy-migration-official-doc-check.md`
+(`official-doc-only check`). Keep `src/middleware.ts` until a future dedicated
+migration lane proves the renamed runtime entrypoint is worth the risk.

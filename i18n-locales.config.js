@@ -5,7 +5,9 @@
  * 用于以下脚本：
  * - scripts/starter-checks.js translations  (验证翻译文件一致性)
  *
- * 添加新语言时，只需在此处修改 locales 数组即可。
+ * Runtime locale truth lives in LOCALES_CONFIG
+ * (src/config/paths/locales-config.ts). This file is a CommonJS mirror for
+ * Node-only tooling and must stay in parity with the runtime config.
  */
 
 module.exports = {

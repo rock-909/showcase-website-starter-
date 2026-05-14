@@ -364,6 +364,55 @@ describe("content-readiness-check", () => {
     );
   });
 
+  it("warns on buyer-visible starter identity residue without failing the default starter check", () => {
+    const rootDir = createFixture({
+      "messages/en/critical.json": JSON.stringify({
+        title: "Showcase Website Starter",
+      }),
+      "content/pages/en/about.mdx": "Welcome to Public Demo Starter Site.",
+      "src/config/single-site.ts":
+        'export const site = { name: "Reusable Showcase Website Starter" };',
+    });
+    fixtureRoots.push(rootDir);
+
+    const result = runContentReadinessCheck(rootDir);
+
+    expect(result.status).toBe("passed");
+    expect(result.errors).toEqual([]);
+    expectFinding(result.warnings, "starter-identity");
+  });
+
+  it("promotes client-launch residue warnings to errors only in strict client launch mode", () => {
+    const rootDir = createFixture({
+      "messages/en/critical.json": JSON.stringify({
+        title: "Showcase Website Starter",
+        product: "Sample Product",
+        standard: "Example Standard A",
+        email: "Send requests to your@email before launch.",
+        phonePlaceholder: "+1-312-555-0198",
+      }),
+      "content/pages/en/about.mdx": "Visit https://example.com before launch.",
+    });
+    fixtureRoots.push(rootDir);
+
+    const defaultResult = runContentReadinessCheck(rootDir);
+    const strictResult = runContentReadinessCheck(rootDir, {
+      strictClientLaunch: true,
+    });
+
+    expect(defaultResult.status).toBe("passed");
+    expectFinding(defaultResult.warnings, "starter-identity");
+    expectFinding(defaultResult.warnings, "fake-phone");
+
+    expect(strictResult.status).toBe("failed");
+    expectFinding(strictResult.errors, "starter-identity");
+    expectFinding(strictResult.errors, "sample-product");
+    expectFinding(strictResult.errors, "example-standard");
+    expectFinding(strictResult.errors, "your-email");
+    expectFinding(strictResult.errors, "fake-phone");
+    expectFinding(strictResult.errors, "example-domain");
+  });
+
   it("warns on example.com in buyer-visible page content", () => {
     const rootDir = createFixture({
       "content/pages/en/about.mdx": "Visit https://example.com before launch.",
