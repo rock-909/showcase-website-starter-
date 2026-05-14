@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { Textarea } from "@/components/ui/textarea";
@@ -50,5 +50,50 @@ describe("Textarea", () => {
 
     expect(textarea).toHaveValue("Need a quote");
     expect(handleChange).toHaveBeenCalled();
+  });
+
+  it("emits focus and blur events", async () => {
+    const user = userEvent.setup();
+    const handleBlur = vi.fn();
+    const handleFocus = vi.fn();
+
+    render(
+      <Textarea
+        onBlur={handleBlur}
+        onFocus={handleFocus}
+        placeholder="Message"
+      />,
+    );
+
+    const textarea = screen.getByPlaceholderText("Message");
+    await user.click(textarea);
+    fireEvent.blur(textarea);
+
+    expect(handleFocus).toHaveBeenCalled();
+    expect(handleBlur).toHaveBeenCalled();
+  });
+
+  it("keeps disabled textareas non-interactive", async () => {
+    const user = userEvent.setup();
+    const handleChange = vi.fn();
+    const handleFocus = vi.fn();
+
+    render(
+      <Textarea
+        disabled
+        onChange={handleChange}
+        onFocus={handleFocus}
+        placeholder="Message"
+      />,
+    );
+
+    const textarea = screen.getByPlaceholderText("Message");
+    await user.click(textarea);
+    await user.type(textarea, "Need a quote");
+
+    expect(textarea).toBeDisabled();
+    expect(textarea).toHaveValue("");
+    expect(handleChange).not.toHaveBeenCalled();
+    expect(handleFocus).not.toHaveBeenCalled();
   });
 });
