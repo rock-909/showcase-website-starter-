@@ -307,15 +307,40 @@ describe("component-governance-check", () => {
     );
   });
 
-  it("allows Radix Themes imports inside approved UI wrappers", () => {
+  it("allows Radix Themes imports inside approved stable UI wrappers", () => {
     const rootDir = createFixture({
       "src/components/component-governance.registry.json": registry({
+        badge: { story: "required" },
+        "data-card": { story: "required" },
+        input: { story: "required" },
         "radix-theme": { story: "required" },
+        "status-callout": { story: "required" },
+        textarea: { story: "required" },
       }),
+      "src/components/ui/badge.tsx":
+        'import { Badge } from "@radix-ui/themes";\nexport function LocalBadge() { return <Badge />; }',
+      "src/components/ui/badge.stories.tsx":
+        "export default { title: 'UI/Badge' };",
+      "src/components/ui/data-card.tsx":
+        'import { Card } from "@radix-ui/themes";\nexport function DataCard() { return <Card />; }',
+      "src/components/ui/data-card.stories.tsx":
+        "export default { title: 'UI/DataCard' };",
+      "src/components/ui/input.tsx":
+        'import { TextField } from "@radix-ui/themes";\nexport function Input() { return <TextField.Root />; }',
+      "src/components/ui/input.stories.tsx":
+        "export default { title: 'UI/Input' };",
       "src/components/ui/radix-theme.tsx":
         'import { Theme } from "@radix-ui/themes";\nexport function RadixThemePilot({ children }: { children: React.ReactNode }) { return <Theme>{children}</Theme>; }',
       "src/components/ui/radix-theme.stories.tsx":
         "export default { title: 'UI/RadixThemePilot' };",
+      "src/components/ui/status-callout.tsx":
+        'import { Callout } from "@radix-ui/themes";\nexport function StatusCallout() { return <Callout.Root />; }',
+      "src/components/ui/status-callout.stories.tsx":
+        "export default { title: 'UI/StatusCallout' };",
+      "src/components/ui/textarea.tsx":
+        'import { TextArea } from "@radix-ui/themes";\nexport function Textarea() { return <TextArea />; }',
+      "src/components/ui/textarea.stories.tsx":
+        "export default { title: 'UI/Textarea' };",
     });
     fixtureRoots.push(rootDir);
 
@@ -328,12 +353,12 @@ describe("component-governance-check", () => {
   it("fails when Radix Themes is imported from an unapproved UI wrapper", () => {
     const rootDir = createFixture({
       "src/components/component-governance.registry.json": registry({
-        badge: { story: "required" },
+        checkbox: { story: "required" },
       }),
-      "src/components/ui/badge.tsx":
-        'import { Badge } from "@radix-ui/themes";\nexport function LocalBadge() { return <Badge />; }',
-      "src/components/ui/badge.stories.tsx":
-        "export default { title: 'UI/Badge' };",
+      "src/components/ui/checkbox.tsx":
+        'import { Checkbox } from "@radix-ui/themes";\nexport function LocalCheckbox() { return <Checkbox />; }',
+      "src/components/ui/checkbox.stories.tsx":
+        "export default { title: 'UI/Checkbox' };",
     });
     fixtureRoots.push(rootDir);
 
@@ -343,7 +368,7 @@ describe("component-governance-check", () => {
     expectFinding(
       result.errors,
       "radix-themes-import-unapproved-ui-wrapper",
-      "src/components/ui/badge.tsx",
+      "src/components/ui/checkbox.tsx",
     );
   });
 

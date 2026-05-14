@@ -142,6 +142,20 @@ Turnstile widget is unavailable locally and the submit button is disabled.
 
 Result: Continue pilot; not approved for broad expansion.
 
+Stable takeover follow-up:
+
+The Contact form controls pilot is the first proof layer. It proves that Radix
+Themes can stay behind local wrappers without leaking direct imports into
+business, page, or section code.
+
+The next step is a staged stable takeover, not a full-site Radix Themes
+migration. Approved stable surfaces are limited to local `src/components/ui/*`
+wrappers for form controls, status callouts, badges, and data-control cards.
+
+This does not approve Radix Themes ownership of hero sections, product
+storytelling, proof sections, footer art direction, grid systems, or page
+layout. Those surfaces stay project-owned and Tailwind/layout-driven.
+
 The Contact form now proves the local Radix Themes wrapper boundary, scoped token
 mapping, project-owned typography mapping, Radix-backed text input and textarea wrappers, native checkbox
 preservation, governance checks, build proof, and browser proof.
