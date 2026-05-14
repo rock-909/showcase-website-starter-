@@ -1,9 +1,9 @@
 /**
- * Product catalog compatibility wrapper.
+ * Product catalog query facade.
  *
- * During the single-site cutover, routes and sitemap generation should read the
- * canonical single-site catalog through the single-site source instead of
- * inventing a second product-truth layer in consumers.
+ * Authoring truth stays in src/config/single-site-product-catalog.ts and
+ * src/constants/product-specs/**; this module gives routes, sitemap generation,
+ * and pages a stable way to query the current catalog.
  */
 
 import {

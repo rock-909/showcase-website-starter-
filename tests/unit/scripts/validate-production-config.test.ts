@@ -91,6 +91,23 @@ describe("validate-production-config runtime contract", () => {
     );
   });
 
+  it("does not reject an explicit false in-memory store fallback flag", () => {
+    const env = {
+      ...createValidProductionEnv(),
+      ALLOW_MEMORY_RATE_LIMIT: "false",
+    };
+
+    const result = validateProductionRuntimeContract(env);
+
+    expect(result.errors).not.toEqual(
+      expect.arrayContaining([
+        expect.stringContaining(
+          "Degraded in-memory rate-limit store flag (ALLOW_MEMORY_RATE_LIMIT) cannot be used in production",
+        ),
+      ]),
+    );
+  });
+
   it("fails fast on partial or forbidden store configuration", () => {
     const partialUpstash = validateProductionRuntimeContract({
       ...createValidProductionEnv(),
@@ -160,6 +177,28 @@ describe("validateProductionConfig CI vs deploy gate", () => {
 
     expect(result.errors).toEqual([]);
     expect(result.runtimeContractChecked).toBe(false);
+  });
+
+  it("enforces runtime contract for strict public launch checks in preview", () => {
+    const env: NodeJS.ProcessEnv = {
+      APP_ENV: "preview",
+      NODE_ENV: "production",
+      PUBLIC_LAUNCH_STRICT: "true",
+    };
+
+    const result = validateProductionConfig(env);
+
+    expect(result.runtimeContractChecked).toBe(true);
+    expect(result.errors).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining(
+          "Production rate limiting requires Upstash Redis",
+        ),
+        expect.stringContaining(
+          "NEXT_SERVER_ACTIONS_ENCRYPTION_KEY is required",
+        ),
+      ]),
+    );
   });
 
   it("keeps runtime errors as hard failures when VALIDATE_CONFIG_SKIP_RUNTIME is absent", () => {

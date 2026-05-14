@@ -87,8 +87,14 @@ requires route-local ordering.
 - Do not use `NextResponse.next({ headers })` to push broad response headers
   from middleware/proxy. It can break framework-owned responses such as Server
   Actions and streaming.
+- `NEXT_PUBLIC_SECURITY_MODE=strict` means enforced security headers with a
+  static-compatible CSP. It is not nonce-level strict CSP.
 - CSP is static by starter default. Do not add dynamic nonce handling unless a
-  dedicated dynamic-rendering proof plan justifies the trade-off.
+  dedicated dynamic rendering proof plan justifies the trade-off.
+- A nonce CSP lane needs a proxy-generated nonce plus Cloudflare/OpenNext proof;
+  do not mix that into ordinary security cleanup.
+- Current nonce CSP feasibility decision lives in
+  `docs/website/nonce-csp-feasibility.md`.
 - CSP reports go to `/api/csp-report`.
 - Do not use unfiltered `dangerouslySetInnerHTML`.
 - URL values must allow only `https://`, `http://`, or site-relative `/`.

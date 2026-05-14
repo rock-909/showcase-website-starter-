@@ -1,5 +1,8 @@
 /**
- * 站点配置
+ * Runtime/validation facade for the single-site configuration.
+ *
+ * Authoring truth stays in src/config/single-site.ts; this module keeps the
+ * runtime export plus production-readiness checks in one stable import path.
  */
 
 import { SINGLE_SITE_CONFIG, type SiteConfig } from "@/config/single-site";
