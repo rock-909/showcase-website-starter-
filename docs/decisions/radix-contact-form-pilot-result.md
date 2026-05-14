@@ -168,3 +168,23 @@ possible pilot may be one bounded control/data surface such as form feedback,
 status callouts, badges, or a single specification/data card wrapper. Hero,
 footer, product storytelling, proof sections, and page narrative structure stay
 outside Radix Themes.
+
+## Stable takeover exception log
+
+This stable takeover round deliberately did not migrate checkbox controls, FAQ
+disclosure, or narrative cards. Treat these as recorded risk exceptions, not as
+missed work.
+
+- Contact checkboxes remain native because a Radix-backed checkbox still needs a
+  dedicated proof for FormData submission, no-JS fallback behavior, label-click
+  toggling, and stable E2E locators.
+- FAQ disclosure remains native `<details>/<summary>` because the current
+  route-level performance boundary requires no client JavaScript for the FAQ
+  section.
+- Narrative card usage remains local because those cards are layout and
+  storytelling surfaces. Radix-backed `DataCard` is reserved for data/control
+  surfaces.
+- Hero sections, product story sections, proof sections, footer art direction,
+  grids, and page layout remain Tailwind/project-token owned. Moving them to
+  Radix Themes would be a separate design decision, not part of this stable
+  takeover.
