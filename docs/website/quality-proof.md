@@ -267,6 +267,11 @@ node scripts/quality/retention-reports.mjs --keep 5
 这不是审计资料清理命令。不要用它处理 `docs/audits/**`、`docs/superpowers/**`
 或 owner 手写的 Markdown 结论文档。
 
+Browser proof screenshots are local or CI proof artifacts by default. Track
+them in git only when a spec, plan, or decision record explicitly names the
+screenshot as durable review evidence. Do not force-add ad hoc screenshots from
+`reports/**` only because a local browser proof captured them.
+
 ### 7. Cloudflare middleware/proxy 边界
 
 Next.js 当前推荐 `proxy.ts`，并会输出 Next.js deprecation warning。

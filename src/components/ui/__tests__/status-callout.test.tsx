@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { StatusCallout } from "@/components/ui/status-callout";
 
 describe("StatusCallout", () => {
-  it("renders error tone as an assertive alert inside the named Radix surface", () => {
+  it("renders error tone as an assertive alert on the named Radix callout", () => {
     render(
       <StatusCallout tone="error" title="Submission failed">
         Please check the form and try again.
@@ -19,9 +19,11 @@ describe("StatusCallout", () => {
     expect(
       screen.getByText("Please check the form and try again."),
     ).toBeInTheDocument();
-    expect(
-      callout.closest("[data-ui-pilot='radix-themes-status-callout']"),
-    ).toHaveClass("contents");
+    expect(callout).toHaveAttribute(
+      "data-ui-pilot",
+      "radix-themes-status-callout",
+    );
+    expect(screen.queryByTestId("radix-theme-pilot")).not.toBeInTheDocument();
   });
 
   it.each([
@@ -43,5 +45,21 @@ describe("StatusCallout", () => {
 
     expect(ref.current).toBeInstanceOf(HTMLDivElement);
     expect(ref.current).toHaveAttribute("data-slot", "status-callout");
+  });
+
+  it("can render static notices without live-region semantics", () => {
+    render(
+      <StatusCallout live={false} title="Product context">
+        Static buyer context.
+      </StatusCallout>,
+    );
+
+    const callout = screen
+      .getByText("Static buyer context.")
+      .closest("[data-slot='status-callout']");
+
+    expect(callout).toBeInTheDocument();
+    expect(callout).not.toHaveAttribute("role");
+    expect(callout).not.toHaveAttribute("aria-live");
   });
 });

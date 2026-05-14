@@ -65,6 +65,32 @@ describe("Textarea", () => {
     expect(screen.getByPlaceholderText("Message")).toHaveValue("Fixed");
   });
 
+  it("submits typed values through native FormData", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <form data-testid="form">
+        <Textarea name="message" placeholder="Message" />
+      </form>,
+    );
+
+    await user.type(screen.getByPlaceholderText("Message"), "Need a quote");
+
+    const form = screen.getByTestId("form") as HTMLFormElement;
+    expect(new FormData(form).get("message")).toBe("Need a quote");
+  });
+
+  it("submits default values through native FormData", () => {
+    render(
+      <form data-testid="form">
+        <Textarea name="message" defaultValue="Initial message" />
+      </form>,
+    );
+
+    const form = screen.getByTestId("form") as HTMLFormElement;
+    expect(new FormData(form).get("message")).toBe("Initial message");
+  });
+
   it("forwards refs to the native textarea element", () => {
     const ref = createRef<HTMLTextAreaElement>();
 

@@ -1,14 +1,7 @@
 import { readFileSync } from "node:fs";
-import {
-  act,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { ANIMATION_DURATION_VERY_SLOW } from "@/constants/core";
 import { HeaderLanguageMenu } from "@/components/layout/header-language-menu";
 
 function setBrowserPathname(pathname: string) {
@@ -40,6 +33,7 @@ describe("HeaderLanguageMenu", () => {
     expect(source).not.toContain("@/lib/navigation");
     expect(source).not.toContain("@/lib/i18n/route-parsing");
     expect(source).not.toContain("next/navigation");
+    expect(source).not.toContain("preventDefault");
   });
 
   it("treats initialOpen as a mount-only initial value", () => {
@@ -122,18 +116,28 @@ describe("HeaderLanguageMenu", () => {
     );
   });
 
-  it("shows a temporary loading indicator for the selected target locale", () => {
+  it("closes the menu when the user activates a language item", async () => {
+    vi.useRealTimers();
+    const user = userEvent.setup();
+
     render(<HeaderLanguageMenu initialOpen locale="en" />);
 
-    fireEvent.click(screen.getByTestId("language-link-zh"));
+    expect(screen.getByRole("menu")).toBeInTheDocument();
+    expect(screen.getByTestId("language-link-zh")).toHaveAttribute(
+      "href",
+      "/zh/products/north-america",
+    );
 
-    expect(screen.getByTestId("loader-icon")).toBeInTheDocument();
+    await user.click(screen.getByTestId("language-link-zh"));
 
-    act(() => {
-      vi.advanceTimersByTime(ANIMATION_DURATION_VERY_SLOW + 1);
+    await waitFor(() => {
+      expect(screen.queryByRole("menu")).not.toBeInTheDocument();
     });
-
     expect(screen.queryByTestId("loader-icon")).not.toBeInTheDocument();
+    expect(screen.getByTestId("language-toggle-button")).toHaveAttribute(
+      "aria-expanded",
+      "false",
+    );
   });
 
   it("toggles the menu from the trigger and closes with Escape", async () => {

@@ -133,6 +133,55 @@ describe("Input", () => {
     expect(handleChange).toHaveBeenCalled();
   });
 
+  it("keeps hidden inputs native and includes them in FormData", () => {
+    render(
+      <form data-testid="form">
+        <Input
+          type="hidden"
+          name="trackingId"
+          value="lead-123"
+          readOnly
+          data-testid="hidden-input"
+        />
+      </form>,
+    );
+
+    const input = screen.getByTestId("hidden-input");
+    const form = screen.getByTestId("form") as HTMLFormElement;
+
+    expect(input).toHaveAttribute("type", "hidden");
+    expect(
+      input.closest("[data-ui-pilot='radix-themes-form-control']"),
+    ).toBeNull();
+    expect(new FormData(form).get("trackingId")).toBe("lead-123");
+  });
+
+  it("submits typed textual values through native FormData", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <form data-testid="form">
+        <Input name="email" placeholder="Email" />
+      </form>,
+    );
+
+    await user.type(screen.getByRole("textbox"), "buyer@example.com");
+
+    const form = screen.getByTestId("form") as HTMLFormElement;
+    expect(new FormData(form).get("email")).toBe("buyer@example.com");
+  });
+
+  it("submits default textual values through native FormData", () => {
+    render(
+      <form data-testid="form">
+        <Input name="email" defaultValue="initial@example.com" />
+      </form>,
+    );
+
+    const form = screen.getByTestId("form") as HTMLFormElement;
+    expect(new FormData(form).get("email")).toBe("initial@example.com");
+  });
+
   it("forwards refs to textual inputs", () => {
     const ref = createRef<HTMLInputElement>();
 

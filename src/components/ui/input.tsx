@@ -7,7 +7,6 @@ type TextualInputType =
   | "date"
   | "datetime-local"
   | "email"
-  | "hidden"
   | "month"
   | "number"
   | "password"
@@ -22,7 +21,6 @@ const TEXTUAL_INPUT_TYPES = new Set<string>([
   "date",
   "datetime-local",
   "email",
-  "hidden",
   "month",
   "number",
   "password",

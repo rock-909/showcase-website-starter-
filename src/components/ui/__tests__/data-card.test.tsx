@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/data-card";
 
 describe("DataCard", () => {
-  it("renders named slots inside the Radix Themes data-card pilot surface", () => {
+  it("renders named slots on the Radix Themes data-card wrapper contract", () => {
     render(
       <DataCard data-testid="data-card">
         <DataCardHeader>
@@ -25,13 +25,8 @@ describe("DataCard", () => {
 
     const card = screen.getByTestId("data-card");
     expect(card).toHaveAttribute("data-slot", "data-card");
-    expect(card.closest("[data-ui-pilot]")).toHaveAttribute(
-      "data-ui-pilot",
-      "radix-themes-data-card",
-    );
-    expect(
-      card.closest("[data-ui-pilot='radix-themes-data-card']"),
-    ).toHaveClass("contents");
+    expect(card).toHaveAttribute("data-ui-pilot", "radix-themes-data-card");
+    expect(screen.queryByTestId("radix-theme-pilot")).not.toBeInTheDocument();
     expect(
       screen.getByText("Specification surface").closest("[data-slot]"),
     ).toHaveAttribute("data-slot", "data-card-title");
@@ -106,10 +101,7 @@ describe("DataCard", () => {
 
     const card = screen.getByTestId("data-card");
     expect(card).toHaveAttribute("data-slot", "data-card");
-    expect(card.closest("[data-ui-pilot]")).toHaveAttribute(
-      "data-ui-pilot",
-      "radix-themes-data-card",
-    );
+    expect(card).toHaveAttribute("data-ui-pilot", "radix-themes-data-card");
     expect(screen.getByText("Data title").parentElement).toHaveAttribute(
       "data-slot",
       "data-card-header",
@@ -135,7 +127,7 @@ describe("DataCard", () => {
 
     expect(ref.current).toBeInstanceOf(HTMLDivElement);
     expect(ref.current).toHaveAttribute("data-slot", "data-card");
-    expect(ref.current?.closest("[data-ui-pilot]")).toHaveAttribute(
+    expect(ref.current).toHaveAttribute(
       "data-ui-pilot",
       "radix-themes-data-card",
     );

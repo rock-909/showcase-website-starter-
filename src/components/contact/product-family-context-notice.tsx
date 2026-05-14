@@ -16,6 +16,7 @@ export function ProductFamilyContextNotice({
     <StatusCallout
       className="mb-6"
       data-testid="product-family-context-notice"
+      live={false}
       title={label}
       tone="info"
     >

@@ -253,11 +253,7 @@ export function HeaderLanguageMenu({
 
             return (
               <div data-testid="language-dropdown-item" key={option.locale}>
-                <DropdownMenuItem
-                  asChild
-                  className={LANGUAGE_ITEM_CLASS_NAME}
-                  onSelect={(event) => event.preventDefault()}
-                >
+                <DropdownMenuItem asChild className={LANGUAGE_ITEM_CLASS_NAME}>
                   <a
                     href={languageHrefs[option.locale]}
                     className={cn(
@@ -267,7 +263,10 @@ export function HeaderLanguageMenu({
                     data-locale={option.locale}
                     data-testid={`language-link-${option.locale}`}
                     translate="no"
-                    onClick={() => handleLanguageClick(option.locale)}
+                    onClick={() => {
+                      handleLanguageClick(option.locale);
+                      setIsOpen(false);
+                    }}
                   >
                     <span
                       className="text-xs"

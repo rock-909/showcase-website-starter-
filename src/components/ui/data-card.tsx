@@ -1,6 +1,5 @@
 import { Card as RadixCard } from "@radix-ui/themes";
 import { forwardRef, type ComponentPropsWithoutRef } from "react";
-import { RadixThemePilot } from "@/components/ui/radix-theme";
 import { cn } from "@/lib/utils";
 
 type DataCardProps = Omit<ComponentPropsWithoutRef<"div">, "color">;
@@ -8,19 +7,18 @@ type DataCardProps = Omit<ComponentPropsWithoutRef<"div">, "color">;
 const DataCard = forwardRef<HTMLDivElement, DataCardProps>(
   ({ className, ...props }, ref) => {
     return (
-      <RadixThemePilot className="contents" surface="data-card">
-        <RadixCard
-          ref={ref}
-          {...props}
-          className={cn(
-            "flex flex-col gap-6 overflow-hidden rounded-xl border border-border/50 bg-card py-6 text-card-foreground",
-            className,
-          )}
-          data-slot="data-card"
-          size="3"
-          variant="surface"
-        />
-      </RadixThemePilot>
+      <RadixCard
+        ref={ref}
+        {...props}
+        className={cn(
+          "flex flex-col gap-6 overflow-hidden rounded-xl border border-border/50 bg-card py-6 text-card-foreground",
+          className,
+        )}
+        data-slot="data-card"
+        data-ui-pilot="radix-themes-data-card"
+        size="3"
+        variant="surface"
+      />
     );
   },
 );
