@@ -24,7 +24,7 @@ describe("Badge", () => {
   });
 
   it.each(["default", "secondary", "destructive", "outline"] as const)(
-    "keeps the local badge contract for the %s variant",
+    "keeps the local badge contract for the %s variant marker",
     (variant) => {
       render(<Badge variant={variant}>Variant</Badge>);
 
@@ -34,6 +34,36 @@ describe("Badge", () => {
         "data-ui-pilot",
         "radix-themes-badge",
       );
+    },
+  );
+
+  it.each([
+    ["default", "rt-variant-solid", []],
+    ["secondary", "rt-variant-soft", []],
+    [
+      "destructive",
+      "rt-variant-surface",
+      [
+        "border-[var(--error-border)]",
+        "bg-[var(--error-muted)]",
+        "text-[var(--error-foreground)]",
+      ],
+    ],
+    [
+      "outline",
+      "rt-variant-outline",
+      ["border-border", "bg-transparent", "text-foreground"],
+    ],
+  ] as const)(
+    "maps the %s semantic variant to the expected Radix and local classes",
+    (variant, radixVariantClass, localClasses) => {
+      render(<Badge variant={variant}>Variant</Badge>);
+
+      const badge = screen.getByText("Variant");
+      expect(badge).toHaveClass(radixVariantClass);
+      for (const className of localClasses) {
+        expect(badge).toHaveClass(className);
+      }
     },
   );
 
