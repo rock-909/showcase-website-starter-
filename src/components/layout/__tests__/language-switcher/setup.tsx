@@ -1,4 +1,12 @@
 import { act, screen } from "@testing-library/react";
+import type {
+  AnchorHTMLAttributes,
+  ButtonHTMLAttributes,
+  HTMLAttributes,
+  KeyboardEvent,
+  ReactElement,
+  ReactNode,
+} from "react";
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
 import { TEST_COUNT_CONSTANTS } from "@/test/constants/test-constants";
@@ -38,10 +46,9 @@ vi.mock("@/i18n/routing", () => ({
     href,
     ...props
   }: {
-    children?: React.ReactNode;
+    children?: ReactNode;
     href?: string;
-    [key: string]: any;
-  }) => (
+  } & AnchorHTMLAttributes<HTMLAnchorElement>) => (
     <a href={href} {...props}>
       {children}
     </a>
@@ -58,85 +65,157 @@ vi.mock("@/i18n/routing", () => ({
 }));
 
 // Mock UI components
-vi.mock("@/components/ui/dropdown-menu", () => ({
-  DropdownMenu: ({
-    children,
-    open,
-    onOpenChange,
-  }: {
-    children?: React.ReactNode;
+vi.mock("@/components/ui/dropdown-menu", async () => {
+  const React = await import("react");
+
+  interface DropdownMenuContextValue {
     open?: boolean;
     onOpenChange?: (open: boolean) => void;
-  }) => (
-    <div
-      aria-expanded={open}
-      data-testid="dropdown-menu"
-      data-open={open}
-      onClick={() => onOpenChange?.(!open)}
-      onKeyDown={(event: React.KeyboardEvent<HTMLDivElement>) => {
+  }
+
+  interface AsChildProps {
+    asChild?: boolean;
+    children?: ReactNode;
+  }
+
+  interface DropdownMenuProps extends AsChildProps {
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
+  }
+
+  interface DropdownMenuContentProps
+    extends HTMLAttributes<HTMLDivElement>, AsChildProps {
+    align?: string;
+  }
+
+  interface DropdownMenuItemProps
+    extends HTMLAttributes<HTMLDivElement>, AsChildProps {
+    onSelect?: (event: Event) => void;
+  }
+
+  const DropdownMenuContext =
+    React.createContext<DropdownMenuContextValue | null>(null);
+
+  function isElement(child: ReactNode): child is ReactElement {
+    return React.isValidElement(child);
+  }
+
+  function DropdownMenu({ children, open, onOpenChange }: DropdownMenuProps) {
+    return (
+      <DropdownMenuContext.Provider value={{ open, onOpenChange }}>
+        <div data-testid="dropdown-menu" data-open={open}>
+          {children}
+        </div>
+      </DropdownMenuContext.Provider>
+    );
+  }
+
+  function DropdownMenuTrigger({ children, asChild }: AsChildProps) {
+    const context = React.useContext(DropdownMenuContext);
+    const triggerProps: ButtonHTMLAttributes<HTMLButtonElement> = {
+      "aria-expanded": context?.open,
+      "aria-haspopup": "menu",
+      onClick: () => context?.onOpenChange?.(!context.open),
+      onKeyDown: (event: KeyboardEvent<HTMLButtonElement>) => {
         if (event.key !== "Enter" && event.key !== " ") return;
 
         event.preventDefault();
-        onOpenChange?.(!open);
-      }}
-      role="button"
-      tabIndex={0}
-    >
-      {children}
-    </div>
-  ),
-  DropdownMenuContent: ({
+        context?.onOpenChange?.(!context?.open);
+      },
+    };
+
+    if (asChild && isElement(children)) {
+      return React.cloneElement(children, {
+        ...triggerProps,
+        ...children.props,
+        onClick: (event: React.MouseEvent<HTMLButtonElement>) => {
+          triggerProps.onClick?.(event);
+          children.props.onClick?.(event);
+        },
+        onKeyDown: (event: KeyboardEvent<HTMLButtonElement>) => {
+          triggerProps.onKeyDown?.(event);
+          children.props.onKeyDown?.(event);
+        },
+      });
+    }
+
+    return (
+      <button data-testid="dropdown-trigger" type="button" {...triggerProps}>
+        {children}
+      </button>
+    );
+  }
+
+  function DropdownMenuContent({
     children,
     align,
     className,
-    ...props
-  }: {
-    children?: React.ReactNode;
-    align?: string;
-    className?: string;
-    [key: string]: any;
-  }) => (
-    <div
-      data-testid="dropdown-content"
-      data-align={align}
-      className={className}
-      {...props}
-    >
-      {children}
-    </div>
-  ),
-  DropdownMenuTrigger: ({
-    children,
     asChild,
-  }: {
-    children?: React.ReactNode;
-    asChild?: boolean;
-  }) => {
-    if (asChild) {
-      return children;
+    ...props
+  }: DropdownMenuContentProps) {
+    const context = React.useContext(DropdownMenuContext);
+
+    if (!context?.open) return null;
+
+    const contentProps: HTMLAttributes<HTMLDivElement> = {
+      "data-align": align,
+      className,
+      role: "menu",
+      ...props,
+    };
+
+    if (asChild && isElement(children)) {
+      return React.cloneElement(children, {
+        ...contentProps,
+        ...children.props,
+      });
     }
-    return <div data-testid="dropdown-trigger">{children}</div>;
-  },
-  DropdownMenuItem: ({
+
+    return <div {...contentProps}>{children}</div>;
+  }
+
+  function DropdownMenuItem({
     children,
     onClick,
+    onSelect,
+    asChild,
     ...props
-  }: {
-    children?: React.ReactNode;
-    onClick?: () => void;
-    [key: string]: any;
-  }) => (
-    <button
-      data-testid="dropdown-item"
-      onClick={onClick}
-      role="menuitem"
-      type="button"
-      {...props}
-    >
-      {children}
-    </button>
-  ),
-}));
+  }: DropdownMenuItemProps) {
+    const itemProps: HTMLAttributes<HTMLElement> = {
+      role: "menuitem",
+      ...props,
+      onClick: (event) => {
+        onClick?.(event);
+        onSelect?.(event.nativeEvent);
+      },
+    };
+
+    if (asChild && isElement(children)) {
+      return React.cloneElement(children, {
+        ...itemProps,
+        ...children.props,
+        onClick: (event: React.MouseEvent<HTMLElement>) => {
+          itemProps.onClick?.(event);
+          children.props.onClick?.(event);
+        },
+      });
+    }
+
+    return <div {...itemProps}>{children}</div>;
+  }
+
+  return {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuTrigger,
+    DropdownMenuGroup: ({ children }: AsChildProps) => <div>{children}</div>,
+    DropdownMenuPortal: ({ children }: AsChildProps) => <>{children}</>,
+    DropdownMenuItem,
+    DropdownMenuSeparator: (props: HTMLAttributes<HTMLDivElement>) => (
+      <div role="separator" {...props} />
+    ),
+  };
+});
 
 vi.mock("@/components/ui/button", () => ({
   Button: ({
@@ -146,12 +225,11 @@ vi.mock("@/components/ui/button", () => ({
     className,
     ...props
   }: {
-    children?: React.ReactNode;
+    children?: ReactNode;
     variant?: string;
     size?: string;
     className?: string;
-    [key: string]: any;
-  }) => (
+  } & ButtonHTMLAttributes<HTMLButtonElement>) => (
     <button
       data-testid="language-button"
       data-variant={variant}
@@ -171,8 +249,7 @@ vi.mock("lucide-react", () => ({
     ...props
   }: {
     className?: string;
-    [key: string]: any;
-  }) => (
+  } & HTMLAttributes<HTMLSpanElement>) => (
     <span data-testid="languages-icon" className={className} {...props}>
       🌐
     </span>
@@ -182,8 +259,7 @@ vi.mock("lucide-react", () => ({
     ...props
   }: {
     className?: string;
-    [key: string]: any;
-  }) => (
+  } & HTMLAttributes<HTMLSpanElement>) => (
     <span data-testid="chevron-down-icon" className={className} {...props}>
       ⌄
     </span>
@@ -193,8 +269,7 @@ vi.mock("lucide-react", () => ({
     ...props
   }: {
     className?: string;
-    [key: string]: any;
-  }) => (
+  } & HTMLAttributes<HTMLSpanElement>) => (
     <span data-testid="check-icon" className={className} {...props}>
       ✓
     </span>

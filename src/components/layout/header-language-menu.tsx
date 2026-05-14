@@ -1,15 +1,14 @@
 "use client";
 
-import {
-  type RefObject,
-  useCallback,
-  useEffect,
-  useId,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ANIMATION_DURATION_VERY_SLOW } from "@/constants/core";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 
 type HeaderLanguageLocale = "en" | "zh";
 type TimeoutHandle = ReturnType<typeof setTimeout>;
@@ -17,12 +16,6 @@ type TimeoutHandle = ReturnType<typeof setTimeout>;
 interface HeaderLanguageMenuProps {
   locale: HeaderLanguageLocale;
   initialOpen?: boolean;
-}
-
-interface DismissableMenuOptions {
-  isOpen: boolean;
-  onClose: () => void;
-  rootRef: RefObject<HTMLDivElement | null>;
 }
 
 interface LanguageTransitionState {
@@ -52,12 +45,14 @@ const TRIGGER_CLASS_NAME =
   "transition-colors duration-150 ease-out " +
   "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background";
 const MENU_CLASS_NAME =
-  "notranslate absolute right-0 top-full z-50 mt-2 min-w-[180px] px-0 py-2.5 " +
+  "notranslate z-50 min-w-[180px] px-0 py-2.5 " +
   "rounded-xl border border-border bg-popover text-popover-foreground shadow-lg";
 const LANGUAGE_LINK_CLASS_NAME =
   "flex w-full cursor-pointer items-center justify-between rounded-md px-3.5 py-2 " +
   "font-medium text-muted-foreground hover:bg-muted hover:text-foreground dark:hover:bg-foreground/10 " +
   "transition-colors duration-150 ease-in-out";
+const LANGUAGE_ITEM_CLASS_NAME =
+  "block cursor-default rounded-md p-0 outline-none focus:bg-muted focus:text-foreground";
 
 function GlobeIcon() {
   return (
@@ -167,42 +162,6 @@ function getCurrentBrowserPathname() {
   return window.location.pathname || "/";
 }
 
-function isNode(target: EventTarget | null): target is Node {
-  return target instanceof Node;
-}
-
-function useDismissableMenu({
-  isOpen,
-  onClose,
-  rootRef,
-}: DismissableMenuOptions) {
-  useEffect(() => {
-    if (!isOpen) return undefined;
-
-    const handlePointerDown = (event: PointerEvent) => {
-      if (!isNode(event.target) || rootRef.current?.contains(event.target)) {
-        return;
-      }
-
-      onClose();
-    };
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        onClose();
-      }
-    };
-
-    document.addEventListener("pointerdown", handlePointerDown);
-    document.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      document.removeEventListener("pointerdown", handlePointerDown);
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [isOpen, onClose, rootRef]);
-}
-
 function useLanguageTransition(): LanguageTransitionState {
   const [switchingTo, setSwitchingTo] = useState<HeaderLanguageLocale | null>(
     null,
@@ -237,20 +196,14 @@ export function HeaderLanguageMenu({
   initialOpen = false,
 }: HeaderLanguageMenuProps) {
   const rootRef = useRef<HTMLDivElement>(null);
-  const menuBaseId = useId();
-  const triggerId = `${menuBaseId}-trigger`;
-  const menuId = `${menuBaseId}-menu`;
   const [pathname, setPathname] = useState(getCurrentBrowserPathname);
   const [isOpen, setIsOpen] = useState(() => initialOpen);
-  const closeMenu = useCallback(() => setIsOpen(false), []);
-  const toggleMenu = useCallback(() => {
-    const nextIsOpen = !isOpen;
+  const handleOpenChange = useCallback((nextIsOpen: boolean) => {
     if (nextIsOpen) {
       setPathname(getCurrentBrowserPathname());
     }
     setIsOpen(nextIsOpen);
-  }, [isOpen]);
-  useDismissableMenu({ isOpen, onClose: closeMenu, rootRef });
+  }, []);
   const { switchingTo, handleLanguageClick } = useLanguageTransition();
   const currentLanguageName = LANGUAGE_LABELS[locale];
   const languageHrefs = useMemo(
@@ -262,70 +215,76 @@ export function HeaderLanguageMenu({
   );
 
   return (
-    <div
-      ref={rootRef}
-      data-testid="language-switcher"
-      className="notranslate relative inline-block"
-      translate="no"
-    >
-      <button
-        type="button"
-        id={triggerId}
-        data-testid="language-toggle-button"
-        aria-label={currentLanguageName}
-        aria-haspopup="menu"
-        aria-expanded={isOpen}
-        aria-controls={menuId}
-        className={TRIGGER_CLASS_NAME}
-        onClick={toggleMenu}
+    <DropdownMenu modal={false} open={isOpen} onOpenChange={handleOpenChange}>
+      <div
+        ref={rootRef}
+        data-testid="language-switcher"
+        className="notranslate relative inline-block"
+        translate="no"
       >
-        <GlobeIcon />
-        <span
-          className="text-xs font-medium text-muted-foreground"
-          data-testid="language-current-label"
-          translate="no"
-        >
-          {currentLanguageName}
-        </span>
-        <ChevronIcon isOpen={isOpen} />
-      </button>
-      {isOpen && (
-        <div
-          id={menuId}
-          role="menu"
-          aria-labelledby={triggerId}
+        <DropdownMenuTrigger asChild>
+          <button
+            type="button"
+            data-testid="language-toggle-button"
+            aria-label={currentLanguageName}
+            className={TRIGGER_CLASS_NAME}
+          >
+            <GlobeIcon />
+            <span
+              className="text-xs font-medium text-muted-foreground"
+              data-testid="language-current-label"
+              translate="no"
+            >
+              {currentLanguageName}
+            </span>
+            <ChevronIcon isOpen={isOpen} />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent
+          align="end"
           data-testid="language-dropdown-content"
-          data-state="open"
+          data-state={isOpen ? "open" : "closed"}
           translate="no"
           className={MENU_CLASS_NAME}
         >
-          {LANGUAGE_OPTIONS.map((option) => (
-            <div data-testid="language-dropdown-item" key={option.locale}>
-              <a
-                href={languageHrefs[option.locale]}
-                className={LANGUAGE_LINK_CLASS_NAME}
-                data-locale={option.locale}
-                data-testid={`language-link-${option.locale}`}
-                role="menuitem"
-                translate="no"
-                onClick={() => handleLanguageClick(option.locale)}
-              >
-                <span
-                  className="text-xs"
-                  data-testid={`language-option-label-${option.locale}`}
-                  translate="no"
+          {LANGUAGE_OPTIONS.map((option) => {
+            const isSwitchingToOption = switchingTo === option.locale;
+            const isCurrentLocale = locale === option.locale;
+
+            return (
+              <div data-testid="language-dropdown-item" key={option.locale}>
+                <DropdownMenuItem
+                  asChild
+                  className={LANGUAGE_ITEM_CLASS_NAME}
+                  onSelect={(event) => event.preventDefault()}
                 >
-                  {option.label}
-                </span>
-                {switchingTo === option.locale && <LoaderIcon />}
-                {locale === option.locale && switchingTo !== option.locale && (
-                  <CheckIcon />
-                )}
-              </a>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+                  <a
+                    href={languageHrefs[option.locale]}
+                    className={cn(
+                      LANGUAGE_LINK_CLASS_NAME,
+                      isSwitchingToOption && "pointer-events-none",
+                    )}
+                    data-locale={option.locale}
+                    data-testid={`language-link-${option.locale}`}
+                    translate="no"
+                    onClick={() => handleLanguageClick(option.locale)}
+                  >
+                    <span
+                      className="text-xs"
+                      data-testid={`language-option-label-${option.locale}`}
+                      translate="no"
+                    >
+                      {option.label}
+                    </span>
+                    {isSwitchingToOption && <LoaderIcon />}
+                    {isCurrentLocale && !isSwitchingToOption && <CheckIcon />}
+                  </a>
+                </DropdownMenuItem>
+              </div>
+            );
+          })}
+        </DropdownMenuContent>
+      </div>
+    </DropdownMenu>
   );
 }

@@ -22,6 +22,9 @@
     "data-card": {
       "story": "required"
     },
+    "dropdown-menu": {
+      "story": "required"
+    },
     "input": {
       "story": "required"
     },
