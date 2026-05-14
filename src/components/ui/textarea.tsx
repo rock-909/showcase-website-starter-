@@ -1,19 +1,38 @@
-import { forwardRef, type TextareaHTMLAttributes } from "react";
+import { TextArea as RadixTextArea } from "@radix-ui/themes";
+import { forwardRef, type ComponentPropsWithoutRef } from "react";
 import { cn } from "@/lib/utils";
+import { RadixThemePilot } from "@/components/ui/radix-theme";
 
-type TextareaProps = TextareaHTMLAttributes<HTMLTextAreaElement>;
+interface TextareaProps extends Omit<
+  ComponentPropsWithoutRef<"textarea">,
+  "color"
+> {
+  className?: string;
+}
 
 const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ className, ...props }, ref) => {
+  ({ className, defaultValue, rows, value, ...props }, ref) => {
+    const defaultValueProps =
+      typeof defaultValue === "string" ? { defaultValue } : {};
+    const rowsProps = typeof rows === "number" ? { rows } : {};
+    const valueProps = typeof value === "string" ? { value } : {};
+
     return (
-      <textarea
-        className={cn(
-          "flex min-h-[80px] w-full rounded-xl border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
-          className,
-        )}
-        ref={ref}
-        {...props}
-      />
+      <RadixThemePilot className="contents" surface="form-control">
+        <RadixTextArea
+          className={cn("w-full", className)}
+          data-slot="textarea"
+          radius="large"
+          ref={ref}
+          resize="vertical"
+          size="3"
+          variant="surface"
+          {...defaultValueProps}
+          {...rowsProps}
+          {...valueProps}
+          {...props}
+        />
+      </RadixThemePilot>
     );
   },
 );
