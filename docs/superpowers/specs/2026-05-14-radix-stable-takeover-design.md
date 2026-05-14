@@ -387,3 +387,45 @@ states. Do not expose Radix palette names to business components.
 - Product story redesign.
 - Cloudflare deployment changes.
 - Dependency-wide upgrade beyond Radix packages directly required by a wave.
+
+## Implementation result
+
+The stable takeover was implemented as a limited expansion, not a full-site
+Radix Themes migration.
+
+The final boundary is:
+
+- Radix-backed: textual form controls, textarea controls, status callouts,
+  badges, data/control cards, and dropdown menu primitive.
+- Intentionally local: native checkboxes, FAQ disclosure, narrative cards, hero,
+  product storytelling, proof sections, footer art direction, grid, and page
+  layout.
+
+This result satisfies the design goal: maximum Radix ownership outside surfaces
+where Radix would add form-semantics, client-boundary, or brand-expression risk.
+
+Final validation result:
+
+- `pnpm component:governance:test`: pass.
+- `pnpm component:governance`: pass.
+- `pnpm component:check`: pass.
+- `pnpm type-check`: pass.
+- `pnpm lint:check`: pass.
+- `pnpm build`: pass.
+
+Final proof artifacts:
+
+- `reports/radix-stable-takeover-en-contact-2026-05-14.png`
+- `reports/radix-stable-takeover-en-products-2026-05-14.png`
+- `reports/radix-stable-takeover-en-home-2026-05-14.png`
+
+Final boundary notes:
+
+- Direct Radix imports remain behind local UI wrappers, with the Radix Themes
+  stylesheet imported once from `src/app/globals.css`.
+- Production implementation code does not depend on `.rt-*` classes.
+- Test-only `.rt-*` assertions remain in the badge wrapper tests to prove Radix
+  variant mapping.
+- The final build still prints the existing middleware convention deprecation,
+  local Resend key, and `DYNAMIC_SERVER_USAGE` notes. These notes are not caused
+  by this Radix stable takeover.

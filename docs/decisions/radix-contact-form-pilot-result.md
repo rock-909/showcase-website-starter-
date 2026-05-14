@@ -188,3 +188,66 @@ missed work.
   grids, and page layout remain Tailwind/project-token owned. Moving them to
   Radix Themes would be a separate design decision, not part of this stable
   takeover.
+
+## Stable takeover result
+
+Result: stable limited expansion.
+
+Expanded Radix ownership:
+
+- textual form controls;
+- textarea controls;
+- status callouts;
+- badges;
+- data/control cards;
+- dropdown menu primitive for the language menu.
+
+Intentionally local:
+
+- contact checkboxes;
+- FAQ disclosure;
+- narrative cards;
+- hero, product storytelling, proof sections, footer art direction, grid, and
+  page layout.
+
+Final validation:
+
+- `pnpm component:governance:test`: pass.
+- `pnpm component:governance`: pass.
+- `pnpm component:check`: pass.
+- `pnpm type-check`: pass.
+- `pnpm lint:check`: pass.
+- `pnpm build`: pass.
+
+Build notes recorded during final validation:
+
+- `pnpm build` printed the existing Next.js middleware convention deprecation
+  warning: `"middleware" file convention is deprecated. Please use "proxy"
+  instead.`
+- `pnpm build` printed the existing local email note: `Resend API key missing -
+  email service will be disabled`.
+- `pnpm build` printed existing `DYNAMIC_SERVER_USAGE` digests during static
+  generation.
+- None of those build notes point to a file changed by this Radix stable
+  takeover.
+
+Boundary proof:
+
+- Direct Radix imports remain inside `src/components/ui/*` wrappers, plus the
+  single `src/app/globals.css` Radix Themes stylesheet import.
+- `@radix-ui/themes` imports are limited to approved local UI wrappers.
+- Production implementation code has no `.rt-*` class dependency. The only
+  precise `.rt-*` matches are test-only badge wrapper assertions in
+  `src/components/ui/__tests__/badge.test.tsx`, used to verify Radix prop
+  mapping.
+
+Browser proof artifacts:
+
+- `reports/radix-stable-takeover-en-contact-2026-05-14.png`
+- `reports/radix-stable-takeover-en-products-2026-05-14.png`
+- `reports/radix-stable-takeover-en-home-2026-05-14.png`
+
+The browser proof used the current workspace dev server on port 3002 because
+port 3000 was already occupied by an unrelated local Next.js process. The
+verified buyer-facing routes were still `/en/contact`, `/en/products`, and
+`/en`.
