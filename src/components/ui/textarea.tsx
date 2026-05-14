@@ -5,18 +5,15 @@ import { RadixThemePilot } from "@/components/ui/radix-theme";
 
 interface TextareaProps extends Omit<
   ComponentPropsWithoutRef<"textarea">,
-  "color"
+  "color" | "defaultValue" | "size" | "value"
 > {
   className?: string;
+  defaultValue?: string;
+  value?: string;
 }
 
 const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ className, defaultValue, rows, value, ...props }, ref) => {
-    const defaultValueProps =
-      typeof defaultValue === "string" ? { defaultValue } : {};
-    const rowsProps = typeof rows === "number" ? { rows } : {};
-    const valueProps = typeof value === "string" ? { value } : {};
-
+  ({ className, ...props }, ref) => {
     return (
       <RadixThemePilot className="contents" surface="form-control">
         <RadixTextArea
@@ -27,9 +24,6 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           resize="vertical"
           size="3"
           variant="surface"
-          {...defaultValueProps}
-          {...rowsProps}
-          {...valueProps}
           {...props}
         />
       </RadixThemePilot>

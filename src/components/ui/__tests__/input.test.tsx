@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { createRef } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { Input } from "@/components/ui/input";
 
@@ -130,5 +131,33 @@ describe("Input", () => {
       "file:font-medium",
     );
     expect(handleChange).toHaveBeenCalled();
+  });
+
+  it("forwards refs to textual inputs", () => {
+    const ref = createRef<HTMLInputElement>();
+
+    render(<Input ref={ref} placeholder="Email" type="email" />);
+
+    expect(ref.current).toBeInstanceOf(HTMLInputElement);
+
+    ref.current?.focus();
+    expect(ref.current).toHaveFocus();
+  });
+
+  it("forwards refs to file inputs", () => {
+    const ref = createRef<HTMLInputElement>();
+
+    render(<Input ref={ref} type="file" />);
+
+    expect(ref.current).toBeInstanceOf(HTMLInputElement);
+    expect(ref.current).toHaveAttribute("type", "file");
+  });
+
+  it("does not throw when file inputs receive an incompatible value", () => {
+    expect(() => {
+      render(<Input type="file" value="invalid" data-testid="file-input" />);
+    }).not.toThrow();
+
+    expect(screen.getByTestId("file-input")).toHaveAttribute("type", "file");
   });
 });

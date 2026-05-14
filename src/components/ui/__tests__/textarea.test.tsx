@@ -52,6 +52,18 @@ describe("Textarea", () => {
     expect(handleChange).toHaveBeenCalled();
   });
 
+  it("renders string defaultValue correctly", () => {
+    render(<Textarea defaultValue="Initial" placeholder="Message" />);
+
+    expect(screen.getByPlaceholderText("Message")).toHaveValue("Initial");
+  });
+
+  it("renders controlled string value correctly", () => {
+    render(<Textarea placeholder="Message" readOnly value="Fixed" />);
+
+    expect(screen.getByPlaceholderText("Message")).toHaveValue("Fixed");
+  });
+
   it("emits focus and blur events", async () => {
     const user = userEvent.setup();
     const handleBlur = vi.fn();
