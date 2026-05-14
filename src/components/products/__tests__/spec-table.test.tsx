@@ -26,6 +26,12 @@ describe("Feature: Market Page — Spec Matrix", () => {
       render(await SpecTable({ specGroups: mockGroups }));
       expect(screen.getByText("Basic Option")).toBeInTheDocument();
       expect(screen.getByText("Advanced Option")).toBeInTheDocument();
+      expect(
+        screen.getByRole("heading", { level: 4, name: "Basic Option" }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("heading", { level: 4, name: "Advanced Option" }),
+      ).toBeInTheDocument();
     });
 
     it("renders column headers in table head", async () => {

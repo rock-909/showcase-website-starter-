@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import { createRef } from "react";
 import { describe, expect, it } from "vitest";
 import {
   DataCard,
@@ -88,5 +89,55 @@ describe("DataCard", () => {
       "description-class",
     );
     expect(screen.getByTestId("content")).toHaveClass("content-class");
+  });
+
+  it("does not allow callers to override internal data-slot contracts", () => {
+    render(
+      <DataCard data-slot="bad" data-testid="data-card">
+        <DataCardHeader data-slot="bad">
+          <DataCardTitle data-slot="bad">Data title</DataCardTitle>
+          <DataCardDescription data-slot="bad">
+            Data description
+          </DataCardDescription>
+        </DataCardHeader>
+        <DataCardContent data-slot="bad">Content</DataCardContent>
+      </DataCard>,
+    );
+
+    const card = screen.getByTestId("data-card");
+    expect(card).toHaveAttribute("data-slot", "data-card");
+    expect(card.closest("[data-ui-pilot]")).toHaveAttribute(
+      "data-ui-pilot",
+      "radix-themes-data-card",
+    );
+    expect(screen.getByText("Data title").parentElement).toHaveAttribute(
+      "data-slot",
+      "data-card-header",
+    );
+    expect(screen.getByText("Data title")).toHaveAttribute(
+      "data-slot",
+      "data-card-title",
+    );
+    expect(screen.getByText("Data description")).toHaveAttribute(
+      "data-slot",
+      "data-card-description",
+    );
+    expect(screen.getByText("Content")).toHaveAttribute(
+      "data-slot",
+      "data-card-content",
+    );
+  });
+
+  it("forwards refs to the root HTMLDivElement", () => {
+    const ref = createRef<HTMLDivElement>();
+
+    render(<DataCard ref={ref}>Forwarded card</DataCard>);
+
+    expect(ref.current).toBeInstanceOf(HTMLDivElement);
+    expect(ref.current).toHaveAttribute("data-slot", "data-card");
+    expect(ref.current?.closest("[data-ui-pilot]")).toHaveAttribute(
+      "data-ui-pilot",
+      "radix-themes-data-card",
+    );
   });
 });

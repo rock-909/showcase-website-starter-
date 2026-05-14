@@ -1,76 +1,91 @@
 import { Card as RadixCard } from "@radix-ui/themes";
-import type { ComponentPropsWithoutRef } from "react";
+import { forwardRef, type ComponentPropsWithoutRef } from "react";
 import { RadixThemePilot } from "@/components/ui/radix-theme";
 import { cn } from "@/lib/utils";
 
-function DataCard({ className, ...props }: ComponentPropsWithoutRef<"div">) {
-  return (
-    <RadixThemePilot className="contents" surface="data-card">
-      <RadixCard
-        className={cn(
-          "flex flex-col gap-6 overflow-hidden rounded-xl border border-border/50 bg-card py-6 text-card-foreground",
-          className,
-        )}
-        data-slot="data-card"
-        size="3"
-        variant="surface"
+type DataCardProps = Omit<ComponentPropsWithoutRef<"div">, "color">;
+
+const DataCard = forwardRef<HTMLDivElement, DataCardProps>(
+  ({ className, ...props }, ref) => {
+    return (
+      <RadixThemePilot className="contents" surface="data-card">
+        <RadixCard
+          ref={ref}
+          {...props}
+          className={cn(
+            "flex flex-col gap-6 overflow-hidden rounded-xl border border-border/50 bg-card py-6 text-card-foreground",
+            className,
+          )}
+          data-slot="data-card"
+          size="3"
+          variant="surface"
+        />
+      </RadixThemePilot>
+    );
+  },
+);
+
+DataCard.displayName = "DataCard";
+
+const DataCardHeader = forwardRef<HTMLDivElement, DataCardProps>(
+  ({ className, ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
         {...props}
+        className={cn("grid auto-rows-min gap-1.5 px-6", className)}
+        data-slot="data-card-header"
       />
-    </RadixThemePilot>
-  );
-}
+    );
+  },
+);
 
-function DataCardHeader({
-  className,
-  ...props
-}: ComponentPropsWithoutRef<"div">) {
-  return (
-    <div
-      className={cn("grid auto-rows-min gap-1.5 px-6", className)}
-      data-slot="data-card-header"
-      {...props}
-    />
-  );
-}
+DataCardHeader.displayName = "DataCardHeader";
 
-function DataCardTitle({
-  className,
-  ...props
-}: ComponentPropsWithoutRef<"div">) {
-  return (
-    <div
-      className={cn("leading-none font-semibold", className)}
-      data-slot="data-card-title"
-      {...props}
-    />
-  );
-}
+const DataCardTitle = forwardRef<HTMLDivElement, DataCardProps>(
+  ({ className, ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
+        {...props}
+        className={cn("leading-none font-semibold", className)}
+        data-slot="data-card-title"
+      />
+    );
+  },
+);
 
-function DataCardDescription({
-  className,
-  ...props
-}: ComponentPropsWithoutRef<"div">) {
-  return (
-    <div
-      className={cn("text-sm text-muted-foreground", className)}
-      data-slot="data-card-description"
-      {...props}
-    />
-  );
-}
+DataCardTitle.displayName = "DataCardTitle";
 
-function DataCardContent({
-  className,
-  ...props
-}: ComponentPropsWithoutRef<"div">) {
-  return (
-    <div
-      className={cn("px-6", className)}
-      data-slot="data-card-content"
-      {...props}
-    />
-  );
-}
+const DataCardDescription = forwardRef<HTMLDivElement, DataCardProps>(
+  ({ className, ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
+        {...props}
+        className={cn("text-sm text-muted-foreground", className)}
+        data-slot="data-card-description"
+      />
+    );
+  },
+);
+
+DataCardDescription.displayName = "DataCardDescription";
+
+const DataCardContent = forwardRef<HTMLDivElement, DataCardProps>(
+  ({ className, ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
+        {...props}
+        className={cn("px-6", className)}
+        data-slot="data-card-content"
+      />
+    );
+  },
+);
+
+DataCardContent.displayName = "DataCardContent";
 
 export {
   DataCard,
