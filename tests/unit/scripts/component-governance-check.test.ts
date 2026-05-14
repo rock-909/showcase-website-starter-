@@ -262,6 +262,143 @@ describe("component-governance-check", () => {
     expect(result.errors).toEqual([]);
   });
 
+  it("fails when Radix Themes is imported outside approved UI wrappers", () => {
+    const rootDir = createFixture(
+      baseFiles({
+        "src/components/forms/contact-form.tsx":
+          'import { TextField } from "@radix-ui/themes";\nexport function ContactForm() { return <TextField.Root />; }',
+      }),
+    );
+    fixtureRoots.push(rootDir);
+
+    const result = collectComponentGovernanceFindings(rootDir);
+
+    expect(result.status).toBe("failed");
+    expectFinding(
+      result.errors,
+      "radix-themes-import-outside-ui-wrapper",
+      "src/components/forms/contact-form.tsx",
+    );
+  });
+
+  it("fails when Radix Themes is dynamically loaded outside approved UI wrappers", () => {
+    const rootDir = createFixture(
+      baseFiles({
+        "src/components/forms/contact-form.tsx":
+          'export async function loadContactFormUi() { return import("@radix-ui/themes"); }',
+        "src/components/contact/contact-card.tsx":
+          'const themes = require("@radix-ui/themes");\nexport function ContactCard() { return themes; }',
+      }),
+    );
+    fixtureRoots.push(rootDir);
+
+    const result = collectComponentGovernanceFindings(rootDir);
+
+    expect(result.status).toBe("failed");
+    expectFinding(
+      result.errors,
+      "radix-themes-import-outside-ui-wrapper",
+      "src/components/forms/contact-form.tsx",
+    );
+    expectFinding(
+      result.errors,
+      "radix-themes-import-outside-ui-wrapper",
+      "src/components/contact/contact-card.tsx",
+    );
+  });
+
+  it("allows Radix Themes imports inside approved UI wrappers", () => {
+    const rootDir = createFixture({
+      "src/components/component-governance.registry.json": registry({
+        "radix-theme": { story: "required" },
+      }),
+      "src/components/ui/radix-theme.tsx":
+        'import { Theme } from "@radix-ui/themes";\nexport function RadixThemePilot({ children }: { children: React.ReactNode }) { return <Theme>{children}</Theme>; }',
+      "src/components/ui/radix-theme.stories.tsx":
+        "export default { title: 'UI/RadixThemePilot' };",
+    });
+    fixtureRoots.push(rootDir);
+
+    const result = collectComponentGovernanceFindings(rootDir);
+
+    expect(result.status).toBe("passed");
+    expect(result.errors).toEqual([]);
+  });
+
+  it("fails when Radix Themes is imported from an unapproved UI wrapper", () => {
+    const rootDir = createFixture({
+      "src/components/component-governance.registry.json": registry({
+        badge: { story: "required" },
+      }),
+      "src/components/ui/badge.tsx":
+        'import { Badge } from "@radix-ui/themes";\nexport function LocalBadge() { return <Badge />; }',
+      "src/components/ui/badge.stories.tsx":
+        "export default { title: 'UI/Badge' };",
+    });
+    fixtureRoots.push(rootDir);
+
+    const result = collectComponentGovernanceFindings(rootDir);
+
+    expect(result.status).toBe("failed");
+    expectFinding(
+      result.errors,
+      "radix-themes-import-unapproved-ui-wrapper",
+      "src/components/ui/badge.tsx",
+    );
+  });
+
+  it("fails when Radix Themes subpath imports are used outside approved wrappers", () => {
+    const rootDir = createFixture(
+      baseFiles({
+        "src/components/forms/contact-form.tsx":
+          'export async function loadContactFormUi() { return import("@radix-ui/themes/components/text-field"); }',
+        "src/components/contact/contact-card.tsx":
+          'const themes = require("@radix-ui/themes/components/card");\nexport function ContactCard() { return themes; }',
+      }),
+    );
+    fixtureRoots.push(rootDir);
+
+    const result = collectComponentGovernanceFindings(rootDir);
+
+    expect(result.status).toBe("failed");
+    expectFinding(
+      result.errors,
+      "radix-themes-import-outside-ui-wrapper",
+      "src/components/forms/contact-form.tsx",
+    );
+    expectFinding(
+      result.errors,
+      "radix-themes-import-outside-ui-wrapper",
+      "src/components/contact/contact-card.tsx",
+    );
+  });
+
+  it("fails when production UI code styles Radix Themes internal classes", () => {
+    const rootDir = createFixture(
+      baseFiles({
+        "src/components/ui/button.tsx":
+          'export function Button() { return <button className="rt-Button" />; }',
+        "src/components/sections/hero-section.tsx":
+          'export function HeroSection() { return <div className="[&_.rt-Card]:p-4" />; }',
+      }),
+    );
+    fixtureRoots.push(rootDir);
+
+    const result = collectComponentGovernanceFindings(rootDir);
+
+    expect(result.status).toBe("failed");
+    expectFinding(
+      result.errors,
+      "radix-themes-internal-class",
+      "src/components/ui/button.tsx",
+    );
+    expectFinding(
+      result.errors,
+      "radix-themes-internal-class",
+      "src/components/sections/hero-section.tsx",
+    );
+  });
+
   it("fails on obvious raw Tailwind palette classes in production files", () => {
     const rootDir = createFixture(
       baseFiles({

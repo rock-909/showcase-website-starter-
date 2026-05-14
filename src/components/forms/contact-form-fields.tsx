@@ -3,9 +3,11 @@
  */
 
 import { memo } from "react";
-import { Input } from "@/components/ui/input";
+import {
+  ContactFormTextInput,
+  ContactFormTextarea,
+} from "@/components/ui/contact-form-control";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   buildFormFieldsFromConfig,
   CONTACT_FORM_CONFIG,
@@ -21,6 +23,19 @@ export { NameFields } from "@/components/forms/fields/name-fields";
 export interface FormFieldsProps {
   t: (key: string) => string;
   isPending: boolean;
+}
+
+type ContactFormTextFieldType = "email" | "tel" | "text";
+
+type ContactFormTextFieldDescriptor = ContactFormFieldDescriptor & {
+  type: ContactFormTextFieldType;
+};
+
+interface ContactFormControlHintProps {
+  autoComplete?: string;
+  autoCapitalize?: string;
+  inputMode?: "email" | "tel";
+  spellCheck?: boolean;
 }
 
 function OptionalFieldMarker({
@@ -43,7 +58,7 @@ function OptionalFieldMarker({
 
 function getFieldInputProps(
   field: ContactFormFieldDescriptor,
-): Partial<React.ComponentProps<"input"> & React.ComponentProps<"textarea">> {
+): ContactFormControlHintProps {
   switch (field.key) {
     case "fullName":
       return {
@@ -83,6 +98,17 @@ function getFieldInputProps(
   }
 }
 
+function isContactFormTextField(
+  field: ContactFormFieldDescriptor,
+): field is ContactFormTextFieldDescriptor {
+  return (
+    !field.isCheckbox &&
+    field.type !== "hidden" &&
+    field.type !== "textarea" &&
+    !field.isHoneypot
+  );
+}
+
 function getFieldLabelClass(field: ContactFormFieldDescriptor): string {
   return ["text-sm", field.required ? FORM_FIELD_REQUIRED_CLASS_NAME : ""]
     .filter(Boolean)
@@ -98,10 +124,7 @@ function getFieldPlaceholder(
 
 export const FormFields = memo(({ t, isPending }: FormFieldsProps) => {
   const configuredFields = buildFormFieldsFromConfig(CONTACT_FORM_CONFIG);
-  const textInputs = configuredFields.filter(
-    (field) =>
-      !field.isCheckbox && field.type !== "textarea" && !field.isHoneypot,
-  );
+  const textInputs = configuredFields.filter(isContactFormTextField);
   const textareas = configuredFields.filter(
     (field) => field.type === "textarea",
   );
@@ -123,7 +146,7 @@ export const FormFields = memo(({ t, isPending }: FormFieldsProps) => {
                   />
                 ) : null}
               </Label>
-              <Input
+              <ContactFormTextInput
                 id={field.key}
                 name={field.key}
                 type={field.type}
@@ -143,7 +166,7 @@ export const FormFields = memo(({ t, isPending }: FormFieldsProps) => {
           <Label htmlFor={field.key} className={getFieldLabelClass(field)}>
             {t(field.labelKey)}
           </Label>
-          <Textarea
+          <ContactFormTextarea
             id={field.key}
             name={field.key}
             placeholder={getFieldPlaceholder(field, t)}

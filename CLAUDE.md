@@ -102,6 +102,23 @@ Use the smallest validation that proves the change:
 3. **i18n required** - All user-facing text via translation keys
 4. **Git** - GitHub Flow: `main` is the only long-lived branch; feature branches merge through pull requests.
 
+## UI Foundation
+
+The project uses the hybrid / pilot-first UI foundation in
+`docs/decisions/ADR-ui-foundation.md`.
+
+- Radix Primitives are the default for complex interactions.
+- Radix-style 1-12 color roles are the long-term color discipline.
+- Tailwind continues to own page layout, responsive structure, and brand expression.
+- Runtime color truth remains in `src/app/globals.css`.
+- Radix Themes is pilot-only and may be used only through approved
+  `src/components/ui/*` wrappers.
+
+Do not import `@radix-ui/themes` from app pages, sections, product blocks,
+forms, contact components, or layout components. Do not style `.rt-*` classes.
+Do not use Radix Themes to take over hero sections, product storytelling, proof
+sections, footers, or page narrative structure.
+
 ## Rule Loading
 
 Claude Code uses `.claude/rules/` as the project rule layer. Rule files include `paths:` metadata for path-based loading.

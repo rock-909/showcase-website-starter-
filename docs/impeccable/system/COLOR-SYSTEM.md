@@ -61,9 +61,22 @@ Components should consume semantic tokens:
 
 - Do not write raw brand hex values in production components.
 - Do not use Tailwind raw palette classes for production UI states.
-- Do not import Radix Themes for this migration unless the architecture is explicitly revisited.
+- Do not import Radix Themes from business code. Radix Themes is pilot-only and may be used only through approved `src/components/ui/*` wrappers; see `docs/decisions/ADR-ui-foundation.md`.
 - Do not treat the current blue as final.
 - If the owner asks for a brand color adjustment, change primitive values first and leave component code stable.
+
+## Radix mapping
+
+The project uses Radix-style 1-12 scales as a color discipline, not as permission
+to hand brand ownership to Radix defaults.
+
+If a Radix Themes pilot is approved, Radix variables such as `--accent-*`,
+`--gray-*`, `--color-background`, `--color-surface`, focus variables, and
+typography variables must map back to project-owned roles in
+`src/app/globals.css`.
+
+Do not let Radix default blue, gray, radius, typography, or focus choices become
+the starter brand by accident.
 
 ## Visual intent
 

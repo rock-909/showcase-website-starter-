@@ -3,7 +3,7 @@ import type { FormSubmissionStatus } from "@/lib/forms/form-submission-status";
 import type { ServerActionResult } from "@/lib/actions/server-action-utils";
 import type { ContactFormResult } from "@/components/forms/use-contact-form";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { ContactFormShell } from "@/components/ui/contact-form-shell";
 import {
   ErrorDisplay,
   StatusMessage,
@@ -86,7 +86,7 @@ export function ContactFormContainerView({
   );
 
   return (
-    <Card className="mx-auto w-full max-w-2xl">
+    <ContactFormShell>
       <form action={formAction} className="space-y-6 p-6" noValidate>
         <StatusMessage status={submitStatus} t={translateForm} />
 
@@ -122,6 +122,6 @@ export function ContactFormContainerView({
           </p>
         ) : null}
       </form>
-    </Card>
+    </ContactFormShell>
   );
 }

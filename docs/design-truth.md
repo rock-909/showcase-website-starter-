@@ -72,18 +72,41 @@
 - 视觉上容易漂移的组件应补 Storybook story。
 - 新组件如果只是现有组件的轻微变体，优先扩展现有组件。
 
+## 当前 UI 底座决策
+
+当前采用 hybrid / pilot-first UI foundation，详见
+`docs/decisions/ADR-ui-foundation.md`。
+
+- Radix Primitives 是复杂交互默认底座。
+- Radix-style 1-12 色阶是长期颜色纪律。
+- Tailwind 继续负责页面布局、响应式结构和品牌表达。
+- `src/app/globals.css` 里的项目 tokens 继续是运行时颜色真相源。
+- Radix Themes 只允许在本地 UI wrapper 内做 pilot。
+
+判断 UI 走哪条路时，不按页面区域粗分，而按行为分：
+
+- 有交互、状态、校验、focus、loading、error、selected 等控制逻辑的 UI，
+  可以进入 Radix-backed wrapper。
+- 纯叙事、品牌图、页面排版、静态内容层级，继续用 Tailwind + 项目 tokens。
+
+Hero 里的 CTA 按钮可以用项目 Button wrapper，因为它是控件。Hero layout
+本身不应默认交给 Radix Themes。
+
 ## 当前不采用的方向
 
 - 把 starter 做成某个具体行业的固定品牌。
 - 每个页面随手新建一套按钮、卡片、表单。
 - 大量硬编码颜色。
 - 用 fake proof、fake logo、fake 客户来制造信任。
+- 全站 Radix Themes-first 迁移。
+- 用 Radix Themes 接管 Hero、产品故事、工厂证明、Footer 或页面叙事结构。
 
 ## 真相来源
 
 当前设计真相主要来自：
 
 - `src/app/globals.css`
+- `docs/decisions/ADR-ui-foundation.md`
 - `docs/impeccable/system/COLOR-SYSTEM.md`
 - `docs/impeccable/system/COMPONENT-GOVERNANCE.md`
 - `DESIGN.md`

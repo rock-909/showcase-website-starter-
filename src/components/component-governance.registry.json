@@ -13,6 +13,12 @@
     "card": {
       "story": "required"
     },
+    "contact-form-control": {
+      "story": "required"
+    },
+    "contact-form-shell": {
+      "story": "required"
+    },
     "input": {
       "story": "required"
     },
@@ -23,6 +29,9 @@
       "story": "required"
     },
     "lazy-theme-switcher": {
+      "story": "required"
+    },
+    "radix-theme": {
       "story": "required"
     },
     "section-head": {

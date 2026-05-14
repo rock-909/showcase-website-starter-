@@ -43,6 +43,96 @@ describe("Contact Form Fields - React 19 Native Form Tests", () => {
         "messagePlaceholder",
       );
     });
+
+    it("keeps configured text field native attributes during the Radix controls pilot", () => {
+      render(<FormFields {...defaultProps} />);
+
+      expect(screen.getByLabelText(/fullName/i)).toHaveAttribute(
+        "autocomplete",
+        "name",
+      );
+      expect(screen.getByLabelText(/fullName/i)).toHaveAttribute(
+        "autocapitalize",
+        "words",
+      );
+
+      const emailInput = screen.getByLabelText(/email/i);
+      expect(emailInput).toHaveAttribute("type", "email");
+      expect(emailInput).toHaveAttribute("autocomplete", "email");
+      expect(emailInput).toHaveAttribute("inputmode", "email");
+      expect(emailInput).toHaveAttribute("spellcheck", "false");
+      expect(emailInput).toHaveAttribute("autocapitalize", "none");
+
+      expect(screen.getByLabelText(/company/i)).toHaveAttribute(
+        "autocomplete",
+        "organization",
+      );
+      expect(screen.getByLabelText(/company/i)).toHaveAttribute(
+        "autocapitalize",
+        "words",
+      );
+
+      expect(screen.getByLabelText(/subject/i)).toHaveAttribute(
+        "autocomplete",
+        "off",
+      );
+      expect(screen.getByLabelText(/subject/i)).toHaveAttribute(
+        "autocapitalize",
+        "sentences",
+      );
+
+      expect(screen.getByLabelText(/message/i)).toHaveAttribute(
+        "autocomplete",
+        "off",
+      );
+      expect(screen.getByLabelText(/message/i)).toHaveAttribute(
+        "spellcheck",
+        "true",
+      );
+    });
+
+    it("keeps configured checkboxes native and accessible during the text-control pilot", async () => {
+      const user = userEvent.setup();
+      render(<FormFields {...defaultProps} />);
+
+      const privacyCheckbox = screen.getByRole("checkbox", {
+        name: /acceptPrivacy/i,
+      });
+      const marketingCheckbox = screen.getByRole("checkbox", {
+        name: /marketingConsent/i,
+      });
+
+      expect(privacyCheckbox).toHaveAttribute("type", "checkbox");
+      expect(privacyCheckbox).toHaveAttribute("name", "acceptPrivacy");
+      expect(privacyCheckbox).toBeRequired();
+      expect(marketingCheckbox).toHaveAttribute("type", "checkbox");
+      expect(marketingCheckbox).toHaveAttribute("name", "marketingConsent");
+      expect(marketingCheckbox).not.toBeRequired();
+
+      await user.click(privacyCheckbox);
+      await user.click(marketingCheckbox);
+
+      expect(privacyCheckbox).toBeChecked();
+      expect(marketingCheckbox).toBeChecked();
+    });
+
+    it("keeps checkbox labels clickable during the text-control pilot", async () => {
+      const user = userEvent.setup();
+      render(<FormFields {...defaultProps} />);
+
+      const privacyCheckbox = screen.getByRole("checkbox", {
+        name: /acceptPrivacy/i,
+      });
+      const marketingCheckbox = screen.getByRole("checkbox", {
+        name: /marketingConsent/i,
+      });
+
+      await user.click(screen.getByText("acceptPrivacy"));
+      await user.click(screen.getByText("marketingConsent"));
+
+      expect(privacyCheckbox).toBeChecked();
+      expect(marketingCheckbox).toBeChecked();
+    });
   });
 
   describe("NameFields Component", () => {
