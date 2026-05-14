@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { createRef } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -62,6 +63,16 @@ describe("Textarea", () => {
     render(<Textarea placeholder="Message" readOnly value="Fixed" />);
 
     expect(screen.getByPlaceholderText("Message")).toHaveValue("Fixed");
+  });
+
+  it("forwards refs to the native textarea element", () => {
+    const ref = createRef<HTMLTextAreaElement>();
+
+    render(<Textarea ref={ref} placeholder="Message" />);
+
+    expect(ref.current).toBeInstanceOf(HTMLTextAreaElement);
+    ref.current?.focus();
+    expect(screen.getByPlaceholderText("Message")).toHaveFocus();
   });
 
   it("emits focus and blur events", async () => {
