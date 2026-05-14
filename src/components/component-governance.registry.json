@@ -19,6 +19,9 @@
     "contact-form-shell": {
       "story": "required"
     },
+    "data-card": {
+      "story": "required"
+    },
     "input": {
       "story": "required"
     },

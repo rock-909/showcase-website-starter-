@@ -51,6 +51,16 @@ describe("Feature: Market Page — Spec Matrix", () => {
       expect(container.querySelector("tbody")).toBeInTheDocument();
     });
 
+    it("wraps each specification group in a data card surface", async () => {
+      const { container } = render(await SpecTable({ specGroups: mockGroups }));
+      expect(
+        container.querySelectorAll('[data-slot="data-card"]'),
+      ).toHaveLength(2);
+      expect(
+        container.querySelectorAll('[data-ui-pilot="radix-themes-data-card"]'),
+      ).toHaveLength(2);
+    });
+
     it("wraps table in horizontally scrollable container", async () => {
       const { container } = render(await SpecTable({ specGroups: mockGroups }));
       const wrapper = container.querySelector('[class*="overflow"]');

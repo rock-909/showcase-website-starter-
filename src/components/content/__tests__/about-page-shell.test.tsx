@@ -121,7 +121,7 @@ describe("AboutPageShell", () => {
   });
 
   it("renders value cards and stat items", () => {
-    render(
+    const { container } = render(
       <AboutPageShell
         metadata={baseMetadata}
         content="## Body"
@@ -135,6 +135,12 @@ describe("AboutPageShell", () => {
       }),
     ).toBeInTheDocument();
     expect(screen.getByText("Launch structure")).toBeInTheDocument();
+    expect(container.querySelectorAll('[data-slot="data-card"]')).toHaveLength(
+      4,
+    );
+    expect(
+      container.querySelectorAll('[data-ui-pilot="radix-themes-data-card"]'),
+    ).toHaveLength(4);
   });
 
   it("renders FAQ section when faq items present", () => {

@@ -1,4 +1,4 @@
-import { Card } from "@/components/ui/card";
+import { DataCard } from "@/components/ui/data-card";
 import { readRequiredMessagePath } from "@/lib/i18n/read-message-path";
 
 function pickContactFormCopy(messages: Record<string, unknown>, key: string) {
@@ -13,7 +13,7 @@ export function ContactFormStaticFallback({
   const pick = (key: string) => pickContactFormCopy(messages, key);
 
   return (
-    <Card className="mx-auto w-full max-w-2xl">
+    <DataCard className="mx-auto w-full max-w-2xl">
       <form
         aria-busy="true"
         aria-label={pick("title")}
@@ -104,6 +104,6 @@ export function ContactFormStaticFallback({
           <span translate="no">{pick("submit")}</span>
         </button>
       </form>
-    </Card>
+    </DataCard>
   );
 }
