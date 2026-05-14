@@ -51,11 +51,6 @@ function createValidFiles() {
       "\n",
     );
   }
-  files["docs/guides/DERIVATIVE-PROJECT-REPLACEMENT-CHECKLIST.md"] = [
-    files["docs/guides/DERIVATIVE-PROJECT-REPLACEMENT-CHECKLIST.md"],
-    "pnpm build",
-    "pnpm website:build:cf",
-  ].join("\n");
   files["docs/guides/RELEASE-PROOF-RUNBOOK.md"] = [
     files["docs/guides/RELEASE-PROOF-RUNBOOK.md"],
     ...RELEASE_PROOF_SEQUENCE,
@@ -327,7 +322,7 @@ describe("current-truth docs guard", () => {
     );
   });
 
-  it("flags derivative checklist build order drift", () => {
+  it("does not require derivative checklist to maintain a separate build proof order", () => {
     const files = createValidFiles();
     files["package.json"] = JSON.stringify({
       scripts: {
@@ -338,8 +333,12 @@ describe("current-truth docs guard", () => {
     files["docs/guides/DERIVATIVE-PROJECT-REPLACEMENT-CHECKLIST.md"] = [
       "src/config/single-site-page-expression.ts",
       "src/config/single-site-seo.ts",
+      "src/config/single-site-product-catalog.ts",
+      "src/constants/product-specs/**",
       "Do not replace first",
-      "Minimum proof after replacement",
+      "docs/website/新项目替换清单.md",
+      "does not own the step-by-step replacement order",
+      "Minimum proof references",
       "pnpm website:build:cf",
       "pnpm build",
     ].join("\n");
@@ -349,7 +348,7 @@ describe("current-truth docs guard", () => {
 
     const findings = collectCurrentTruthDocFindings(repoDir);
 
-    expect(findings).toContainEqual(
+    expect(findings).not.toContainEqual(
       expect.objectContaining({
         file: "docs/guides/DERIVATIVE-PROJECT-REPLACEMENT-CHECKLIST.md",
         error: '"pnpm build" must appear before "pnpm website:build:cf"',

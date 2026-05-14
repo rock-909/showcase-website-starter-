@@ -1817,7 +1817,9 @@ const TRUTH_DOC_CHECKS = [
       "src/config/single-site-product-catalog.ts",
       "src/constants/product-specs/**",
       "Do not replace first",
-      "Minimum proof after replacement",
+      "docs/website/新项目替换清单.md",
+      "does not own the step-by-step replacement order",
+      "Minimum proof references",
     ],
     forbidden: ["pnpm ci:local", "pnpm review:translation-quartet"],
   },
@@ -2226,43 +2228,6 @@ function collectCurrentTruthDocFindings(rootDir = ROOT) {
       failures.push({
         file: "docs/guides/RELEASE-PROOF-RUNBOOK.md",
         error: `release-proof runbook command order drift at "${runbookOutOfOrder}"`,
-      });
-    }
-  }
-
-  const derivativeChecklistPath = path.join(
-    rootDir,
-    "docs/guides/DERIVATIVE-PROJECT-REPLACEMENT-CHECKLIST.md",
-  );
-  if (fs.existsSync(derivativeChecklistPath)) {
-    const checklist = readTruthFile(
-      rootDir,
-      "docs/guides/DERIVATIVE-PROJECT-REPLACEMENT-CHECKLIST.md",
-    );
-    const buildIndex = findCommandLineIndex(checklist, "pnpm build");
-    const buildCfIndex = findCommandLineIndex(
-      checklist,
-      "pnpm website:build:cf",
-    );
-
-    if (buildIndex === -1) {
-      failures.push({
-        file: "docs/guides/DERIVATIVE-PROJECT-REPLACEMENT-CHECKLIST.md",
-        error: 'missing derivative proof command "pnpm build"',
-      });
-    }
-
-    if (buildCfIndex === -1) {
-      failures.push({
-        file: "docs/guides/DERIVATIVE-PROJECT-REPLACEMENT-CHECKLIST.md",
-        error: 'missing derivative proof command "pnpm website:build:cf"',
-      });
-    }
-
-    if (buildIndex !== -1 && buildCfIndex !== -1 && buildIndex > buildCfIndex) {
-      failures.push({
-        file: "docs/guides/DERIVATIVE-PROJECT-REPLACEMENT-CHECKLIST.md",
-        error: '"pnpm build" must appear before "pnpm website:build:cf"',
       });
     }
   }
