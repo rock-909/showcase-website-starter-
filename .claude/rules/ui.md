@@ -37,6 +37,33 @@ Decision order:
 Use project wrappers in `src/components/ui/` instead of importing Radix
 primitives directly from page sections or business components.
 
+## Radix UI foundation
+
+The project uses a hybrid / pilot-first UI foundation. Read
+`docs/decisions/ADR-ui-foundation.md` before adding Radix Themes or changing
+the UI foundation.
+
+- Radix Primitives are approved for complex interactions.
+- Radix-style 1-12 color roles are approved as the color reasoning model.
+- Tailwind continues to own page layout, responsive structure, and brand expression.
+- Runtime color truth remains in `src/app/globals.css`.
+- Radix Themes is pilot-only and may be used only through approved local UI wrappers.
+
+Business code must import UI from local wrappers, for example
+`@/components/ui/*`.
+
+Do not:
+
+- import `@radix-ui/themes` directly from app pages, sections, product blocks,
+  forms, contact components, or layout components;
+- style `.rt-*` classes or depend on Radix internal DOM;
+- use `!important` to solve Radix/Tailwind conflicts;
+- use Radix Themes to take over hero sections, product storytelling, proof
+  sections, footer art direction, or page narrative structure.
+
+Use Radix-backed wrappers for controls and stateful UI. Use Tailwind plus
+project tokens for narrative, static, brand-heavy, and page-layout UI.
+
 ## Storybook
 
 Reusable UI primitives need Storybook stories for states that matter to review.

@@ -153,6 +153,18 @@ describe("ContactFormContainer accessibility", () => {
     );
   });
 
+  it("renders the Contact form inside the Radix Themes pilot boundary", async () => {
+    render(<ContactFormContainer />);
+
+    await screen.findByTestId("turnstile-success");
+
+    expect(screen.getByTestId("radix-theme-pilot")).toHaveAttribute(
+      "data-ui-pilot",
+      "radix-themes-contact-form",
+    );
+    expect(screen.getByTestId("contact-form-shell")).toBeInTheDocument();
+  });
+
   it("focuses the error summary when the server returns a submission error", async () => {
     mockUseContactForm.mockReturnValue(
       createContactFormHook({

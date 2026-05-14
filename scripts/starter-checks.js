@@ -893,6 +893,15 @@ const COMPONENT_GOVERNANCE_UI_PRIMITIVE_FILE_PATTERN = /\.(?:tsx|jsx)$/;
 const COMPONENT_GOVERNANCE_EXCLUDED_FILE_PATTERN =
   /(?:\.stories\.[^.]+|\.(?:test|spec)\.[^.]+|\/__tests__\/)/;
 const COMPONENT_GOVERNANCE_RADIX_IMPORT_PATTERN = /from\s+["']@radix-ui\//;
+const COMPONENT_GOVERNANCE_RADIX_THEMES_APPROVED_WRAPPERS = new Set([
+  "src/components/ui/radix-theme.tsx",
+  "src/components/ui/contact-form-shell.tsx",
+  "src/components/ui/contact-form-control.tsx",
+]);
+const COMPONENT_GOVERNANCE_RADIX_THEMES_IMPORT_PATTERN =
+  /(?:from\s+["']@radix-ui\/themes(?:\/[^"']*)?["']|import\s*\(\s*["']@radix-ui\/themes(?:\/[^"']*)?["']\s*\)|require\s*\(\s*["']@radix-ui\/themes(?:\/[^"']*)?["']\s*\))/;
+const COMPONENT_GOVERNANCE_RADIX_THEMES_INTERNAL_CLASS_PATTERN =
+  /(?:^|[\s"'`.[_-])rt-[A-Za-z0-9_-]+/;
 const COMPONENT_GOVERNANCE_STATIC_THEME_COLORS_MODULE_PATTERN =
   "(?:@/config/static-theme-colors|(?:\\.\\.?/)+config/static-theme-colors)";
 const COMPONENT_GOVERNANCE_STATIC_THEME_COLORS_IMPORT_PATTERN = new RegExp(
@@ -1099,8 +1108,41 @@ function collectTextScanFindings(rootDir, errors) {
   for (const file of getScannedSourceFiles(rootDir)) {
     const source = readText(rootDir, file);
 
-    if (
-      !file.startsWith(`${COMPONENT_GOVERNANCE_UI_ROOT}/`) &&
+    const isOutsideUiWrapper = !file.startsWith(
+      `${COMPONENT_GOVERNANCE_UI_ROOT}/`,
+    );
+    const importsRadixThemes =
+      COMPONENT_GOVERNANCE_RADIX_THEMES_IMPORT_PATTERN.test(source);
+
+    if (isOutsideUiWrapper && importsRadixThemes) {
+      errors.push(
+        createFinding(
+          file,
+          "radix-themes-import-outside-ui-wrapper",
+          "Radix Themes may only be imported through approved src/components/ui wrappers.",
+          getPatternLineNumber(
+            source,
+            COMPONENT_GOVERNANCE_RADIX_THEMES_IMPORT_PATTERN,
+          ),
+        ),
+      );
+    } else if (
+      importsRadixThemes &&
+      !COMPONENT_GOVERNANCE_RADIX_THEMES_APPROVED_WRAPPERS.has(file)
+    ) {
+      errors.push(
+        createFinding(
+          file,
+          "radix-themes-import-unapproved-ui-wrapper",
+          "Radix Themes may only be imported by approved pilot UI wrappers.",
+          getPatternLineNumber(
+            source,
+            COMPONENT_GOVERNANCE_RADIX_THEMES_IMPORT_PATTERN,
+          ),
+        ),
+      );
+    } else if (
+      isOutsideUiWrapper &&
       COMPONENT_GOVERNANCE_RADIX_IMPORT_PATTERN.test(source)
     ) {
       errors.push(
@@ -1111,6 +1153,20 @@ function collectTextScanFindings(rootDir, errors) {
           getPatternLineNumber(
             source,
             COMPONENT_GOVERNANCE_RADIX_IMPORT_PATTERN,
+          ),
+        ),
+      );
+    }
+
+    if (COMPONENT_GOVERNANCE_RADIX_THEMES_INTERNAL_CLASS_PATTERN.test(source)) {
+      errors.push(
+        createFinding(
+          file,
+          "radix-themes-internal-class",
+          "Production UI must not style or depend on Radix Themes internal .rt-* classes.",
+          getPatternLineNumber(
+            source,
+            COMPONENT_GOVERNANCE_RADIX_THEMES_INTERNAL_CLASS_PATTERN,
           ),
         ),
       );

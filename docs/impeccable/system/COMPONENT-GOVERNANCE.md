@@ -155,20 +155,34 @@ When scanner output and visual/runtime behavior disagree, treat the scanner as a
 
 ## Radix boundary
 
-Radix is the low-level primitive layer. Production UI should normally consume project wrappers from `src/components/ui/`.
+Radix is part of the hybrid / pilot-first UI foundation. The accepted decision
+is recorded in `docs/decisions/ADR-ui-foundation.md`.
+
+Production UI should normally consume project wrappers from
+`src/components/ui/`.
 
 Allowed:
 
-- `@radix-ui/*` imports inside `src/components/ui/`
-- tests and stories when directly testing or demonstrating UI wrappers
+- `@radix-ui/react-*` imports inside `src/components/ui/`;
+- `@radix-ui/themes` imports only inside approved `src/components/ui/`
+  pilot wrappers;
+- tests and stories when directly testing or demonstrating UI wrappers.
 
 Not allowed by default:
 
-- route pages importing `@radix-ui/*`
-- business components importing `@radix-ui/*` directly
-- page sections creating one-off Radix wrappers
+- route pages importing `@radix-ui/*` directly;
+- business components importing `@radix-ui/*` directly;
+- page sections creating one-off Radix wrappers;
+- business code importing `@radix-ui/themes`;
+- styling or depending on Radix Themes internal `.rt-*` classes;
+- using Radix Themes to take over hero sections, product storytelling, proof
+  sections, footer art direction, or page narrative structure.
 
 If a non-UI-wrapper file needs a direct Radix import, document the reason in the PR and add an explicit governance exception.
+
+The scanner blocks direct Radix Themes imports outside UI wrappers and blocks
+`.rt-*` class dependencies. These checks preserve the option to remove or freeze
+Radix Themes after a pilot without rewriting business components.
 
 ## AI reporting checklist
 
